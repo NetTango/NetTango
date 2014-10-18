@@ -1,0 +1,54 @@
+/*
+ * NetTango
+ * Copyright (c) 2014 Michael S. Horn, Uri Wilensky, and Corey Brady
+ * 
+ * Northwestern University
+ * 2120 Campus Drive
+ * Evanston, IL 60613
+ * http://tidal.northwestern.edu
+ * http://ccl.northwestern.edu
+ 
+ * This project was funded in part by the National Science Foundation.
+ * Any opinions, findings and conclusions or recommendations expressed in this
+ * material are those of the author(s) and do not necessarily reflect the views
+ * of the National Science Foundation (NSF).
+ */
+
+@font-face {
+  font-family: 'NanumPen';
+  font-style: normal;
+  font-weight: 400;
+  src: local('NanumPenScript-Regular'), url('../fonts/NanumPenScript-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Nunito';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Nunito'), local('Nunito-Regular'), url('../fonts/Nunito-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Nunito';
+  font-style: bold;
+  font-weight: 700;
+  src: local('Nunito'), local('Nunito-Bold'), url('../fonts/Nunito-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'Nunito';
+  font-style: Light;
+  font-weight: 300;
+  src: local('Nunito'), local('Nunito-Light'), url('../fonts/Nunito-Light.ttf');
+}
+
+@font-face {
+	font-family: 'icomoon';
+	src:url('../fonts/icomoon.eot?yuxxle');
+	src:url('../fonts/icomoon.eot?#iefixyuxxle') format('embedded-opentype'),
+		url('../fonts/icomoon.woff?yuxxle') format('woff'),
+		url('../fonts/icomoon.ttf?yuxxle') format('truetype'),
+		url('../fonts/icomoon.svg?yuxxle#icomoon') format('svg');
+	font-weight: normal;
+	font-style: normal;
+}
