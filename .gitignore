@@ -9,6 +9,7 @@ packages
 *.js_
 *.js.deps
 *.js.map
+.DS_Store
 
 # Include when developing application packages.
 pubspec.lock
