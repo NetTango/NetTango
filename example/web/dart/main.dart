@@ -57,7 +57,7 @@ class Beetle extends Turtle {
   
   
   void doForward(param) {
-    if (param is int) {
+    if (param is num) {
       forward(param / 10.0);
     } else {
       forward(0.2);
