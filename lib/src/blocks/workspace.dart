@@ -1,6 +1,6 @@
 /*
  * NetTango
- * Copyright (c) 2014 Michael S. Horn, Uri Wilensky, and Corey Brady
+ * Copyright (c) 2015 Michael S. Horn, Uri Wilensky, and Corey Brady
  * 
  * Northwestern University
  * 2120 Campus Drive
@@ -33,16 +33,24 @@ class CodeWorkspace extends TouchLayer {
   
   /* traces execution of programs as they run */
   TraceBug bug;
-  
+
+  /* Canvas 2D drawing context */
   CanvasRenderingContext2D ctx;
-  
-  /* Runtime manager */
-  Runtime runtime;
+
+  /* Touch event manager */
+  TouchManager tmanager = new TouchManager();
+
 
   
-  CodeWorkspace(this.runtime, String id) {
+/**
+ * id: the <canvas> element id for this workspace (e.g. "frog-workspace")
+ * blocks: JSON object that defines the blocks available in this workspace
+ * options: JSON object defining options for this workspace
+ */
+  CodeWorkspace(String id, String blockid, [Map options = null]) {
     
-    CanvasElement canvas = querySelector("#${id}-workspace");
+    // initialize drawing context
+    CanvasElement canvas = querySelector("#${id}");
     ctx = canvas.getContext('2d');
     width = canvas.width;
     height = canvas.height;
@@ -58,9 +66,18 @@ class CodeWorkspace extends TouchLayer {
     // trace bug
     bug = new TraceBug(start);
 
+    // initialize touch manager
+    tmanager.registerEvents(querySelector("#${id}"));
+    tmanager.addTouchLayer(this);
+
+
+    // initialize block menu
+    ScriptElement se = querySelector("#${blockid}");
+    _initBlockMenu(JSON.decode(se.innerHtml));
+
     new Timer.periodic(const Duration(milliseconds : 20), tick);
   }
-  
+
   
 /**
  * Adds a stack of blocks of the given type to the menu bar.
@@ -70,19 +87,21 @@ class CodeWorkspace extends TouchLayer {
   }
   
   
-  void traceProgram(Program program) {
-    bug.target = program.curr;
+  void traceProgram(Block target) {
+    bug.target = target;
   }
 
 
   void tick(Timer t) {
     if (animate()) draw();
   }
-  
-  
+
+
+/**
+ * Callback when blocks of a program have changed
+ */  
   void programChanged() {
-    runtime.pause();
-    runtime.restartPrograms();
+
   }
   
   
@@ -90,7 +109,6 @@ class CodeWorkspace extends TouchLayer {
  * Erase a program
  */
   void removeAllBlocks() {
-    programChanged();
     Block block = start.next;
     while (block != null && block != start.end) {
       Block b = block.next;
@@ -279,5 +297,77 @@ class CodeWorkspace extends TouchLayer {
       b = b.next;
     }
     return s + "]";
+  }
+
+
+/**
+ * This function parses a JSON block definition object and populates
+ * the block menu.
+ */
+  void _initBlockMenu(List blocks) {
+    for (var b in blocks) {
+      if (b is Map && b.containsKey("name")) {
+        Block block;
+
+        //----------------------------------------------------------
+        // block type
+        //----------------------------------------------------------
+        if (b.containsKey("type") && b["type"] == "if") {
+          block = new IfBlock(this, b["name"]);
+        } else {
+          block = new Block(this, b["name"]);
+        }
+
+        //----------------------------------------------------------
+        // number of blocks available in the menu
+        //----------------------------------------------------------
+        int instances = _toInt(b["instances"], 1);
+
+        //----------------------------------------------------------
+        // block color
+        //----------------------------------------------------------
+        if (b.containsKey("color") && b["color"] is String) {
+          block.color = b["color"];
+        }
+
+        //----------------------------------------------------------
+        // text color
+        //----------------------------------------------------------
+        if (b.containsKey("textColor") && b["textColor"] is String) {
+          block.textColor = b["textColor"];
+        }
+
+        //----------------------------------------------------------
+        // parameters
+        //----------------------------------------------------------
+        if (b.containsKey("params") && b["params"] is List) {
+          for (var p in b["params"]) {
+            if (p is Map) {
+              block.param = new Parameter(block);
+              block.param.values = p["values"];
+            }
+          }
+        }
+        addToMenu(block, instances);
+      }
+    }
+  }
+
+
+/**
+ * Helper function that parses an int from an object (usually a string)
+ */
+  int _toInt(var d, int defalutValue) {
+    if (d == null) {
+      return defalutValue;
+    } else if (d is int) {
+      return d;
+    } else if (d is String) {
+      try {
+        return int.parse(d);
+      } on Exception {
+        return defalutValue;
+      }
+    }
   }
 }
