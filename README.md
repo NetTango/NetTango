@@ -28,5 +28,19 @@ file /etc/apace2/users/msh801.conf and add the FollowSymLinks option my Director
     AllowOverride All
     Order allow,deny
     Allow from all
+
+
+Specifying Blocks
+-----------------
+{ 
+	name : "hop",   /* required */
+	instances : 2,  /* optional, default == 1; -1 infinite */
+	params : [
+		{
+			"name" : "param1",
+			"values" : [ val1, val2, val3, ... ]
+		}
+	]
+}    
 </Directory>
 
