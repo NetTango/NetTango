@@ -40,7 +40,7 @@ class StartBlock extends BeginBlock {
   
   
   double getStartX() {
-    return 45.0;
+    return 20.0;
   }
   
   
