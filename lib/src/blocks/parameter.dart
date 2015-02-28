@@ -24,8 +24,8 @@ class Parameter implements Touchable {
   double lastX = 0.0, lastY = 0.0;
   
   // location of callout menu
-  num menuX;
-  
+  num menuX = 0, menuY = 0, menuW = 0, menuH = 0;
+
   int downIndex = 0;
   
   var values = [ 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, '?' ];
@@ -36,7 +36,11 @@ class Parameter implements Touchable {
   
   String textColor = 'blue'; //'white';
   
-  bool dragging = false;
+  bool dragging = false;  // is a finger / mouse dragging on the screen?
+
+  bool down = false;  // is a finger / mouse down on the screen?
+
+  bool menuOpen = false;  // is the parameter menu open
   
   bool changed = false;
   
@@ -137,7 +141,7 @@ class Parameter implements Touchable {
     ctx.fillStyle = textColor;
     ctx.fillText(valueAsString, x + w/2, y);
     
-    if (dragging) {
+    if (down || menuOpen) {
       drawMenu(ctx);
     }
   }
@@ -149,26 +153,25 @@ class Parameter implements Touchable {
     ctx.textBaseline = 'top';
     
     num margin = 20;
-    num mx = menuX;
-    num mw = 120; //margin * 2;
-    num mh = values.length * 30 + margin;
-    num my = max(block.y + block.height + 30 - mh, 0);
+    menuW = 120; //margin * 2;
+    menuH = values.length * 30 + margin;
+    menuY = max(block.y + block.height + 30 - menuH, 0);
     for (int i=0; i<values.length; i++) {
-      mw = max(mw, ctx.measureText(values[i].toString()).width + margin * 2);
+      menuW = max(menuW, ctx.measureText(values[i].toString()).width + margin * 2);
     }
     
     ctx.fillStyle = '#3399aa';
     ctx.strokeStyle = 'white';
-    calloutRect(ctx, mx, my, mw, mh, 10, block.y + centerY);
+    calloutRect(ctx, menuX, menuY, menuW, menuH, 10, block.y + centerY);
     ctx.fill();
     ctx.stroke();
     
     ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
     ctx.strokeStyle = 'rgba(0, 30, 50, 0.4)';
-    mx += 5;
-    my += 5;
-    mw -= 10;
-    mh -= 10;
+    num mx = menuX + 5;
+    num my = menuY + 5;
+    num mw = menuW - 10;
+    num mh = menuH - 10;
     roundRect(ctx, mx, my, mw, mh, 8);
     ctx.fill();
     ctx.stroke();
@@ -223,18 +226,38 @@ class Parameter implements Touchable {
 
   
   bool containsTouch(Contact c) {
-    return (block.isInProgram && 
-            c.touchX >= block.x + left &&
-            c.touchY >= block.y &&
-            c.touchX <= block.x + block.width &&
-            c.touchY <= block.y + block.height);
+    if (menuOpen) {
+      return isOverMenu(c);
+    }
+    else {
+      return (block.isInProgram && 
+        c.touchX >= block.x + left &&
+        c.touchY >= block.y &&
+        c.touchX <= block.x + block.width &&
+        c.touchY <= block.y + block.height);
+    }
+  }
+
+
+  bool isOverMenu(Contact c) {
+    return (
+      menuOpen && 
+      block.isInProgram &&
+      c.touchX >= menuX && 
+      c.touchY >= menuY && 
+      c.touchX <= menuX + menuW && 
+      c.touchY <= menuY + menuH);   
   }
   
   
   void touchUp(Contact c) {
-    if (index != downIndex) changed = true;
-    downIndex = index;
+    if (dragging || isOverMenu(c)) {
+      if (index != downIndex) changed = true;
+      downIndex = index;
+      menuOpen = false;
+    }
     dragging = false;
+    down = false;
     block.workspace.draw();
   }
   
@@ -242,17 +265,23 @@ class Parameter implements Touchable {
   bool touchDown(Contact c) {
     lastX = c.touchX;
     lastY = c.touchY;
-    // fix location of the callout menu
-    menuX = block.x + block.width + 30; 
-    downIndex = index;
-    dragging = true;
-    block.workspace.moveToTop(block);
+    down = true;
+    dragging = false;
+
+    if (!menuOpen) {
+      // fix location of the callout menu
+      menuX = block.x + block.width + 30; 
+      downIndex = index;
+      menuOpen = true;
+      block.workspace.moveToTop(block);
+    }
     block.workspace.draw();
     return true;
   }
   
   
   void touchDrag(Contact c) {
+    dragging = true;
     lastX = c.touchX;
     lastY = c.touchY;
     block.workspace.draw();
