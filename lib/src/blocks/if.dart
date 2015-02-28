@@ -18,7 +18,7 @@ part of NetTango;
 
 class IfBlock extends BeginBlock {
   
-  IfBlock(CodeWorkspace workspace) : super(workspace, 'if') {
+  IfBlock(CodeWorkspace workspace, [String name = 'if']) : super(workspace, name) {
     end = new EndBlock(workspace, this);
     _addClause(end);
   }
