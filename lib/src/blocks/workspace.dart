@@ -44,10 +44,11 @@ class CodeWorkspace extends TouchLayer {
   
 /**
  * id: the <canvas> element id for this workspace (e.g. "frog-workspace")
- * blocks: JSON object that defines the blocks available in this workspace
- * options: JSON object defining options for this workspace
+ * Constructor will attempt to find a <script> tag with the id value of 
+ * "${id}-blocks" (e.g. "frog-workspace-blocks") to use as the JSON for 
+ * defining the blocks available in this workspace
  */
-  CodeWorkspace(String id, String blockid, [Map options = null]) {
+  CodeWorkspace(String id) {
     
     // initialize drawing context
     CanvasElement canvas = querySelector("#${id}");
@@ -70,10 +71,11 @@ class CodeWorkspace extends TouchLayer {
     tmanager.registerEvents(querySelector("#${id}"));
     tmanager.addTouchLayer(this);
 
-
     // initialize block menu
-    ScriptElement se = querySelector("#${blockid}");
-    _initBlockMenu(JSON.decode(se.innerHtml));
+    ScriptElement se = querySelector("#${id}-blocks");
+    if (se != null) {
+      _initBlockMenu(JSON.decode(se.innerHtml));
+    }
 
     new Timer.periodic(const Duration(milliseconds : 20), tick);
   }
