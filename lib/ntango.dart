@@ -15,6 +15,7 @@
  */
 library NetTango;
 
+import 'dart:convert';
 import 'dart:math';
 import 'dart:async';
 import 'dart:html';
