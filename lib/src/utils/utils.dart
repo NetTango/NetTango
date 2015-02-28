@@ -55,7 +55,7 @@ void bindClickEvent(String id, Function callback) {
 void bindClickEvents(String classname, Function callback) {
   var buttons = querySelectorAll(".${classname}");
   for (Element element in buttons) {
-    if (isFlagSet("debug")) {
+    if (!isIPad()) {
       element.onClick.listen(callback);
     } else {
       element.onTouchStart.listen(callback);
