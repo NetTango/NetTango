@@ -38,7 +38,7 @@ class IfBlock extends BeginBlock {
   }
   
   
-  dynamic eval(Program program) { }
+  dynamic eval(Program program) { return false; }
   
   
   Block step(Program program) {
@@ -76,7 +76,7 @@ class IfElseBlock extends BeginBlock {
   }
   
   
-  dynamic eval(Program program) { }
+  dynamic eval(Program program) { return false; }
   
   
   Block step(Program program) {
