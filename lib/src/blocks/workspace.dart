@@ -369,5 +369,6 @@ class CodeWorkspace extends TouchLayer {
         return defalutValue;
       }
     }
+    return defalutValue;
   }
 }
