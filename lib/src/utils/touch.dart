@@ -58,6 +58,10 @@ class TouchManager {
       if (t != null) {
         layers[i].resetTouchTimer();
         return new TouchBinding(layers[i], t);
+      } else {
+        if (layers[i].backgroundTouch(tp)) {
+          return null;
+        }
       }
     }
     return null;
@@ -216,6 +220,15 @@ class TouchLayer {
   void removeTouchable(Touchable t) {
     touchables.remove(t);
   }
+
+
+/**
+ * Classes can override this function to be notified of clicks/touches in the background
+ * return true to prevent touch event from going to lower layers
+ */
+  bool backgroundTouch(Contact c) {
+    return false;
+  }  
    
    
 /*
