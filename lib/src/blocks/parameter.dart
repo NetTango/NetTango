@@ -144,15 +144,15 @@ class Parameter implements Touchable {
   
   
   void drawMenu(CanvasRenderingContext2D ctx) {
-    ctx.font = '400 14pt Nunito, sans-serif';
+    ctx.font = '400 15px Nunito, sans-serif';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'top';
     
     num margin = 20;
     num mx = menuX;
     num mw = 120; //margin * 2;
-    num mh = values.length * 40 + margin;
-    num my = block.y + block.height + 35 - mh;
+    num mh = values.length * 30 + margin;
+    num my = max(block.y + block.height + 30 - mh, 0);
     for (int i=0; i<values.length; i++) {
       mw = max(mw, ctx.measureText(values[i].toString()).width + margin * 2);
     }
@@ -179,24 +179,24 @@ class Parameter implements Touchable {
     bool matched = false;
     
     for (int i=0; i<values.length; i++) {
-      num ty = my + 5 + 40 * i;
+      num ty = my + 5 + 30 * i;
       if (i == downIndex) {
         ctx.fillStyle = 'rgba(51, 150, 170, 0.7)';
-        ctx.fillRect(mx, ty, mw, 40);
+        ctx.fillRect(mx, ty, mw, 30);
         ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
       } else {
         ctx.fillStyle = '#3399aa';
       }
       
       if (lastX >= mx && lastX <= mx + mw &&
-          lastY >= ty && lastY < ty + 40) {
+          lastY >= ty && lastY < ty + 30) {
         ctx.fillStyle = 'rgba(170, 20, 0, 0.8)';
-        ctx.fillRect(mx, ty, mw, 40);
+        ctx.fillRect(mx, ty, mw, 30);
         ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
         index = i;
         matched = true;
       } 
-      ctx.fillText(values[i].toString(), mx + 15, ty + 8);
+      ctx.fillText(values[i].toString(), mx + 15, ty + 6);
     }
     if (!matched) index = downIndex;
   }
@@ -212,9 +212,9 @@ class Parameter implements Touchable {
     ctx.lineTo(x + r, y + h);
     ctx.quadraticCurveTo(x, y + h, x, y + h - r);
     
-    ctx.lineTo(x, cy + 15);
+    ctx.lineTo(x, cy + 12);
     ctx.lineTo(x - 25, cy);
-    ctx.lineTo(x, cy - 15);
+    ctx.lineTo(x, max(cy - 12, y + r));
     
     ctx.lineTo(x, y + r);
     ctx.quadraticCurveTo(x, y, x + r, y);
