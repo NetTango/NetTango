@@ -27,6 +27,9 @@ class AgentSet<T> {
   /* Random number generator */
   Random rand = new Random();
 
+  /** Allows the use of for(Agent in agents) syntax */
+  Iterator get iterator => agents.iterator;
+  
   
 /**
  * Create an empty agent set
@@ -88,6 +91,36 @@ class AgentSet<T> {
     } else {
       return new AgentSet.fromAgent(agents[rand.nextInt(agents.length)]);
     }
+  }
+  
+  
+/**
+ * Return an agent set consisting of all agents of the given type
+ */
+  AgentSet allOf(Type breed) {
+    AgentSet result = new AgentSet();
+    for (Agent agent in agents) {
+      if (agent.runtimeType == breed) {
+        result.add(agent);
+      }
+    }
+    return result;
+  }
+  
+
+/**
+ * Returns an AgentSet with at most one agent at the given point
+ */
+  AgentSet getTurtleAtPoint(num px, num py, [ Type breed ]) {
+    if (breed == null) breed = Turtle;
+    for (T t in agents) {
+      if (t.runtimeType == breed) {
+        if ((t as Turtle).overlapsPoint(px, py)) {
+          return new AgentSet.fromAgent(t);
+        }
+      }
+    }
+    return new AgentSet<T>();
   }
   
 
