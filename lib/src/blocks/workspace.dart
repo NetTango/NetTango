@@ -103,6 +103,17 @@ class CodeWorkspace extends TouchLayer {
   void programChanged() {
 
   }
+
+
+/**
+ * On a background touch, close all open parameter menus
+ */
+  backgroundTouch(Contact c) {
+    for (Block block in blocks) {
+      block.closeParameterMenu();
+    }
+    draw();
+  }
   
   
 /**
