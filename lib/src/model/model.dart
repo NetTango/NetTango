@@ -47,12 +47,6 @@ abstract class Model extends TouchLayer with Runtime {
   /* does the world wrap or not? */
   bool wrap = true;
   
-  /* Dimensions of the world in patch coordinates */
-  int maxPatchX = 12;
-  int minPatchX = -12;
-  int maxPatchY = 12;
-  int minPatchY = -12;
-  
   /* Used to generate unique agent id numbers */
   int AGENT_ID = 1;
    
@@ -68,9 +62,6 @@ abstract class Model extends TouchLayer with Runtime {
   /* Blocks workspace */
   CodeWorkspace workspace;
   
-  /* Touch event manager */
-  TouchManager tmanager = new TouchManager();
-
   /* Is the mouse or finger down? */
   bool down = false;
   
@@ -82,46 +73,72 @@ abstract class Model extends TouchLayer with Runtime {
     width = canvas.width;
     height = canvas.height;
     tctx = canvas.getContext("2d");
-    tmanager.registerEvents(querySelector("#${id}-workspace"));
-    tmanager.addTouchLayer(this);
- 
+
      // Patch canvas
-    canvas = document.query("#${id}-patches");
+    canvas = querySelector("#${id}-patches");
     if (canvas != null) pctx = canvas.getContext("2d");
  
      // code workspace
-    workspace = new CodeWorkspace(this, id);
-    tmanager.addTouchLayer(workspace);
+    workspace = new CodeWorkspace("${id}-workspace");
+    workspace.tmanager.addTouchLayer(this);
 
      // bind click events for buttons    
     bindClickEvent("play-button", (e) => playPause());
     bindClickEvent("forward-button", (e) => fastForward());
     bindClickEvent("step-button", (e) => stepForward());
-    bindClickEvent("restart-button", (e) => restart());
+    bindClickEvent("restart-button", (e) { restart(); draw(); });
 
     resize(width, height);
     setup();
   }
   
-  
   int nextAgentId() => AGENT_ID++;
-   
-  num get minWorldY => minPatchY - 0.5;
-  num get minWorldX => minPatchX - 0.5;
-  num get maxWorldY => maxPatchY + 0.5;
-  num get maxWorldX => maxPatchX + 0.5;
+  
+  num patchSize = 20.0;
+
+  /* Dimensions of the world in patch coordinates */
+  int get minPatchX => (width ~/ patchSize) ~/ -2;
+  int get maxPatchX => (width ~/ patchSize) + minPatchX - 1;
+  int get minPatchY => (height ~/ patchSize) ~/ -2;
+  int get maxPatchY => (height ~/ patchSize) + minPatchY - 1;
+  num get minWorldY => screenToWorldY(0, height);
+  num get minWorldX => screenToWorldX(0, 0);
+  num get maxWorldY => screenToWorldY(0, 0);
+  num get maxWorldX => screenToWorldX(width, 0);
   int get worldWidth => maxPatchX - minPatchX + 1;
   int get worldHeight => maxPatchY - minPatchY + 1;
-  num get patchSize => width / worldWidth;
+
   
+  num screenToWorldX(num sx, num sy) {
+    num cx = (0.5 - minPatchX) * patchSize;
+    return (sx - cx) / patchSize;
+  }
+   
+   
+  num screenToWorldY(num sx, num sy) {
+    num cy = (0.5 - minPatchY) * patchSize;
+    return ((height - sy) - cy) / patchSize;      
+  }
+  
+  
+  num worldToScreenX(num wx, num wy) {
+    num cx = (0.5 - minPatchX) * patchSize;
+    return wx * patchSize + cx;
+  }
+  
+  
+  num worldToScreenY(num wx, num wy) {
+    num cy = (0.5 - minPatchY) * patchSize;
+    return height - (wy * patchSize + cy);
+  }
   
 
 /**
  * Set up the model for a new run (abstract)
  */
   void setup();
-
-
+  
+  
 /**
  * Called when the block program changes...
  */
@@ -149,6 +166,7 @@ abstract class Model extends TouchLayer with Runtime {
    
   void draw() {
     if (pctx != null) _drawPatches(pctx);
+    _drawPatches(tctx);
     _drawTurtles(tctx);
   }
 
@@ -166,7 +184,6 @@ abstract class Model extends TouchLayer with Runtime {
   
   
   void resize(int w, int h) {
-    patches.clear();
     initPatches();
   }
   
@@ -185,51 +202,47 @@ abstract class Model extends TouchLayer with Runtime {
   
   void _drawTurtles(CanvasRenderingContext2D ctx) {
     ctx.clearRect(0, 0, width, height);
-    num cx = (0.5 - minPatchX) * patchSize;
-    num cy = (0.5 - minPatchY) * patchSize;
     ctx.save();
     {
-      ctx.translate(cx, cy);
+      ctx.translate(worldToScreenX(0, 0), worldToScreenY(0, 0));
       ctx.scale(patchSize, -patchSize);
       turtles.draw(ctx);
     }
     ctx.restore();
+
+    /*
+    {
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.beginPath();
+      for (int x = minPatchX; x <= maxPatchX + 1; x++) {
+        ctx.moveTo(worldToScreenX(x - 0.5, minPatchY - 0.5),
+                   worldToScreenY(x - 0.5, minPatchY - 0.5));
+        ctx.lineTo(worldToScreenX(x - 0.5, maxPatchY + 0.5),
+                   worldToScreenY(x - 0.5, maxPatchY + 0.5));
+      }
+      for (int y = minPatchY; y <= maxPatchY + 1; y++) {
+        ctx.moveTo(worldToScreenX(minPatchX - 0.5, y - 0.5),
+                   worldToScreenY(minPatchX - 0.5, y - 0.5));
+        ctx.lineTo(worldToScreenX(maxPatchX + 0.5, y - 0.5),
+                   worldToScreenY(maxPatchX + 0.5, y - 0.5));
+      }
+      ctx.stroke();
+    }
+    */
   }
    
    
   void _drawPatches(CanvasRenderingContext2D ctx) {
     if (patches == null) return;
-    num cx = (0.5 - minPatchX) * patchSize;
-    num cy = (0.5 - minPatchY) * patchSize;
+    num cx = worldToScreenX(0, 0);
+    num cy = worldToScreenY(0, 0);
     ctx.save();
-    ctx.translate(cx, cy);
-    ctx.scale(patchSize, -patchSize);
-    patches.draw(ctx);
+    {
+      ctx.translate(cx, cy);
+      ctx.scale(patchSize, -patchSize);
+      patches.draw(ctx);
+    }
     ctx.restore();
-  }
-   
-   
-  num screenToWorldX(num sx, num sy) {
-    num cx = (0.5 - minPatchX) * patchSize;
-    return (sx - cx) / patchSize;
-  }
-   
-   
-  num screenToWorldY(num sx, num sy) {
-    num cy = (0.5 - minPatchY) * patchSize;
-    return (cy - sy) / patchSize;      
-  }
-  
-  
-  num worldToScreenX(num wx, num wy) {
-    num cx = (0.5 - minPatchX) * patchSize;
-    return wx * patchSize + cx;
-  }
-  
-  
-  num worldToScreenY(num wx, num wy) {
-    num cy = (0.5 - minPatchY) * patchSize;
-    return wy * patchSize * -1 + cy;
-  }
+  }  
 }
 
