@@ -45,7 +45,7 @@ class StartBlock extends BeginBlock {
   
   
   double getStartY() {
-    return workspace.height - 180.0;
+    return workspace.height - 160.0;
   }
   
   
