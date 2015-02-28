@@ -19,7 +19,7 @@ part of NetTango;
   
 class Parameter implements Touchable {
   
-  double centerX, centerY, width, height;
+  double left, centerY, width, height;
   
   double lastX = 0.0, lastY = 0.0;
   
@@ -44,7 +44,7 @@ class Parameter implements Touchable {
   
 
   Parameter(this.block) {
-    centerX = block.width - 22;
+    left = block.width - 20;  // this will get reset on draw
     centerY = block.height / 2;
     width = 28.0;
     height = 20.0;
@@ -54,7 +54,7 @@ class Parameter implements Touchable {
   
   Parameter clone(Block parent) {
     Parameter p = new Parameter(parent);
-    p.centerX = centerX;
+    p.left = left;
     p.centerY = centerY;
     p.width = width;
     p.height = height;
@@ -122,7 +122,7 @@ class Parameter implements Touchable {
     ctx.textBaseline = 'middle';
     width = ctx.measureText(valueAsString).width + 14;
 
-    double x = centerX + block.x - 18;
+    double x = block.x + left; 
     double y = centerY + block.y;
     double w = width;
     double h = height;
@@ -224,7 +224,7 @@ class Parameter implements Touchable {
   
   bool containsTouch(Contact c) {
     return (block.isInProgram && 
-            c.touchX >= centerX + block.x - 18 &&
+            c.touchX >= block.x + left &&
             c.touchY >= block.y &&
             c.touchX <= block.x + block.width &&
             c.touchY <= block.y + block.height);
