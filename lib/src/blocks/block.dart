@@ -257,6 +257,15 @@ class Block implements Touchable {
       return dragging;
     }
   }
+
+/**
+ * If the parameter menu is open, close it
+ */  
+  void closeParameterMenu() {
+    if (param != null) {
+      param.menuOpen = false;
+    }
+  } 
   
   
 /**
