@@ -16,7 +16,7 @@
 part of NetTango;
 
 const BLOCK_WIDTH = 95.0; // 58
-const BLOCK_HEIGHT = 35.0;
+const BLOCK_HEIGHT = 34.0;
 const BLOCK_SPACE = 0.0; //11;
 const BLOCK_MARGIN = 10.0;
 
@@ -52,6 +52,12 @@ class Block implements Touchable {
   
   /** CSS color of the text */
   String textColor = 'white';
+
+  /** CSS size of the font (e.g. "12px") */
+  String textSize = "14px";
+
+  /** CSS outline color of the block */
+  String outlineColor = 'rgba(255, 255, 255, 0.3)';
   
   /* Is the block being dragged */
   bool dragging = false;
@@ -104,6 +110,7 @@ class Block implements Touchable {
     other.text = text;
     other.color = color;
     other.textColor = textColor;
+    other.outlineColor = outlineColor;
     other.action = action;
     if (hasParam) {
       other.param = param.clone(other);
@@ -278,11 +285,26 @@ class Block implements Touchable {
   }
   
   
-  void _resize(CanvasRenderingContext2D ctx) {
-    if (param != null && inserted) {
-      double cw = param.getDisplayWidth(ctx) + param.centerX - 14;
-      _width = max(cw, BLOCK_WIDTH);
+  num getTextWdith(CanvasRenderingContext2D ctx) {
+    num w = 20;
+    ctx.save();
+    {
+      ctx.font = '300 ${textSize} Nunito, sans-serif';
+      w += ctx.measureText(text).width;      
     }
+    ctx.restore();
+    return w;
+  }
+
+  
+  void _resize(CanvasRenderingContext2D ctx) {
+    num w = getTextWdith(ctx);
+    if (param != null && inserted) {
+      //num cw = param.getDisplayWidth(ctx) + param.centerX - 14;
+      param.left = w + 10;
+      w += param.getDisplayWidth(ctx) + 15;
+    }
+    _width = max(w, BLOCK_WIDTH);
   }
   
   
@@ -300,8 +322,8 @@ class Block implements Touchable {
     ctx.save();
     {
       ctx.fillStyle = color;
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = outlineColor;
+      ctx.lineWidth = 1.5;
       ctx.fill();
       ctx.stroke();
     }
@@ -312,7 +334,7 @@ class Block implements Touchable {
   void _drawLabel(CanvasRenderingContext2D ctx, num tx, num ty) {
     var lines = text.split('\n');
     ctx.fillStyle = textColor;
-    ctx.font = '300 12pt Nunito, sans-serif';
+    ctx.font = '300 ${textSize} Nunito, sans-serif';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
     //double tx = x + 12;
