@@ -36,7 +36,7 @@ class Block implements Touchable {
   int id;
   
   /* Block dimensions */
-  double x = 0.0, y = 0.0, _width = 0.0, _height = 0.0;
+  double x = 0.0, y = 0.0, _width = 0.0, _height = 0.0, _minwidth = 0.0;
   
   /* For animating blocks */
   double _targetX = null, _targetY = null;
@@ -90,6 +90,7 @@ class Block implements Touchable {
   Block(this.workspace, this.text) {
     id = Block.BLOCK_ID++;
     _width = BLOCK_WIDTH.toDouble();
+    _minwidth = BLOCK_WIDTH.toDouble();
     _height = BLOCK_HEIGHT.toDouble();
     type = text;
   }
@@ -106,6 +107,7 @@ class Block implements Touchable {
     other.x = x;
     other.y = y;
     other._width = _width;
+    other._minwidth = _minwidth;
     other._height = _height;
     other.text = text;
     other.color = color;
@@ -126,7 +128,7 @@ class Block implements Touchable {
   
   bool get isInProgram => hasPrev;
   
-  num get width => inMenu ? _width * 0.68 : _width;
+  num get width => inMenu ? _minwidth : _width;
   
   num get height => _height;
   
@@ -308,6 +310,7 @@ class Block implements Touchable {
   
   void _resize(CanvasRenderingContext2D ctx) {
     num w = getTextWdith(ctx);
+    _minwidth = w + 8; // for displaying in the menu
     if (param != null && inserted) {
       //num cw = param.getDisplayWidth(ctx) + param.centerX - 14;
       param.left = w + 10;
