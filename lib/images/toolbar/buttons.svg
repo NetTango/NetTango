@@ -347,6 +347,72 @@
            in="SourceGraphic" />
       </feMerge>
     </filter>
+    <filter
+       id="filter3342"
+       inkscape:label="Drop shadow"
+       width="1.5"
+       height="1.5"
+       x="-.25"
+       y="-.25">
+      <feGaussianBlur
+         id="feGaussianBlur3344"
+         in="SourceAlpha"
+         stdDeviation="20"
+         result="blur" />
+      <feColorMatrix
+         id="feColorMatrix3346"
+         result="bluralpha"
+         type="matrix"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.7 0 " />
+      <feOffset
+         id="feOffset3348"
+         in="bluralpha"
+         dx="3"
+         dy="3"
+         result="offsetBlur" />
+      <feMerge
+         id="feMerge3350">
+        <feMergeNode
+           id="feMergeNode3352"
+           in="offsetBlur" />
+        <feMergeNode
+           id="feMergeNode3354"
+           in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    <filter
+       id="filter3454"
+       inkscape:label="Drop shadow"
+       width="1.5"
+       height="1.5"
+       x="-.25"
+       y="-.25">
+      <feGaussianBlur
+         id="feGaussianBlur3456"
+         in="SourceAlpha"
+         stdDeviation="15"
+         result="blur" />
+      <feColorMatrix
+         id="feColorMatrix3458"
+         result="bluralpha"
+         type="matrix"
+         values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.5 0 " />
+      <feOffset
+         id="feOffset3460"
+         in="bluralpha"
+         dx="6"
+         dy="6"
+         result="offsetBlur" />
+      <feMerge
+         id="feMerge3462">
+        <feMergeNode
+           id="feMergeNode3464"
+           in="offsetBlur" />
+        <feMergeNode
+           id="feMergeNode3466"
+           in="SourceGraphic" />
+      </feMerge>
+    </filter>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -356,8 +422,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.49497474"
-     inkscape:cx="414.91039"
-     inkscape:cy="159.90164"
+     inkscape:cx="161.3621"
+     inkscape:cy="402.33825"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -647,5 +713,39 @@
        x="511.36545"
        y="-1100.5909"
        transform="scale(1,-1)" />
+    <g
+       id="g3470"
+       inkscape:export-filename="/Users/msh801/github/NetTango/lib/images/toolbar/stepforward.png"
+       inkscape:export-xdpi="12"
+       inkscape:export-ydpi="12">
+      <rect
+         y="247.28589"
+         x="-351.53308"
+         height="300"
+         width="300"
+         id="rect3468"
+         style="opacity:0.58189654999999996;fill:none;fill-opacity:1;stroke:none" />
+      <g
+         style="filter:url(#filter3454)"
+         transform="translate(-52.6561,-12.098022)"
+         id="g3282">
+        <path
+           inkscape:export-ydpi="9.230854"
+           inkscape:export-xdpi="9.230854"
+           inkscape:export-filename="/Users/msh801/github/ComputerMuseum/images/play.png"
+           sodipodi:nodetypes="cccc"
+           inkscape:connector-curvature="0"
+           id="path3270"
+           d="m -233.47425,491.88391 0,-165 139.943099,82.5 z"
+           style="fill:#ffffff;stroke:none" />
+        <rect
+           style="fill:#ffffff;fill-opacity:1;stroke:none"
+           id="rect3278"
+           width="45.612247"
+           height="165"
+           x="-109.89196"
+           y="326.88391" />
+      </g>
+    </g>
   </g>
 </svg>
