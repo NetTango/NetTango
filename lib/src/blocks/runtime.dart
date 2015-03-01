@@ -28,6 +28,9 @@ abstract class Runtime {
    *   4  : play forward 4x ....
    */
   int play_state = 0;
+
+  /* Current tick count */
+  int ticks = 0;
   
   /* Manages the animation events */
   Timer timer;
@@ -110,6 +113,7 @@ abstract class Runtime {
  */
   void restart() {
     pause();
+    ticks = 0;
     setup();
   }
   
