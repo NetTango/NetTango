@@ -52,6 +52,9 @@ class Menu {
   void draw(CanvasRenderingContext2D ctx) {
     ctx.save();
     {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+      ctx.fillRect(x, y, w, h);
+
       num ix = x + 25;
       num iy = y + h/2;
       
@@ -96,13 +99,13 @@ class Slot implements Touchable {
   void draw(CanvasRenderingContext2D ctx) {
     int free = count - workspace.getBlockCount(block.type);
     if (free <= 0) {
-      block.x = x.toDouble() - 4;
-      block.y = y.toDouble() + 4;
+      block.x = x.toDouble() - 1;
+      block.y = y.toDouble() + 1;
       block.draw(ctx, true);
     } else {
       for (int i=0; i<free; i++) {
-        block.x = x.toDouble() + (i - 1) * 4;
-        block.y = y.toDouble() - (i - 1) * 4;
+        block.x = x.toDouble() - 1 + (i * 3);
+        block.y = y.toDouble() + 1 - (i * 3);
         block.draw(ctx);
       }
     }
