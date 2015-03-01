@@ -49,6 +49,10 @@
   background-image: url('../images/toolbar/play.png');
 }
 
+.toolbar #play-button.pause {
+	background-image: url('../images/toolbar/pause.png');
+}
+
 .toolbar #forward-button {
   background-image: url('../images/toolbar/fastforward.png');
 }
