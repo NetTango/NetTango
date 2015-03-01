@@ -20,29 +20,49 @@
   right: 0px;
   min-width: 100px;
   min-height: 30pt;
-  z-index: 3;
-  padding: 10px;
+  padding: 0px;
+  margin: 0px;
 }
 
 
 .toolbar button {
-  font-size: 30pt;
   outline: none;
   border: none;
-  height: 35pt;
+  width: 45px;
+  height: 45px;
   padding: 0;
   margin: 0;
   text-align: center;
   background-color: transparent;
+  background-repeat: no-repeat;
   display: inline-block;
   position: relative;
+  top: 2px;
   color: white;
 }
 
-
 .toolbar button:active {
-  top: 2pt;
-  left: 2pt;
+  background-position: 3px 3px;
+}
+
+.toolbar #play-button {
+  background-image: url('../images/toolbar/play.png');
+}
+
+.toolbar #forward-button {
+  background-image: url('../images/toolbar/fastforward.png');
+}
+
+.toolbar #step-button {
+  background-image: url('../images/toolbar/stepforward.png');
+}
+
+.toolbar #restart-button {
+  background-image: url('../images/toolbar/restart.png');
+}
+
+.toolbar #plot-button {
+  background-image: url('../images/toolbar/plot.png');
 }
 
 
