@@ -26,6 +26,7 @@ abstract class Model extends TouchLayer with Runtime {
    * Internal id prefix that links this model to associated HTML identifiers
    *   Turtle Canvas:  #${id}-turtles
    *   Patches Canvas: #${id}-patches
+   *   Block Workspace Canvas: #${id}-workspace
    */
   String id = "model";
    
