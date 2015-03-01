@@ -42,9 +42,6 @@ abstract class Model extends TouchLayer with Runtime {
   /* Global variables and properties (defined for the model) */
   Map<String, dynamic> properties = new Map<String, dynamic>();
   
-  /* Current tick count */
-  int ticks = 0;
-  
   /* does the world wrap or not? */
   bool wrap = true;
   
@@ -169,9 +166,16 @@ abstract class Model extends TouchLayer with Runtime {
     if (pctx != null) _drawPatches(pctx);
     _drawPatches(tctx);
     _drawTurtles(tctx);
+    drawForeground(tctx);
   }
 
-   
+
+/**
+ * Subclasses can override this to draw information on top of the model
+ */
+  void drawForeground(CanvasRenderingContext2D ctx) {  }
+
+
   void initPatches() { 
     patches.clear();
     /*
