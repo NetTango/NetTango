@@ -36,6 +36,7 @@ class Program {
   
   Program(CodeWorkspace workspace, this.target) {
     start = workspace.start;
+    curr = start;
   }
   
   
