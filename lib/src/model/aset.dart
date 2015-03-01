@@ -106,6 +106,22 @@ class AgentSet<T> {
     }
     return result;
   }
+
+
+/**
+ * Return the number of agents of the given type
+ */  
+  int count([Type breed]) {
+    if (breed == null) {
+      return agents.length;
+    } else {
+      int count = 0;
+      for (Agent agent in agents) {
+        if (agent.runtimeType == breed) count++;
+      }
+      return count;
+    }
+  }
   
 
 /**
