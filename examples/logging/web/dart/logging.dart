@@ -10,10 +10,38 @@ class Log{
   //Constructor for log object
   Log(this.appId,this.postUrl, this.data);
 
+  
   void postImageData(String annotation) {
+    
+     ImageElement wdata = new ImageElement();
+     CanvasElement canv = querySelector("#beetle-workspace");
+     wdata.src = canv.toDataUrl("image/png");
+    
+     
+     CanvasElement tcanv = querySelector("#beetle-turtles");
+     CanvasRenderingContext2D tcontext = tcanv.getContext("2d");
+     //ImageData tdata = tcontext.getImageData(0,0,tcanv.width,tcanv.height);
+     //tcontext.putImageData(tdata, 0 , 0);
+     tcontext.drawImage(wdata,0,0);
+     
+     String idata = tcanv.toDataUrl();
+      
+      FormData fdata = new FormData(); 
+
+      fdata.append('app_id', "BOTHLAYERS");
+      fdata.append('app_annotation', annotation);
+      fdata.append('app_imagedata', idata);
+
+       
+      HttpRequest.request(imagePostUrl, method: 'POST', sendData: fdata).then((HttpRequest r) {
+        print("note: request sent");
+      });
+   }
+  
+  
+  void OLDpostImageData(String annotation) {
     CanvasElement canv = querySelector("#beetle-workspace");
     String idata = canv.toDataUrl();
-     print(idata);
      
      FormData fdata = new FormData(); 
 
