@@ -5,9 +5,28 @@ class Log{
   String postUrl;
   Map data;
 
+  String imagePostUrl = "http://54.69.228.220/reese/image";
+  
   //Constructor for log object
   Log(this.appId,this.postUrl, this.data);
 
+  void postImageData(String annotation) {
+    CanvasElement canv = querySelector("#beetle-workspace");
+    String idata = canv.toDataUrl();
+     print(idata);
+     
+     FormData fdata = new FormData(); 
+
+     fdata.append('app_id', "REESE");
+     fdata.append('app_annotation', annotation);
+     fdata.append('app_imagedata', idata);
+
+      
+     HttpRequest.request(imagePostUrl, method: 'POST', sendData: fdata).then((HttpRequest r) {
+       print("note: request sent");
+     });
+  }
+  
   void postData() {
     HttpRequest request = new HttpRequest(); // create a new XHR
 

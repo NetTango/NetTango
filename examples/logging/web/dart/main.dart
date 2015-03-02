@@ -134,6 +134,13 @@ class DBModel extends Model {
     querySelector("#submit-btn")
         ..text = "Submit"
         ..onClick.listen(sendLog);
+    
+    //add event handler for setting log data
+      querySelector("#submit-btn-two")
+      ..text = "SubmitImage"
+      ..onClick.listen(sendImageLog);
+  
+  
 
   }
 
@@ -148,7 +155,13 @@ class DBModel extends Model {
 
   //Hook this up to send whatever program data we might want to log
   void sendLog(MouseEvent e){
-    log.setData("Logging program params");
+    log.setData("Logging program params...");
     log.postData();
+  }
+  
+  void sendImageLog(MouseEvent e) {
+    print("about to send an image");
+    
+    log.postImageData("test string");
   }
 }
