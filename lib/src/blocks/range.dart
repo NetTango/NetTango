@@ -16,7 +16,6 @@
 part of NetTango;
 
 
-  
 class RangeParameter extends Parameter {
 
 	/* lowest possible value that the user can select */
@@ -24,6 +23,9 @@ class RangeParameter extends Parameter {
 
 	/* highest possible value that the user can select */
 	num maxValue = 10;
+
+	/* current value and last value set by the user */
+	num _value = 0, _lastValue = 0;
 
 	/* step interval for selections */
 	num stepSize = 1;
@@ -42,7 +44,10 @@ class RangeParameter extends Parameter {
 	bool randomChecked = false;
 
 
-	RangeParameter(Block block, this.minValue, this.maxValue, this.stepSize) : super(block);
+	RangeParameter(Block block, this.minValue, this.maxValue, this.stepSize) : super(block) {
+		_value = minValue;
+		_lastValue = minValue;
+	}
 
 
 	Parameter clone(Block parent) {
@@ -54,35 +59,18 @@ class RangeParameter extends Parameter {
 		return p;
 	}
 
-	dynamic get value => _indexToValue(index);
+	dynamic get value => _value;
 
 	String get valueAsString {
 		if (randomOption && randomChecked) {
 			return 'random';
 		} else {
-			return (value as num).toStringAsFixed(1);
+			String s = _value.toStringAsFixed(1);
+			return (s.endsWith('.0')) ? s.substring(0, s.length - 2) : s;
 		}
 	}
 
 	num get valueRange => maxValue - minValue;
-
-	int get maxIndex => (maxValue - minValue) ~/ stepSize;
-
-
-/**
- * converts an index position to a value between minValue and maxValue
- */
-	num _indexToValue(int i) {
-		return min(maxValue, max(minValue, minValue + i * stepSize));
-	}
-
-
-/**
- * converts an index position to a screen pixel position
- */
-  num _indexToScreenX(int i) {
-  	return _valueToScreenX(_indexToValue(i));
-  }
 
 
 /**
@@ -90,33 +78,18 @@ class RangeParameter extends Parameter {
  */	
   num _screenXToValue(num sx) {
     num p = (sx - trackX) / trackW;
-    return min(maxValue, max(minValue, minValue + p * valueRange));
-  }
-
-
-/**
- * converts screen pixel position to an index position
- */
-  num _screenXToIndex(num sx) {
-  	return _valueToIndex(_screenXToValue(sx));
-  }
-
-
-/**
- * converts a value to an index position between 0 and maxIndex
- */
-	int _valueToIndex(num v) {
-		int steps = maxIndex;
-
+    num v = min(maxValue, max(minValue, minValue + p * valueRange));
+    int steps = valueRange ~/ stepSize;
 		for (int i=0; i<steps; i++) {
 			num bottom = minValue + i * stepSize;
 			num top = minValue + (i+1) * stepSize;
 			if (v >= bottom && v < top) {
-				return (v - bottom < top - v) ? i : i + 1;
+				return (v - bottom < top - v) ? bottom : top;
 			}
 		}
-		return steps;
-	}
+		return maxValue;
+
+  }
 
 
 /**
@@ -162,7 +135,7 @@ class RangeParameter extends Parameter {
 
     // draw the old thumb
     if (!randomOption || !randomChecked) {
-    	tx = _indexToScreenX(downIndex);
+    	tx = _valueToScreenX(_lastValue);
     	ctx.fillStyle = 'rgba(51, 153, 170, 0.5)';
     	ctx.beginPath();
     	ctx.arc(tx, trackY, 10, 0, PI*2, true);
@@ -170,7 +143,7 @@ class RangeParameter extends Parameter {
     }
 
     // draw the current thumb
-  	tx = _indexToScreenX(index);
+  	tx = _valueToScreenX(_value);
   	if (!randomOption || !randomChecked) {
   		ctx.fillStyle = '#39a';
   		ctx.beginPath();
@@ -214,7 +187,7 @@ class RangeParameter extends Parameter {
     	roundRect(ctx, cx - 19, cy - 9, 18, 18, 3);
     	ctx.lineWidth = 2;
     	ctx.strokeStyle = '#39a';
-    	ctx.fillStyle = (_captureRandom && isOverRandom()) ? '#999' : '#ccc';
+    	ctx.fillStyle = (_captureRandom && isOverRandom()) ? '#39a' : 'rgba(51, 153, 170, 0.3)';
     	ctx.fill();
     	ctx.stroke();
 
@@ -249,13 +222,13 @@ class RangeParameter extends Parameter {
  * is the touch over the thumb
  */
   bool isOverThumb() {
-  	num tx = _indexToScreenX(index);
+  	num tx = _valueToScreenX(_value);
   	return (
   		menuOpen && block.isInProgram &&
-  		lastX > tx - 12 && 
-  		lastX < tx + 12 &&
-  		lastY > trackY - 12 && 
-  		lastY < trackY + 12);
+  		lastX > tx - 15 && 
+  		lastX < tx + 15 &&
+  		lastY > trackY - 15 && 
+  		lastY < trackY + 15);
   }
 
 
@@ -266,7 +239,7 @@ class RangeParameter extends Parameter {
   	return (
   		menuOpen && block.isInProgram &&
   		lastX >= trackX && lastX <= trackX + trackW &&
-  		lastY >= trackY - 8 && lastY <= trackY + 8);
+  		lastY >= trackY - 15 && lastY <= trackY + 15);
   }
 
 
@@ -279,8 +252,8 @@ class RangeParameter extends Parameter {
 			dragging = false;
 			down = false;
 			if (_captureThumb) {
-				if (index != downIndex) changed = true;
-				downIndex = index;
+				if (_value != _lastValue) changed = true;
+				_lastValue = _value;
 				menuOpen = false;
 			} 
 			else if (_captureRandom && isOverRandom()) {
@@ -309,7 +282,7 @@ class RangeParameter extends Parameter {
 				_captureThumb = true;
 			}
 			else if (isOnTrack()) {
-				index = _screenXToIndex(lastX);
+				_value = _screenXToValue(lastX);
 				_captureThumb = true;
 			}
 		}
@@ -319,7 +292,6 @@ class RangeParameter extends Parameter {
 			down = false;
 			dragging = false;
 			menuX = block.x + block.width + 30;
-			downIndex = index;
 			menuOpen = true;
 			block.workspace.moveToTop(block);
 		}
@@ -333,7 +305,7 @@ class RangeParameter extends Parameter {
 		lastX = c.touchX;
 		lastY = c.touchY;
     if (_captureThumb) {
-    	index = _screenXToIndex(lastX);
+    	_value = _screenXToValue(lastX);
     }
 		block.workspace.draw();
 	}
