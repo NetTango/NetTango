@@ -1,6 +1,6 @@
 /*
  * NetTango
- * Copyright (c) 2014 Michael S. Horn, Uri Wilensky, and Corey Brady
+ * Copyright (c) 2015 Michael S. Horn, Uri Wilensky, and Corey Brady
  * 
  * Northwestern University
  * 2120 Campus Drive
@@ -58,15 +58,20 @@ class Parameter implements Touchable {
   
   Parameter clone(Block parent) {
     Parameter p = new Parameter(parent);
-    p.left = left;
-    p.centerY = centerY;
-    p.width = width;
-    p.height = height;
-    p.values = values;
-    p.index = index;
-    p.color = color;
-    p.textColor = textColor;
+    copyTo(p);
     return p;
+  }
+
+
+  void copyTo(Parameter other) {
+    other.left = left;
+    other.centerY = centerY;
+    other.width = width;
+    other.height = height;
+    other.values = values;
+    other.index = index;
+    other.color = color;
+    other.textColor = textColor;
   }
   
   
