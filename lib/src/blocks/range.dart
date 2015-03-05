@@ -30,8 +30,11 @@ class RangeParameter extends Parameter {
 	/* step interval for selections */
 	num stepSize = 1;
 
-	/* unit that will be displayed on the slider (e.g. %, pixels, degrees) */
+	/* short unit that will be displayed on the slider (e.g. %, px, m, mm, s) */
 	String unit = "";
+
+	/* descriptive label that will be displayed on the bottom left (e.g. degrees) */
+	String label = "";
 
 	/* used internally to draw the track for the thumb slider */
 	num trackX = 0, trackY = 0;
@@ -55,19 +58,33 @@ class RangeParameter extends Parameter {
 		p.stepSize = stepSize;
 		p.randomOption = randomOption;
 		p.unit = unit;
+    p.label = label;
 		copyTo(p);
 		return p;
 	}
 
-	dynamic get value => _value;
+
+	dynamic get value {
+		if (randomOption && randomChecked) {
+			return "random";
+		} 
+		else if (unit != null && unit != "") {
+			return "${_valueToString(_value)}${unit}";
+		}
+		else {
+			return _value;
+		}
+	}
+
+
+  String _valueToString(num v) {
+    String s = _value.toStringAsFixed(1);
+    return (s.endsWith('.0')) ? s.substring(0, s.length - 2) : s;
+  }
+
 
 	String get valueAsString {
-		if (randomOption && randomChecked) {
-			return 'random';
-		} else {
-			String s = _value.toStringAsFixed(1);
-			return (s.endsWith('.0')) ? s.substring(0, s.length - 2) : s;
-		}
+    return (value is String) ? value : _valueToString(_value);
 	}
 
 	num get valueRange => maxValue - minValue;
@@ -103,7 +120,7 @@ class RangeParameter extends Parameter {
 
 	void drawMenu(CanvasRenderingContext2D ctx) {
     menuW = 400; 
-    menuH = randomOption ? 90 : 70;
+    menuH = randomOption ? 90 : 80;
     menuY = max(block.y + block.height/2 - menuH/2, 0);
 
     ctx.fillStyle = '#3399aa';
@@ -166,12 +183,12 @@ class RangeParameter extends Parameter {
     	ctx.fillText("${valueAsString}", tx, trackY - 13);
     }
     else {
-    	ctx.fillText("between ${minValue} and ${maxValue}", trackX + trackW / 2, trackY - 13);
+    	ctx.fillText("between ${minValue} and ${maxValue} ${unit}", trackX + trackW / 2, trackY - 13);
     }
-    if (unit != null && unit != "") {
+    if (label != null && label != "") {
     	ctx.textBaseline = 'middle';
     	ctx.textAlign = 'left';
-    	ctx.fillText("${unit}", trackX, menuY + menuH - 20);
+    	ctx.fillText("${label}", trackX, menuY + menuH - 20);
     }
 
     // draw the random checkbox
