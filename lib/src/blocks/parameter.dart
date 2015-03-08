@@ -54,6 +54,16 @@ class Parameter implements Touchable {
     height = 20.0;
     textColor = block.color;
   }
+
+  factory Parameter.fromJSON(Block block, Map json) {
+    if (json.containsKey("type") && json["type"] == "range") {
+      return new RangeParameter.fromJSON(block, json);
+    } else {
+      Parameter p = new Parameter(block);
+      p.values = json["values"];
+      return p;
+    }
+  }
   
   
   Parameter clone(Block parent) {
@@ -277,6 +287,7 @@ class Parameter implements Touchable {
       // fix location of the callout menu
       menuX = block.x + block.width + 30; 
       downIndex = index;
+      block.workspace.closeAllParameterMenus();
       menuOpen = true;
       block.workspace.moveToTop(block);
     }
