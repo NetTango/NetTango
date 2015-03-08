@@ -87,6 +87,16 @@ class CodeWorkspace extends TouchLayer {
   void addToMenu(Block block, int count) {
     menu.addBlock(block, count);
   }
+
+
+/**
+ * Adds eval implementation to to a block
+ */
+  void addBlockAction(String blockName, Function action) {
+    Block block = menu.getBlockByName(blockName);
+    if (block != null) block.action = action;
+  }
+
   
   
   void traceProgram(Block target) {
