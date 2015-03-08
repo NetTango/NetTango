@@ -219,8 +219,6 @@ void drawBubble(CanvasRenderingContext2D ctx, num x, num y, num w, num h, num ra
   ctx.quadraticCurveTo(x, b, x, b-radius);
   ctx.lineTo(x, y+radius);
   ctx.quadraticCurveTo(x, y, x+radius, y);
-  ctx.fill();
-  ctx.stroke();
 }
 
 
@@ -273,3 +271,25 @@ void drawLineArrow(CanvasRenderingContext2D ctx,
 num distance(num x0, num y0, num x1, num y1) {
   return sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0));
 }
+
+
+/**
+ * Helper function that parses an int from an object (usually a string)
+ */
+ int toInt(var d, int defalutValue) {
+  if (d == null) {
+    return defalutValue;
+  } 
+  else if (d is int) {
+    return d;
+  } 
+  else if (d is String) {
+    try {
+      return int.parse(d);
+    } on Exception {
+      return defalutValue;
+    }
+  }
+  return defalutValue;
+}
+
