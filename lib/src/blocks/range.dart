@@ -24,6 +24,9 @@ class RangeParameter extends Parameter {
 	/* highest possible value that the user can select */
 	num maxValue = 10;
 
+  /* default start value */
+  num initialValue = 0;
+
 	/* current value and last value set by the user */
 	num _value = 0, _lastValue = 0;
 
@@ -47,14 +50,25 @@ class RangeParameter extends Parameter {
 	bool randomChecked = false;
 
 
-	RangeParameter(Block block, this.minValue, this.maxValue, this.stepSize) : super(block) {
-		_value = minValue;
-		_lastValue = minValue;
+	RangeParameter(Block block, this.minValue, this.maxValue, this.stepSize, this.initialValue) : super(block) {
+		_value = initialValue;
+		_lastValue = initialValue;
 	}
 
 
+  RangeParameter.fromJSON(Block block, Map json) : super(block) {
+    minValue = json["min"] as num;
+    maxValue = json["max"] as num;
+    stepSize = json["step"] as num;
+    initialValue = json["default"] as num;
+    if (json.containsKey("random")) randomOption = json["random"] as bool;
+    if (json.containsKey("unit")) unit = json["unit"].toString();
+    if (json.containsKey("label")) label = json["label"].toString();
+  }
+
+
 	Parameter clone(Block parent) {
-		RangeParameter p = new RangeParameter(parent, minValue, maxValue, stepSize);
+		RangeParameter p = new RangeParameter(parent, minValue, maxValue, stepSize, initialValue);
 		p.stepSize = stepSize;
 		p.randomOption = randomOption;
 		p.unit = unit;
@@ -309,6 +323,7 @@ class RangeParameter extends Parameter {
 			down = false;
 			dragging = false;
 			menuX = block.x + block.width + 30;
+      block.workspace.closeAllParameterMenus();
 			menuOpen = true;
 			block.workspace.moveToTop(block);
 		}
