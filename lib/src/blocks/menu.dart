@@ -47,6 +47,16 @@ class Menu {
   bool animate() {
     return false;
   }
+
+
+  Block getBlockByName(String name) {
+    for (Slot slot in slots) {
+      if (slot.block.text == name) {
+        return slot.block;
+      }
+    }
+    return null;
+  }
   
   
   void draw(CanvasRenderingContext2D ctx) {
