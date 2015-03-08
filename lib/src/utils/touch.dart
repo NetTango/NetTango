@@ -34,7 +34,7 @@ class TouchManager {
   TouchManager();
   
 /*
- * Add a touch layer to the list
+ * Add a touch layer to the bottom of the list (bottom layers get added after top)
  */
   void addTouchLayer(TouchLayer layer) {
     layers.add(layer);
@@ -53,7 +53,7 @@ class TouchManager {
  * See which layer wants to handle this touch
  */
   TouchBinding findTouchTarget(Contact tp) {
-    for (int i=layers.length - 1; i >= 0; i--) {
+    for (int i=0; i<layers.length; i++) {
       Touchable t = layers[i].findTouchTarget(tp);
       if (t != null) {
         layers[i].resetTouchTimer();
