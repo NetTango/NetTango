@@ -94,6 +94,46 @@ class Block implements Touchable {
     _height = BLOCK_HEIGHT.toDouble();
     type = text;
   }
+
+
+  factory Block.fromJSON(CodeWorkspace workspace, Map json) {
+    //----------------------------------------------------------
+    // block type
+    //----------------------------------------------------------
+    Block block;
+    if (json.containsKey("type") && json["type"] == "if") {
+      block = new IfBlock(workspace, json["name"].toString());
+    } else {
+      block = new Block(workspace, json["name"].toString());
+    }
+
+    //----------------------------------------------------------
+    // block color
+    //----------------------------------------------------------
+    if (json.containsKey("color") && json["color"] is String) {
+      block.color = json["color"];
+    }
+
+    //----------------------------------------------------------
+    // text color
+    //----------------------------------------------------------
+    if (json.containsKey("textColor") && json["textColor"] is String) {
+      block.textColor = json["textColor"];
+    }
+
+    //----------------------------------------------------------
+    // parameters
+    //----------------------------------------------------------
+    if (json.containsKey("params") && json["params"] is List) {
+      for (var p in json["params"]) {
+        if (p is Map) {
+          block.param = new Parameter.fromJSON(block, p);
+        }
+      }
+    }
+
+    return block;
+  }
   
   
   Block clone() {
