@@ -108,13 +108,21 @@ class CodeWorkspace extends TouchLayer {
 
 
 /**
- * On a background touch, close all open parameter menus
- */
-  backgroundTouch(Contact c) {
+ * Close all open parameter menus
+ */  
+  void closeAllParameterMenus() {
     for (Block block in blocks) {
       block.closeParameterMenu();
     }
     draw();
+  }
+
+
+/**
+ * On a background touch, close all open parameter menus
+ */
+  backgroundTouch(Contact c) {
+    closeAllParameterMenus();
   }
   
   
@@ -318,68 +326,10 @@ class CodeWorkspace extends TouchLayer {
   void _initBlockMenu(List blocks) {
     for (var b in blocks) {
       if (b is Map && b.containsKey("name")) {
-        Block block;
-
-        //----------------------------------------------------------
-        // block type
-        //----------------------------------------------------------
-        if (b.containsKey("type") && b["type"] == "if") {
-          block = new IfBlock(this, b["name"]);
-        } else {
-          block = new Block(this, b["name"]);
-        }
-
-        //----------------------------------------------------------
-        // number of blocks available in the menu
-        //----------------------------------------------------------
-        int instances = _toInt(b["instances"], 1);
-
-        //----------------------------------------------------------
-        // block color
-        //----------------------------------------------------------
-        if (b.containsKey("color") && b["color"] is String) {
-          block.color = b["color"];
-        }
-
-        //----------------------------------------------------------
-        // text color
-        //----------------------------------------------------------
-        if (b.containsKey("textColor") && b["textColor"] is String) {
-          block.textColor = b["textColor"];
-        }
-
-        //----------------------------------------------------------
-        // parameters
-        //----------------------------------------------------------
-        if (b.containsKey("params") && b["params"] is List) {
-          for (var p in b["params"]) {
-            if (p is Map) {
-              block.param = new Parameter(block);
-              block.param.values = p["values"];
-            }
-          }
-        }
-        addToMenu(block, instances);
+        Block block = new Block.fromJSON(this, b);
+        addToMenu(block, toInt(b["instances"], 1));
       }
     }
   }
 
-
-/**
- * Helper function that parses an int from an object (usually a string)
- */
-  int _toInt(var d, int defalutValue) {
-    if (d == null) {
-      return defalutValue;
-    } else if (d is int) {
-      return d;
-    } else if (d is String) {
-      try {
-        return int.parse(d);
-      } on Exception {
-        return defalutValue;
-      }
-    }
-    return defalutValue;
-  }
 }
