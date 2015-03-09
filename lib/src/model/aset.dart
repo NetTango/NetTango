@@ -27,9 +27,9 @@ class AgentSet<T> {
   /* Random number generator */
   Random rand = new Random();
 
-  /** Allows the use of for(Agent in agents) syntax */
+  /* Allows the use of for(Agent in agents) syntax */
   Iterator get iterator => agents.iterator;
-  
+
   
 /**
  * Create an empty agent set
