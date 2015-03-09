@@ -40,6 +40,9 @@ class CodeWorkspace extends TouchLayer {
   /* Touch event manager */
   TouchManager tmanager = new TouchManager();
 
+  /* On program changed callback */
+  Function onProgramChanged = null;
+
 
   
 /**
@@ -100,7 +103,9 @@ class CodeWorkspace extends TouchLayer {
   
   
   void traceProgram(Block target) {
-    bug.target = target;
+    if (target is! EndProgramBlock && target is! StartBlock) {
+      bug.target = target;
+    }
   }
 
 
@@ -113,7 +118,9 @@ class CodeWorkspace extends TouchLayer {
  * Callback when blocks of a program have changed
  */  
   void programChanged() {
-
+    if (onProgramChanged != null) {
+      Function.apply(onProgramChanged, [ ]);
+    }
   }
 
 
@@ -198,6 +205,14 @@ class CodeWorkspace extends TouchLayer {
       if (block.type == blockType) count++;
     }
     return count;
+  }
+
+
+/**
+ * Is the program empty? Only a start block...
+ */
+  bool get isEmpty {
+    return blocks.length <= 2;  // start and end blocks together
   }
   
   
