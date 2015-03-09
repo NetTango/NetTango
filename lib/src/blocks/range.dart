@@ -286,10 +286,13 @@ class RangeParameter extends Parameter {
 				if (_value != _lastValue) changed = true;
 				_lastValue = _value;
 				menuOpen = false;
+        changed = true;
+        block.workspace.programChanged();
 			} 
 			else if (_captureRandom && isOverRandom()) {
 				randomChecked = !randomChecked;
-				changed = true;
+        changed = true;
+        block.workspace.programChanged();
 			}
 		}
 		_captureThumb = false;
@@ -315,6 +318,7 @@ class RangeParameter extends Parameter {
 			else if (isOnTrack()) {
 				_value = _screenXToValue(lastX);
 				_captureThumb = true;
+        block.workspace.programChanged();
 			}
 		}
 
@@ -338,6 +342,7 @@ class RangeParameter extends Parameter {
 		lastY = c.touchY;
     if (_captureThumb) {
     	_value = _screenXToValue(lastX);
+      block.workspace.programChanged();
     }
 		block.workspace.draw();
 	}
