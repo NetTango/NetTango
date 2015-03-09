@@ -16,7 +16,6 @@
 part of NetTango;
 
 
-// TODO Patchless by default
 abstract class Model extends TouchLayer with Runtime {
   
   /* Human-readable name of the model */
@@ -38,7 +37,7 @@ abstract class Model extends TouchLayer with Runtime {
    
   /* A list of patches */
   AgentSet<Patch> patches = new AgentSet<Patch>();
-  
+
   /* Global variables and properties (defined for the model) */
   Map<String, dynamic> properties = new Map<String, dynamic>();
   
@@ -94,39 +93,43 @@ abstract class Model extends TouchLayer with Runtime {
   
   num patchSize = 20.0;
 
+
   /* Dimensions of the world in patch coordinates */
+  /* Assume an infinte and fluidly zoomable world */
+  /*
   int get minPatchX => (width ~/ patchSize) ~/ -2;
   int get maxPatchX => (width ~/ patchSize) + minPatchX - 1;
   int get minPatchY => (height ~/ patchSize) ~/ -2;
   int get maxPatchY => (height ~/ patchSize) + minPatchY - 1;
+  */
   num get minWorldY => screenToWorldY(0, height);
   num get minWorldX => screenToWorldX(0, 0);
   num get maxWorldY => screenToWorldY(0, 0);
   num get maxWorldX => screenToWorldX(width, 0);
-  int get worldWidth => maxPatchX - minPatchX + 1;
-  int get worldHeight => maxPatchY - minPatchY + 1;
+  num get worldWidth => maxWorldX - minWorldX; //maxPatchX - minPatchX + 1;
+  num get worldHeight => maxWorldY - minWorldY; //maxPatchY - minPatchY + 1;
 
   
   num screenToWorldX(num sx, num sy) {
-    num cx = (0.5 - minPatchX) * patchSize;
+    num cx = width / 2; // (0.5 - minPatchX) * patchSize;
     return (sx - cx) / patchSize;
   }
    
    
   num screenToWorldY(num sx, num sy) {
-    num cy = (0.5 - minPatchY) * patchSize;
+    num cy = height / 2; //(0.5 - minPatchY) * patchSize;
     return ((height - sy) - cy) / patchSize;      
   }
   
   
   num worldToScreenX(num wx, num wy) {
-    num cx = (0.5 - minPatchX) * patchSize;
+    num cx = width / 2; //(0.5 - minPatchX) * patchSize;
     return wx * patchSize + cx;
   }
   
   
   num worldToScreenY(num wx, num wy) {
-    num cy = (0.5 - minPatchY) * patchSize;
+    num cy = height / 2; //(0.5 - minPatchY) * patchSize;
     return height - (wy * patchSize + cy);
   }
   
@@ -194,6 +197,7 @@ abstract class Model extends TouchLayer with Runtime {
   
   
   Patch patchAt(num tx, num ty) {
+    /*
     int i = tx.round().toInt() - minPatchX;
     int j = ty.round().toInt() - minPatchY;
     int index = j * worldWidth + i;
@@ -202,6 +206,8 @@ abstract class Model extends TouchLayer with Runtime {
     } else {
       return null;
     }
+    */
+    return null;  // FIX ME
   }
   
   
