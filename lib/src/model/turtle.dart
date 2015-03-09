@@ -148,12 +148,21 @@ abstract class Turtle extends Agent implements Touchable {
     return dist < (radius + other.radius);
   }
   
-  
+
+/**
+ * return the angle between this turtle and the given turtle, using 
+ * this turtle's heading as the reference. the value will be between
+ * -180.0 and 180.0 degrees. Negative angles represent a clockwise (right)
+ * turn.
+ */  
   double angleBetween(Turtle b) {
-    double theta = -atan2(x - b.x, y - b.y) / PI * 180.0;
-    if (theta < 0) theta += 360.0;
-    double alpha = (heading / PI * 180.0) % 360;
-    return alpha - theta;
+    double PI2 = PI * 2;
+    double theta = atan2(x - b.x, b.y - y);
+    if (theta < 0) theta += PI2;
+    double alpha = heading % PI2;
+    double ccw = (theta > alpha) ? theta - alpha : (theta + PI2) - alpha;
+    ccw = (ccw <= PI) ? ccw : ccw - PI2;
+    return ccw / PI * 180;
   }
   
   
