@@ -55,6 +55,7 @@ class Parameter implements Touchable {
     textColor = block.color;
   }
 
+
   factory Parameter.fromJSON(Block block, Map json) {
     if (json.containsKey("type") && json["type"] == "range") {
       return new RangeParameter.fromJSON(block, json);
@@ -212,6 +213,7 @@ class Parameter implements Touchable {
         ctx.fillRect(mx, ty, mw, 30);
         ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
         index = i;
+        block.workspace.programChanged();
         matched = true;
       } 
       ctx.fillText(values[i].toString(), mx + 15, ty + 6);
@@ -268,6 +270,7 @@ class Parameter implements Touchable {
   void touchUp(Contact c) {
     if (dragging || isOverMenu(c)) {
       if (index != downIndex) changed = true;
+      block.workspace.programChanged();
       downIndex = index;
       menuOpen = false;
     }
