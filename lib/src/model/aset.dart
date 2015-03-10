@@ -30,7 +30,7 @@ class AgentSet<T> {
   /* Allows the use of for(Agent in agents) syntax */
   Iterator get iterator => agents.iterator;
 
-  
+
 /**
  * Create an empty agent set
  */
@@ -71,6 +71,18 @@ class AgentSet<T> {
  */
   void remove(T agent) {
     agents.remove(agent);
+  }
+
+
+/**
+ * Remove all "dead" turtles
+ */
+  void removeDead() {
+    for (int i=agents.length - 1; i >= 0; i--) {
+      if (agents[i] is Turtle && (agents[i] as Turtle).dead) {
+        agents.removeAt(i);
+      }
+    }
   }
   
 
@@ -128,9 +140,8 @@ class AgentSet<T> {
  * Returns an AgentSet with at most one agent at the given point
  */
   Turtle getTurtleAtPoint(num px, num py, [ Type breed ]) {
-    if (breed == null) breed = Turtle;
     for (T t in agents) {
-      if (t.runtimeType == breed) {
+      if (breed == null || t.runtimeType == breed) {
         if ((t as Turtle).overlapsPoint(px, py)) {
           return t as Turtle;
         }
