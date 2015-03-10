@@ -32,11 +32,11 @@ abstract class Model extends TouchLayer with Runtime {
   /* Dimensions of the canvas for the world view */
   int width = 500, height = 500;
   
-  /* A collection of turtles in the model */
-  AgentSet<Turtle> turtles = new AgentSet<Turtle>();
-   
   /* A list of patches */
   AgentSet<Patch> patches = new AgentSet<Patch>();
+
+  /* Support for multiple breeds of turtles */
+  Map<Type, AgentSet> _breeds = new Map<Type, AgentSet>();
 
   /* Global variables and properties (defined for the model) */
   Map<String, dynamic> properties = new Map<String, dynamic>();
@@ -86,12 +86,60 @@ abstract class Model extends TouchLayer with Runtime {
     bindClickEvent("restart-button", (e) { restart(); draw(); });
 
     resize(width, height);
-    setup();
   }
   
   int nextAgentId() => AGENT_ID++;
   
   num patchSize = 20.0;
+
+
+/**
+ * Registers a new turtle breed (as a subclass of Turtle)
+ */
+  void createBreed(Type breed) {
+    _breeds[breed] = new AgentSet();
+  }
+
+
+/**
+ * Get the agentset for the given breed
+ */
+  AgentSet getBreed(Type breed) {
+    return _breeds[breed];
+  }
+
+
+/**
+ * Add a turtle to the model. If this matches a registered breed, it will
+ * automatically be added to that agentset. Otherwise, a new breed will be 
+ * created.
+ */
+  void addTurtle(Turtle turtle) {
+    Type breed = turtle.runtimeType;
+    if (_breeds[breed] == null) {
+      _breeds[breed] = new AgentSet();
+    }
+    _breeds[breed].add(turtle);
+  }
+
+
+/**
+ * Removes a turtle from the agentset
+ */
+  void removeTurtle(Turtle turtle) {
+    Type breed = turtle.runtimeType;
+    if (_breeds.containsKey(breed)) {
+      _breeds[breed].remove(turtle);
+    }
+  }
+
+
+/**
+ * Removes all turtles
+ */
+  void clearTurtles() {
+    _breeds.values.forEach((breed) => breed.clear());
+  }
 
 
   /* Dimensions of the world in patch coordinates */
@@ -132,7 +180,7 @@ abstract class Model extends TouchLayer with Runtime {
     num cy = height / 2; //(0.5 - minPatchY) * patchSize;
     return height - (wy * patchSize + cy);
   }
-  
+
 
 /**
  * Set up the model for a new run (abstract)
@@ -144,7 +192,7 @@ abstract class Model extends TouchLayer with Runtime {
  * Called when the block program changes...
  */
   void restartPrograms() {
-    turtles.restartProgram();
+    _breeds.values.forEach((breed) => breed.restartProgram());
     patches.restartProgram();
   }
   
@@ -156,11 +204,10 @@ abstract class Model extends TouchLayer with Runtime {
     ticks++;  // update the tick count
      
     // remove dead turtles
-    for (int i=turtles.length - 1; i >= 0; i--) {
-      Turtle t = turtles[i];
-      if (t.dead) turtles.remove(t);
-    }
-    turtles.tick();
+    _breeds.values.forEach((breed) => breed.removeDead());
+
+    // tick
+    _breeds.values.forEach((breed) => breed.tick());
     patches.tick();
   }
    
@@ -217,7 +264,7 @@ abstract class Model extends TouchLayer with Runtime {
     {
       ctx.translate(worldToScreenX(0, 0), worldToScreenY(0, 0));
       ctx.scale(patchSize, -patchSize);
-      turtles.draw(ctx);
+      _breeds.values.forEach((breed) => breed.draw(ctx));
     }
     ctx.restore();
 
