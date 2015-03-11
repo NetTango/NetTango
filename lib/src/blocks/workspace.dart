@@ -102,8 +102,15 @@ class CodeWorkspace extends TouchLayer {
 
   
   
-  void traceProgram(Block target) {
-    if (target is! EndProgramBlock && target is! StartBlock) {
+/**
+ * Highlight a program block
+ */  
+  void traceProgram(int blockID) {
+    Block target = null;
+    for (Block block in blocks) {
+      if (block.id == blockID) target = block;
+    }
+    if (target != null && target is! EndProgramBlock && target is! StartBlock) {
       bug.target = target;
     }
   }
