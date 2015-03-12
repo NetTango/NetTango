@@ -77,7 +77,9 @@ class CodeWorkspace extends TouchLayer {
     // initialize block menu
     ScriptElement se = querySelector("#${id}-blocks");
     if (se != null) {
-      _initBlockMenu(JSON.decode(se.innerHtml));
+      DomParser parser = new DomParser();
+      XmlDocument xml = parser.parseFromString(se.innerHtml, "application/xml");
+      _initBlockMenu(xml);
     }
 
     new Timer.periodic(const Duration(milliseconds : 20), tick);
@@ -355,13 +357,19 @@ class CodeWorkspace extends TouchLayer {
  * This function parses a JSON block definition object and populates
  * the block menu.
  */
-  void _initBlockMenu(List blocks) {
+  void _initBlockMenu(XmlDocument xml) {
+    for (Element b in xml.getElementsByTagName("block")) {
+      Block block = new Block.fromXML(this, b);
+      addToMenu(block, toInt(b.attributes["instances"], 1));
+    }
+/*
     for (var b in blocks) {
       if (b is Map && b.containsKey("name")) {
         Block block = new Block.fromJSON(this, b);
         addToMenu(block, toInt(b["instances"], 1));
       }
     }
+    */
   }
 
 }
