@@ -276,6 +276,18 @@ class Block implements Touchable {
       return "${text}(${param.value})";
     }
   }
+
+
+/**
+ * Converts the program to a URL-encoded string
+ */
+  String toURLString() {
+    if (param == null) {
+      return "${text}();";
+    } else {
+      return "${text}(${param.value});";
+    }
+  }
   
     
 /**

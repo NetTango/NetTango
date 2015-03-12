@@ -215,7 +215,7 @@ class BeginBlock extends ControlBlock {
   BeginBlock(CodeWorkspace workspace, String text) : super(workspace, null, text) {
     begin = this;
   }
-  
+
 
   void draw(CanvasRenderingContext2D ctx, [ bool disabled = false ]) {
     ctx.globalAlpha = disabled ? 0.3 : 1.0;
@@ -373,6 +373,11 @@ class EndBlock extends ControlBlock {
   
   String toString() {
     return "end";
+  }
+
+
+  String toURLString() {
+    return "end;";
   }
 
   

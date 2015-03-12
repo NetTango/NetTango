@@ -147,8 +147,9 @@ class CodeWorkspace extends TouchLayer {
 /**
  * On a background touch, close all open parameter menus
  */
-  backgroundTouch(Contact c) {
+  bool backgroundTouch(Contact c) {
     closeAllParameterMenus();
+    return false;
   }
   
   
@@ -350,6 +351,21 @@ class CodeWorkspace extends TouchLayer {
       b = b.next;
     }
     return s + "]";
+  }
+
+
+/**
+ * Converts the program to a URL-encoded string
+ */
+  String toURLString() {
+    String s = "";
+    Block b = start.next;
+    while (b != null && b is! EndProgramBlock) {
+      s += b.toURLString();
+      if (b is BeginBlock && b.next is EndProgramBlock) s += "];";
+      b = b.next;
+    }
+    return Uri.encodeFull(s);
   }
 
 

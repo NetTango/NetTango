@@ -36,6 +36,11 @@ class IfBlock extends BeginBlock {
     for (int i=0; i<indent; i++) tab += "  ";
     return "${tab}if (${param.value}) {\n";
   }
+
+
+  String toURLString() {
+    return "${text}(${param.value});";
+  }
   
   
   dynamic eval(Program program) { return false; }
@@ -74,6 +79,11 @@ class IfElseBlock extends BeginBlock {
     for (int i=0; i<indent; i++) tab += "  ";
     return "${tab}if (${param.value}) {\n";
   }
+
+
+  String toURLString() {
+    return "${text}(${param.value})[;";
+  }
   
   
   dynamic eval(Program program) { return false; }
@@ -109,4 +119,9 @@ class ElseBlock extends ControlBlock {
     for (int i=0; i<indent-1; i++) tab += "  ";
     return "${tab}else {\n";
   }  
+
+
+  String toURLString() {
+    return "];else[;";
+  }
 }
