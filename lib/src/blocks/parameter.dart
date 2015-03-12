@@ -56,12 +56,18 @@ class Parameter implements Touchable {
   }
 
 
-  factory Parameter.fromJSON(Block block, Map json) {
-    if (json.containsKey("type") && json["type"] == "range") {
-      return new RangeParameter.fromJSON(block, json);
+  factory Parameter.fromXML(Block block, Element el) {
+    Map attribs = el.attributes;
+    if (attribs.containsKey("type") && attribs["type"] == "range") {
+      return new RangeParameter.fromXML(block, el);
     } else {
       Parameter p = new Parameter(block);
-      p.values = json["values"];
+      p.values = [];
+      for (Node value in el.childNodes) {
+        if (value is Element && value.nodeName == "v") {
+          p.values.add(value.innerHtml);
+        }
+      }
       return p;
     }
   }
