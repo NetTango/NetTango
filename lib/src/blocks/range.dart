@@ -56,14 +56,15 @@ class RangeParameter extends Parameter {
 	}
 
 
-  RangeParameter.fromJSON(Block block, Map json) : super(block) {
-    minValue = json["min"] as num;
-    maxValue = json["max"] as num;
-    stepSize = json["step"] as num;
-    initialValue = json["default"] as num;
-    if (json.containsKey("random")) randomOption = json["random"] as bool;
-    if (json.containsKey("unit")) unit = json["unit"].toString();
-    if (json.containsKey("label")) label = json["label"].toString();
+  RangeParameter.fromXML(Block block, Element el) : super(block) {
+    Map attribs = el.attributes;
+    minValue = toNum(attribs["min"], 0);
+    maxValue = toNum(attribs["max"], 10);
+    stepSize = toNum(attribs["step"], 1);
+    initialValue = toNum(attribs["default"], 5);
+    if (attribs.containsKey("random")) randomOption = (attribs["random"] == "true");
+    if (attribs.containsKey("unit")) unit = attribs["unit"];
+    if (attribs.containsKey("label")) label = attribs["label"];
   }
 
 
