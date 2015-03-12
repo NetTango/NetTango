@@ -18,6 +18,7 @@ pub/
 media/
 logs/
 migrations/
+.idea/
 
 #ignore pyc files
 *.pyc

@@ -24,6 +24,9 @@ DEBUG = True
 
 TEMPLATE_DEBUG = True
 
+LOCAL_DATABASE = True
+
+
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = ['*']
@@ -63,20 +66,36 @@ WSGI_APPLICATION = 'reese.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'reese',                      # Or path to database file if using sqlite3.
-        # The following settings are not used with sqlite3:
-        'USER': 'root',
-        'PASSWORD': 'R33535',
-        'HOST': '', # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
-        'PORT': '', # Set to empty string for default.
-        'OPTIONS': {
-        "init_command": "SET foreign_key_checks = 0;",
-        },
+if not LOCAL_DATABASE:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+            'NAME': 'reese',                      # Or path to database file if using sqlite3.
+            # The following settings are not used with sqlite3:
+            'USER': 'root',
+            'PASSWORD': 'R33535',
+            'HOST': '', # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+            'PORT': '', # Set to empty string for default.
+            'OPTIONS': {
+            "init_command": "SET foreign_key_checks = 0;",
+            },
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+            'NAME': 'reese',                      # Or path to database file if using sqlite3.
+            # The following settings are not used with sqlite3:
+            'USER': 'root',
+            'PASSWORD': '',
+            'HOST': '', # Empty for localhost through domain sockets or '127.0.0.1' for localhost through TCP.
+            'PORT': '', # Set to empty string for default.
+            'OPTIONS': {
+            "init_command": "SET foreign_key_checks = 0;",
+            },
+        }
+    }
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.6/topics/i18n/
