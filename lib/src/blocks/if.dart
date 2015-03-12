@@ -25,7 +25,7 @@ class IfBlock extends BeginBlock {
   
   
   Block clone() {
-    IfBlock block = new IfBlock(workspace);
+    IfBlock block = new IfBlock(workspace, text);
     copyTo(block);
     return block;
   }
