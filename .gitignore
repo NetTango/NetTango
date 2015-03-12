@@ -14,4 +14,10 @@ packages
 # Include when developing application packages.
 pubspec.lock
 
-.pub/
+pub/
+media/
+logs/
+migrations/
+
+#ignore pyc files
+*.pyc
