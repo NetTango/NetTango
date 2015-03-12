@@ -276,7 +276,7 @@ num distance(num x0, num y0, num x1, num y1) {
 /**
  * Helper function that parses an int from an object (usually a string)
  */
- int toInt(var d, int defalutValue) {
+int toInt(var d, int defalutValue) {
   if (d == null) {
     return defalutValue;
   } 
@@ -286,6 +286,26 @@ num distance(num x0, num y0, num x1, num y1) {
   else if (d is String) {
     try {
       return int.parse(d);
+    } on Exception {
+      return defalutValue;
+    }
+  }
+  return defalutValue;
+}
+
+/**
+ * Helper function that parses an int from an object (usually a string)
+ */
+num toNum(var d, num defalutValue) {
+  if (d == null) {
+    return defalutValue;
+  } 
+  else if (d is num) {
+    return d;
+  } 
+  else if (d is String) {
+    try {
+      return num.parse(d);
     } on Exception {
       return defalutValue;
     }
