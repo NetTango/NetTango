@@ -96,34 +96,42 @@ class Block implements Touchable {
   }
 
 
-  factory Block.fromJSON(CodeWorkspace workspace, Map json) {
+  factory Block.fromXML(CodeWorkspace workspace, Element el) {
     //----------------------------------------------------------
     // block type
     //----------------------------------------------------------
     Block block;
-    if (json.containsKey("type") && json["type"] == "if") {
-      block = new IfBlock(workspace, json["name"].toString());
+    Map attribs = el.attributes;
+    if (attribs.containsKey("type") && attribs["type"] == "if") {
+      block = new IfBlock(workspace, attribs["name"]);
     } else {
-      block = new Block(workspace, json["name"].toString());
+      block = new Block(workspace, attribs["name"]);
     }
+
+    //----------------------------------------------------------
+    // block shorthand code
+    //----------------------------------------------------------
+    if (attribs.containsKey("short")) block.type = attribs["short"];
 
     //----------------------------------------------------------
     // block color
     //----------------------------------------------------------
-    if (json.containsKey("color") && json["color"] is String) {
-      block.color = json["color"];
-    }
+    if (attribs.containsKey("color")) block.color = attribs["color"];
 
     //----------------------------------------------------------
     // text color
     //----------------------------------------------------------
-    if (json.containsKey("textColor") && json["textColor"] is String) {
-      block.textColor = json["textColor"];
-    }
+    if (attribs.containsKey("textColor")) block.textColor = attribs["textColor"];
 
     //----------------------------------------------------------
     // parameters
     //----------------------------------------------------------
+    for (Node n in el.childNodes) {
+      if (n is Element && n.nodeName == "param") {
+        block.param = new Parameter.fromXML(block, (n as Element));
+      }
+    }
+    /*
     if (json.containsKey("params") && json["params"] is List) {
       for (var p in json["params"]) {
         if (p is Map) {
@@ -131,11 +139,11 @@ class Block implements Touchable {
         }
       }
     }
-
+*/
     return block;
   }
-  
-  
+
+
   Block clone() {
     Block b = new Block(workspace, text);
     copyTo(b);
