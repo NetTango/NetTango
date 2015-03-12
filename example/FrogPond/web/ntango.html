@@ -4,98 +4,9 @@
   <title>Frog Pond 2</title>
   <meta charset="utf-8">
   <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link rel="stylesheet" href="css/main2.css">
   <link rel="stylesheet" href="packages/NetTango/css/fonts.css">
   <link rel="stylesheet" href="packages/NetTango/css/toolbar.css">
-  <script type="application/json" id="frog-workspace-blocks">
-  [
-  {
-    "name" : "hop",
-    "params" : [ { "type" : "range", "min" : 0, "max" : 4, "step" : 0.5, "default" : 1 }]
-  },
-  { "name" : "chirp" },
-  { 
-    "name" : "left",
-    "params" : [ { "type": "range", "min": 0, "max": 180, "step": 10, "default": 60, "random": true, "label": "degrees" }]
-  },
-  {
-    "name" : "right",
-    "params" : [ { "type": "range", "min": 0, "max": 180, "step": 10, "default": 60, "random": true, "label": "degrees" }]
-  },
-  { "name" : "spin" },
-  { "name" : "hunt" },
-  {
-    "name" : "hatch",
-    "color" : "#b67196",
-    "params" : [ { "values": [ "size-variation", "no-variation" ]}]
-  },
-  { "name" : "die", "color": "#b67196" },
-  {
-    "name" : "chance",
-    "type" : "if",
-    "instances" : 2,
-    "params" : [ { "type": "range", "min": 0, "max": 100, "step": 1, "default": 25, "unit": "%" } ]
-  }
-  ]
-  </script>
-  <style>
-
-body {
-  font-family: Nunito, 'Helvetica Neue', sans-serif;
-  font-size: 15px;
-  line-height: 125%;
-}
-
-.content {
-  width: 900px;
-  margin: 50px auto;
-  background-color: white;
-}
-
-.model-container {
-  position: relative;
-  width: 900px;
-  height: 500px;
-  border: 0;
-  margin: 0 0 20px 0;
-  padding: 0;
-}
-
-#frog-workspace {
-  display:block;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-#frog-turtles {
-  display:block;
-  position: absolute;
-  top: 0;
-  left: 0;
-  background-color:#356;
-  background-image: 
-    linear-gradient(
-      transparent 1px, 
-      rgba(255,255,255,.1) 1px, 
-      rgba(255,255,255,.1) 2px, 
-      transparent 2px),
-    linear-gradient(90deg, 
-      transparent 1px, 
-      rgba(255,255,255,.1) 1px,
-      rgba(255,255,255,.1) 2px, 
-      transparent 2px);
-  background-size:40px 40px, 40px 40px;
-}
-
-#mini-plot {
-  position: absolute;
-  background-color: rgba(0, 0, 0, 0.8);
-  top: 10px;
-  right: 10px;
-  border-radius: 10px;
-}
-
-  </style>
 </head>
 <body>
 
@@ -107,95 +18,56 @@ body {
   </p>
 
   <div class="model-container">
-    <canvas id="frog-turtles" width="900" height="500"></canvas>
-    <canvas id="frog-workspace" width="900" height="500"></canvas>
+    <canvas id="frog-turtles" width="1000" height="600"></canvas>
+    <canvas id="frog-workspace" width="1000" height="600"></canvas>
     <div id="frog-toolbar" class="toolbar">
       <button id="play-button"></button>
-      <button id="step-button"></button>
       <button id="forward-button"></button>
       <button id="restart-button"></button>
-<!--      <button id="plot-button"></button> -->
-      <!-- <button id="settings-button"><span class="icon-settings"></span></button> -->
     </div>
     <canvas id="mini-plot" width="140" height="100"></canvas>
   </div>
 
 </div>
-<script>
-  var fcount = 1;
-  var tcount = 100;
-  var testPlot = null;
-
-    /*
-
-  //var ctx = document.getElementById("testPlot").getContext("2d");
-  //clearPlot();
 
 
-  function clearPlot() {
-    fcount = 1;
-    tcount = 0;
-    if (testPlot != null) {
-      testPlot.clear();
-      testPlot.destroy();
-    }
-    var data = {
-      labels: [ 0 ],
-      datasets: [
-      {
-        label: "Frogs",
-        fillColor: "rgba(151,187,205,0.6)",
-        strokeColor: "rgba(220,220,220,1)",
-        pointColor: "rgba(151,187,205,1)",
-        pointStrokeColor: "#fff",
-        pointHighlightFill: "#fff",
-        pointHighlightStroke: "rgba(220,220,220,1)",
-        data: [ 0 ]
-      }
-      ]
-    };
-
-    testPlot = new Chart(ctx).Line(data, {
-      bezierCurve : false,
-      animation : false,
-      scaleOverride : true,
-      scaleSteps : 4,
-      scaleStepWidth : 250,
-      scaleStartValue : 0
-    });
-  }
-
-
-  function updatePlot(value, label) {
-    fcount *= 2;
-    tcount += 100;
-    testPlot.addData( [value], label);
-  }
-
-  window.addEventListener("message", receiveMessage, false);
-
-  function sendMessage(message) {
-    var origin = window.location.protocol + "//" + window.location.host;
-    window.postMessage(message, origin);
-  }
-    
-  function receiveMessage(event) {
-    if (event.data == "clear-plots") {
-      clearPlot();
-    } else if (event.data.indexOf("update-plots") == 0) {
-      var params = event.data.substring(13).split(",");
-      if (params.length == 2) {
-        updatePlot(params[0], params[1]);
-      }
-    }
-//    if (event.data.lastIndexOf("upload-logs", 0) === 0) {
-//      uploadLogs();
-//    }
-  }
-*/
+<!-- BLOCK DEFINITIONS -->
+<script type="application/xml" id="frog-workspace-blocks">
+<menu>
+  <block name="hop">
+    <param name="distance" type="range" min="0" max="4" step="0.2" default="1" />
+  </block>
+  <block name="chirp" />
+  <block name="left">
+    <param name="degrees" type="range" min="0" max="180" step="10" default="60" random="true" label="degrees" />
+  </block>
+  <block name="right">
+    <param name="degrees" type="range" min="0" max="180" step="10" default="60" random="true" label="degrees" />
+  </block>
+  <block name="spin" />
+  <block name="hunt" />
+  <block name="hatch" color="#b67196">
+    <param name="variation">
+      <v>size-variation</v>
+      <v>no-variation</v>
+    </param>
+  </block>
+  <block name="die" color="#b67196">
+    <param name="condition">
+      <v>if starving</v>
+    </param>
+  </block>
+  <block name="chance" type="if" instances="2">
+    <param name="probability" type="range" min="0" max="100" step="1" default="25" unit="%" />
+  </block>
+</menu>
 </script>
+
+
 <script src="dart/main.dart" type="application/dart"></script>
 <script src="dart.js"></script>
+
+
 <script type="text/javascript">
   window.oncontextmenu = function(event) {
     event.preventDefault();
