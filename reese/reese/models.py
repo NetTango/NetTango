@@ -6,7 +6,7 @@ from django.db import models
 from datetime import datetime
 
 class FrogPondLog(models.Model):
-    groupId = models.IntegerField(null = True)
+    groupId = models.TextField(null = True,max_length = 200,default = "")
     groupName = models.CharField(db_index = True,max_length = 200,default = "")
     frogCount = models.IntegerField(null = True)
     tickCount = models.IntegerField(null = True)
@@ -18,7 +18,7 @@ class FrogPondLog(models.Model):
     program = models.FileField(upload_to = 'screencaps/programs', null = True, max_length = 2000)
     queryString = models.TextField(null = True, max_length = 500)
     userName = models.TextField(null = True, max_length = 500)
-    logTime = models.DateTimeField(auto_now=True, default=datetime.now)
+    logTime = models.DateTimeField(default=datetime.now())
     def __unicode__(self):
         return str(self.name)
 
@@ -28,7 +28,7 @@ class ImageLogEntry(models.Model):
     annotation = models.TextField(default='autotext')
     imagedata = models.FileField(upload_to='screencaps', max_length=2000)
     sessionid = models.CharField(max_length=200)
-    logTime = models.DateTimeField(auto_now=True, default=datetime.now)
+    logTime = models.DateTimeField(default=datetime.now())
     def __unicode__(self):
         return str(self.name)
 

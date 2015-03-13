@@ -56,6 +56,7 @@ def newreeselog(request):
     if request.method == "POST":
         try:
             request_data = request.POST
+
             #store the app_id  app_annotation, and app image data payload
             #app_id = request_data['app_id']
             groupID = request_data['groupId']
@@ -90,7 +91,7 @@ def newreeselog(request):
             #need to strip the base64 info lead-in
             programImageData = ContentFile(programData, groupID + 'program.png')
 
-            frogPondLogEntry = FrogPondLog(groupId=groupID, frogCount=frogCount, tickCount=tickCount, avgSize=avgSize,
+            frogPondLogEntry = FrogPondLog(groupId= groupID, frogCount= int(frogCount), tickCount=int(tickCount), avgSize=float(avgSize),
                                            settings=settings, plot=plotImageArg, histogram=histogramImageArg,
                                            world=worldImageArg, program=programImageData, queryString=queryString,
                                            userName=userName)

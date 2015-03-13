@@ -2,7 +2,7 @@ name: DesertBeetles
 dependencies:
   NetTango:
     # if you point to a local copy of NetTango, update the path accordingly
-    path: ..
+    path: ../..
     
     # otherwise, uncomment these lines to use github (preferred)
     #git:
