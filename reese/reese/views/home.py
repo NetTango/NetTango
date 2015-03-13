@@ -1,5 +1,5 @@
-#Django imports
-from django.template import RequestContext,Context
+# Django imports
+from django.template import RequestContext, Context
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.http import HttpResponseRedirect
@@ -19,8 +19,10 @@ from datetime import datetime, timedelta
 
 import json
 
+
 def index(request):
     return HttpResponse(json.dumps({'REESE': 'frogpond'}), content_type="application/json")
+
 
 @csrf_exempt
 def reeselog(request):
@@ -31,7 +33,7 @@ def reeselog(request):
 
             #store the app_id and app_data payload
             app_id = request_data['app_id']
-            app_data= request_data['app_data']
+            app_data = request_data['app_data']
         except:
             app_id = "appID error"
             app_data = "appData error"
@@ -52,7 +54,7 @@ def reeselog(request):
 @csrf_exempt
 def newreeselog(request):
     if request.method == "POST":
-	try:
+        try:
             request_data = request.POST
             #store the app_id  app_annotation, and app image data payload
             #app_id = request_data['app_id']
@@ -68,56 +70,51 @@ def newreeselog(request):
             queryString = request_data['queryString']
             userName = request_data['userName']
 
+            rawPlot = plotImage.split(",")
+            plotData = b64decode(rawPlot[1])
+            #need to strip the base64 info lead-in
+            plotImageArg = ContentFile(plotData, groupID + 'plot.png')
+
+            rawHistogram = histogramImage.split(",")
+            histogramData = b64decode(rawHistogram[1])
+            #need to strip the base64 info lead-in
+            histogramImageArg = ContentFile(histogramData, groupID + 'histo.png')
+
+            rawWorld = worldImage.split(",")
+            worldData = b64decode(rawWorld[1])
+            #need to strip the base64 info lead-in
+            worldImageArg = ContentFile(worldData, groupID + 'world.png')
+
+            rawProgram = programImage.split(",")
+            programData = b64decode(rawProgram[1])
+            #need to strip the base64 info lead-in
+            programImageData = ContentFile(programData, groupID + 'program.png')
+
+            frogPondLogEntry = FrogPondLog(groupId=groupID, frogCount=frogCount, tickCount=tickCount, avgSize=avgSize,
+                                           settings=settings, plot=plotImageArg, histogram=histogramImageArg,
+                                           world=worldImageArg, program=programImageData, queryString=queryString,
+                                           userName=userName)
+
+            frogPondLogEntry.save()
+
         except:
             app_id = "appID error"
             app_data = "appData error"
             return HttpResponse(json.dumps({'status': 'I failed to process the image data'}), content_type="application/json")
 
-        rawPlot = plotImage.split(",")
-        plotData = b64decode(rawPlot[1])
-        #need to strip the base64 info lead-in
-        plotImageArg = ContentFile(plotData, groupID + 'plot.png')
-
-        rawHistogram = histogramImage.split(",")
-        histogramData = b64decode(rawHistogram[1])
-        #need to strip the base64 info lead-in
-        histogramImageArg = ContentFile(histogramData, groupID + 'histo.png')
-
-        rawWorld = worldImage.split(",")
-        worldData = b64decode(rawWorld[1])
-        #need to strip the base64 info lead-in
-        worldImageArg = ContentFile(worldData, groupID + '.png')
-
-        rawProgram = programImage.split(",")
-        programData = b64decode(rawProgram[1])
-        #need to strip the base64 info lead-in
-        programImageData = ContentFile(programData, groupID + '.png')
-
-
-        frogPondLogEntry = FrogPondLog(groupId=groupID, frogCount=frogCount, tickCount=tickCount, avgSize=avgSize,
-                                       settings=settings, plot=plotImageArg, histogram=histogramImageArg,
-                                       world=worldImageArg, program=programImageData, queryString=queryString,
-                                       userName=userName)
-
-        frogPondLogEntry.save()
 
         return HttpResponse(json.dumps({'status': 'success!'}), content_type="application/json")
-    elif request.method == "GET":
-        #blah = ImageLog.objects.get(name="maybe2")
-        # todo = blah.annotation
+    else:
         togo = HttpResponse()
         togo.write("<p>Should Not call this method via an HTTP GET</p>");
         return togo
-
-    return HttpResponse("End point")
-
 
 
 
 @csrf_exempt
 def reeseimagelog(request):
     if request.method == "POST":
-	try:
+        try:
             request_data = request.POST
             #store the app_id  app_annotation, and app image data payload
             #app_id = request_data['app_id']
@@ -130,14 +127,16 @@ def reeseimagelog(request):
         except:
             app_id = "appID error"
             app_data = "appData error"
-            return HttpResponse(json.dumps({'status': 'I failed to process the image data'}), content_type="application/json")
+            return HttpResponse(json.dumps({'status': 'I failed to process the image data'}),
+                                content_type="application/json")
 
         stripped = app_imagedata.split(",")
         image_data = b64decode(stripped[1])
         #need to strip the base64 info lead-in
         fimage_data = ContentFile(image_data, app_sessionid + '.png')
         #log_data = ImageLog(name=app_id, annotation=app_annotation, imagedata=fimage_data)
-        image_event = ImageLogEntry(name=client_address, annotation=app_annotation, sessionid=app_sessionid, imagedata=fimage_data)
+        image_event = ImageLogEntry(name=client_address, annotation=app_annotation, sessionid=app_sessionid,
+                                    imagedata=fimage_data)
         image_event.save()
         print("image saved to path: " + image_event.imagedata.url)
 
@@ -161,7 +160,7 @@ def imagework(request):
         images = ImageLogEntry.objects.all().order_by('-logTime');
         #return HttpResponse("I got to get, version 2")
         data = {
-            'images' : images
+            'images': images
         }
         #return HttpResponse("I got to get, version 3");
         #print("after data")
@@ -181,7 +180,7 @@ def recent(request):
         images = ImageLogEntry.objects.filter(logTime__gte=limittime).order_by('-logTime');
 
         data = {
-            'images' : images
+            'images': images
         }
 
         return render_to_response('recentwork.html', data, RequestContext(request))
