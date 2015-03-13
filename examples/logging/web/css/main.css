@@ -108,6 +108,22 @@ body {
   background-color: #C7C7C7;
 }
 
+#submit2:hover{
+  background-color: #E0E0E0;
+}
+
+#submit2:active{
+  background-color: #C7C7C7;
+}
+
+#submit3:hover{
+  background-color: #E0E0E0;
+}
+
+#submit3:active{
+  background-color: #C7C7C7;
+}
+
 #submit-btn{
   font-size: 12pt;
   color:#1B44BF;
