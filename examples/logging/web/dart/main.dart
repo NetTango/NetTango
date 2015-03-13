@@ -139,8 +139,12 @@ class DBModel extends Model {
       querySelector("#submit-btn-two")
       ..text = "SubmitImage"
       ..onClick.listen(sendImageLog);
-  
-  
+      
+  //add event handler for setting log data
+    querySelector("#submit-btn-three")
+    ..text = "SubmitWorkPacket"
+    ..onClick.listen(sendFrogPondWork);
+ 
 
   }
 
@@ -161,7 +165,12 @@ class DBModel extends Model {
   
   void sendImageLog(MouseEvent e) {
     print("about to send an image");
-    
     log.postImageData("test string");
   }
+  
+  void sendFrogPondWork(MouseEvent e) {
+      print("about to send a work entry");
+      log.postFrogPondWork();
+    }
+  
 }

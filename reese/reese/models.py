@@ -13,12 +13,12 @@ class FrogPondLog(models.Model):
     avgSize = models.FloatField(null = True)
     settings = models.TextField(null = True)
     plot = models.FileField(upload_to = 'screencaps/plots', null = True, max_length = 2000)
-    histogram = models.FileField(upload_to = 'screencaps/histogram', null = True, max_length = 2000)
-    world = models.FileField(upload_to = 'screencaps/world', null = True, max_length = 2000)
-    program = models.FileField(upload_to = 'screencaps/program', null = True, max_length = 2000)
+    histogram = models.FileField(upload_to = 'screencaps/histograms', null = True, max_length = 2000)
+    world = models.FileField(upload_to = 'screencaps/worlds', null = True, max_length = 2000)
+    program = models.FileField(upload_to = 'screencaps/programs', null = True, max_length = 2000)
     queryString = models.TextField(null = True, max_length = 500)
     userName = models.TextField(null = True, max_length = 500)
-    logTime = models.DateTimeField(null = True)
+    logTime = models.DateTimeField(auto_now=True, default=datetime.now)
     def __unicode__(self):
         return str(self.name)
 

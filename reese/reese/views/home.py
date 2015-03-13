@@ -49,6 +49,70 @@ def reeselog(request):
     return HttpResponse("End point")
 
 
+@csrf_exempt
+def newreeselog(request):
+    if request.method == "POST":
+	try:
+            request_data = request.POST
+            #store the app_id  app_annotation, and app image data payload
+            #app_id = request_data['app_id']
+            groupID = request_data['groupId']
+            frogCount = request_data['frogCount']
+            tickCount = request_data['tickCount']
+            avgSize = request_data['avgSize']
+            settings = request_data['settings']
+            plotImage = request_data['plotImage']
+            histogramImage = request_data['histogramImage']
+            worldImage = request_data['worldImage']
+            programImage = request_data['programImage']
+            queryString = request_data['queryString']
+            userName = request_data['userName']
+
+        except:
+            app_id = "appID error"
+            app_data = "appData error"
+            return HttpResponse(json.dumps({'status': 'I failed to process the image data'}), content_type="application/json")
+
+        rawPlot = plotImage.split(",")
+        plotData = b64decode(rawPlot[1])
+        #need to strip the base64 info lead-in
+        plotImageArg = ContentFile(plotData, groupID + 'plot.png')
+
+        rawHistogram = histogramImage.split(",")
+        histogramData = b64decode(rawHistogram[1])
+        #need to strip the base64 info lead-in
+        histogramImageArg = ContentFile(histogramData, groupID + 'histo.png')
+
+        rawWorld = worldImage.split(",")
+        worldData = b64decode(rawWorld[1])
+        #need to strip the base64 info lead-in
+        worldImageArg = ContentFile(worldData, groupID + '.png')
+
+        rawProgram = programImage.split(",")
+        programData = b64decode(rawProgram[1])
+        #need to strip the base64 info lead-in
+        programImageData = ContentFile(programData, groupID + '.png')
+
+
+        frogPondLogEntry = FrogPondLog(groupId=groupID, frogCount=frogCount, tickCount=tickCount, avgSize=avgSize,
+                                       settings=settings, plot=plotImageArg, histogram=histogramImageArg,
+                                       world=worldImageArg, program=programImageData, queryString=queryString,
+                                       userName=userName)
+
+        frogPondLogEntry.save()
+
+        return HttpResponse(json.dumps({'status': 'success!'}), content_type="application/json")
+    elif request.method == "GET":
+        #blah = ImageLog.objects.get(name="maybe2")
+        # todo = blah.annotation
+        togo = HttpResponse()
+        togo.write("<p>Should Not call this method via an HTTP GET</p>");
+        return togo
+
+    return HttpResponse("End point")
+
+
+
 
 @csrf_exempt
 def reeseimagelog(request):
