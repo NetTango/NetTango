@@ -131,15 +131,7 @@ class Block implements Touchable {
         block.param = new Parameter.fromXML(block, (n as Element));
       }
     }
-    /*
-    if (json.containsKey("params") && json["params"] is List) {
-      for (var p in json["params"]) {
-        if (p is Map) {
-          block.param = new Parameter.fromJSON(block, p);
-        }
-      }
-    }
-*/
+
     return block;
   }
 
