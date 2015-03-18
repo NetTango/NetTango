@@ -68,6 +68,12 @@ abstract class Model extends TouchLayer with Runtime {
   /* center of the model in screen coordinates (used to pan the display) */
   num centerX = 0, centerY = 0;
 
+  /* dimensions of the world regarless of patch size (in world coordinates) */
+  num minWorldX = -10;
+  num minWorldY = -10;
+  num maxWorldX = 10;
+  num maxWorldY = 10;
+
    
   Model(this.name, this.id) {
     
@@ -172,10 +178,6 @@ abstract class Model extends TouchLayer with Runtime {
   int get minPatchY => (height ~/ patchSize) ~/ -2;
   int get maxPatchY => (height ~/ patchSize) + minPatchY - 1;
   */
-  num get minWorldY => screenToWorldY(0, height);
-  num get minWorldX => screenToWorldX(0, 0);
-  num get maxWorldY => screenToWorldY(0, 0);
-  num get maxWorldX => screenToWorldX(width, 0);
   num get worldWidth => maxWorldX - minWorldX; //maxPatchX - minPatchX + 1;
   num get worldHeight => maxWorldY - minWorldY; //maxPatchY - minPatchY + 1;
 
@@ -240,8 +242,9 @@ abstract class Model extends TouchLayer with Runtime {
    
    
   void draw() {
+    tctx.clearRect(0, 0, width, height);
+    drawBackground(tctx);
     if (pctx != null) _drawPatches(pctx);
-    _drawPatches(tctx);
     _drawTurtles(tctx);
     drawForeground(tctx);
   }
@@ -251,6 +254,12 @@ abstract class Model extends TouchLayer with Runtime {
  * Subclasses can override this to draw information on top of the model
  */
   void drawForeground(CanvasRenderingContext2D ctx) {  }
+
+
+/**
+ * Subclasses can override this to draw information behind of the model
+ */
+  void drawBackground(CanvasRenderingContext2D ctx) {  }
 
 
   void initPatches() { 
@@ -286,7 +295,6 @@ abstract class Model extends TouchLayer with Runtime {
   
   
   void _drawTurtles(CanvasRenderingContext2D ctx) {
-    ctx.clearRect(0, 0, width, height);
     ctx.save();
     {
       ctx.translate(worldToScreenX(0, 0), worldToScreenY(0, 0));
