@@ -23,6 +23,8 @@
  */
 part of FrogPond2;
 
+const int MAX_FLIES = 15;
+
 class FrogPond extends Model {
 
   Plot miniPlot;
@@ -66,17 +68,32 @@ class FrogPond extends Model {
       }
     };
 
+    workspace.fromURLString("hop(1);chirp();chance(25%25);chance(80%25);hatch(size-variation);spin();end;left(20);end;right();");
+
     document.onKeyDown.listen((KeyEvent e) {
       // + key
       if (e.keyCode == 187) {
-        patchSize /= 0.98;
+        patchSize = min(120.0, patchSize / 0.98);
         draw();
       } 
       else if (e.keyCode == 189) {
-        patchSize *= 0.98;
+        patchSize = max(20.0, patchSize * 0.98);
         draw();
       }
     });
+
+    //-------------------------------------------------------------------
+    // load settings from the HTML file
+    //-------------------------------------------------------------------
+    var settings = querySelectorAll(".setting");
+    for (var setting in settings) {
+      String name = setting.id.substring(8);
+      if (setting.type == "range") {
+        this[name] = toNum(setting.value, 0);
+        print(this[name]);
+      }
+      setting.onChange.listen((e) => print("changed"));
+    }
 
     setup();
   }
@@ -89,16 +106,22 @@ class FrogPond extends Model {
   AgentSet get pads => getBreed(LilyPad);
 
 
+/**
+ * tick
+ */
   void tick() {
     super.tick();
     int fcount = frogs.length;
+    if (fcount == 0) {
+      pause();
+    }
     if (ticks % 20 == 0) {
       miniPlot.update(fcount);
       miniPlot.draw();
     }
-    if (ticks % 500 == 0) {
+    if (ticks % 100 == 0) {
       bugs.add(new Fly(this));
-      if (bugs.length > 10) {
+      if (bugs.length > MAX_FLIES) {
         bugs[0].die();
       }
     }
@@ -111,34 +134,14 @@ class FrogPond extends Model {
     followFrog = null;
     if (miniPlot != null) miniPlot.clear();
 
-    // add the lily pads
-    /*
-    addLilyPad(5.4, 3.5, 4.2);
-    addLilyPad(2.2, 3.0, 4.4);
-    addLilyPad(-1.3, 3.7, 4.7);
-    addLilyPad(6, 0, 4.5);
-    addLilyPad(2.2, 0, 4.2);
-    addLilyPad(-1.0, 0.0, 3.6);
-    addLilyPad(-4.0, 1.0, 3.5);
-    addLilyPad(3.4, -3.0, 4.0);
-    addLilyPad(0, -3.2, 3.5);
-    addLilyPad(-3.3, -2.8, 4.2);
-    */
-    /*
-    addLilyPad(0, -2, 4);
-    addLilyPad(4, 0, 7.5);
-    addLilyPad(-2, 1, 6);
-    addLilyPad(-3, -2, 4);
-    */
-
-
     clearTurtles();
-    addLilyPad(1, 0, 9);
+
+    addLilyPad(4, 0, 8);
+    addLilyPad(-2, 1, 8);
 
     addTurtle(new Frog(this));
 
-    // start with 10 flies
-    for (int i=0; i<10; i++) {
+    for (int i=0; i<MAX_FLIES; i++) {
       addTurtle(new Fly(this));
     }
   }
@@ -211,9 +214,12 @@ class FrogPond extends Model {
  */
   void traceExecution(CanvasRenderingContext2D ctx) {
 
-    Frog frog = (followFrog != null) ? followFrog : getFocalFrog();
+    Frog frog = followFrog;
+    if (frog == null || frog.dead) {
+      frog = getFocalFrog();
+    }
 
-    if (followFrog != null) {
+    if (followFrog != null && !followFrog.dead) {
       double tx = worldToScreenX(followFrog.x, followFrog.y);
       double ty = worldToScreenY(followFrog.x, followFrog.y);
       double r = followFrog.radius * patchSize;
@@ -247,6 +253,7 @@ class FrogPond extends Model {
         ctx.fillText("${followFrog.label}", tx + 15, ty - 118);
       }
 
+      ctx.textAlign = 'left';
       ctx.font = '200 13px Nunito, sans-serif';
       ctx.fillStyle = '#39a'; //rgba(255, 255, 255, 0.6)';
       ctx.fillText("size: ${followFrog.size.toStringAsFixed(1)}", tx + 15, ty - 93);
@@ -255,7 +262,7 @@ class FrogPond extends Model {
       ctx.fillText("energy: ${followFrog.energyAsString}", tx + 15, ty - 78);
     }
 
-    else if (frog != null) {
+    else if (frog != null && !frog.dead) {
       double tx = worldToScreenX(frog.x, frog.y);
       double ty = worldToScreenY(frog.x, frog.y);
       double r = frog.radius * patchSize;
@@ -268,8 +275,8 @@ class FrogPond extends Model {
       }
     }
 
-    if (frog != null) {
-      workspace.traceProgram(frog.program.curr);
+    if (frog != null && !frog.dead) {
+      workspace.traceProgram(frog.program.curr.id);
     }
   } 
   
