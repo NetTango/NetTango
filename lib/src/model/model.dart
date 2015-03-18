@@ -94,6 +94,22 @@ abstract class Model extends TouchLayer with Runtime {
 
 
 /**
+ * Returns a model property
+ */  
+  dynamic operator [] (String key) {
+    return properties[key];
+  }
+
+
+/**
+ * Assigns a model property
+ */ 
+  void operator []= (String key, var value) {
+    properties[key] = value;
+  } 
+
+
+/**
  * Registers a new turtle breed (as a subclass of Turtle)
  */
   void createBreed(Type breed) {
