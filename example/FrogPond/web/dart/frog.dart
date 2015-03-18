@@ -23,9 +23,12 @@
  */
 part of FrogPond2;
 
+/* Energy gain from eating a fly */
+const num ENERGY_GAIN = 15000;
+  
 
 class Frog extends Turtle {
-  
+
   /* pond that contains this frog */
   FrogPond pond;
   
@@ -45,7 +48,7 @@ class Frog extends Turtle {
   Fly prey = null;
   
   /* how long until we starve? */
-  int energy = 1500;
+  num energy = ENERGY_GAIN;
 
   /* age of frog in ticks */
   int age = 0;
@@ -71,7 +74,7 @@ class Frog extends Turtle {
     clone.tadpole = true;
 //  clone.program.synchronize(program);
     pond.frogs.add(clone);
-    energy ~/= 2; // reproduction cost
+    energy /= 2; // reproduction cost
     clone.energy = energy;
     clone.age = 0;
     return clone;
@@ -95,7 +98,7 @@ class Frog extends Turtle {
   
   void tick() {
     if (tadpole) return;
-    energy--;
+    energy -= size * size;
     age++;
     super.tick();
   }
@@ -123,7 +126,7 @@ class Frog extends Turtle {
  * Hop forward
  */
   void doHop(var param) {
-    double length = size;
+    double length = size * 0.75;
     if (param is num) length *= param;
     tween = new Tween();
     tween.function = TWEEN_SINE2;
@@ -272,8 +275,7 @@ class Frog extends Turtle {
  */
   void doDie(var param) {
     if (param == null ||
-        (param == "old" && isOld()) ||
-        (param == "starving" && isStarving()) ||
+        (param == "if starving" && isStarving()) ||
         (param == "old or starving" && (isOld() || isStarving())) ||
         (param == "always")) {
       tween = new Tween();
@@ -344,7 +346,7 @@ class Frog extends Turtle {
 
 
   num get energyPercent {
-    return max(energy, 0) / 15;
+    return max(energy, 0) / ENERGY_GAIN * 100.0;
   }
 
 
@@ -408,7 +410,7 @@ class Frog extends Turtle {
       if (bug != null && !bug.dead && !bug.captured) {
         prey = bug;
         prey.captured = true;
-        energy = 1500;
+        energy += ENERGY_GAIN;
       }
     } else {
       prey.x = tongueX;
