@@ -61,7 +61,13 @@ abstract class Model extends TouchLayer with Runtime {
   
   /* Is the mouse or finger down? */
   bool down = false;
-  
+
+  /* size of patches in pixels */  
+  num patchSize = 20.0;
+
+  /* center of the model in screen coordinates (used to pan the display) */
+  num centerX = 0, centerY = 0;
+
    
   Model(this.name, this.id) {
     
@@ -69,6 +75,8 @@ abstract class Model extends TouchLayer with Runtime {
     CanvasElement canvas = querySelector("#${id}-turtles");
     width = canvas.width;
     height = canvas.height;
+    centerX = width / 2;
+    centerY = height / 2;
     tctx = canvas.getContext("2d");
 
      // Patch canvas
@@ -90,8 +98,6 @@ abstract class Model extends TouchLayer with Runtime {
   
   int nextAgentId() => AGENT_ID++;
   
-  num patchSize = 20.0;
-
 
 /**
  * Returns a model property
@@ -175,26 +181,31 @@ abstract class Model extends TouchLayer with Runtime {
 
   
   num screenToWorldX(num sx, num sy) {
-    num cx = width / 2; // (0.5 - minPatchX) * patchSize;
-    return (sx - cx) / patchSize;
+    return (sx - centerX) / patchSize;
   }
    
    
   num screenToWorldY(num sx, num sy) {
-    num cy = height / 2; //(0.5 - minPatchY) * patchSize;
-    return ((height - sy) - cy) / patchSize;      
+    return ((height - sy) - centerY) / patchSize;      
   }
   
   
   num worldToScreenX(num wx, num wy) {
-    num cx = width / 2; //(0.5 - minPatchX) * patchSize;
-    return wx * patchSize + cx;
+    return wx * patchSize + centerX;
   }
   
   
   num worldToScreenY(num wx, num wy) {
-    num cy = height / 2; //(0.5 - minPatchY) * patchSize;
-    return height - (wy * patchSize + cy);
+    return height - (wy * patchSize + centerY);
+  }
+
+
+/**
+ * Pan the display by the given screen coordinate deltas
+ */
+  void pan(num deltaX, num deltaY) {
+    centerX -= deltaX;
+    centerY -= deltaY;
   }
 
 
