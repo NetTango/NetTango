@@ -19,6 +19,8 @@ part of NetTango;
 
 class CodeWorkspace extends TouchLayer {
   
+  String id;
+
   /* list of blocks in the workspace */
   List<Block> blocks = new List<Block>();
   
@@ -51,7 +53,7 @@ class CodeWorkspace extends TouchLayer {
  * "${id}-blocks" (e.g. "frog-workspace-blocks") to use as the JSON for 
  * defining the blocks available in this workspace
  */
-  CodeWorkspace(String id) {
+  CodeWorkspace(this.id) {
     
     // initialize drawing context
     CanvasElement canvas = querySelector("#${id}");
@@ -65,7 +67,6 @@ class CodeWorkspace extends TouchLayer {
     // start block
     start = new StartBlock(this);
     addBlock(start);
-    buildDefaultProgram();
     
     // trace bug
     bug = new TraceBug(start);
@@ -168,12 +169,14 @@ class CodeWorkspace extends TouchLayer {
     start.next = start.end;
     start.end.prev = start;
   }
-  
-    
+
+
 /**
- * Creates a simple starting program so that there's something that can be run
+ * Subclasses override to creates a starting program so that 
+ * there's something to be run
  */
-  void buildDefaultProgram(){}
+  void buildDefaultProgram() {
+  }
   
   
 /**
@@ -355,6 +358,40 @@ class CodeWorkspace extends TouchLayer {
 
 
 /**
+ * Parses a program description stored as a URL-encoded string and builds the 
+ * block program.
+ */
+  void fromURLString(String program) {
+    Block prev = start;
+    List<BeginBlock> nest = new List<BeginBlock>();
+
+    for (String s in program.split(';')) {
+      if (s == "end" && nest.isNotEmpty) {
+        prev = nest.last.end;
+        nest.removeLast();
+        continue;
+      } 
+      else {
+        int i = s.indexOf('(');
+        String name = (i > 0) ? s.substring(0, i) : s;
+        Block block = menu.getBlockByName(name);
+        if (block != null) {
+          block = block.clone();
+          addBlock(block);
+          prev.insertBlock(block);
+          block.inserted = true;
+          if (block is BeginBlock) {
+            nest.add(block);
+            (block as BeginBlock).addAllBlocks();
+          }
+        }
+        prev = block;
+      }
+    }
+  }
+  
+    
+/**
  * Converts the program to a URL-encoded string
  */
   String toURLString() {
@@ -362,7 +399,6 @@ class CodeWorkspace extends TouchLayer {
     Block b = start.next;
     while (b != null && b is! EndProgramBlock) {
       s += b.toURLString();
-      if (b is BeginBlock && b.next is EndProgramBlock) s += "];";
       b = b.next;
     }
     return Uri.encodeFull(s);
