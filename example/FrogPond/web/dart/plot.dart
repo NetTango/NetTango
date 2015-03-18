@@ -89,14 +89,24 @@ class Plot {
 		ctx.lineWidth = lineWidth;
 
 		// data fill
+		int start = max(0, data.length - gw);
 		ctx.beginPath();
 		ctx.moveTo(gx, gy + gh);
-		for (int i=0; i<data.length; i++) {
+		for (int i=start; i<data.length; i++) {
 			ctx.lineTo(_indexToScreenX(i), _valueToScreenY(data[i]));
 		}
 		ctx.lineTo(_indexToScreenX(data.length - 1), gy + gh);
 		ctx.closePath();
 		ctx.fill();
+
+		// axis lines 
+		ctx.lineWidth = 1;
+		ctx.beginPath();
+		ctx.moveTo(gx, gy);
+		ctx.lineTo(gx, gy + gh);
+		ctx.lineTo(gx + gw, gy + gh);
+		ctx.strokeStyle = "white";
+		ctx.stroke();
 
 		// data line 
 		/*
@@ -119,6 +129,6 @@ class Plot {
 	num _indexToScreenX(int index) {
 		if (data.isEmpty) return gx;
 		num p = index / max(data.length - 1, 10);
-		return gx + (p * gw);
+		return min(gx + index, gx + gw);
 	}
 }
