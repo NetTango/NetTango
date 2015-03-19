@@ -30,27 +30,29 @@ class Plot {
 	bool mini = false;  // iconified version
 
 	/* Graph dimensions */
-	num MARGIN = 10;
-	num gx, gy, gw, gh;
+	int MARGIN = 10;
+	int gx, gy, gw, gh;
 
 	/* Plot scale (TODO: autoscale) */
-	num maxY = 1000;
-	num minY = 0;
+	int maxY = 10;
+	int minY = 0;
 
-	String fillStyle = "rgba(255, 255, 255, 0.9)";
-	String strokeStyle = "rgba(255, 255, 255, 0.8)";
+	String fillStyle = "rgba(255, 255, 255, 0.7)";
+	String strokeStyle = "rgba(255, 255, 255, 0.7)";
 	num lineWidth = 2;
 
 	CanvasRenderingContext2D ctx;
 
-	List<num> data = new List<num>();
-	List<String> labels = new List<String>();
+	/* fixed length sliding window of data points */
+	int _len = 0;
+	List<num> data;
 
 
 	Plot(String id, [bool mini = false]) {
 		CanvasElement canvas = querySelector("#$id");
 		ctx = canvas.getContext("2d");
 		resize(canvas.width, canvas.height);
+		data = new List<num>.filled(50, 0);
 	}
 
 
@@ -65,15 +67,15 @@ class Plot {
 	}
 
 
-	void update(num value, [String label = null]) {
-		data.add(value);
-		labels.add(label);
+	void update(num value) {
+    data[_len % data.length] = value;
+    _len++;
 	}
 
 
 	void clear() {
-		data.clear();
-		labels.clear();
+		_len = 0;
+		data.fillRange(0, data.length, 0);
 		resize(width, height);
 		draw();
 	}
@@ -82,41 +84,48 @@ class Plot {
 	void draw() {
 		ctx.clearRect(0, 0, width, height);
 
+		// axis lines 
+		ctx.lineWidth = 1;
+		ctx.beginPath();
+		ctx.moveTo(gx, gy);
+		ctx.lineTo(gx, gy + gh);
+		ctx.lineTo(gx + gw - 0.5, gy + gh);
+		ctx.strokeStyle = strokeStyle;
+		ctx.stroke();
+
+		// scale tick mark
+		ctx.textAlign = "left";
+		ctx.textBaseline = "middle";
+		ctx.font = "200 12px Nunito, sans-serif";
+		ctx.fillStyle = "white";
+		ctx.fillText("${maxY}", gx + 3, gy);
+
 		if (data.isEmpty) return;
 
 		ctx.strokeStyle = strokeStyle;
 		ctx.fillStyle = fillStyle;
 		ctx.lineWidth = lineWidth;
 
-		// data fill
-		int start = max(0, data.length - gw);
-		ctx.beginPath();
-		ctx.moveTo(gx, gy + gh);
-		for (int i=start; i<data.length; i++) {
-			ctx.lineTo(_indexToScreenX(i), _valueToScreenY(data[i]));
+		// autoscale 
+		maxY = 10;
+		for (int i=0; i<data.length; i++) {
+			while (data[i] / maxY >= 1.0) {
+				maxY *= 2;
+			}
 		}
-		ctx.lineTo(_indexToScreenX(data.length - 1), gy + gh);
+
+		// data fill
+		int start = (_len < data.length) ? 0 : _len % data.length;
+		num dx = gw / data.length;
+		ctx.beginPath();
+		ctx.moveTo(gx + 0.5, gy + gh);
+		int l = min(data.length, _len);
+		for (int i=0; i<l; i++) {
+			ctx.lineTo(gx + 0.5 + dx * i, _valueToScreenY(data[(start + i) % data.length]));
+		}
+		ctx.lineTo(gx + 0.5 + dx * (l - 1), gy + gh);
 		ctx.closePath();
 		ctx.fill();
-
-		// axis lines 
-		ctx.lineWidth = 1;
-		ctx.beginPath();
-		ctx.moveTo(gx, gy);
-		ctx.lineTo(gx, gy + gh);
-		ctx.lineTo(gx + gw, gy + gh);
-		ctx.strokeStyle = "white";
-		ctx.stroke();
-
-		// data line 
-		/*
-		ctx.beginPath();
-		ctx.moveTo(_indexToScreenX(0), _valueToScreenY(data[0]));
-		for (int i=1; i<data.length; i++) {
-			ctx.lineTo(_indexToScreenX(i), _valueToScreenY(data[i]));
-		}
-		ctx.stroke();
-		*/
 	}
 
 
@@ -125,10 +134,4 @@ class Plot {
 		return (gy + gh) - (p * gh);
 	}
 
-
-	num _indexToScreenX(int index) {
-		if (data.isEmpty) return gx;
-		num p = index / max(data.length - 1, 10);
-		return min(gx + index, gx + gw);
-	}
 }
