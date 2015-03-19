@@ -23,8 +23,6 @@
  */
 part of FrogPond2;
 
-const int MAX_FLIES = 15;
-
 class FrogPond extends Model {
 
   Plot miniPlot;
@@ -68,7 +66,7 @@ class FrogPond extends Model {
       }
     };
 
-    workspace.fromURLString("hop(1);chirp();chance(25%25);chance(80%25);hatch(size-variation);spin();end;left(20);end;right();");
+    workspace.fromURLString("hop(2);spin();hunt();chance(25%25);hatch(size-variation);end;die();");
 
     document.onKeyDown.listen((KeyEvent e) {
       // + key
@@ -80,20 +78,23 @@ class FrogPond extends Model {
         patchSize = max(20.0, patchSize * 0.98);
         draw();
       }
-    });
-
-    //-------------------------------------------------------------------
-    // load settings from the HTML file
-    //-------------------------------------------------------------------
-    var settings = querySelectorAll(".setting");
-    for (var setting in settings) {
-      String name = setting.id.substring(8);
-      if (setting.type == "range") {
-        this[name] = toNum(setting.value, 0);
-        print(this[name]);
+      else if (e.keyCode == 37) {
+        pan(-5, 0);
+        draw();
       }
-      setting.onChange.listen((e) => print("changed"));
-    }
+      else if (e.keyCode == 38) {
+        pan(0, 5);
+        draw();
+      }
+      else if (e.keyCode == 39) {
+        pan(5, 0);
+        draw();
+      }
+      else if (e.keyCode == 40) {
+        pan(0, -5);
+        draw();
+      }
+    });
 
     setup();
   }
@@ -121,7 +122,7 @@ class FrogPond extends Model {
     }
     if (ticks % 100 == 0) {
       bugs.add(new Fly(this));
-      if (bugs.length > MAX_FLIES) {
+      if (bugs.length > properties["max-flies"]) {
         bugs[0].die();
       }
     }
@@ -130,18 +131,24 @@ class FrogPond extends Model {
   
   void setup() {
     patchSize = 60;
+    minWorldX = -12;
+    minWorldY = -5;
+    maxWorldX = 10;
+    maxWorldY = 11;
     wrap = false;
     followFrog = null;
     if (miniPlot != null) miniPlot.clear();
 
     clearTurtles();
 
-    addLilyPad(4, 0, 8);
-    addLilyPad(-2, 1, 8);
+    addLilyPad(5, 0, 8);
+    addLilyPad(-1, 1, 8);
+    addLilyPad(-5, 5, 2.5);
+    addLilyPad(-9, 7, 5);
 
     addTurtle(new Frog(this));
 
-    for (int i=0; i<MAX_FLIES; i++) {
+    for (int i=0; i<properties["max-flies"]; i++) {
       addTurtle(new Fly(this));
     }
   }
@@ -205,7 +212,23 @@ class FrogPond extends Model {
         pause();
       }
     }
+  }
 
+
+
+  void drawBackground(CanvasRenderingContext2D ctx) {
+    ctx.beginPath();
+    for (int i=minWorldX; i<=maxWorldX; i++) {
+      ctx.moveTo(worldToScreenX(i, maxWorldY).toInt() + 0.5, worldToScreenY(i, maxWorldY).toInt());
+      ctx.lineTo(worldToScreenX(i, minWorldY).toInt() + 0.5, worldToScreenY(i, minWorldY));
+    }
+    for (int j=minWorldY; j<=maxWorldY; j++) {
+      ctx.moveTo(worldToScreenX(minWorldX, j), worldToScreenY(minWorldX, j).toInt() + 0.5);
+      ctx.lineTo(worldToScreenX(maxWorldX, j), worldToScreenY(maxWorldX, j).toInt() + 0.5);
+    }
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+    ctx.stroke();
   }
 
 
