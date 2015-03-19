@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="css/main2.css">
   <link rel="stylesheet" href="packages/NetTango/css/fonts.css">
   <link rel="stylesheet" href="packages/NetTango/css/toolbar.css">
+  <link rel="stylesheet" href="packages/NetTango/css/settings.css">
 </head>
 <body>
 
@@ -28,39 +29,59 @@
     <canvas id="mini-plot" width="140" height="100"></canvas>
   </div>
 
+<div class="settings">
+  <p>How much energy do frogs gain when they eat a fly?</p>
+  <input class="setting" type="range" min="1000" max="4000" value="1500" step="100" id="setting-energy-gain">
+  <output for="setting-energy-gain" id="output-energy-gain">1500</output>
+  <br>
+  <br>
+
+  <p>What is the maximum number of flies in the pond?</p>
+  <input class="setting" type="range" min="0" max="50" value="20" step="1" id="setting-max-flies">
+  <output for="setting-max-flies" id="output-max-flies">20</output>
+  <br>
+  <br>
+
+  <p>Use metabolism (smaller frogs use energy slower than big frogs)</p>
+  <input class="setting" type="checkbox" checked="true" id="setting-metabolism"></input>
+  <output for="setting-metabolism">✓</output>
 </div>
 
 
 <!-- BLOCK DEFINITIONS -->
 <script type="application/xml" id="frog-workspace-blocks">
-<menu>
-  <block name="hop">
-    <param name="distance" type="range" min="0" max="4" step="0.2" default="1" />
-  </block>
-  <block name="chirp" />
-  <block name="left">
-    <param name="degrees" type="range" min="0" max="180" step="10" default="60" random="true" label="degrees" />
-  </block>
-  <block name="right">
-    <param name="degrees" type="range" min="0" max="180" step="10" default="60" random="true" label="degrees" />
-  </block>
-  <block name="spin" />
-  <block name="hunt" />
-  <block name="hatch" color="#b67196">
-    <param name="variation">
-      <v>size-variation</v>
-      <v>no-variation</v>
-    </param>
-  </block>
-  <block name="die" color="#b67196">
-    <param name="condition">
-      <v>if starving</v>
-    </param>
-  </block>
-  <block name="chance" type="if" instances="2">
-    <param name="probability" type="range" min="0" max="100" step="1" default="25" unit="%" />
-  </block>
-</menu>
+<workspace>
+  <menu>
+    <block name="hop">
+      <param name="distance" type="range" min="1" max="4" step="0.2" default="1" />
+    </block>
+    <block name="chirp" />
+    <block name="left">
+      <param name="degrees" type="range" min="0" max="180" step="10" default="60" random="true" label="degrees" />
+    </block>
+    <block name="right">
+      <param name="degrees" type="range" min="0" max="180" step="10" default="60" random="true" label="degrees" />
+    </block>
+    <block name="spin" />
+    <block name="hunt">
+      <param name="duration" type="range" min="1" max="10" step="1" default="2" random="true" label="seconds" />
+    </block>
+    <block name="hatch" color="#b67196">
+      <param name="variation">
+        <v>size-variation</v>
+        <v>no-variation</v>
+      </param>
+    </block>
+    <block name="die" color="#b67196">
+      <param name="condition">
+        <v>if starving</v>
+      </param>
+    </block>
+    <block name="chance" type="if" instances="2">
+      <param name="probability" type="range" min="0" max="100" step="1" default="25" unit="%" />
+    </block>
+  </menu>
+</workspace>
 </script>
 
 
