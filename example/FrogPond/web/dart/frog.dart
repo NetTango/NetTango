@@ -98,7 +98,7 @@ class Frog extends Turtle {
   
   void tick() {
     if (tadpole) return;
-    energy -= size * size;
+    energy -= (pond["metabolism"]) ? size : 1.0;
     age++;
     super.tick();
   }
@@ -288,6 +288,8 @@ class Frog extends Turtle {
       tween.addControlPoint(1.0, 1.0);
       tween.ondelta = ((value) => opacity += value );
       tween.onend = (() { die(); });
+    } else {
+      doPause();
     }
   }
   
