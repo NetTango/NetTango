@@ -100,6 +100,33 @@ abstract class Model extends TouchLayer with Runtime {
     bindClickEvent("restart-button", (e) { restart(); draw(); });
 
     resize(width, height);
+
+    //-------------------------------------------------------------------
+    // load settings from the HTML file. Currently only range and 
+    // checkbox input types are supported. Each <input> tag must have
+    // an id prefixed with "setting-" and must have class="setting"
+    //-------------------------------------------------------------------
+    var settings = querySelectorAll(".setting");
+    for (var setting in settings) {
+      String name = setting.id.substring(8);
+      if (setting.type == "range") {
+        this[name] = toNum(setting.value, 0);
+      } else if (setting.type == "checkbox") {
+        this[name] = setting.checked;
+      }
+      setting.onInput.listen((e) {
+        var out = querySelector("#output-${name}");
+        if (out != null) out.value = e.target.value;
+        this[name] = toNum(e.target.value, 0);
+      });
+      setting.onChange.listen((e) {
+        if (setting.type == "checkbox") {
+          this[name] = e.target.checked;
+        }
+      });
+    }
+
+
   }
   
   int nextAgentId() => AGENT_ID++;
