@@ -23,6 +23,11 @@
  */
 part of FrogPond2;
 
+double MAX_FROG_SIZE = 2.0;
+double MIN_FROG_SIZE = 0.25;
+int MAX_FROG_COUNT = 1000;
+
+
 class FrogPond extends Model {
 
   Plot plot;
@@ -141,13 +146,13 @@ class FrogPond extends Model {
 
     List<int> counts = new List<int>.filled(5, 0);
     for (Frog frog in frogs) {
-      if (frog.size >= 1.3) {
+      if (frog.size >= 1.65) {
         counts[4]++;
-      } else if (frog.size > 1.1) {
+      } else if (frog.size > 1.3) {
         counts[3]++;
-      } else if (frog.size > 0.9) {
+      } else if (frog.size > 0.95) {
         counts[2]++;
-      } else if (frog.size >= 0.7) {
+      } else if (frog.size >= 0.6) {
         counts[1]++;
       } else {
         counts[0]++;
