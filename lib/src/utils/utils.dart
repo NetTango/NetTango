@@ -313,3 +313,18 @@ num toNum(var d, num defalutValue) {
   return defalutValue;
 }
 
+
+/**
+ * Returns a random normally distributed number (mean = 0; SD = 1)
+ */
+double nextGaussian() { 
+  double c, x1, x2, rad, y1;
+  do {
+    x1 = 2 * rand.nextDouble() - 1;
+    x2 = 2 * rand.nextDouble() - 1;
+    rad = x1 * x1 + x2 * x2;
+  } while (rad >= 1 || rad == 0);
+  c = sqrt(-2 * log(rad) / rad);
+  return x1 * c;
+}
+
