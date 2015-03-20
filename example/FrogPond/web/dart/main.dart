@@ -26,9 +26,11 @@ library FrogPond2;
 import 'dart:html';
 import 'dart:math';
 import 'package:NetTango/ntango.dart';
+//import '../../../../lib/ntango.dart';
 
 part 'frog.dart';
 part 'fly.dart';
+part 'histogram.dart';
 part 'lilypad.dart';
 part 'pages.dart';
 part 'plot.dart';
@@ -57,7 +59,7 @@ void main() {
   Sounds.loadSound("turn");
   Sounds.loadSound("swoosh");
   Sounds.loadSound("gulp");
-  
+
   model = new FrogPond();
   
   bindClickEvents("close-button", (event) => hideAllDialogs());
