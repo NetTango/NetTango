@@ -39,8 +39,8 @@ class Plot {
 
 	String fillStyle = "rgba(255, 255, 255, 0.7)";
 	String strokeStyle = "rgba(255, 255, 255, 0.7)";
-	num lineWidth = 2;
 
+	CanvasElement canvas;
 	CanvasRenderingContext2D ctx;
 
 	/* fixed length sliding window of data points */
@@ -49,17 +49,21 @@ class Plot {
 
 
 	Plot(String id, [bool mini = false]) {
-		CanvasElement canvas = querySelector("#$id");
+		this.mini = mini;
+		canvas = querySelector("#$id");
 		ctx = canvas.getContext("2d");
 		resize(canvas.width, canvas.height);
 		data = new List<num>.filled(50, 0);
+
+		strokeStyle = canvas.getComputedStyle().color;
+		fillStyle = canvas.getComputedStyle().backgroundColor;
 	}
 
 
 	void resize(int w, int h) {
 		width = w;
 		height = h;
-		MARGIN = mini ? 6 : 20;
+		MARGIN = 20;
 		gx = MARGIN;
 		gy = MARGIN;
 		gw = width - MARGIN * 2;
@@ -81,30 +85,29 @@ class Plot {
 	}
 
 
+
 	void draw() {
-		ctx.clearRect(0, 0, width, height);
+		ctx.fillStyle = fillStyle;
+		ctx.fillRect(0, 0, width, height);
 
 		// axis lines 
 		ctx.lineWidth = 1;
 		ctx.beginPath();
-		ctx.moveTo(gx, gy);
-		ctx.lineTo(gx, gy + gh);
-		ctx.lineTo(gx + gw - 0.5, gy + gh);
+		ctx.moveTo(gx + 0.5, gy + 0.5);
+		ctx.lineTo(gx + 0.5, gy + gh + 0.5);
+		ctx.lineTo(gx + gw - 0.5, gy + gh + 0.5);
 		ctx.strokeStyle = strokeStyle;
+
 		ctx.stroke();
 
 		// scale tick mark
 		ctx.textAlign = "left";
 		ctx.textBaseline = "middle";
 		ctx.font = "200 12px Nunito, sans-serif";
-		ctx.fillStyle = "white";
+		ctx.fillStyle = strokeStyle;
 		ctx.fillText("${maxY}", gx + 3, gy);
 
-		if (data.isEmpty) return;
-
-		ctx.strokeStyle = strokeStyle;
-		ctx.fillStyle = fillStyle;
-		ctx.lineWidth = lineWidth;
+		if (_len == 0) return;
 
 		// autoscale 
 		maxY = 10;
@@ -116,22 +119,33 @@ class Plot {
 
 		// data fill
 		int start = (_len < data.length) ? 0 : _len % data.length;
-		num dx = gw / data.length;
+		num dx = gw / (data.length - 1);
+		ctx.strokeStyle = strokeStyle;
+		ctx.lineCap = "round";
+		ctx.lineJoin = "round";
+		ctx.lineWidth = 1;
 		ctx.beginPath();
-		ctx.moveTo(gx + 0.5, gy + gh);
+		ctx.moveTo(gx + 0.5, gy + gh + 0.5);
 		int l = min(data.length, _len);
+		int tx = 0;
 		for (int i=0; i<l; i++) {
-			ctx.lineTo(gx + 0.5 + dx * i, _valueToScreenY(data[(start + i) % data.length]));
+			tx = (gx + 0.5 + dx * i).toInt();
+			ctx.lineTo(tx + 0.5, _valueToScreenY(data[(start + i) % data.length]));
 		}
-		ctx.lineTo(gx + 0.5 + dx * (l - 1), gy + gh);
+		tx = (gx + 0.5 + dx * (l - 1)).toInt();
+		ctx.lineTo(tx + 0.5, gy + gh + 0.5);
 		ctx.closePath();
+		ctx.globalAlpha = mini ? 1.0 : 0.3;
 		ctx.fill();
+		ctx.globalAlpha = 1.0;
+		ctx.stroke();
 	}
 
 
 	num _valueToScreenY(num value) {
 		num p = value / (maxY - minY);
-		return (gy + gh) - (p * gh);
+		p = (gy + gh) - (p * gh);
+		return p.round().toInt() + 0.5;
 	}
 
 }
