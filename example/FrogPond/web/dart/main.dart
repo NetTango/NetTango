@@ -26,7 +26,6 @@ library FrogPond2;
 import 'dart:html';
 import 'dart:math';
 import 'package:NetTango/ntango.dart';
-//import '../../../../lib/ntango.dart';
 
 part 'frog.dart';
 part 'fly.dart';
@@ -35,10 +34,6 @@ part 'lilypad.dart';
 part 'pages.dart';
 part 'plot.dart';
 part 'pond.dart';
-
-double MAX_FROG_SIZE = 1.7;
-double MIN_FROG_SIZE = 0.2;
-int MAX_FROG_COUNT = 1000;
 
 FrogPond model;
 
