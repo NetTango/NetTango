@@ -153,7 +153,7 @@ class Histogram {
           ctx.fillText("${(values[i] * 100).round().toInt()}%", bx + bw/2, by - 4);
         }
       }
-      id += 0.2;
+      id += 0.15;
       bx += bw;
     }
   }
