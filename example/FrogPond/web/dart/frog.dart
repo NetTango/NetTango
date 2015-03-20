@@ -23,10 +23,6 @@
  */
 part of FrogPond2;
 
-/* Energy gain from eating a fly */
-const num ENERGY_GAIN = 15000;
-  
-
 class Frog extends Turtle {
 
   /* pond that contains this frog */
@@ -48,7 +44,7 @@ class Frog extends Turtle {
   Fly prey = null;
   
   /* how long until we starve? */
-  num energy = ENERGY_GAIN;
+  num energy = 1000;
 
   /* age of frog in ticks */
   int age = 0;
@@ -64,6 +60,7 @@ class Frog extends Turtle {
   Frog(FrogPond pond) : super(pond) {
     this.pond = pond;
     img.src = "images/bluefrog.png";
+    energy = pond["energy-gain"];
   }
   
   
@@ -85,7 +82,7 @@ class Frog extends Turtle {
   double get tongueY => y + cos(heading) * _tongue * size * 1.8;
   
   double get radius => super.radius * 0.75;
-  
+
   
   void reset() {
     opacity = 1.0;
@@ -94,7 +91,7 @@ class Frog extends Turtle {
     _vision = -1.0;
     label = null;
   }
-  
+
   
   void tick() {
     if (tadpole) return;
@@ -309,15 +306,16 @@ class Frog extends Turtle {
     tween.delay = 0;
     tween.duration = 15;
     tween.onstart = (() => label = "hatch");
-    tween.onend = (() {
-      doPause();
-      //if (running) baby.program.play();
-    });
+    tween.onend = (() { doPause(); });
     
     // compute new size for frog depending on parameter
     double s = size;
     if (param == "size-variation") {
-      s += Agent.rnd.nextDouble() * 0.2 - 0.1;
+      double g = nextGaussian() * 0.1;
+      if (g > 0.25) g = 0.25;
+      if (g < -0.25) g = -0.25;
+      s += g;
+      //s += Agent.rnd.nextDouble() * 0.2 - 0.1;
     }
     s = min(MAX_FROG_SIZE, max(MIN_FROG_SIZE, s));
     tween.addControlPoint(0.05, 0);
@@ -348,7 +346,7 @@ class Frog extends Turtle {
 
 
   num get energyPercent {
-    return max(energy, 0) / ENERGY_GAIN * 100.0;
+    return max(energy, 0) / pond["energy-gain"] * 100.0;
   }
 
 
@@ -412,7 +410,7 @@ class Frog extends Turtle {
       if (bug != null && !bug.dead && !bug.captured) {
         prey = bug;
         prey.captured = true;
-        energy += ENERGY_GAIN;
+        energy += pond["energy-gain"];
       }
     } else {
       prey.x = tongueX;
