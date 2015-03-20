@@ -26,25 +26,31 @@
       <button id="forward-button"></button>
       <button id="restart-button"></button>
     </div>
-    <canvas id="mini-plot" width="140" height="100"></canvas>
+    <!-- <canvas id="mini-plot" width="140" height="100"></canvas> -->
   </div>
 
-<div class="settings">
-  <p>How much energy do frogs gain when they eat a fly?</p>
-  <input class="setting" type="range" min="1000" max="4000" value="1500" step="100" id="setting-energy-gain">
-  <output for="setting-energy-gain" id="output-energy-gain">1500</output>
-  <br>
-  <br>
+  <div>
+    <canvas id="big-plot" width="300" height="300"></canvas>
+    <canvas id="big-hist" width="580" height="300"></canvas>
+  </div>
 
-  <p>What is the maximum number of flies in the pond?</p>
-  <input class="setting" type="range" min="0" max="50" value="20" step="1" id="setting-max-flies">
-  <output for="setting-max-flies" id="output-max-flies">20</output>
-  <br>
-  <br>
+  <div class="settings">
+    <p>How much energy do frogs gain when they eat a fly?</p>
+    <input class="setting" type="range" min="1000" max="4000" value="1500" step="100" id="setting-energy-gain">
+    <output for="setting-energy-gain" id="output-energy-gain">1500</output>
+    <br>
+    <br>
 
-  <p>Use metabolism (smaller frogs use energy slower than big frogs)</p>
-  <input class="setting" type="checkbox" checked="true" id="setting-metabolism"></input>
-  <output for="setting-metabolism">✓</output>
+    <p>What is the maximum number of flies in the pond?</p>
+    <input class="setting" type="range" min="0" max="50" value="20" step="1" id="setting-max-flies">
+    <output for="setting-max-flies" id="output-max-flies">20</output>
+    <br>
+    <br>
+
+    <p>Use metabolism (smaller frogs use energy slower than big frogs)</p>
+    <input class="setting" type="checkbox" checked="true" id="setting-metabolism"></input>
+    <output for="setting-metabolism">✓</output>
+  </div>
 </div>
 
 
