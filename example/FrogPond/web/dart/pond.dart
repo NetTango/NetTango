@@ -25,7 +25,8 @@ part of FrogPond2;
 
 class FrogPond extends Model {
 
-  Plot miniPlot;
+  Plot plot;
+  Histogram hist;
 
   /* frog that the user taps on to follow around the screen */
   Frog followFrog = null;
@@ -36,8 +37,12 @@ class FrogPond extends Model {
     createBreed(Frog);
     createBreed(Fly);
 
-    miniPlot = new Plot("mini-plot", true);
-    miniPlot.draw();
+    //miniPlot = new Plot("mini-plot", true);
+    //miniPlot.draw();
+
+    plot = new Plot("big-plot");
+    hist = new Histogram("big-hist");
+
     
     /* Trigger a screen refresh once the lilypad image finishes loading */    
     ImageElement lilypad = new ImageElement();
@@ -116,9 +121,8 @@ class FrogPond extends Model {
     if (fcount == 0) {
       pause();
     }
-    if (ticks % 20 == 0) {
-      miniPlot.update(fcount);
-      miniPlot.draw();
+    if (ticks % 50 == 0) {
+      updatePlots();
     }
     if (ticks % 100 == 0) {
       bugs.add(new Fly(this));
@@ -126,6 +130,31 @@ class FrogPond extends Model {
         bugs[0].die();
       }
     }
+  }
+
+
+  void updatePlots() {
+    // miniPlot.update(fcount);
+    // miniPlot.draw();
+    plot.update(frogs.length);
+    plot.draw();
+
+    List<int> counts = new List<int>.filled(5, 0);
+    for (Frog frog in frogs) {
+      if (frog.size >= 1.3) {
+        counts[4]++;
+      } else if (frog.size > 1.1) {
+        counts[3]++;
+      } else if (frog.size > 0.9) {
+        counts[2]++;
+      } else if (frog.size >= 0.7) {
+        counts[1]++;
+      } else {
+        counts[0]++;
+      }
+    }
+    hist.update(counts);
+    hist.draw();
   }
   
   
@@ -137,7 +166,6 @@ class FrogPond extends Model {
     maxWorldY = 11;
     wrap = false;
     followFrog = null;
-    if (miniPlot != null) miniPlot.clear();
 
     clearTurtles();
 
@@ -151,6 +179,7 @@ class FrogPond extends Model {
     for (int i=0; i<properties["max-flies"]; i++) {
       addTurtle(new Fly(this));
     }
+    updatePlots();
   }
 
 
