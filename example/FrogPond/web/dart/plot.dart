@@ -63,7 +63,7 @@ class Plot {
 	void resize(int w, int h) {
 		width = w;
 		height = h;
-		MARGIN = 20;
+		MARGIN = w ~/ 10;
 		gx = MARGIN;
 		gy = MARGIN;
 		gw = width - MARGIN * 2;
@@ -135,7 +135,7 @@ class Plot {
 		tx = (gx + 0.5 + dx * (l - 1)).toInt();
 		ctx.lineTo(tx + 0.5, gy + gh + 0.5);
 		ctx.closePath();
-		ctx.globalAlpha = mini ? 1.0 : 0.3;
+		ctx.globalAlpha = mini ? 1.0 : 0.7;
 		ctx.fill();
 		ctx.globalAlpha = 1.0;
 		ctx.stroke();
