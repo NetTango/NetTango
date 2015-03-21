@@ -121,6 +121,8 @@ class FrogPond extends Model {
     });
 
     setup();
+    addTouchable(new BackgroundTouchable(this));
+
   }
 
 
@@ -193,11 +195,12 @@ class FrogPond extends Model {
     addLilyPad(-5, 5, 4);
     addLilyPad(-9, 7, 5);
 
-    addTurtle(new Frog(this));
+    addTurtle(new Frog(this) .. size = 1.125);
 
     for (int i=0; i<properties["max-flies"]; i++) {
       addTurtle(new Fly(this));
     }
+    plot.clear();
     updatePlots();
   }
 
@@ -212,6 +215,7 @@ class FrogPond extends Model {
 
 
   bool backgroundTouch(Contact c) {
+    /*
     if (followFrog != null) {
       followFrog = null;
     } else {
@@ -220,6 +224,7 @@ class FrogPond extends Model {
       followFrog = frogs.getTurtleAtPoint(wx, wy);
     }
     draw();
+    */
     return false;
   }  
 
@@ -369,5 +374,50 @@ class FrogPond extends Model {
  */
   bool inWater(num x, num y) {
     return (pads.getTurtleAtPoint(x, y) == null);
-  }  
+  }
 }
+
+
+class BackgroundTouchable extends Touchable {
+
+  FrogPond pond;
+  num lastX = 0, lastY = 0;
+
+  BackgroundTouchable(this.pond);
+  
+
+  bool containsTouch(Contact c) {
+    return true;
+  }
+   
+  bool touchDown(Contact c) {
+    if (pond.followFrog != null) {
+      pond.followFrog = null;
+    } else {
+      num wx = pond.screenToWorldX(c.touchX, c.touchY);
+      num wy = pond.screenToWorldY(c.touchX, c.touchY);
+      lastX = c.touchX;
+      lastY = c.touchY;
+      pond.followFrog = pond.frogs.getTurtleAtPoint(wx, wy);
+    }
+    pond.draw();
+
+    return true;
+  }
+   
+  void touchUp(Contact event) {
+
+  }
+   
+  void touchDrag(Contact c) {
+    if (pond.followFrog == null) {
+      pond.pan(lastX - c.touchX, c.touchY - lastY);
+      lastX = c.touchX;
+      lastY = c.touchY;
+      pond.draw();
+    }
+  }
+   
+  void touchSlide(Contact event) {
+  }
+}  
