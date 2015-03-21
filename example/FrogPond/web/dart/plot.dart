@@ -57,6 +57,13 @@ class Plot {
 
 		strokeStyle = canvas.getComputedStyle().color;
 		fillStyle = canvas.getComputedStyle().backgroundColor;
+
+		canvas.onClick.listen((e) {
+			CanvasElement tc = new CanvasElement(width: width ~/ 2, height: height);
+			tc.getContext("2d").drawImage((canvas as CanvasImageSource), 0, 0);
+			var dataUrl = tc.toDataUrl();
+			window.open(dataUrl, "test", "width=${tc.width}, height=${tc.height}");
+		});
 	}
 
 
@@ -64,9 +71,9 @@ class Plot {
 		width = w;
 		height = h;
 		MARGIN = w ~/ 10;
-		gx = MARGIN;
+		gx = MARGIN * 2;
 		gy = MARGIN;
-		gw = width - MARGIN * 2;
+		gw = width - MARGIN * 3;
 		gh = height - MARGIN * 2;
 	}
 
@@ -79,9 +86,14 @@ class Plot {
 
 	void clear() {
 		_len = 0;
-		data.fillRange(0, data.length, 0);
+		for (int i=0; i<data.length; i++) data[i] = 0;
 		resize(width, height);
 		draw();
+	}
+
+
+	num get lastValue {
+		return data[ (_len - 1) % data.length ];
 	}
 
 
@@ -100,19 +112,12 @@ class Plot {
 
 		ctx.stroke();
 
-		// scale tick mark
-		ctx.textAlign = "left";
-		ctx.textBaseline = "middle";
-		ctx.font = "200 12px Nunito, sans-serif";
-		ctx.fillStyle = strokeStyle;
-		ctx.fillText("${maxY}", gx + 3, gy);
-
 		if (_len == 0) return;
 
 		// autoscale 
 		maxY = 10;
 		for (int i=0; i<data.length; i++) {
-			while (data[i] / maxY >= 1.0) {
+			while (data[i] / maxY >= 0.9) {
 				maxY *= 2;
 			}
 		}
@@ -124,6 +129,7 @@ class Plot {
 		ctx.lineCap = "round";
 		ctx.lineJoin = "round";
 		ctx.lineWidth = 1;
+		ctx.fillStyle = strokeStyle;
 		ctx.beginPath();
 		ctx.moveTo(gx + 0.5, gy + gh + 0.5);
 		int l = min(data.length, _len);
@@ -135,10 +141,26 @@ class Plot {
 		tx = (gx + 0.5 + dx * (l - 1)).toInt();
 		ctx.lineTo(tx + 0.5, gy + gh + 0.5);
 		ctx.closePath();
-		ctx.globalAlpha = mini ? 1.0 : 0.7;
+		ctx.globalAlpha = 0.5;
 		ctx.fill();
 		ctx.globalAlpha = 1.0;
 		ctx.stroke();
+
+		ctx.beginPath();
+		int ty = _valueToScreenY(lastValue).toInt();
+		ctx.moveTo(gx - 4, ty + 0.5);
+		ctx.lineTo(gx + 0.5, ty + 0.5);
+		ctx.moveTo(gx - 4, gy + 0.5);
+		ctx.lineTo(gx + 0.5, gy + 0.5);
+		ctx.stroke();
+
+		// scale tick marks
+		ctx.textAlign = "right";
+		ctx.textBaseline = "middle";
+		ctx.font = "200 12px Nunito, sans-serif";
+		ctx.fillStyle = strokeStyle;
+		ctx.fillText("${maxY}", gx - 5, gy);
+		ctx.fillText("${lastValue}", gx - 5, ty);		
 	}
 
 
