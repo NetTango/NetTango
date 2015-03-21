@@ -30,8 +30,10 @@
   </div>
 
   <div>
-    <canvas id="big-plot" width="300" height="300"></canvas>
-    <canvas id="big-hist" width="580" height="300"></canvas>
+    <canvas id="big-plot" width="160" height="160"></canvas>
+    <canvas id="big-hist" width="230" height="160"></canvas>
+    <canvas id="prog" width="160" height="160" style="background-color: pink; border: 1px solid black;"></canvas>
+    <canvas id="world" width="160" height="160" style="background-color: cyan; border: 1px solid black;"></canvas>
   </div>
 
   <div class="settings">
@@ -70,7 +72,7 @@
     </block>
     <block name="spin" />
     <block name="hunt">
-      <param name="duration" type="range" min="1" max="10" step="1" default="2" random="true" label="seconds" />
+      <param name="duration" type="range" min="1" max="10" step="1" default="5" random="true" label="seconds" unit="s" />
     </block>
     <block name="hatch" color="#b67196">
       <param name="variation">
@@ -81,10 +83,19 @@
     <block name="die" color="#b67196">
       <param name="condition">
         <v>if starving</v>
+        <v>always</v>
       </param>
     </block>
     <block name="chance" type="if" instances="2">
       <param name="probability" type="range" min="0" max="100" step="1" default="25" unit="%" />
+    </block>
+    <block name="if" type="if" instances="2">
+      <param name="condition">
+        <v>see-water?</v>
+        <v>full?</v>
+        <v>hungry?</v>
+        <v>starving?</v>
+      </param>
     </block>
   </menu>
 </workspace>
