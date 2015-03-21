@@ -55,6 +55,7 @@ class Histogram {
     foreground = canvas.getComputedStyle().color;
     background = canvas.getComputedStyle().backgroundColor;
     frog.src = "images/whitefrog.png";
+    frog.onLoad.listen((e) => draw());
   }
 
 
@@ -107,13 +108,13 @@ class Histogram {
     ctx.fillRect(0, 0, width, height);
 
 
-    MARGIN = mini? 10 : 20;
-    int GAP = mini? 2 : 10;
+    MARGIN = width ~/ 10;
+    int GAP = width ~/ 50; //mini? 2 : 10;
 
     gx = MARGIN;
-    gy = mini ? MARGIN * 2 : MARGIN * 3;
+    gy = MARGIN;
     gw = width - MARGIN * 2;
-    gh = mini ? height - MARGIN * 3 : height - MARGIN * 8;
+    gh = height - MARGIN * 3;
     
     ctx.strokeStyle = foreground;
     ctx.lineWidth = 1;
@@ -121,39 +122,43 @@ class Histogram {
     ctx.moveTo(gx + 0.5, gy + gh + 0.5);
     ctx.lineTo(gx + gw + 0.5, gy + gh + 0.5);
     ctx.stroke();
+
+    gx += MARGIN / 4;
+    gw -= MARGIN / 2;
     
-    num iw = frog.width * 0.3;
-    num ih = frog.height * 0.3;
+    num iw = frog.width;
+    num ih = frog.height;
     
-    gx += MARGIN;
-    gw -= MARGIN * 2;
     int bw = gw ~/ bins;
     int bx = gx;
-    int bh = 130;
-    int by = gy + gh - bh;
-    double id = 0.2;
+    int by, bh;
+
+    if (iw == 0) return;
+
+    double minf = 0.5;
+    double maxf = 1.2;
+    double step = (maxf - minf) / bins;
     
     ctx.fillStyle = foreground;
-    ctx.font = "14px sans-serif";
+    ctx.font = "200 12px sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "bottom";
     for (int i=0; i<bins; i++) {
       
       bh = (gh * values[i]).round().toInt();
       by = gy + gh - bh;
-      
-      iw = frog.width * id;
-      ih = frog.height * id;
+
+      iw = bw * (minf + step * i);
+      ih = bw * (minf + step * i);
+
       ctx.fillRect(bx + GAP + 0.5, by + 0.5, bw - GAP * 2, bh);
-      ctx.globalAlpha = 1.0;
       ctx.strokeRect(bx + GAP + 0.5, by + 0.5, bw - GAP * 2, bh);
-      if (!mini) {
-        ctx.drawImageScaled(frog, bx + bw/2 - iw/2, gy + gh + 8, iw, ih);
-        if (values[i] > 0) {
-          ctx.fillText("${(values[i] * 100).round().toInt()}%", bx + bw/2, by - 4);
-        }
+      if (values[i] > 0) {
+        ctx.fillText("${(values[i] * 100).round().toInt()}%", bx + bw/2, by - 4);
       }
-      id += 0.15;
+      ctx.globalAlpha = 0.9;
+      ctx.drawImageScaled(frog, bx + bw/2 - iw/2, gy + gh + 8, iw, ih);
+      ctx.globalAlpha = 1.0;
       bx += bw;
     }
   }
