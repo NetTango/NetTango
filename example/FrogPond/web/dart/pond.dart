@@ -61,13 +61,27 @@ class FrogPond extends Model {
     workspace.addBlockAction("left", (frog, param) { if (frog is Frog) { frog.doTurn('left', param); } } );
     workspace.addBlockAction("right", (frog, param) { if (frog is Frog) { frog.doTurn('right', param); } } );
     workspace.addBlockAction("spin", (frog, param) { if (frog is Frog) { frog.doSpin(); } } );
-    workspace.addBlockAction("hunt", (frog, param) { if (frog is Frog) { frog.doHunt(); } } );
+    workspace.addBlockAction("hunt", (frog, param) { if (frog is Frog) { frog.doHunt(param); } } );
     workspace.addBlockAction("hatch", (frog, param) { if (frog is Frog) { frog.doHatch(param); } } );
     workspace.addBlockAction("die", (frog, param) { if (frog is Frog) { frog.doDie(param); } } );
     workspace.addBlockAction("chance", (frog, param) {
       num value = num.parse(param.substring(0, param.length - 1));
       return (Agent.rnd.nextDouble() * 100.0 < value);
-    } );
+    });
+    workspace.addBlockAction("if", (frog, param) {
+      if (frog is! Frog) return false;
+      if (param == "starving?" && frog.isStarving()) {
+        return true;
+      } else if (param == "hungry?" && frog.isHungry()) {
+        return true;
+      } else if (param == "full?" && frog.isFull()) {
+        return true;
+      } else if (param == "see-water?" && frog.nearWater()) {
+        return true;
+      } else {
+        return false;
+      }
+    });
 
     workspace.onProgramChanged = () {
       pause();
@@ -176,7 +190,7 @@ class FrogPond extends Model {
 
     addLilyPad(5, 0, 8);
     addLilyPad(-1, 1, 8);
-    addLilyPad(-5, 5, 2.5);
+    addLilyPad(-5, 5, 4);
     addLilyPad(-9, 7, 5);
 
     addTurtle(new Frog(this));
@@ -315,7 +329,7 @@ class FrogPond extends Model {
       ctx.fillStyle = '#39a'; //rgba(255, 255, 255, 0.6)';
       ctx.fillText("size: ${followFrog.size.toStringAsFixed(1)}", tx + 15, ty - 93);
 
-      if (followFrog.energyPercent < 5) ctx.fillStyle = 'red';
+      if (followFrog.isHungry()) ctx.fillStyle = 'red';
       ctx.fillText("energy: ${followFrog.energyAsString}", tx + 15, ty - 78);
     }
 
