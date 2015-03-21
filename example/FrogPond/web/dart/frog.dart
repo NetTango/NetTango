@@ -246,7 +246,9 @@ class Frog extends Turtle {
 /**
  * Hunts for food
  */
-  void doHunt() {
+  void doHunt(var param) {
+    num s = 5;
+    if (param != null) s = toNum(param.substring(0, param.length - 1), 5);
     tween = new Tween();
     tween.onstart = (() {
       label = "hunt";
@@ -257,7 +259,7 @@ class Frog extends Turtle {
     });
     tween.addControlPoint(0.0, 0.0);
     tween.addControlPoint(0.0, 1.0);
-    tween.duration = 140;
+    tween.duration = s * 22; 
     tween.ondelta = ((value) {
       if (seeFly()) {
         _vision = 0.0;
@@ -273,7 +275,6 @@ class Frog extends Turtle {
   void doDie(var param) {
     if (param == null ||
         (param == "if starving" && isStarving()) ||
-        (param == "old or starving" && (isOld() || isStarving())) ||
         (param == "always")) {
       tween = new Tween();
       tween.function = TWEEN_DECAY;
@@ -283,6 +284,7 @@ class Frog extends Turtle {
       tween.addControlPoint(1.0, 0);
       tween.addControlPoint(0.0, 0.5);
       tween.addControlPoint(1.0, 1.0);
+      tween.onstart = (() => label = "die");
       tween.ondelta = ((value) => opacity += value );
       tween.onend = (() { die(); });
     } else {
@@ -327,7 +329,7 @@ class Frog extends Turtle {
     
   bool nearWater() {
     bool wet = false;
-    double r = size * 1.5;
+    double r = size * 0.75;
     forward(r);
     if (inWater()) wet = true;
     backward(r);
@@ -345,6 +347,15 @@ class Frog extends Turtle {
   }
 
 
+  bool isHungry() {
+    return energy <= pond["energy-gain"] * 0.2;
+  }
+
+
+  bool isFull() {
+    return energy >= pond["energy-gain"] * 0.85;
+  }
+  
   num get energyPercent {
     return max(energy, 0) / pond["energy-gain"] * 100.0;
   }
@@ -355,31 +366,11 @@ class Frog extends Turtle {
   }
   
   
-  bool isHungry() {
-    return energy <= 400;
-  }
-
-
   bool isOld() {
     return age > 500;
   }
   
   
-  bool isFull() {
-    return energy >= 1000;
-  }
-  
-  // FIX ME
-  bool seeBug() {
-    //forward(radius * 4.0);
-    //Fly bug = pond.bugs.getTurtleHere(this);
-    //bool b = bug != null;
-    //backward(radius * 4.0);
-    //return b;
-    return false;
-  }
-  
-
   bool seeFly() {
     for (Fly fly in pond.bugs) {
       if (!fly.dead && !fly.captured) {
@@ -394,15 +385,6 @@ class Frog extends Turtle {
     return false;
   }
   
-  
-/*  
-  bool isBlocked() {
-    forward(radius * 4.0);
-    bool blocked = pond.isFrogHere(this);
-    backward(radius * 4.0);
-    return blocked;
-  }
-*/  
   
   void eatBug() {
     if (prey == null) {
