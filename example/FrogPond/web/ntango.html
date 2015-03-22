@@ -38,14 +38,14 @@
 
   <div class="settings">
     <p>How much energy do frogs gain when they eat a fly?</p>
-    <input class="setting" type="range" min="1000" max="4000" value="1500" step="100" id="setting-energy-gain">
-    <output for="setting-energy-gain" id="output-energy-gain">1500</output>
+    <input class="setting" type="range" min="1000" max="4000" value="1000" step="100" id="setting-energy-gain">
+    <output for="setting-energy-gain" id="output-energy-gain">1000</output>
     <br>
     <br>
 
     <p>What is the maximum number of flies in the pond?</p>
-    <input class="setting" type="range" min="0" max="60" value="20" step="1" id="setting-max-flies">
-    <output for="setting-max-flies" id="output-max-flies">20</output>
+    <input class="setting" type="range" min="0" max="60" value="30" step="1" id="setting-max-flies">
+    <output for="setting-max-flies" id="output-max-flies">30</output>
     <br>
     <br>
 
@@ -72,7 +72,7 @@
     </block>
     <block name="spin" />
     <block name="hunt">
-      <param name="duration" type="range" min="1" max="10" step="1" default="5" random="true" label="seconds" unit="s" />
+      <param name="duration" type="range" min="1" max="10" step="1" default="7" random="true" label="seconds" unit="s" />
     </block>
     <block name="hatch" color="#b67196">
       <param name="variation">
@@ -91,10 +91,10 @@
     </block>
     <block name="if" type="if" instances="2">
       <param name="condition">
-        <v>see-water?</v>
         <v>full?</v>
         <v>hungry?</v>
         <v>starving?</v>
+        <v>see-water?</v>
       </param>
     </block>
   </menu>
