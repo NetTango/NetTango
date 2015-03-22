@@ -58,12 +58,14 @@ class Plot {
 		strokeStyle = canvas.getComputedStyle().color;
 		fillStyle = canvas.getComputedStyle().backgroundColor;
 
+/*
 		canvas.onClick.listen((e) {
 			CanvasElement tc = new CanvasElement(width: width ~/ 2, height: height);
-			tc.getContext("2d").drawImage((canvas as CanvasImageSource), 0, 0);
+			tc.getContext("2d").drawImage(canvas, 0, 0);
 			var dataUrl = tc.toDataUrl();
 			window.open(dataUrl, "test", "width=${tc.width}, height=${tc.height}");
 		});
+*/
 	}
 
 
