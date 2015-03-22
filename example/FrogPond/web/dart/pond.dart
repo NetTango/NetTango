@@ -31,7 +31,7 @@ int MAX_FROG_COUNT = 1000;
 class FrogPond extends Model {
 
   Plot plot;
-  Histogram hist;
+  Histogram hist, miniHist;
 
   /* frog that the user taps on to follow around the screen */
   Frog followFrog = null;
@@ -50,6 +50,7 @@ class FrogPond extends Model {
 
     plot = new Plot("big-plot");
     hist = new Histogram("big-hist");
+    miniHist = new Histogram("mini-hist", true);
 
     
     /* Trigger a screen refresh once the lilypad image finishes loading */    
@@ -172,7 +173,7 @@ class FrogPond extends Model {
     bridge = new LilyPad(this, -6, 2.5, 3);
     pads.add(bridge);
 
-    addTurtle(new Flower(this, -7, 6));
+    addTurtle(new Flower(this, -7.6, 6));
     addTurtle(new Frog(this) .. size = 1.125);
     for (int i=0; i<properties["max-flies"]; i++) {
       bugs.add(new Fly(this));
@@ -219,8 +220,6 @@ class FrogPond extends Model {
 
 
   void updatePlots() {
-    // miniPlot.update(fcount);
-    // miniPlot.draw();
     plot.update(frogs.length);
     plot.draw();
 
@@ -240,6 +239,8 @@ class FrogPond extends Model {
     }
     hist.update(counts);
     hist.draw();
+    miniHist.update(counts);
+    miniHist.draw();
   }
   
   
