@@ -26,6 +26,7 @@ library FrogPond2;
 import 'dart:html';
 import 'dart:math';
 import 'package:NetTango/ntango.dart';
+import 'package:uuid/uuid.dart';
 
 part 'frog.dart';
 part 'flower.dart';
@@ -55,6 +56,8 @@ void main() {
   Sounds.loadSound("turn");
   Sounds.loadSound("swoosh");
   Sounds.loadSound("gulp");
+
+  print(new Uuid().v4());
 
   model = new FrogPond();
   
