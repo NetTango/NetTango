@@ -29,7 +29,10 @@ class LilyPad extends Turtle {
   ImageElement img = new ImageElement();
   
   
-  LilyPad(FrogPond pond) : super(pond) {
+  LilyPad(FrogPond pond, num x, num y, num size) : super(pond) {
+    this.x = x;
+    this.y = y;
+    this.size = size;
     img.src = "images/lilypad.png";
   }
   
