@@ -16,7 +16,7 @@
 part of NetTango;
 
 const BLOCK_WIDTH = 95.0; // 58
-const BLOCK_HEIGHT = 34.0;
+const BLOCK_HEIGHT = 32.0;
 const BLOCK_SPACE = 0.0; //11;
 const BLOCK_MARGIN = 10.0;
 
