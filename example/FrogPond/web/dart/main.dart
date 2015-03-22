@@ -28,6 +28,7 @@ import 'dart:math';
 import 'package:NetTango/ntango.dart';
 
 part 'frog.dart';
+part 'flower.dart';
 part 'fly.dart';
 part 'histogram.dart';
 part 'lilypad.dart';
