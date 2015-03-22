@@ -1,5 +1,6 @@
 name: FrogPond2
 dependencies:
+  uuid: 0.5.0
   NetTango:
     # if you point to a local copy of NetTango, update the path accordingly
     path: ../..
