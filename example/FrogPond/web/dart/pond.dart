@@ -36,6 +36,9 @@ class FrogPond extends Model {
   /* frog that the user taps on to follow around the screen */
   Frog followFrog = null;
 
+  /* bridge to the magic island */
+  LilyPad bridge;
+
   FrogPond() : super("Frog Pond", "frog") {
 
     createBreed(LilyPad);
@@ -55,7 +58,14 @@ class FrogPond extends Model {
     lilypad.onLoad.listen((e) {
       draw();
     });
-    
+
+    patchSize = 60;
+    minWorldX = -11;
+    minWorldY = -9;
+    maxWorldX = 11;
+    maxWorldY = 9;
+    wrap = false;
+
     workspace.addBlockAction("hop", (frog, param) { if (frog is Frog) { frog.doHop(param); } } );
     workspace.addBlockAction("chirp", (frog, param) { if (frog is Frog) { frog.doChirp(); } } );
     workspace.addBlockAction("left", (frog, param) { if (frog is Frog) { frog.doTurn('left', param); } } );
@@ -90,7 +100,7 @@ class FrogPond extends Model {
       }
     };
 
-    workspace.fromURLString("if(see-water?);left(180);end;hop(2.5);hunt(7s);if(full?);hatch(size-variation);end;die();");
+    workspace.fromURLString("spin();hop(2.5);hunt(7s);if(full?);hatch(size-variation);end;die();");
 
     document.onKeyDown.listen((KeyEvent e) {
       // + key
@@ -118,6 +128,18 @@ class FrogPond extends Model {
         pan(0, -5);
         draw();
       }
+      // letter 'b'
+      else if (e.keyCode == 66) {
+        if (bridge != null) {
+          pads.remove(bridge);
+          bridge = null;
+          draw();
+        } else {
+          bridge = new LilyPad(this, -6, 2.5, 3);
+          pads.add(bridge);
+          draw();
+        }
+      }
     });
 
     setup();
@@ -133,11 +155,46 @@ class FrogPond extends Model {
   AgentSet get pads => getBreed(LilyPad);
 
 
+
+  void setup() {
+    followFrog = null;
+
+    clearTurtles();
+
+    pads.add(new LilyPad(this, 5.5, -3.5, 9));
+    pads.add(new LilyPad(this, -3, -3, 10));
+    pads.add(new LilyPad(this, 2, 3.5, 9));
+
+    // magic lilypad island
+    pads.add(new LilyPad(this, -9, 4, 4));
+
+    // bridge
+    bridge = new LilyPad(this, -6, 2.5, 3);
+    pads.add(bridge);
+
+    addTurtle(new Flower(this, -7, 6));
+    addTurtle(new Frog(this) .. size = 1.125);
+    for (int i=0; i<properties["max-flies"]; i++) {
+      bugs.add(new Fly(this));
+    }
+    for (int i=0; i<5; i++) {
+      bugs.add(new Beetle(this));
+    }
+
+    plot.clear();
+    updatePlots();
+  }
+
+
+
 /**
  * tick
  */
   void tick() {
     super.tick();
+
+    Sounds.mute = (play_state > 1);
+
     int fcount = frogs.length;
     if (fcount == 0) {
       pause();
@@ -146,8 +203,16 @@ class FrogPond extends Model {
       updatePlots();
     }
     if (ticks % 20 == 0) {
-      if (bugs.length < properties["max-flies"]) {
-        bugs.add(new Fly(this));
+
+      int fcount = bugs.count(Fly);
+      int bcount = bugs.count(Beetle);
+
+      if (fcount < properties["max-flies"]) {
+        bugs.add(new Fly.withPosition(this, -7.5, 6));
+      }
+
+      if (bcount < 5) {
+        bugs.add(new Beetle(this));
       }
     }
   }
@@ -178,32 +243,6 @@ class FrogPond extends Model {
   }
   
   
-  void setup() {
-    patchSize = 60;
-    minWorldX = -12;
-    minWorldY = -5;
-    maxWorldX = 10;
-    maxWorldY = 11;
-    wrap = false;
-    followFrog = null;
-
-    clearTurtles();
-
-    addLilyPad(5.5, -0.5, 9);
-    addLilyPad(-3, 0, 10);
-    addLilyPad(2, 6, 9);
-    addLilyPad(-4, 5, 3);
-    addLilyPad(-6, 6, 3);
-    addLilyPad(-8, 7.5, 3);
-
-    addTurtle(new Flower(this, -7, 9));
-    addTurtle(new Frog(this) .. size = 1.125);
-
-    plot.clear();
-    updatePlots();
-  }
-
-
   Frog getFocalFrog() {
     if (frogs.length > 0) {
       return frogs[0];
@@ -355,18 +394,6 @@ class FrogPond extends Model {
     }
   } 
   
-  
-  void addLilyPad([num lx = null, num ly = null, num ls = null]) {
-    LilyPad pad = new LilyPad(this);
-    if (lx == null) lx = Agent.rnd.nextDouble() * worldWidth + minWorldX;
-    if (ly == null) ly = Agent.rnd.nextDouble() * worldHeight + minWorldY;
-    if (ls == null) ls = 5.0 + Agent.rnd.nextDouble() * 3.0;
-    pad.x = lx;
-    pad.y = ly;
-    pad.size = ls;
-    addTurtle(pad);
-  }
-
   
 /**
  * Returns true if the given point is in the water
