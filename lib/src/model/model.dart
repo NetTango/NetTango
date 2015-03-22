@@ -125,8 +125,6 @@ abstract class Model extends TouchLayer with Runtime {
         }
       });
     }
-
-
   }
   
   int nextAgentId() => AGENT_ID++;
