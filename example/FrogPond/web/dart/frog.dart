@@ -329,7 +329,7 @@ class Frog extends Turtle {
     
   bool nearWater() {
     bool wet = false;
-    double r = size * 0.75;
+    double r = size * 1.6;
     forward(r);
     if (inWater()) wet = true;
     backward(r);
