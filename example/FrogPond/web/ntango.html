@@ -19,14 +19,14 @@
   </p>
 
   <div class="model-container">
-    <canvas id="frog-turtles" width="1000" height="600"></canvas>
-    <canvas id="frog-workspace" width="1000" height="600"></canvas>
+    <canvas id="frog-turtles" width="950" height="550"></canvas>
+    <canvas id="frog-workspace" width="950" height="550"></canvas> 
     <div id="frog-toolbar" class="toolbar">
       <button id="play-button"></button>
       <button id="forward-button"></button>
       <button id="restart-button"></button>
     </div>
-    <!-- <canvas id="mini-plot" width="140" height="100"></canvas> -->
+    <canvas id="mini-hist" width="140" height="100"></canvas>
   </div>
 
   <div>
@@ -86,7 +86,7 @@
         <v>always</v>
       </param>
     </block>
-    <block name="chance" type="if" instances="2">
+    <block name="chance" type="if" instances="1">
       <param name="probability" type="range" min="0" max="100" step="1" default="25" unit="%" />
     </block>
     <block name="if" type="if" instances="2">
