@@ -23,8 +23,8 @@
  */
 part of FrogPond2;
 
-double MAX_FROG_SIZE = 2.0;
-double MIN_FROG_SIZE = 0.25;
+double MAX_FROG_SIZE = 2.2;
+double MIN_FROG_SIZE = 0.2;
 int MAX_FROG_COUNT = 1000;
 
 
@@ -90,7 +90,7 @@ class FrogPond extends Model {
       }
     };
 
-    workspace.fromURLString("hop(2);spin();hunt();chance(25%25);hatch(size-variation);end;die();");
+    workspace.fromURLString("if(see-water?);left(180);end;hop(2.5);hunt(7s);if(full?);hatch(size-variation);end;die();");
 
     document.onKeyDown.listen((KeyEvent e) {
       // + key
@@ -145,10 +145,9 @@ class FrogPond extends Model {
     if (ticks % 50 == 0) {
       updatePlots();
     }
-    if (ticks % 100 == 0) {
-      bugs.add(new Fly(this));
-      if (bugs.length > properties["max-flies"]) {
-        bugs[0].die();
+    if (ticks % 20 == 0) {
+      if (bugs.length < properties["max-flies"]) {
+        bugs.add(new Fly(this));
       }
     }
   }
@@ -190,16 +189,16 @@ class FrogPond extends Model {
 
     clearTurtles();
 
-    addLilyPad(5, 0, 8);
-    addLilyPad(-1, 1, 8);
-    addLilyPad(-5, 5, 4);
-    addLilyPad(-9, 7, 5);
+    addLilyPad(5.5, -0.5, 9);
+    addLilyPad(-3, 0, 10);
+    addLilyPad(2, 6, 9);
+    addLilyPad(-4, 5, 3);
+    addLilyPad(-6, 6, 3);
+    addLilyPad(-8, 7.5, 3);
 
+    addTurtle(new Flower(this, -7, 9));
     addTurtle(new Frog(this) .. size = 1.125);
 
-    for (int i=0; i<properties["max-flies"]; i++) {
-      addTurtle(new Fly(this));
-    }
     plot.clear();
     updatePlots();
   }
