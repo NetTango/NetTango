@@ -20,8 +20,8 @@ body {
 
 .model-container {
   position: relative;
-  width: 1000px;
-  height: 600px;
+  width: 950px;
+  height: 550px;
   border: 0;
   margin: 0 0 20px 0;
   padding: 0;
@@ -42,7 +42,7 @@ body {
   background-color:#356;
 }
 
-#mini-plot {
+#mini-hist {
   position: absolute;
   background-color: rgba(0, 0, 0, 0.8);
   top: 10px;
