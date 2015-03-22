@@ -73,35 +73,6 @@ class Histogram {
     }
   }
   
-/*  
-  void recalculate() {
-    for (int i=0; i<bins; i++) {
-      counts[i] = 0;
-      values[i] = 0.0;
-    }
-    
-    for (Frog frog in pond.frogs.agents) {
-      if (frog.size >= 1.0) {
-        counts[4]++;
-      } else if (frog.size >= 0.8) {
-        counts[3]++;
-      } else if (frog.size >= 0.6) {
-        counts[2]++;
-      } else if (frog.size >= 0.4) {
-        counts[1]++;
-      } else {
-        counts[0]++;
-      }
-    }
-    
-    if (pond.frogs.length > 0) {
-      for (int i=0; i<bins; i++) {
-        values[i] = counts[i] / pond.frogs.length;
-      }
-    }
-  }
-  */
-  
   
   void draw() {
     ctx.fillStyle = background;
@@ -114,7 +85,7 @@ class Histogram {
     gx = MARGIN;
     gy = MARGIN;
     gw = width - MARGIN * 2;
-    gh = height - MARGIN * 3;
+    gh = mini ? height - MARGIN * 2 : height - MARGIN * 3;
     
     ctx.strokeStyle = foreground;
     ctx.lineWidth = 1;
@@ -153,12 +124,14 @@ class Histogram {
 
       ctx.fillRect(bx + GAP + 0.5, by + 0.5, bw - GAP * 2, bh);
       ctx.strokeRect(bx + GAP + 0.5, by + 0.5, bw - GAP * 2, bh);
-      if (values[i] > 0) {
+      if (values[i] >= 1 && !mini) {
         ctx.fillText("${(values[i] * 100).round().toInt()}%", bx + bw/2, by - 4);
       }
-      ctx.globalAlpha = 0.9;
-      ctx.drawImageScaled(frog, bx + bw/2 - iw/2, gy + gh + 8, iw, ih);
-      ctx.globalAlpha = 1.0;
+      if (!mini) {
+        ctx.globalAlpha = 0.9;
+        ctx.drawImageScaled(frog, bx + bw/2 - iw/2, gy + gh + 8, iw, ih);
+        ctx.globalAlpha = 1.0;
+      }
       bx += bw;
     }
   }
