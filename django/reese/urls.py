@@ -7,6 +7,7 @@ urlpatterns = patterns('',
     # Examples:
     url(r'^$', 'reese.views.home.index', name='home'),
     url(r'^frogpond/$', 'reese.views.home.frogpond'),
+    url(r'^frogpond/challenge[0-9]$', 'reese.views.home.fpchallenge'),
     # url(r'^blog/', include('blog.urls')),
     (r'^reese/$', "reese.views.home.reeselog"),
     (r'^reese/image$', "reese.views.home.reeseimagelog"),
