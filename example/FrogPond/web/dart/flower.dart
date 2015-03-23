@@ -29,11 +29,11 @@ class Flower extends Turtle {
   ImageElement img = new ImageElement();
   
   
-  Flower(FrogPond pond, num x, num y) : super(pond) {
+  Flower(FrogPond pond, num x, num y, num size) : super(pond) {
     img.src = "images/lily.png";
     this.x = x;
     this.y = y;
-    this.size = 1.75;
+    this.size = size;
   }
   
 
