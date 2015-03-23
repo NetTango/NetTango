@@ -11,5 +11,11 @@ packages
 *.js.map
 .DS_Store
 
+django/static
+django/reese/settings.py
+django/login.sh
+django/*.pem
+*.pyc
+
 # Include when developing application packages.
 pubspec.lock
