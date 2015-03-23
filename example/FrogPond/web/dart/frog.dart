@@ -57,15 +57,18 @@ class Frog extends Turtle {
   
   
   
-  Frog(FrogPond pond) : super(pond) {
+  Frog(FrogPond pond, num x, num y, num size) : super(pond) {
     this.pond = pond;
+    this.x = x;
+    this.y = y;
+    this.size = size;
     img.src = "images/bluefrog.png";
     energy = pond["energy-gain"];
   }
   
   
   Turtle hatch() {
-    Frog clone = new Frog(pond);
+    Frog clone = new Frog(pond, x, y, size);
     copyTo(clone);
     clone.program.restart();
     clone.tadpole = true;
@@ -77,6 +80,7 @@ class Frog extends Turtle {
     return clone;
   }
   
+
   double get tongueX => x - sin(heading) * _tongue * size * 1.8;
   
   double get tongueY => y + cos(heading) * _tongue * size * 1.8;
