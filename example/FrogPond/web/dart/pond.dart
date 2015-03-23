@@ -60,13 +60,6 @@ class FrogPond extends Model {
       draw();
     });
 
-    patchSize = 60;
-    minWorldX = -11;
-    minWorldY = -9;
-    maxWorldX = 11;
-    maxWorldY = 9;
-    wrap = false;
-
     workspace.addBlockAction("hop", (frog, param) { if (frog is Frog) { frog.doHop(param); } } );
     workspace.addBlockAction("chirp", (frog, param) { if (frog is Frog) { frog.doChirp(); } } );
     workspace.addBlockAction("left", (frog, param) { if (frog is Frog) { frog.doTurn('left', param); } } );
@@ -101,7 +94,6 @@ class FrogPond extends Model {
       }
     };
 
-    workspace.fromURLString("spin();hop(2.5);hunt(7s);if(full?);hatch(size-variation);end;die();");
 
     document.onKeyDown.listen((KeyEvent e) {
       // + key
@@ -146,6 +138,7 @@ class FrogPond extends Model {
     setup();
     addTouchable(new BackgroundTouchable(this));
 
+    buildDefaultProgram();
   }
 
 
@@ -156,36 +149,40 @@ class FrogPond extends Model {
   AgentSet get pads => getBreed(LilyPad);
 
 
-
   void setup() {
     followFrog = null;
 
     clearTurtles();
 
-    pads.add(new LilyPad(this, 5.5, -3.5, 9));
-    pads.add(new LilyPad(this, -3, -3, 10));
-    pads.add(new LilyPad(this, 2, 3.5, 9));
+    if (spec != null) {
+      for (Element t in spec.getElementsByTagName("turtle")) {
+        num x = toNum(t.attributes["x"], 0);
+        num y = toNum(t.attributes["y"], 0);
+        num size = toNum(t.attributes["size"], 0);
+        String breed = t.attributes["breed"];
+        if (breed == "Frog") {
+          frogs.add(new Frog(this, x, y, size));
+        }
+        else if (breed == "LilyPad") {
+          pads.add(new LilyPad(this, x, y, size));
+        }
+        else if (breed == "Flower") {
+          addTurtle(new Flower(this, x, y, size));
+        }
+      }
+    }
 
-    // magic lilypad island
-    pads.add(new LilyPad(this, -9, 4, 4));
-
-    // bridge
-    bridge = new LilyPad(this, -6, 2.5, 3);
-    pads.add(bridge);
-
-    addTurtle(new Flower(this, -7.6, 6));
-    addTurtle(new Frog(this) .. size = 1.125);
     for (int i=0; i<properties["max-flies"]; i++) {
       bugs.add(new Fly(this));
     }
-    for (int i=0; i<5; i++) {
+    // this was 5
+    for (int i=0; i<properties["max-beetles"]; i++) {
       bugs.add(new Beetle(this));
     }
 
     plot.clear();
     updatePlots();
   }
-
 
 
 /**
@@ -209,10 +206,11 @@ class FrogPond extends Model {
       int bcount = bugs.count(Beetle);
 
       if (fcount < properties["max-flies"]) {
-        bugs.add(new Fly.withPosition(this, -7.5, 6));
+        bugs.add(new Fly(this));
+        //bugs.add(new Fly.withPosition(this, -7.5, 6));
       }
 
-      if (bcount < 5) {
+      if (bcount < properties["max-beetles"]) {
         bugs.add(new Beetle(this));
       }
     }
@@ -254,16 +252,6 @@ class FrogPond extends Model {
 
 
   bool backgroundTouch(Contact c) {
-    /*
-    if (followFrog != null) {
-      followFrog = null;
-    } else {
-      num wx = screenToWorldX(c.touchX, c.touchY);
-      num wy = screenToWorldY(c.touchX, c.touchY);
-      followFrog = frogs.getTurtleAtPoint(wx, wy);
-    }
-    draw();
-    */
     return false;
   }  
 
