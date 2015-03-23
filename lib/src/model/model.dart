@@ -134,7 +134,7 @@ abstract class Model extends TouchLayer with Runtime {
     // checkbox input types are supported. Each <input> tag must have
     // an id prefixed with "setting-" and must have class="setting"
     //-------------------------------------------------------------------
-    var settings = querySelectorAll(".setting");
+    var settings = querySelectorAll(".setting input");
     for (var setting in settings) {
       String name = setting.id.substring(8);
       if (setting.type == "range") {
