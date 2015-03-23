@@ -13,14 +13,28 @@
  * material are those of the author(s) and do not necessarily reflect the views
  * of the National Science Foundation (NSF).
  */
-.setting[type=range] {
-  width: 300px;
+.setting {
+  margin-bottom: 20px;
+  background-color: #eee;
+  padding: 30px;
+  border-radius: 20px;
+  width: 600px;
+}
+
+.setting p {
+  margin: 0;
+  padding: 0 0 5px 0;
+}
+
+
+.setting input[type=range] {
+  width: 400px;
   height: 20px;
   display: inline-block;
   vertical-align: middle;
 }
 
-.settings output {
+.setting output {
   display: inline-block;
   width: 100px;
   height: 40px;
@@ -30,9 +44,10 @@
   text-align: center;
   border-radius: 10px;
   box-sizing: border-box;
+  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
 
-.settings input[type=checkbox] {
+.setting input[type=checkbox] {
   width: 40px;
   height: 40px;
   margin: 0;
@@ -43,7 +58,7 @@
   opacity: 0;
 }
 
-input[type=checkbox] + output {
+.setting input[type=checkbox] + output {
   width: 30px;
   height: 30px;
   margin: 0;
@@ -57,6 +72,7 @@ input[type=checkbox] + output {
   top: -20px;
 }
 
-input[type=checkbox]:checked + output {
+.setting input[type=checkbox]:checked + output {
   color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
 }
