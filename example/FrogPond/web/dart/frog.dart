@@ -49,6 +49,9 @@ class Frog extends Turtle {
   /* age of frog in ticks */
   int age = 0;
 
+  /* how many generations came before this frog */
+  int generations = 0;
+
   /* this frog was just hatched so don't run it's program yet */
   bool tadpole = false;
   
@@ -77,6 +80,7 @@ class Frog extends Turtle {
     energy /= 2; // reproduction cost
     clone.energy = energy;
     clone.age = 0;
+    clone.generations = generations + 1;
     return clone;
   }
   
