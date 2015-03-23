@@ -44,7 +44,7 @@ class Fly extends Turtle {
     this.img.src = "images/dragonfly.png";
     this.x = pond.minWorldX + Agent.rnd.nextDouble() * pond.worldWidth;
     this.y = pond.minWorldY + Agent.rnd.nextDouble() * pond.worldHeight;
-    this.size = 0.2;
+    this.size = 0.25;
   }
 
 
@@ -53,7 +53,7 @@ class Fly extends Turtle {
     this.img.src = "images/dragonfly.png";
     this.x = x;
     this.y = y;
-    this.size = 0.2;
+    this.size = 0.25;
   }
 
 
@@ -85,7 +85,7 @@ class Fly extends Turtle {
   
   
   void tick() {
-    forward(size * 0.1);
+    forward(size * 0.15);
     left(_turn);
     if (Agent.rnd.nextInt(100) > 98) {
       _turn = Agent.rnd.nextDouble() * 6.0 - 3.0;
