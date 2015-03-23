@@ -47,6 +47,10 @@ body {
   padding: 0;
 }
 
+.plot {
+  border-radius: 20px;
+}
+
 #frog-workspace {
   display:block;
   position: absolute;
