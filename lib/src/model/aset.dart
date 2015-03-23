@@ -137,14 +137,25 @@ class AgentSet<T> {
   
 
 /**
- * Returns an AgentSet with at most one agent at the given point
+ * Returns a Turtle at the given point (or null)
  */
-  Turtle getTurtleAtPoint(num px, num py, [ Type breed ]) {
+  Turtle getTurtleAtPoint(num px, num py) {
     for (T t in agents) {
-      if (breed == null || t.runtimeType == breed) {
-        if ((t as Turtle).overlapsPoint(px, py)) {
-          return t as Turtle;
-        }
+      if ((t as Turtle).overlapsPoint(px, py)) {
+        return t as Turtle;
+      }
+    }
+    return null;
+  }
+
+
+/**
+ * Returns a Turtle in the given radius (or null)
+ */  
+  Turtle getTurtleInRadius(num px, num py, num radius) {
+    for (T t in agents) {
+      if ((t as Turtle).overlapsPoint(px, py, radius)) {
+        return t as Turtle;
       }
     }
     return null;
