@@ -23,9 +23,9 @@ class Sounds {
   static bool mute = false;
 
 
-  static void loadSound(String name) {
+  static void loadSound(String name, [String dir = "sounds"]) {
     AudioElement audio = new AudioElement();
-    audio.src = "sounds/$name.wav";
+    audio.src = "$dir/$name.wav";
     sounds[name] = audio;
     /*
     HttpRequest http = new HttpRequest();
@@ -36,7 +36,7 @@ class Sounds {
           (buffer) { sounds[name] = buffer; },
           (err) => print(err));
     });
-    http.open('GET', "sounds/$name.wav");
+    http.open('GET', "$dir/$name.wav");
     http.send();
     */
   }
