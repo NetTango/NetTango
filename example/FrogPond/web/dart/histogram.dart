@@ -124,7 +124,8 @@ class Histogram {
 
       ctx.fillRect(bx + GAP + 0.5, by + 0.5, bw - GAP * 2, bh);
       ctx.strokeRect(bx + GAP + 0.5, by + 0.5, bw - GAP * 2, bh);
-      if (values[i] >= 1 && !mini) {
+      if ((values[i] * 100) >= 1 && !mini) {
+        ctx.fillStyle = "white";
         ctx.fillText("${(values[i] * 100).round().toInt()}%", bx + bw/2, by - 4);
       }
       if (!mini) {
