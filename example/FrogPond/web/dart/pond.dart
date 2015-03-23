@@ -39,6 +39,18 @@ class FrogPond extends Model {
   /* bridge to the magic island */
   LilyPad bridge;
 
+  /* how many generations of frogs in this simulation */
+  int generations = 1;
+
+
+  AgentSet get bugs => getBreed(Fly);
+
+  AgentSet get frogs => getBreed(Frog);
+
+  AgentSet get pads => getBreed(LilyPad);
+
+
+
   FrogPond() : super("Frog Pond", "frog") {
 
     createBreed(LilyPad);
@@ -142,15 +154,9 @@ class FrogPond extends Model {
   }
 
 
-  AgentSet get bugs => getBreed(Fly);
-
-  AgentSet get frogs => getBreed(Frog);
-
-  AgentSet get pads => getBreed(LilyPad);
-
-
   void setup() {
     followFrog = null;
+    generations = 1;
 
     clearTurtles();
 
@@ -213,6 +219,8 @@ class FrogPond extends Model {
       if (bcount < properties["max-beetles"]) {
         bugs.add(new Beetle(this));
       }
+
+      for (Frog frog in frogs) { generations = max(generations, frog.generations); }
     }
   }
 
@@ -260,12 +268,17 @@ class FrogPond extends Model {
     // draw tick count
     ctx.fillStyle = "white";
     ctx.font = "200 15px Nunito, sans-serif";
-    ctx.textAlign = "left";
+    ctx.textAlign = "right";
     ctx.textBaseline = "top";
-    ctx.fillText("Ticks: ${ticks}", 10, 10);
 
-    // draw frog count
-    ctx.fillText("Frogs: ${frogs.length}", 10, 30);
+    // tick count
+    ctx.fillText("Ticks: ${ticks}", width - 10, 10);
+
+    // frog count
+    ctx.fillText("Frogs: ${frogs.length}", width - 10, 35);
+
+    // generation count
+    ctx.fillText("Generations: ${generations}", width - 10, 60);
 
     // draw speedup
     if (play_state > 1) {
