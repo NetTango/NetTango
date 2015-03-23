@@ -8,8 +8,25 @@
 
 body {
   font-family: Nunito, 'Helvetica Neue', sans-serif;
-  font-size: 15px;
+  font-size: 18px;
+  font-weight: 300;
   line-height: 125%;
+}
+
+.chapter {
+  width: 800px;
+  font-size: 20px;
+  font-weight: 300;
+  line-height: 140%;
+  margin: 30px auto;
+}
+
+.block {
+  background-color: #b67196;
+  padding: 5px 15px;
+  color: white;
+  border-radius: 10px;
+  font-size: 16px;
 }
 
 .content {
@@ -18,12 +35,12 @@ body {
   background-color: white;
 }
 
-.model-container {
+.world {
   position: relative;
   width: 950px;
   height: 550px;
   border: 0;
-  margin: 0 0 20px 0;
+  margin: 0 auto;
   padding: 0;
 }
 
@@ -52,21 +69,15 @@ body {
 }
 
 #big-plot {
-  border: 1px solid black;
+  /*
   background-color: #eee;
   color: #666;
-  /*
-  background-color: #222;
-  color: #aaa;
   */
+  background-color: #222;
+  color: cyan;
 }
 
 #big-hist {
-  border: 1px solid black;
-  /*
   background-color: #222;
-  color: #aaa;
-  */
-  background-color: #555;
-  color: #ddd;
+  color: #eee;
 }
