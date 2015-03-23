@@ -124,7 +124,6 @@ abstract class Model extends TouchLayer with Runtime {
         minWorldY = toNum(attribs["minWorldY"], -10);
         maxWorldY = toNum(attribs["maxWorldY"], 10);
         wrap = (attribs["wrap"] == "true");
-        print("got attribs");
         break;
       }
     }
@@ -221,6 +220,18 @@ abstract class Model extends TouchLayer with Runtime {
  */
   void clearTurtles() {
     _breeds.values.forEach((breed) => breed.clear());
+  }
+
+
+/**
+ * Parses the XML spec to build a default program
+ */
+  void buildDefaultProgram() {
+    if (spec != null) {
+      for (Element t in spec.getElementsByTagName("defaultProgram")) {
+        workspace.fromURLString(t.innerHtml);
+      }
+    }
   }
 
 
