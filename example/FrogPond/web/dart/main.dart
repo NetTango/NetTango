@@ -39,23 +39,26 @@ part 'pond.dart';
 
 FrogPond model;
 
+//const STATIC_ROOT = "";
+const STATIC_ROOT = "/static/";
+
 
 void main() {
   
-  Sounds.loadSound("hop");
-  Sounds.loadSound("skip");
-  Sounds.loadSound("jump");
-  Sounds.loadSound("chimes");
-  Sounds.loadSound("croak");
-  Sounds.loadSound("crunch");
-  Sounds.loadSound("sing");
-  Sounds.loadSound("chirp");
-  Sounds.loadSound("click");
-  Sounds.loadSound("splash");
-  Sounds.loadSound("tick");
-  Sounds.loadSound("turn");
-  Sounds.loadSound("swoosh");
-  Sounds.loadSound("gulp");
+  Sounds.loadSound("hop", "${STATIC_ROOT}sounds");
+  Sounds.loadSound("skip", "${STATIC_ROOT}sounds");
+  Sounds.loadSound("jump", "${STATIC_ROOT}sounds");
+  Sounds.loadSound("chimes", "${STATIC_ROOT}sounds");
+  Sounds.loadSound("croak", "${STATIC_ROOT}sounds");
+  Sounds.loadSound("crunch", "${STATIC_ROOT}sounds");
+  Sounds.loadSound("sing", "${STATIC_ROOT}sounds");
+  Sounds.loadSound("chirp", "${STATIC_ROOT}sounds");
+  Sounds.loadSound("click", "${STATIC_ROOT}sounds");
+  Sounds.loadSound("splash", "${STATIC_ROOT}sounds");
+  Sounds.loadSound("tick", "${STATIC_ROOT}sounds");
+  Sounds.loadSound("turn", "${STATIC_ROOT}sounds");
+  Sounds.loadSound("swoosh", "${STATIC_ROOT}sounds");
+  Sounds.loadSound("gulp", "${STATIC_ROOT}sounds");
 
   print(new Uuid().v4());
 

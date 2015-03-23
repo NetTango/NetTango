@@ -30,7 +30,7 @@ class Flower extends Turtle {
   
   
   Flower(FrogPond pond, num x, num y, num size) : super(pond) {
-    img.src = "images/lily.png";
+    img.src = "${STATIC_ROOT}images/lily.png";
     this.x = x;
     this.y = y;
     this.size = size;

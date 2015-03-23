@@ -33,7 +33,7 @@ class LilyPad extends Turtle {
     this.x = x;
     this.y = y;
     this.size = size;
-    img.src = "images/lilypad.png";
+    img.src = "${STATIC_ROOT}images/lilypad.png";
   }
   
 

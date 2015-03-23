@@ -55,7 +55,7 @@ class FrogPond extends Model {
     
     /* Trigger a screen refresh once the lilypad image finishes loading */    
     ImageElement lilypad = new ImageElement();
-    lilypad.src = "images/lilypad.png";
+    lilypad.src = "${STATIC_ROOT}images/lilypad.png";
     lilypad.onLoad.listen((e) {
       draw();
     });

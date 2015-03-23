@@ -41,7 +41,7 @@ class Fly extends Turtle {
 
   Fly(FrogPond pond) : super(pond) {
     this.pond = pond;
-    this.img.src = "images/dragonfly.png";
+    this.img.src = "${STATIC_ROOT}images/dragonfly.png";
     this.x = pond.minWorldX + Agent.rnd.nextDouble() * pond.worldWidth;
     this.y = pond.minWorldY + Agent.rnd.nextDouble() * pond.worldHeight;
     this.size = 0.25;
@@ -50,7 +50,7 @@ class Fly extends Turtle {
 
   Fly.withPosition(FrogPond pond, num x, num y) : super(pond) {
     this.pond = pond;
-    this.img.src = "images/dragonfly.png";
+    this.img.src = "${STATIC_ROOT}images/dragonfly.png";
     this.x = x;
     this.y = y;
     this.size = 0.25;
@@ -106,10 +106,10 @@ class Beetle extends Fly {
 
   Beetle(FrogPond pond) : super(pond) {
     this.size = 0.6;
-    this.img.src = "images/beetle_green0.png";
+    this.img.src = "${STATIC_ROOT}images/beetle_green0.png";
   }
 
-  num get energy => pond["energy-gain"] * 10;
+  num get energy => pond["beetle-energy-gain"];
 
   Beetle hatch() {
     Beetle clone = new Beetle(pond);

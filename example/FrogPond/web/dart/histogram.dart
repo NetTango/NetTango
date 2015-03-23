@@ -54,7 +54,7 @@ class Histogram {
     values = new List<double>.filled(bins, 0.0);
     foreground = canvas.getComputedStyle().color;
     background = canvas.getComputedStyle().backgroundColor;
-    frog.src = "images/whitefrog.png";
+    frog.src = "${STATIC_ROOT}images/whitefrog.png";
     frog.onLoad.listen((e) => draw());
   }
 

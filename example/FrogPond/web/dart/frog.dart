@@ -62,7 +62,7 @@ class Frog extends Turtle {
     this.x = x;
     this.y = y;
     this.size = size;
-    img.src = "images/bluefrog.png";
+    img.src = "${STATIC_ROOT}images/bluefrog.png";
     energy = pond["energy-gain"];
   }
   
