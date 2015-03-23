@@ -72,10 +72,10 @@ class Plot {
 	void resize(int w, int h) {
 		width = w;
 		height = h;
-		MARGIN = w ~/ 10;
-		gx = MARGIN * 2;
+		MARGIN = w ~/ 8;
+		gx = MARGIN;
 		gy = MARGIN;
-		gw = width - MARGIN * 3;
+		gw = width - MARGIN * 2;
 		gh = height - MARGIN * 2;
 	}
 
@@ -104,25 +104,13 @@ class Plot {
 		ctx.fillStyle = fillStyle;
 		ctx.fillRect(0, 0, width, height);
 
-		// axis lines 
-		ctx.lineWidth = 1;
-		ctx.beginPath();
-		ctx.moveTo(gx + 0.5, gy + 0.5);
-		ctx.lineTo(gx + 0.5, gy + gh + 0.5);
-		ctx.lineTo(gx + gw - 0.5, gy + gh + 0.5);
-		ctx.strokeStyle = strokeStyle;
-
-		ctx.stroke();
-
 		if (_len == 0) return;
 
 		// autoscale 
-		maxY = 10;
-		for (int i=0; i<data.length; i++) {
-			while (data[i] / maxY >= 0.9) {
-				maxY *= 2;
-			}
-		}
+		maxY = 0;
+		for (int i=0; i<data.length; i++) { maxY = max(data[i], maxY); }
+		int l10 = pow(10, (log(maxY) / log(10)).floor()).toInt();
+		maxY = (l10 * 5 > maxY) ? l10 * 5 : l10 * 10;
 
 		// data fill
 		int start = (_len < data.length) ? 0 : _len % data.length;
@@ -148,21 +136,30 @@ class Plot {
 		ctx.globalAlpha = 1.0;
 		ctx.stroke();
 
+		// axis lines 
+		ctx.lineWidth = 1;
 		ctx.beginPath();
-		int ty = _valueToScreenY(lastValue).toInt();
-		ctx.moveTo(gx - 4, ty + 0.5);
-		ctx.lineTo(gx + 0.5, ty + 0.5);
-		ctx.moveTo(gx - 4, gy + 0.5);
-		ctx.lineTo(gx + 0.5, gy + 0.5);
+		ctx.moveTo(gx + 0.5, gy + 0.5);
+		ctx.lineTo(gx + 0.5, gy + gh + 0.5);
+		ctx.lineTo(gx + gw - 0.5, gy + gh + 0.5);
+		ctx.strokeStyle = "white";
 		ctx.stroke();
 
 		// scale tick marks
+		ctx.beginPath();
+		int ty = _valueToScreenY(lastValue).toInt();
+		ctx.moveTo(gx - 4, gy + 0.5);
+		ctx.lineTo(gx + 0.5, gy + 0.5);
+		ctx.strokeStyle = "white";
+		ctx.stroke();
+
 		ctx.textAlign = "right";
 		ctx.textBaseline = "middle";
 		ctx.font = "200 12px Nunito, sans-serif";
-		ctx.fillStyle = strokeStyle;
+		ctx.fillStyle = "white";
 		ctx.fillText("${maxY}", gx - 5, gy);
-		ctx.fillText("${lastValue}", gx - 5, ty);		
+		ctx.textAlign = "left";
+		ctx.fillText("${lastValue}", tx + 5, ty);		
 	}
 
 
