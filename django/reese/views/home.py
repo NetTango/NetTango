@@ -27,6 +27,9 @@ def index(request):
 def frogpond(request):
     return render_to_response('intro.html')
 
+def fpchallenge(request):
+    return render_to_response('challenge.html', { 'challenge' : int(request.get_full_path()[-1:]) })
+
 
 @csrf_exempt
 def reeselog(request):
