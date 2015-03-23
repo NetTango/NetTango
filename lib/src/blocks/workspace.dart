@@ -56,7 +56,7 @@ class CodeWorkspace extends TouchLayer {
   CodeWorkspace(this.id) {
     
     // initialize drawing context
-    CanvasElement canvas = querySelector("#${id}");
+    CanvasElement canvas = querySelector("#${id}-workspace");
     ctx = canvas.getContext('2d');
     width = canvas.width;
     height = canvas.height;
@@ -72,11 +72,11 @@ class CodeWorkspace extends TouchLayer {
     bug = new TraceBug(start);
 
     // initialize touch manager
-    tmanager.registerEvents(querySelector("#${id}"));
+    tmanager.registerEvents(querySelector("#${id}-workspace"));
     tmanager.addTouchLayer(this);
 
     // initialize block menu
-    ScriptElement se = querySelector("#${id}-blocks");
+    ScriptElement se = querySelector("#${id}-model");
     if (se != null) {
       DomParser parser = new DomParser();
       XmlDocument xml = parser.parseFromString(se.innerHtml, "application/xml");
