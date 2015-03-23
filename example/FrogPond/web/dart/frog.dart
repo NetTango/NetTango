@@ -392,7 +392,7 @@ class Frog extends Turtle {
   
   void eatBug() {
     if (prey == null) {
-      Fly bug = pond.bugs.getTurtleAtPoint(tongueX, tongueY);
+      Fly bug = pond.bugs.getTurtleInRadius(tongueX, tongueY, 0.25);
       if (bug != null && !bug.dead && !bug.captured) {
         if (bug is! Beetle || (bug is Beetle && size > 1.1)) {
           prey = bug;
