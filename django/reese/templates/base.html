@@ -1,0 +1,50 @@
+{% load static %}
+{% load staticfiles %}
+  
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="Frog Pond Evolution">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">  
+  <link rel="stylesheet" href="{% static 'css/frogpond.css' %}">
+  <link rel="stylesheet" href="{% static 'packages/NetTango/css/fonts.css' %}">
+  <link rel="stylesheet" href="{% static 'packages/NetTango/css/toolbar.css' %}">
+  <link rel="stylesheet" href="{% static 'packages/NetTango/css/settings.css' %}">
+  <link rel="shortcut icon" href="{% static 'images/favicon/favicon.ico' %}">
+  <title>Frog Pond Evolution | Northwestern University</title>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header>
+  </header>
+
+
+  <!-- CONTENT -->  
+  <div class="content">
+    {% block primary %}{% endblock %}
+  </div>
+
+  
+  <!-- FOOTER -->  
+  <footer>
+    Copyright &copy; 2015 CCL + TIDAL Lab
+  </footer>
+
+<script src="{% static 'dart/main.dart.js' %}"></script>
+
+
+<script type="text/javascript">
+  window.oncontextmenu = function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    return false;
+  };
+</script>
+
+
+
+</body>
+</html>
