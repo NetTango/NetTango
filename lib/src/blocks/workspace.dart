@@ -362,6 +362,7 @@ class CodeWorkspace extends TouchLayer {
  * block program.
  */
   void fromURLString(String program) {
+    program = Uri.decodeFull(program);
     Block prev = start;
     List<BeginBlock> nest = new List<BeginBlock>();
 
