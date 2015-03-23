@@ -362,7 +362,7 @@ class Block implements Touchable {
   
   void _resize(CanvasRenderingContext2D ctx) {
     num w = getTextWdith(ctx);
-    _minwidth = max(w + 8, BLOCK_WIDTH / 2); // for displaying in the menu
+    _minwidth = max(w + 3, BLOCK_WIDTH / 2.25); // for displaying in the menu
     if (param != null && inserted) {
       //num cw = param.getDisplayWidth(ctx) + param.centerX - 14;
       param.left = w + 10;
