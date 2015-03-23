@@ -74,6 +74,9 @@ abstract class Model extends TouchLayer with Runtime {
   num maxWorldX = 10;
   num maxWorldY = 10;
 
+  /* model + workspace specifications */
+  XmlDocument spec = null;
+
    
   Model(this.name, this.id) {
     
@@ -90,7 +93,7 @@ abstract class Model extends TouchLayer with Runtime {
     if (canvas != null) pctx = canvas.getContext("2d");
  
      // code workspace
-    workspace = new CodeWorkspace("${id}-workspace");
+    workspace = new CodeWorkspace("${id}");
     workspace.tmanager.addTouchLayer(this);
 
      // bind click events for buttons    
@@ -100,6 +103,32 @@ abstract class Model extends TouchLayer with Runtime {
     bindClickEvent("restart-button", (e) { restart(); draw(); });
 
     resize(width, height);
+
+    //-------------------------------------------------------------------
+    // Load model parameters from the <script> tag.
+    // <script type="application/xml" id="frog-model">
+    // <model> tag has the following optional attributes
+    //   patchSize 
+    //   minWorldX, maxWorldX, minWorldY, maxWorldY
+    //   wrap
+    //-------------------------------------------------------------------
+    ScriptElement se = querySelector("#${id}-model");
+    if (se != null) {
+      DomParser parser = new DomParser();
+      spec = parser.parseFromString(se.innerHtml, "application/xml");
+      for (Element e in spec.getElementsByTagName("model")) {
+        Map attribs = e.attributes;
+        patchSize = toNum(attribs["patchSize"], 30);
+        minWorldX = toNum(attribs["minWorldX"], -10);
+        maxWorldX = toNum(attribs["maxWorldX"], 10);
+        minWorldY = toNum(attribs["minWorldY"], -10);
+        maxWorldY = toNum(attribs["maxWorldY"], 10);
+        wrap = (attribs["wrap"] == "true");
+        print("got attribs");
+        break;
+      }
+    }
+
 
     //-------------------------------------------------------------------
     // load settings from the HTML file. Currently only range and 
