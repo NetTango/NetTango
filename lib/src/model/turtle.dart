@@ -137,9 +137,9 @@ abstract class Turtle extends Agent implements Touchable {
   Turtle hatch();
   
   
-  bool overlapsPoint(num tx, num ty, [ num tw = 0.0]) {
+  bool overlapsPoint(num tx, num ty, [ num tr = 0.0]) {
     num dist = distance(tx, ty, x, y);
-    return dist < (radius + tw/2);
+    return dist < (radius + tr);
   }
   
   
