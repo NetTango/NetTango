@@ -206,8 +206,8 @@ class FrogPond extends Model {
       int bcount = bugs.count(Beetle);
 
       if (fcount < properties["max-flies"]) {
-        bugs.add(new Fly(this));
-        //bugs.add(new Fly.withPosition(this, -7.5, 6));
+        //bugs.add(new Fly(this));
+        bugs.add(new Fly.withPosition(this, -7.5, 6));
       }
 
       if (bcount < properties["max-beetles"]) {
