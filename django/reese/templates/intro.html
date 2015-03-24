@@ -3,40 +3,127 @@
 
   {% load static %}
   {% load staticfiles %}
+<style>
+</style>
 
+  <div class="banner">
+    <div class="title">Frog Pond</div>
+    <div class="subtitle">Adventures in Natural Selection</div>
+  </div>
 
   <div class="chapter">
-    <h1>Challenge 5: Disruptive Selection!</h1>
+    <h2>Introduction</h2>
     <p>
-    The last challenge is the hardest of all. This time we're going to try to simulate <u>disruptive selection</u> pressures.
-    That means we want to create a situation in which it's advantageous to be really small or really big, but disadvantageous
-    to be medium-sized. 
+    Have you ever wondered why there are so many different kinds of living things on earth?
+    In North America alone there are over 300 different kinds of amphibians, 900 different kinds of birds, and over 3,000 different kinds of spiders.
 
-    We've introduced Beetles. Beetles are extremely nutritious (and crunchy!) for frogs. The problem is that they're big and 
-    fast, which means that bigger frogs have a much better chance of catching the beetles. 
+    Where does this <span class="glossary">biodiversity</span> come from?
 
-    You might have also noticed that the flies tend to swarm around the lily flower on the left side of the pond. We've added 
-    another small lily pad nearer to the flower.
+    When scientists look at fossils that lived millions of years ago, they
+    see that many living things looked much different than they do today.
+    </p>
 
-    <b>Hint:</b> Make the little flies have less energy. 
+    <p>
+    <b>How does this change happen?</b>
+    </p>
 
+    <figure>
+      <img src="{% static 'images/intro.png' %}" style="width: 70%;">
+      <figcaption>Photo by Whylogwhy (flickr).</figcaption>
+    </figure>
+
+
+
+
+    <h2>Natural Selection</h2>
+
+    <p>
+    Natural selection is the process through which <span class="glossary">populations</span> of organisms change over time in response to environmental pressures. 
+
+    This process can help living things survive become better at surviving and thriving in their natural habitat. 
+
+    Environmental pressures can include things like predators, disease, and changes in food sources.
+    </p>
+
+    <figure style="float: right; width: 35%; padding-left: 10px;">
+      <img src="{% static 'images/intro1.png' %}" style="width: 100%;">
+      <figcaption>Photo by Anthony Masi (flickr).</figcaption>
+    </figure>
+
+    <p>
+    Natural selection isn't about changes that happen to one individual in the course of a single lifetime. 
+
+    It's about changes that happen over many generations and that get passed down from parents to children. 
+    </p>
+
+    <p>
+    There are a few key ingredients that we'll think at in more detail later. For now, keep these terms in mind:
+    </p>
+    <ul>
+    <li><span class="glossary">variation</span> in a population of living things</li>
+    <li><span class="glossary">inheritance</span> of traits from one generation to the next</li>
+    <li><span class="glossary">selection</span> pressures that act on a population and make it more likely for some individuals to survive and reproduce than others.</li>
+    </ul>
+    <br clear="all">
+
+
+
+
+    <h2>Programming Frogs</h2>
+
+    <p>
+    How about an example?
+    </p>
+
+    <p>
+    These are frogs. They're not based on any real species&mdash;in fact they're more like mindless robot frogs that will do whatever you tell them. 
+
+    But they can still help us think about natural selection. 
     </p>
   </div>
 
-  <div class="world" style="width: 800px; height: 500px;">
-    <canvas id="frog-turtles" width="800" height="500"></canvas>
-    <canvas id="frog-workspace" width="800" height="500"></canvas> 
+
+  <!-- SANDBOX MODEL -->
+  <div class="world" style="width: 800px; height: 450px;">
+    <canvas id="frog-turtles" width="800" height="450"></canvas>
+    <canvas id="frog-workspace" width="800" height="450"></canvas> 
     <div id="frog-toolbar" class="toolbar">
       <button id="play-button"></button>
-      <button id="forward-button"></button>
+      <!-- <button id="forward-button"></button> -->
       <button id="restart-button"></button>
     </div>
     <canvas id="mini-hist" width="140" height="100"></canvas>
   </div>
 
 
-  <!-- PLOTS -->
   <div class="chapter">
+    <p>
+    Go ahead and give it a try. Use the blocks to create a <span class="glossary">program</span>, and then press the play button. Here are a few things to notice as you try different programs:
+    <ol>
+    <li>Frogs come in different sizes. Some are big, some are little, and some are medium-sized. This is an example of <span class="glossary">variation</span> in a population.</li>
+    <li>Big frogs hop farther than little frogs. This means that they're more likely to fall into the water.</li>
+    <li>Big frogs also have longer tongues than little frogs. This means that they're better at hunting flies.</li>
+    <li>Little frogs use less energy than big frogs. This isn't immediately obvious, but it's important because it means that little frogs don't need to eat as much to survive. </li>
+  </div>
+
+
+  <div class="chapter">
+    <h2>Challenges</h2>
+    <p>
+    OK. Ready for some evolution challenges? 
+    </p>
+    <ul>
+      <li><a href="challenge1">Challenge 1</a>: Population Explosion!</li>
+      <li><a href="challenge2">Challenge 2</a>: Little Frogs</li>
+      <li><a href="challenge3">Challenge 3</a>: Big Frogs</li>
+      <li><a href="challenge4">Challenge 4</a>: Stabilizing Selection</li>
+      <li><a href="challenge4">Challenge 4</a>: Disruptive Selection!</li>
+    </ul>
+  </div>
+
+
+  <!-- PLOTS -->
+  <div class="chapter" style="display: none;">
     <br>
     <div style="width: 380px; display: inline-block; margin: 0 20px 0 0;">
       <b>Frog Count</b>
@@ -50,14 +137,14 @@
 
 
   <!-- SETTINGS -->
-  <div class="chapter">
+  <div class="chapter" style="display: none;">
     <h3>Settings</h3>
 
     <!-- FLY COUNT -->
     <div class="setting">
       <p>About how many flies should be in the pond?</p>
-      <input type="range" min="0" max="60" value="30" step="1" id="setting-max-flies">
-      <output for="setting-max-flies" id="output-max-flies">30</output>
+      <input type="range" min="0" max="60" value="5" step="1" id="setting-max-flies">
+      <output for="setting-max-flies" id="output-max-flies">5</output>
     </div>
 
 
@@ -72,8 +159,8 @@
     <!-- BEETLE COUNT -->
     <div class="setting">
       <p>About how many beetles should be in the pond?</p>
-      <input type="range" min="0" max="10" value="5" step="1" id="setting-max-beetles">
-      <output for="setting-max-beetles" id="output-max-beetles">5</output>
+      <input type="range" min="0" max="10" value="0" step="1" id="setting-max-beetles">
+      <output for="setting-max-beetles" id="output-max-beetles">0</output>
     </div>
 
 
@@ -99,20 +186,12 @@
 <!-- BLOCK DEFINITIONS -->
 <script type="application/xml" id="frog-model">
 <ntango>
-  <model patchSize="40" minWorldX="-12" minWorldY="-9" maxWorldX="12" maxWorldY="9" wrap="false">
+  <model patchSize="60" minWorldX="-9" minWorldY="-9" maxWorldX="9" maxWorldY="9" wrap="false">
     <setup>
-      <turtle breed="LilyPad" x="5.5" y="-3.5" size="9" />
-      <turtle breed="LilyPad" x="-3" y="-3" size="10" />
-      <turtle breed="LilyPad" x="2" y="3.5" size="9" />
-
-      <!-- magic island -->
-      <turtle breed="LilyPad" x="-9" y="4" size="4" />
-
-      <!-- bridge to magic island -->
-      <turtle breed="LilyPad" x="-6" y="2.5" size="2" />
-
-      <turtle breed="Flower" x="-7.6" y="6" size="1.75" />
-      <turtle breed="Frog" x="0" y="0" size="1.125" />
+      <turtle breed="LilyPad" x="0" y="0" size="11" />
+      <turtle breed="Frog" x="3" y="-1" size="1.125" />
+      <turtle breed="Frog" x="-3" y="-1" size="0.8" />
+      <turtle breed="Frog" x="0" y="1.2" size="1.5" />
     </setup>
   </model>
   <workspace>
@@ -131,17 +210,10 @@
       <block name="hunt">
         <param name="duration" type="range" min="1" max="10" step="1" default="7" random="true" label="seconds" unit="s" />
       </block>
-      <block name="hatch" color="#b67196">
-        <param name="variation">
-          <v>size-variation</v>
-          <v>no-variation</v>
-        </param>
-      </block>
-      <block name="die" color="#b67196" />
       <block name="chance" type="if" instances="1">
         <param name="probability" type="range" min="0" max="100" step="1" default="25" unit="%" />
       </block>
-      <block name="if" type="if" instances="2">
+      <block name="if" type="if" instances="1">
         <param name="condition">
           <v>full?</v>
           <v>hungry?</v>
@@ -150,7 +222,7 @@
         </param>
       </block>
     </menu>
-    <defaultProgram>hop(1);spin();</defaultProgram>
+    <defaultProgram>hop(1);</defaultProgram>
   </workspace>
 </ntango>
 </script>
