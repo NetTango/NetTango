@@ -114,7 +114,7 @@
     <!-- BEETLE COUNT -->
     <div class="setting"{% if challenge < 5 %} style="display: none;"{% endif %}>
       <p>About how many beetles should be in the pond?</p>
-      <input type="range" min="0" max="10" value="5" step="1" id="setting-max-beetles">
+      <input type="range" min="0" max="10" value="{% if challenge < 5 %}0{% else %}5{% endif %}" step="1" id="setting-max-beetles">
       <output for="setting-max-beetles" id="output-max-beetles">5</output>
     </div>
 
