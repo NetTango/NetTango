@@ -23,13 +23,15 @@ import json
 def index(request):
     return HttpResponse(json.dumps({'REESE': 'frogpond'}), content_type="application/json")
 
-
 def frogpond(request):
     return render_to_response('intro.html')
 
 def fpchallenge(request):
     return render_to_response('challenge.html', { 'challenge' : int(request.get_full_path()[-1:]) })
 
+def share(request):
+    logs = FrogPondLog.objects.all
+    return render_to_response('shareboard.html', { 'logs' : logs })
 
 @csrf_exempt
 def reeselog(request):
