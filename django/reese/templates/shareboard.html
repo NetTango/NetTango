@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+{% block primary %}
+
+  {% load static %}
+  {% load staticfiles %}
+
+  <div class="chapter">
+    <h2>Share Board</h2>
+    <p>
+    Here are programs your classmates have created.
+    </p>
+  </div>
+
+  {% for log in logs %}
+    {{ log.userName }}
+  {% endfor %}
+
+
+{% endblock %}
