@@ -8,8 +8,10 @@ from datetime import datetime
 class FrogPondLog(models.Model):
     groupId = models.TextField(null = True,max_length = 200,default = "")
     groupName = models.CharField(db_index = True,max_length = 200,default = "")
+    challenge = models.CharField(null = True, max_length = 200, default = "")
     frogCount = models.IntegerField(null = True)
     tickCount = models.IntegerField(null = True)
+    generations = models.IntegerField(null = True)
     avgSize = models.FloatField(null = True)
     settings = models.TextField(null = True)
     plot = models.FileField(upload_to = 'screencaps/plots', null = True, max_length = 2000)
