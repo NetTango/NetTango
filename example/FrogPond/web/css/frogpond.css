@@ -224,6 +224,21 @@ a:active { color: red; }
 .share div.program-box:active { border: 1px solid #555; }
 
 
+#share-button {
+  position: absolute;
+  right: -110px;
+  top: 225px;
+  width: 100px;
+  height: 40px;
+  font-size: 18px;
+  font-family: Nunito, sans-serif;
+  color: white;
+  background-color: #337;
+  border-radius: 10px;
+  box-shadow: 3px 3px 3px #333;
+  outline: none;
+  border: none;
+}
 
 #frog-workspace {
   display:block;
