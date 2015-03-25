@@ -27,10 +27,11 @@ def frogpond(request):
     return render_to_response('intro.html')
 
 def fpchallenge(request):
-    return render_to_response('challenge.html', { 'challenge' : int(request.get_full_path()[-1:]) })
+    logs = FrogPondLog.objects.order_by('-id', 'groupName')
+    return render_to_response('challenge.html', { 'challenge' : int(request.get_full_path().split('?')[0][-1:]), 'logs' : logs })
 
 def share(request):
-    logs = FrogPondLog.objects.all
+    logs = FrogPondLog.objects.order_by('-id', 'groupName')
     return render_to_response('shareboard.html', { 'logs' : logs })
 
 @csrf_exempt
@@ -69,8 +70,11 @@ def newreeselog(request):
             #store the app_id  app_annotation, and app image data payload
             #app_id = request_data['app_id']
             groupID = request_data['groupId']
+            groupName = request_data['groupName']
+            challenge = request_data['challenge']
             frogCount = request_data['frogCount']
             tickCount = request_data['tickCount']
+            generations = request_data['generations']
             avgSize = request_data['avgSize']
             settings = request_data['settings']
             plotImage = request_data['plotImage']
@@ -100,10 +104,21 @@ def newreeselog(request):
             #need to strip the base64 info lead-in
             programImageData = ContentFile(programData, groupID + 'program.png')
 
-            frogPondLogEntry = FrogPondLog(groupId= groupID, frogCount= int(frogCount), tickCount=int(tickCount), avgSize=float(avgSize),
-                                           settings=settings, plot=plotImageArg, histogram=histogramImageArg,
-                                           world=worldImageArg, program=programImageData, queryString=queryString,
-                                           userName=userName)
+            frogPondLogEntry = FrogPondLog(
+                groupId= groupID, 
+                groupName=groupName, 
+                challenge=challenge,
+                frogCount= int(frogCount), 
+                tickCount=int(tickCount), 
+                generations=int(generations),
+                avgSize=float(avgSize),
+                settings=settings, 
+                plot=plotImageArg, 
+                histogram=histogramImageArg,
+                world=worldImageArg, 
+                program=programImageData, 
+                queryString=queryString,
+                userName=userName)
 
             frogPondLogEntry.save()
 
