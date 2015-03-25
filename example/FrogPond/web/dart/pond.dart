@@ -76,6 +76,9 @@ class FrogPond extends Model {
       draw();
     });
 
+    /* Share button to upload programs */
+    bindClickEvent("share-button", (e) { shareProgram(); });
+
     workspace.addBlockAction("hop", (frog, param) { if (frog is Frog) { frog.doHop(param); } } );
     workspace.addBlockAction("chirp", (frog, param) { if (frog is Frog) { frog.doChirp(); } } );
     workspace.addBlockAction("left", (frog, param) { if (frog is Frog) { frog.doTurn('left', param); } } );
