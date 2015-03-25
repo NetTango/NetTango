@@ -25,6 +25,7 @@ library FrogPond2;
 
 import 'dart:html';
 import 'dart:math';
+import 'dart:convert';
 import 'package:NetTango/ntango.dart';
 import 'package:uuid/uuid.dart';
 
@@ -39,11 +40,13 @@ part 'pond.dart';
 
 FrogPond model;
 
-//const STATIC_ROOT = "";
-const STATIC_ROOT = "/static/";
-
+String STATIC_ROOT = "/static/";
 
 void main() {
+
+  if (window.localStorage.containsKey("STATIC_ROOT")) {
+    STATIC_ROOT = window.localStorage["STATIC_ROOT"];
+  }
   
   Sounds.loadSound("hop", "${STATIC_ROOT}sounds");
   Sounds.loadSound("skip", "${STATIC_ROOT}sounds");
