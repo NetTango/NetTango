@@ -131,7 +131,7 @@ class Plot {
 		tx = (gx + 0.5 + dx * (l - 1)).toInt();
 		ctx.lineTo(tx + 0.5, gy + gh + 0.5);
 		ctx.closePath();
-		ctx.globalAlpha = 0.5;
+		ctx.globalAlpha = mini ? 1.0 : 0.5;
 		ctx.fill();
 		ctx.globalAlpha = 1.0;
 		ctx.stroke();
@@ -146,20 +146,23 @@ class Plot {
 		ctx.stroke();
 
 		// scale tick marks
-		ctx.beginPath();
-		int ty = _valueToScreenY(lastValue).toInt();
-		ctx.moveTo(gx - 4, gy + 0.5);
-		ctx.lineTo(gx + 0.5, gy + 0.5);
-		ctx.strokeStyle = "white";
-		ctx.stroke();
+		if (!mini) {
+			ctx.beginPath();
+			ctx.moveTo(gx - 4, gy + 0.5);
+			ctx.lineTo(gx + 0.5, gy + 0.5);
+			ctx.strokeStyle = "white";
+			ctx.stroke();
 
-		ctx.textAlign = "right";
-		ctx.textBaseline = "middle";
-		ctx.font = "200 12px Nunito, sans-serif";
-		ctx.fillStyle = "white";
-		ctx.fillText("${maxY}", gx - 5, gy);
-		ctx.textAlign = "left";
-		ctx.fillText("${lastValue}", tx + 5, ty);		
+			ctx.textAlign = "right";
+			ctx.textBaseline = "middle";
+			ctx.font = "200 12px Nunito, sans-serif";
+			ctx.fillStyle = "white";
+			ctx.fillText("${maxY}", gx - 5, gy);
+
+			int ty = _valueToScreenY(lastValue).toInt();
+			ctx.textAlign = "left";
+			ctx.fillText("${lastValue}", tx + 5, ty);		
+		}
 	}
 
 
