@@ -30,7 +30,7 @@ int MAX_FROG_COUNT = 1000;
 
 class FrogPond extends Model {
 
-  Plot plot;
+  Plot plot, miniPlot;
   Histogram hist, miniHist;
 
   /* frog that the user taps on to follow around the screen */
@@ -41,6 +41,9 @@ class FrogPond extends Model {
 
   /* how many generations of frogs in this simulation */
   int generations = 1;
+
+  /* unique group identifier */
+  int groupSymbol = 9812;
 
 
   AgentSet get bugs => getBreed(Fly);
@@ -61,6 +64,7 @@ class FrogPond extends Model {
     //miniPlot.draw();
 
     plot = new Plot("big-plot");
+    miniPlot = new Plot("mini-plot", true);
     hist = new Histogram("big-hist");
     miniHist = new Histogram("mini-hist", true);
 
@@ -135,6 +139,7 @@ class FrogPond extends Model {
       }
       // letter 'b'
       else if (e.keyCode == 66) {
+        shareProgram();
         if (bridge != null) {
           pads.remove(bridge);
           bridge = null;
@@ -151,6 +156,14 @@ class FrogPond extends Model {
     addTouchable(new BackgroundTouchable(this));
 
     buildDefaultProgram();
+
+    // group name (fun unicode characters)
+    groupSymbol = 9813 + Agent.rnd.nextInt(27);
+    if (!window.localStorage.containsKey("frogpond-group-symbol")) {
+      window.localStorage["frogpond-group-symbol"] = "${groupSymbol}";
+    } else {
+      groupSymbol = toInt(window.localStorage["frogpond-group-symbol"], groupSymbol);
+    }
   }
 
 
@@ -228,6 +241,8 @@ class FrogPond extends Model {
   void updatePlots() {
     plot.update(frogs.length);
     plot.draw();
+    miniPlot.update(frogs.length);
+    miniPlot.draw();
 
     List<int> counts = new List<int>.filled(5, 0);
     for (Frog frog in frogs) {
@@ -262,6 +277,56 @@ class FrogPond extends Model {
   bool backgroundTouch(Contact c) {
     return false;
   }  
+
+
+/**
+ * Post a message to the share board
+ */
+  void shareProgram() {
+
+    String workLogPostUrl = "http://54.69.228.220/reese/postwork";
+    //String workLogPostUrl = "http://localhost:8000/reese/postwork";
+
+    String ihist = (querySelector("#mini-hist") as CanvasElement).toDataUrl();
+    String iplot = (querySelector("#mini-plot") as CanvasElement).toDataUrl();
+    String iworld = (querySelector("#frog-turtles") as CanvasElement).toDataUrl();
+    String iprog = (querySelector("#frog-workspace") as CanvasElement).toDataUrl();
+
+    // average frog size
+    double afs = 0.0;
+    if (frogs.length > 0) {
+      for (Frog frog in frogs) { afs += frog.size; }
+      afs /= frogs.length;
+    }
+
+    // challenge number 
+    int i = window.location.pathname.indexOf("challenge");
+    String challenge = window.location.pathname.substring(i, i + 10);
+
+    // group name (fun unicode characters)
+    int groupSymbol = toInt(window.localStorage["frogpond-group-symbol"], 9812);
+
+    FormData fdata = new FormData();
+
+    fdata.append('groupId', "team${groupSymbol}");
+    fdata.append('groupName', "${groupSymbol}");
+    fdata.append('challenge', "${challenge}");
+    fdata.append('frogCount', "${frogs.length}");
+    fdata.append('tickCount', "${ticks}");
+    fdata.append('generations', "${generations}");
+    fdata.append('avgSize', "${afs.toStringAsFixed(2)}");
+    fdata.append('settings', JSON.encode(properties));
+    fdata.append('queryString', "${workspace.toURLString()}");
+    fdata.append('userName', "mike");
+    fdata.append('plotImage', iplot);
+    fdata.append('histogramImage', ihist);
+    fdata.append('worldImage', iworld);
+    fdata.append('programImage', iprog);
+
+    HttpRequest.request(workLogPostUrl, method: 'POST', sendData: fdata).then((HttpRequest r) {
+      print("note: request sent");
+    });
+  }
 
 
   void drawForeground(CanvasRenderingContext2D ctx) {
