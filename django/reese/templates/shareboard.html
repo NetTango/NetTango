@@ -1,19 +1,27 @@
-{% extends 'base.html' %}
-{% block primary %}
 
-  {% load static %}
-  {% load staticfiles %}
-
-  <div class="chapter">
+  <!-- SHARE BOARD -->
+<div style="width: 100%; margin-top: 80px; margin-bottom: 0; border-top: 1px solid black; background-color: #fff;">
+  <div class="chapter" style="margin-top: 30px;">
     <h2>Share Board</h2>
     <p>
-    Here are programs your classmates have created.
+    Here are some programs that your classmates have created. Click on a program image to try it for yourself.
     </p>
+
+    {% for log in logs %}
+    <div class="share">
+      <div class="team-box">TEAM<br><span style="font-size: 60px; line-height: 60px;">&#{{ log.groupName }}</span></div>
+      <div class="stats-box">
+        ticks: {{ log.tickCount }}<br>
+        frogs: {{ log.frogCount }}<br>
+        generations: {{ log.generations }}<br>
+        avgerage size: {{ log.avgSize }}<br>
+        <!-- {{ log.settings }} -->
+      </div>
+      <div class="plot-box" style="background-image: url('/site_media/{{log.plot}}');"></div>
+      <div class="plot-box" style="background-image: url('/site_media/{{log.histogram}}');"></div>
+      <a href="/frogpond/{{ log.challenge }}?program={{ log.queryString }}" target="_blank"><div class="program-box" style="background-image: url('/site_media/{{log.program}}');"></div></a>
+      <div class="world-box" style="background-image: url('/site_media/{{log.world}}');"></div>
+    </div>
+    {% endfor %}
   </div>
-
-  {% for log in logs %}
-    {{ log.userName }}
-  {% endfor %}
-
-
-{% endblock %}
+</div>
