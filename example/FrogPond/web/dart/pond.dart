@@ -114,16 +114,21 @@ class FrogPond extends Model {
     };
 
 
-    document.onKeyDown.listen((KeyEvent e) {
+    document.onKeyDown.listen((var e) {
+      print(e.keyCode);
       // + key
-      if (e.keyCode == 187) {
+      if (e.keyCode == 187 || e.keyCode == 61) {
         patchSize = min(120.0, patchSize / 0.98);
         draw();
       } 
-      else if (e.keyCode == 189) {
+      else if (e.keyCode == 189 || e.keyCode == 173) {
         patchSize = max(20.0, patchSize * 0.98);
         draw();
       }
+      else if (e.keyCode == 32) {
+        playPause();
+      }
+      /*
       else if (e.keyCode == 37) {
         pan(-5, 0);
         draw();
@@ -140,9 +145,9 @@ class FrogPond extends Model {
         pan(0, -5);
         draw();
       }
+      * */
       // letter 'b'
       else if (e.keyCode == 66) {
-        shareProgram();
         if (bridge != null) {
           pads.remove(bridge);
           bridge = null;
