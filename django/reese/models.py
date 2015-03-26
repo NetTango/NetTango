@@ -5,6 +5,12 @@ from django.db import models
 #Python imports
 from datetime import datetime
 
+# this could eventually hold team information (school, grade, class, etc)
+class Team(models.Model):
+    groupSymbol = models.IntegerField(null = True, default = 9813)
+    groupName = models.CharField(null = True, max_length = 200, default = "")
+
+
 class FrogPondLog(models.Model):
     groupId = models.TextField(null = True,max_length = 200,default = "")
     groupName = models.CharField(db_index = True,max_length = 200,default = "")

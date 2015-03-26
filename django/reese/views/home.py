@@ -11,7 +11,7 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 
 #Reese app imports
-from reese.models import FrogPondLog, ImageLogEntry
+from reese.models import FrogPondLog, ImageLogEntry, Team
 from base64 import b64decode
 from django.core.files.base import ContentFile
 
@@ -23,16 +23,24 @@ import json
 def index(request):
     return HttpResponse(json.dumps({'REESE': 'frogpond'}), content_type="application/json")
 
-def frogpond(request):
+def fpIntro(request):
     return render_to_response('intro.html')
 
-def fpchallenge(request):
+def fpChallenge(request):
     logs = FrogPondLog.objects.order_by('-id', 'groupName')
     return render_to_response('challenge.html', { 'challenge' : int(request.get_full_path().split('?')[0][-1:]), 'logs' : logs })
 
-def share(request):
+def fpShare(request):
     logs = FrogPondLog.objects.order_by('-id', 'groupName')
     return render_to_response('shareboard.html', { 'logs' : logs })
+
+def fpGroupInit(request):
+    teams = Team.objects.order_by('-groupSymbol')
+    symbol = teams[0].groupSymbol + 1
+    if symbol > 9839: symbol = 9812
+    team = Team(groupSymbol = symbol, groupName = 'frogpond')
+    team.save()
+    return HttpResponse(json.dumps({'groupId' : team.id, 'groupSymbol' : symbol }), content_type="application/json")
 
 @csrf_exempt
 def reeselog(request):
