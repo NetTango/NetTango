@@ -222,6 +222,8 @@ a:active { color: red; }
 
 .share div.program-box:hover { box-shadow: 2px 2px 5px #333; }
 .share div.program-box:active { border: 1px solid #555; }
+.share div.world-box:hover { box-shadow: 2px 2px 5px #333; }
+.share div.world-box:active { border: 1px solid #555; }
 
 
 #share-button {
