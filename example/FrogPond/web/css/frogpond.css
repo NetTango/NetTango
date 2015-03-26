@@ -163,7 +163,7 @@ a:active { color: red; }
  * Share board styles 
  */
 .share {
-  background-color: #fff;
+  background-color: #eee;
   border-radius: 20px;
   padding: 15px;
   display: inline-flex;
