@@ -19,8 +19,9 @@
       </div>
       <div class="plot-box" style="background-image: url('/site_media/{{log.plot}}');"></div>
       <div class="plot-box" style="background-image: url('/site_media/{{log.histogram}}');"></div>
-      <a href="/frogpond/{{ log.challenge }}?program={{ log.queryString }}" target="_blank"><div class="program-box" style="background-image: url('/site_media/{{log.program}}');"></div></a>
-      <div class="world-box" style="background-image: url('/site_media/{{log.world}}');"></div>
+      <!-- <a href="/frogpond/{{ log.challenge }}?program={{ log.queryString }}" target="_blank"> -->
+      <a href="/site_media/{{ log.program }}" target="_blank"><div class="program-box" style="background-image: url('/site_media/{{log.program}}');"></div></a>
+      <a href="/site_media/{{ log.world }}" target="_blank"><div class="world-box" style="background-image: url('/site_media/{{log.world}}');"></div></a>
     </div>
     {% endfor %}
   </div>
