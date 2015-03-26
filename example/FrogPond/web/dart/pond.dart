@@ -160,17 +160,35 @@ class FrogPond extends Model {
       }
     });
 
+    initGroupId();
+
     setup();
+
     addTouchable(new BackgroundTouchable(this));
 
     buildDefaultProgram();
+  }
 
+
+  void initGroupId() {
     // group name (fun unicode characters)
-    groupSymbol = 9813 + Agent.rnd.nextInt(27);
-    if (!window.localStorage.containsKey("frogpond-group-symbol")) {
-      window.localStorage["frogpond-group-symbol"] = "${groupSymbol}";
+    groupSymbol = 9812 + Agent.rnd.nextInt(27);
+    String key = "frogpond-group-symbol";
+    String path = '/frogpond/groupinit';
+
+    if (!window.localStorage.containsKey(key)) {
+      HttpRequest.getString(path).then((String r) {
+        var json = JSON.decode(r);
+        groupSymbol = json["groupSymbol"];
+        window.localStorage[key] = "${groupSymbol}";
+        window.localStorage["frogpond-group-id"] = "${json["groupId"]}";
+        print("${key}: ${groupSymbol}");
+      })
+      .catchError((Error error) {
+        print(error.toString());
+      });
     } else {
-      groupSymbol = toInt(window.localStorage["frogpond-group-symbol"], groupSymbol);
+      groupSymbol = toInt(window.localStorage[key], groupSymbol);
     }
   }
 
