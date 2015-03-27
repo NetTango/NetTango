@@ -80,6 +80,7 @@ class FrogPond extends Model {
     bindClickEvent("share-button", (e) { 
       if (window.confirm("Share your program?")) {
         shareProgram(); 
+        new Timer(const Duration(seconds: 1), () { loadShareBoard(); });
       }
     });
 
@@ -165,6 +166,9 @@ class FrogPond extends Model {
     });
 
     initGroupId();
+
+    loadShareBoard();
+    new Timer.periodic(const Duration(seconds: 20), (timer) { loadShareBoard(); });
 
     setup();
 
@@ -496,7 +500,7 @@ class FrogPond extends Model {
     if (frog != null && !frog.dead) {
       workspace.traceProgram(frog.program.curr.id);
     }
-  } 
+  }
   
   
 /**
@@ -504,6 +508,33 @@ class FrogPond extends Model {
  */
   bool inWater(num x, num y) {
     return (pads.getTurtleAtPoint(x, y) == null);
+  }
+
+
+/**
+ * Dynamically load the share board
+ */
+  void loadShareBoard() {
+    Element el = querySelector("#shareboard-ajax");
+    if (el != null) {
+      int i = window.location.pathname.indexOf("challenge");
+      int challenge = toInt(window.location.pathname.substring(i + 9, i + 10), 1);
+      print("loading shareboard for challenge${challenge}");
+      String path = "/frogpond/share${challenge}";
+
+      HttpRequest.getString(path)
+      .then((String html) {
+        el.setInnerHtml( html, 
+          validator: new NodeValidatorBuilder.common()
+          .. allowInlineStyles()
+          .. allowNavigation()
+          .. allowElement("script")
+          );
+      })
+      .catchError((Error error) {
+        print(error.toString());
+      });
+    }
   }
 }
 

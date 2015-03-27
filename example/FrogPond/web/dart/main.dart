@@ -23,6 +23,7 @@
  */
 library FrogPond2;
 
+import 'dart:async';
 import 'dart:html';
 import 'dart:math';
 import 'dart:convert';
