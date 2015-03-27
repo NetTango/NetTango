@@ -223,7 +223,7 @@ div.stats-box {
   height: 100px;
   font-size: 12px;
   font-weight: normal;
-  line-height: 150%;
+  line-height: 140%;
 }
 
 .share div.program-box:hover { box-shadow: 2px 2px 5px #333; }
