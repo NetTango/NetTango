@@ -27,8 +27,11 @@ def fpIntro(request):
     return render_to_response('intro.html')
 
 def fpChallenge(request):
+    delta = datetime.now() - timedelta(minutes = 40)
     challenge = request.get_full_path().split('?')[0][-10:]
-    logs = FrogPondLog.objects.order_by('-id', 'groupName').filter(challenge = challenge)
+    logs = FrogPondLog.objects.order_by('-id')              # sort by most recent posts
+    logs = logs.filter(challenge = challenge)               # only take logs for the current challenge 
+    logs = logs.filter(logTime__gte=delta)                  # only take logs from the last 40 minutes
     return render_to_response('challenge.html', { 'challenge' : int(challenge[-1:]), 'logs' : logs })
 
 def fpShare(request):
