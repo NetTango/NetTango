@@ -34,7 +34,7 @@ def fpChallenge(request):
 
 
 def fpShare(request):
-    delta = timezone.now() - timedelta(minutes = 40)    # time delta -40 minutes
+    delta = timezone.now() - timedelta(minutes = 15)    # time delta -40 minutes
     challenge = request.get_full_path()[-1:]            # get the challenge number from the url path
     logs = FrogPondLog.objects.order_by('-groupName')          # sort by most recent posts
     logs = logs.filter(challenge = "challenge{}".format(challenge)) # only take logs for the current challenge 
