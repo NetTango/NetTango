@@ -102,6 +102,28 @@ void removeHtmlClass(String id, String cls) {
 
 
 /**
+ * Add an attribute to an HTML tag
+ */
+void setHtmlAttribute(String id, String attrib, String value) {
+  Element el = querySelector("#${id}");
+  if (el != null) {
+    el.attributes[attrib] = value;
+  }
+}
+
+
+/**
+ * Add an attribute to an HTML tag
+ */
+void removeHtmlAttribute(String id, String attrib) {
+  Element el = querySelector("#${id}");
+  if (el != null) {
+    el.attributes.remove(attrib);
+  }
+}
+
+
+/**
  * Sets a class for a DOM element
  */
 void setHtmlClass(String id, String cls) {
