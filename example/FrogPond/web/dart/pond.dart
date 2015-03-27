@@ -311,7 +311,7 @@ class FrogPond extends Model {
 /**
  * Post a message to the share board
  */
-  void shareProgram() {
+  void shareProgram([bool sharing = true]) {
 
     String workLogPostUrl = "/reese/postwork";
 
@@ -347,6 +347,7 @@ class FrogPond extends Model {
     fdata.append('histogramImage', ihist);
     fdata.append('worldImage', iworld);
     fdata.append('programImage', iprog);
+    fdata.append('share', "$sharing");
 
     HttpRequest.request(workLogPostUrl, method: 'POST', sendData: fdata).then((HttpRequest r) {
       removeHtmlClass("share-button", "disabled");
