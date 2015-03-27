@@ -25,8 +25,6 @@ part of FrogPond2;
 
 double MAX_FROG_SIZE = 2.2;
 double MIN_FROG_SIZE = 0.2;
-int MAX_FROG_COUNT = 1000;
-
 
 class FrogPond extends Model {
 
@@ -388,7 +386,7 @@ class FrogPond extends Model {
     traceExecution(ctx);
 
     // too many frogs message
-    if (frogs.length > MAX_FROG_COUNT) {
+    if (frogs.length > properties["max-frogs"]) {
       ctx.fillStyle = "rgba(0, 0, 0, 0.7)";
       roundRect(ctx, width/2 - 200, height/2 - 70, 400, 100, 30);
       ctx.fill();
