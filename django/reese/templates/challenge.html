@@ -5,6 +5,13 @@
   {% load staticfiles %}
 
 <style>
+#team-id {
+  position: absolute;
+  top: 215px;
+  right: -110px;
+}
+
+
 </style>
   <div class="chapter">
 
@@ -77,6 +84,12 @@
     </div>
     <canvas id="mini-hist" width="100" height="100"></canvas>
     <canvas id="mini-plot" width="100" height="100"></canvas>
+    <div class="team-box" id="team-id">
+    TEAM<br>
+    <span style="font-size: 60px; line-height: 60px;">
+    <script> document.write("&#" + window.localStorage['frogpond-group-symbol']);</script>
+    </span>
+    </div>
     <button id="share-button">Share</button>
   </div>
 
