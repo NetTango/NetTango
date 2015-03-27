@@ -39,7 +39,31 @@ def fpShare(request):
     logs = FrogPondLog.objects.order_by('-id')          # sort by most recent posts
     logs = logs.filter(challenge = "challenge{}".format(challenge)) # only take logs for the current challenge 
     logs = logs.filter(logTime__gte=delta)              # only take logs from the last 40 minutes
-    return render_to_response('shareboard.html', { 'logs' : logs })
+    logcount = logs.count()
+
+    html = "<!-- SHARE BOARD CHALLENGE{} {} ENTRIES -->".format(challenge, logcount)
+    lastGroup = ""
+    teamCount = 0
+    for log in logs:
+        if log.groupName == lastGroup:
+            teamCount += 1
+        else:
+            teamCount = 0
+        if teamCount > 2: continue
+        settings = json.loads(log.settings)
+        html += "<div class='share'>"
+        html += "<div class='team-box'>TEAM<br><span style='font-size: 60px; line-height: 60px;'>&#{}</span></div>".format(log.groupName)
+        html += "<div class='stats-box'>"
+        html += "ticks: {}<br>frogs: {}<br>generations: {}<br>average size: {}<br>".format(log.tickCount, log.frogCount, log.generations, log.avgSize)
+        html += "fly count: {}<br>energy gain: {}".format(settings["max-flies"], settings["energy-gain"])
+        html += "</div>"  # stats box
+        html += '<div class="plot-box" style="background-image: url(/site_media/{});"></div>'.format(log.plot)
+        html += '<div class="plot-box" style="background-image: url(/site_media/{});"></div>'.format(log.histogram)
+        html += '<a href="/site_media/{}" target="_blank"><div class="program-box" style="background-image: url(/site_media/{});"></div></a>'.format(log.program, log.program)
+        html += '<a href="/site_media/{}" target="_blank"><div class="world-box" style="background-image: url(/site_media/{});"></div></a>'.format(log.world, log.world)
+        html += "</div>"  # share
+        lastGroup = log.groupName
+    return HttpResponse(html)
 
 
 def fpGroupInit(request):
