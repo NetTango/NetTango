@@ -11,7 +11,17 @@
   right: -110px;
 }
 
+#shareboard {
+  width: 100%;
+  margin-top: 80px;
+  padding-bottom: 80px;
+  border-top: 1px solid black;
+  background-color: #eef;
+}
 
+.share {
+  background-color: #fff;
+}
 </style>
   <div class="chapter">
 
@@ -154,7 +164,19 @@
   </div>
 
 
-{% include "shareboard.html" %}
+  <!-- SHARE BOARD -->
+  <div id="shareboard">
+    <div class="chapter" style="margin-top: 30px;">
+      <h2>Share Board</h2>
+      <p>
+      Here are some programs that your classmates have created. Click on a program image to try it for yourself.
+      </p>
+
+      <div id="shareboard-ajax">  
+      <div style="text-align: center;"><b>Loading...</b></div>
+      </div>
+    </div>
+  </div>
 
 
 <!-- BLOCK DEFINITIONS -->
