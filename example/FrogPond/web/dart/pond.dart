@@ -45,6 +45,9 @@ class FrogPond extends Model {
   /* unique group identifier */
   int groupSymbol = 9812;
 
+  /* challenge number (0 - 5) from the URL path */
+  int challenge = 0;
+
 
   AgentSet get bugs => getBreed(Fly);
 
@@ -60,23 +63,38 @@ class FrogPond extends Model {
     createBreed(Frog);
     createBreed(Fly);
 
-    //miniPlot = new Plot("mini-plot", true);
-    //miniPlot.draw();
 
+    //-----------------------------------------------------
+    // load the challenge number from the URL path
+    //-----------------------------------------------------
+    String path = window.location.pathname;
+    int i = path.indexOf("challenge");
+    if (i > 0) challenge = toInt(path.substring(i + 9, i + 10), 1);
+    print("challenge${challenge}");
+
+
+    //-----------------------------------------------------
+    // create the plots
+    //-----------------------------------------------------
     plot = new Plot("big-plot");
     miniPlot = new Plot("mini-plot", true);
     hist = new Histogram("big-hist");
     miniHist = new Histogram("mini-hist", true);
 
     
-    /* Trigger a screen refresh once the lilypad image finishes loading */    
+    //-----------------------------------------------------
+    // trigger a screen refresh once the lilypad image finishes loading */    
+    //-----------------------------------------------------
     ImageElement lilypad = new ImageElement();
     lilypad.src = "${STATIC_ROOT}images/lilypad.png";
     lilypad.onLoad.listen((e) {
       draw();
     });
 
-    /* Share button to upload programs */
+
+    //-----------------------------------------------------
+    // share button to upload programs */
+    //-----------------------------------------------------
     bindClickEvent("share-button", (e) { 
       if (window.confirm("Share your program?")) {
         shareProgram(); 
@@ -84,6 +102,10 @@ class FrogPond extends Model {
       }
     });
 
+
+    //-----------------------------------------------------
+    // block functionality
+    //-----------------------------------------------------
     workspace.addBlockAction("hop", (frog, param) { if (frog is Frog) { frog.doHop(param); } } );
     workspace.addBlockAction("chirp", (frog, param) { if (frog is Frog) { frog.doChirp(); } } );
     workspace.addBlockAction("left", (frog, param) { if (frog is Frog) { frog.doTurn('left', param); } } );
@@ -119,6 +141,9 @@ class FrogPond extends Model {
     };
 
 
+    //-----------------------------------------------------
+    // keyboard shortcuts
+    //-----------------------------------------------------
     document.onKeyDown.listen((var e) {
       print(e.keyCode);
       // + key
@@ -130,51 +155,37 @@ class FrogPond extends Model {
         patchSize = max(20.0, patchSize * 0.98);
         draw();
       }
+
+      // space bar
       else if (e.keyCode == 32) {
         playPause();
       }
-      /*
-      else if (e.keyCode == 37) {
-        pan(-5, 0);
-        draw();
-      }
-      else if (e.keyCode == 38) {
-        pan(0, 5);
-        draw();
-      }
-      else if (e.keyCode == 39) {
-        pan(5, 0);
-        draw();
-      }
-      else if (e.keyCode == 40) {
-        pan(0, -5);
-        draw();
-      }
-      * */
-      // letter 'b'
-      else if (e.keyCode == 66) {
+
+      // letter 'b' for bridge in challenge 5
+      else if (e.keyCode == 66 && challenge == 5) {
         if (bridge != null) {
           pads.remove(bridge);
           bridge = null;
           draw();
         } else {
-          bridge = new LilyPad(this, -6, 2.5, 3);
+          bridge = new LilyPad(this, -6, 2.5, 4);
           pads.add(bridge);
           draw();
         }
       }
     });
 
+
     initGroupId();
 
     loadShareBoard();
     new Timer.periodic(const Duration(seconds: 20), (timer) { loadShareBoard(); });
 
-    setup();
-
     addTouchable(new BackgroundTouchable(this));
 
     buildDefaultProgram();
+
+    setup();
   }
 
 
@@ -207,6 +218,11 @@ class FrogPond extends Model {
     generations = 1;
 
     clearTurtles();
+
+    if (challenge == 5) {
+      bridge = new LilyPad(this, -6, 2.5, 4);  // bridge to magic island
+      pads.add(bridge);
+    }
 
     if (spec != null) {
       for (Element t in spec.getElementsByTagName("turtle")) {
@@ -260,8 +276,11 @@ class FrogPond extends Model {
       int bcount = bugs.count(Beetle);
 
       if (fcount < properties["max-flies"]) {
-        //bugs.add(new Fly(this));
-        bugs.add(new Fly.withPosition(this, -7.5, 6));
+        if (challenge < 5) {
+          bugs.add(new Fly(this));
+        } else {
+          bugs.add(new Fly.withPosition(this, -7.5, 6));
+        }
       }
 
       if (bcount < properties["max-beetles"]) {
@@ -337,10 +356,6 @@ class FrogPond extends Model {
       for (Frog frog in frogs) { afs += frog.size; }
       afs /= frogs.length;
     }
-
-    // challenge number 
-    int i = window.location.pathname.indexOf("challenge");
-    String challenge = window.location.pathname.substring(i, i + 10);
 
     FormData fdata = new FormData();
     fdata.append('groupId', "team${window.localStorage["frogpond-group-id"]}");
@@ -517,8 +532,6 @@ class FrogPond extends Model {
   void loadShareBoard() {
     Element el = querySelector("#shareboard-ajax");
     if (el != null) {
-      int i = window.location.pathname.indexOf("challenge");
-      int challenge = toInt(window.location.pathname.substring(i + 9, i + 10), 1);
       print("loading shareboard for challenge${challenge}");
       String path = "/frogpond/share${challenge}";
 
