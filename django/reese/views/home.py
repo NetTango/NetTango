@@ -27,8 +27,9 @@ def fpIntro(request):
     return render_to_response('intro.html')
 
 def fpChallenge(request):
-    logs = FrogPondLog.objects.order_by('-id', 'groupName')
-    return render_to_response('challenge.html', { 'challenge' : int(request.get_full_path().split('?')[0][-1:]), 'logs' : logs })
+    challenge = request.get_full_path().split('?')[0][-10:]
+    logs = FrogPondLog.objects.order_by('-id', 'groupName').filter(challenge = challenge)
+    return render_to_response('challenge.html', { 'challenge' : int(challenge[-1:]), 'logs' : logs })
 
 def fpShare(request):
     logs = FrogPondLog.objects.order_by('-id', 'groupName')
