@@ -181,7 +181,13 @@ a:active { color: red; }
   position: relative;
 }
 
-.share div.team-box {
+div.team-box {
+  box-sizing: border-box;
+  width: 100px;
+  height: 100px;
+  text-align: center;
+  border-radius: 10px;
+  color: white;
   padding: 12px;
   background-color: #708;
   font-size: 15px;
@@ -191,25 +197,25 @@ a:active { color: red; }
   color: rgba(255, 255, 255, 0.95);
 }
 
-.share div.plot-box {
+div.plot-box {
   background-size: 100px 100px;
 }
 
-.share div.program-box {
+div.program-box {
   background-size: 400%;
   background-position: 0 -112px;
   background-color: #aaa;
   background-repeat: no-repeat;
 }
 
-.share div.world-box {
+div.world-box {
   background-size: 150%;
   background-position: center center;
   background-color: #356;
   width: 150px;
 }
 
-.share div.stats-box {
+div.stats-box {
   text-align: left;
   padding-left: 10px;
   color: #555;
@@ -229,18 +235,35 @@ a:active { color: red; }
 #share-button {
   position: absolute;
   right: -110px;
-  top: 225px;
+  top: 320px;
   width: 100px;
   height: 40px;
   font-size: 18px;
   font-family: Nunito, sans-serif;
   color: white;
-  background-color: #337;
+  background-color: #39a;
   border-radius: 10px;
   box-shadow: 3px 3px 3px #333;
   outline: none;
   border: none;
 }
+
+#share-button:hover {
+  background-color: #4ab;
+}
+
+#share-button:active {
+  box-shadow: none;
+  right: -112px;
+  top: 322px;
+}
+
+#share-button.disabled {
+  background-color: #999;
+  box-shadow: none;
+}
+
+
 
 #frog-workspace {
   display:block;
