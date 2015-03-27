@@ -14,7 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 from reese.models import FrogPondLog, ImageLogEntry, Team
 from base64 import b64decode
 from django.core.files.base import ContentFile
-
+from django.utils import timezone
 from datetime import datetime, timedelta
 
 import json
@@ -23,20 +23,24 @@ import json
 def index(request):
     return HttpResponse(json.dumps({'REESE': 'frogpond'}), content_type="application/json")
 
+
 def fpIntro(request):
     return render_to_response('intro.html')
 
+
 def fpChallenge(request):
-    delta = datetime.now() - timedelta(minutes = 40)
-    challenge = request.get_full_path().split('?')[0][-10:]
-    logs = FrogPondLog.objects.order_by('-id')              # sort by most recent posts
-    logs = logs.filter(challenge = challenge)               # only take logs for the current challenge 
-    logs = logs.filter(logTime__gte=delta)                  # only take logs from the last 40 minutes
-    return render_to_response('challenge.html', { 'challenge' : int(challenge[-1:]), 'logs' : logs })
+    challenge = int(request.get_full_path()[-1:]) # get the challenge number from the url path
+    return render_to_response('challenge.html', { 'challenge' : challenge })
+
 
 def fpShare(request):
-    logs = FrogPondLog.objects.order_by('-id', 'groupName')
+    delta = timezone.now() - timedelta(minutes = 40)    # time delta -40 minutes
+    challenge = request.get_full_path()[-1:]            # get the challenge number from the url path
+    logs = FrogPondLog.objects.order_by('-id')          # sort by most recent posts
+    logs = logs.filter(challenge = "challenge{}".format(challenge)) # only take logs for the current challenge 
+    logs = logs.filter(logTime__gte=delta)              # only take logs from the last 40 minutes
     return render_to_response('shareboard.html', { 'logs' : logs })
+
 
 def fpGroupInit(request):
     teams = Team.objects.order_by('-groupSymbol')
