@@ -189,30 +189,6 @@ class FrogPond extends Model {
   }
 
 
-  void initGroupId() {
-    // group name (fun unicode characters)
-    groupSymbol = 9812 + Agent.rnd.nextInt(27);
-    String key = "frogpond-group-symbol";
-    String path = '/frogpond/groupinit';
-
-    if (!window.localStorage.containsKey(key)) {
-      HttpRequest.getString(path).then((String r) {
-        var json = JSON.decode(r);
-        groupSymbol = json["groupSymbol"];
-        window.localStorage[key] = "${groupSymbol}";
-        window.localStorage["frogpond-group-id"] = "${json["groupId"]}";
-        print("${key}: ${groupSymbol}");
-      })
-      .catchError((Error error) {
-        print(error.toString());
-      });
-    } else {
-      groupSymbol = toInt(window.localStorage[key], groupSymbol);
-      print("${key}: ${groupSymbol}");
-    }
-  }
-
-
   void setup() {
     followFrog = null;
     generations = 1;
@@ -251,6 +227,7 @@ class FrogPond extends Model {
     }
 
     plot.clear();
+    miniPlot.clear();
     updatePlots();
   }
 
@@ -360,7 +337,7 @@ class FrogPond extends Model {
     FormData fdata = new FormData();
     fdata.append('groupId', "team${window.localStorage["frogpond-group-id"]}");
     fdata.append('groupName', "${groupSymbol}");
-    fdata.append('challenge', "${challenge}");
+    fdata.append('challenge', "challenge${challenge}");
     fdata.append('frogCount', "${frogs.length}");
     fdata.append('tickCount', "${ticks}");
     fdata.append('generations', "${generations}");
@@ -549,7 +526,32 @@ class FrogPond extends Model {
       });
     }
   }
+
+
+  void initGroupId() {
+    // group name (fun unicode characters)
+    groupSymbol = 9812 + Agent.rnd.nextInt(27);
+    String key = "frogpond-group-symbol";
+    String path = '/frogpond/groupinit';
+
+    if (!window.localStorage.containsKey(key)) {
+      HttpRequest.getString(path).then((String r) {
+        var json = JSON.decode(r);
+        groupSymbol = json["groupSymbol"];
+        window.localStorage[key] = "${groupSymbol}";
+        window.localStorage["frogpond-group-id"] = "${json["groupId"]}";
+        print("${key}: ${groupSymbol}");
+      })
+      .catchError((Error error) {
+        print(error.toString());
+      });
+    } else {
+      groupSymbol = toInt(window.localStorage[key], groupSymbol);
+      print("${key}: ${groupSymbol}");
+    }
+  }
 }
+
 
 
 class BackgroundTouchable extends Touchable {
