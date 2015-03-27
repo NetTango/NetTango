@@ -29,7 +29,7 @@
     <!-- CHALLENGE 1 -->
     <h1>Challenge {{ challenge }}: Population Explosion!</h1>
     <p>
-    See if you can create a <span class="glossary">stable</span> population of around 100 frogs.
+    See if you can create a <span class="glossary">stable</span> population of around 50 frogs.
     There's now a <span class="block">hatch</span> block in your box of tools. 
     Hatch will create a new frog that grows up to be slightly bigger or smaller than its parent.
     There's also a <span class="block">die</span> block that will remove a frog from the simulation.
@@ -238,7 +238,11 @@
         </param>
       </block>
     </menu>
+    {% if challenge = 1 %}
+    <defaultProgram>hop(1);spin();hunt(7s);if(full?);hatch(size-variation);end;if(starving?);die();end;</defaultProgram>
+    {% else %}
     <defaultProgram>hop(1);spin();</defaultProgram>
+    {% endif %}
   </workspace>
 </ntango>
 </script>
