@@ -27,6 +27,7 @@ class FrogPondLog(models.Model):
     queryString = models.TextField(null = True, max_length = 500)
     userName = models.TextField(null = True, max_length = 500)
     logTime = models.DateTimeField(default=datetime.now())
+    share = models.BooleanField(default = False)
     def __unicode__(self):
         return str(self.name)
 
