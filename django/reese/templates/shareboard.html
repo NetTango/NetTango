@@ -15,7 +15,11 @@
         frogs: {{ log.frogCount }}<br>
         generations: {{ log.generations }}<br>
         avgerage size: {{ log.avgSize }}<br>
-        <!-- {{ log.settings }} -->
+        <script>
+        var settings = JSON.parse('{{ log.settings|safe }}');
+        document.write("flies: " + settings["max-flies"] + "<br>");
+        document.write("energy-gain: " + settings["energy-gain"]);
+        </script>
       </div>
       <div class="plot-box" style="background-image: url('/site_media/{{log.plot}}');"></div>
       <div class="plot-box" style="background-image: url('/site_media/{{log.histogram}}');"></div>
