@@ -77,7 +77,11 @@ class FrogPond extends Model {
     });
 
     /* Share button to upload programs */
-    bindClickEvent("share-button", (e) { shareProgram(); });
+    bindClickEvent("share-button", (e) { 
+      if (window.confirm("Share your program?")) {
+        shareProgram(); 
+      }
+    });
 
     workspace.addBlockAction("hop", (frog, param) { if (frog is Frog) { frog.doHop(param); } } );
     workspace.addBlockAction("chirp", (frog, param) { if (frog is Frog) { frog.doChirp(); } } );
@@ -189,6 +193,7 @@ class FrogPond extends Model {
       });
     } else {
       groupSymbol = toInt(window.localStorage[key], groupSymbol);
+      print("${key}: ${groupSymbol}");
     }
   }
 
@@ -310,9 +315,13 @@ class FrogPond extends Model {
  */
   void shareProgram() {
 
-    String workLogPostUrl = "http://54.69.228.220/reese/postwork";
-    //String workLogPostUrl = "http://localhost:8000/reese/postwork";
+    String workLogPostUrl = "/reese/postwork";
 
+    // disable the share button temporarily
+    setHtmlAttribute("share-button", "disabled", "true");
+    addHtmlClass("share-button", "disabled");
+
+    // get the PNG images from the various canvases
     String ihist = (querySelector("#mini-hist") as CanvasElement).toDataUrl();
     String iplot = (querySelector("#mini-plot") as CanvasElement).toDataUrl();
     String iworld = (querySelector("#frog-turtles") as CanvasElement).toDataUrl();
@@ -329,12 +338,8 @@ class FrogPond extends Model {
     int i = window.location.pathname.indexOf("challenge");
     String challenge = window.location.pathname.substring(i, i + 10);
 
-    // group name (fun unicode characters)
-    int groupSymbol = toInt(window.localStorage["frogpond-group-symbol"], 9812);
-
     FormData fdata = new FormData();
-
-    fdata.append('groupId', "team${groupSymbol}");
+    fdata.append('groupId', "team${window.localStorage["frogpond-group-id"]}");
     fdata.append('groupName', "${groupSymbol}");
     fdata.append('challenge', "${challenge}");
     fdata.append('frogCount', "${frogs.length}");
@@ -350,7 +355,13 @@ class FrogPond extends Model {
     fdata.append('programImage', iprog);
 
     HttpRequest.request(workLogPostUrl, method: 'POST', sendData: fdata).then((HttpRequest r) {
-      print("note: request sent");
+      removeHtmlClass("share-button", "disabled");
+      removeHtmlAttribute("share-button", "disabled");
+    })
+    .catchError((Error error) {
+      print(error.toString());
+      removeHtmlClass("share-button", "disabled");
+      removeHtmlAttribute("share-button", "disabled");
     });
   }
 
