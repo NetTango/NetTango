@@ -1,9 +1,11 @@
 #Django imports
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 #Python imports
 from datetime import datetime
+
 
 # this could eventually hold team information (school, grade, class, etc)
 class Team(models.Model):
@@ -26,7 +28,7 @@ class FrogPondLog(models.Model):
     program = models.FileField(upload_to = 'screencaps/programs', null = True, max_length = 2000)
     queryString = models.TextField(null = True, max_length = 500)
     userName = models.TextField(null = True, max_length = 500)
-    logTime = models.DateTimeField(default=datetime.now())
+    logTime = models.DateTimeField(default=timezone.now())
     share = models.BooleanField(default = False)
     def __unicode__(self):
         return str(self.name)
@@ -37,7 +39,7 @@ class ImageLogEntry(models.Model):
     annotation = models.TextField(default='autotext')
     imagedata = models.FileField(upload_to='screencaps', max_length=2000)
     sessionid = models.CharField(max_length=200)
-    logTime = models.DateTimeField(default=datetime.now())
+    logTime = models.DateTimeField(default=timezone.now())
     def __unicode__(self):
         return str(self.name)
 
