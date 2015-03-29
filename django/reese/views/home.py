@@ -172,6 +172,7 @@ def newreeselog(request):
                 program=programImageData, 
                 queryString=queryString,
                 userName=userName,
+                logTime=timezone.now(),
                 share=(share == "true"))
 
             frogPondLogEntry.save()
