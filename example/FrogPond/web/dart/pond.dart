@@ -102,6 +102,16 @@ class FrogPond extends Model {
 
 
     //-----------------------------------------------------
+    // bind click events for buttons    
+    //-----------------------------------------------------
+    bindClickEvent("play-button", (e) { if (isRunning) shareProgram(false); playPause(); });
+    bindClickEvent("forward-button", (e) => fastForward());
+    bindClickEvent("step-button", (e) => stepForward());
+    bindClickEvent("restart-button", (e) { if (isRunning) shareProgram(false); restart(); draw(); });
+    window.onBeforeUnload.listen((e) { if (isRunning) shareProgram(false); });
+
+
+    //-----------------------------------------------------
     // block functionality
     //-----------------------------------------------------
     workspace.addBlockAction("hop", (frog, param) { if (frog is Frog) { frog.doHop(param); } } );
@@ -309,7 +319,8 @@ class FrogPond extends Model {
 
 
 /**
- * Post a message to the share board
+ * Post a message to the share board. If sharing is false, the post
+ * only goes to the unshared log data.
  */
   void shareProgram([bool sharing = true]) {
 
