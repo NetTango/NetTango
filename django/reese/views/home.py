@@ -33,24 +33,17 @@ def fpChallenge(request):
     return render_to_response('challenge.html', { 'challenge' : challenge })
 
 
-def fpShare(request):
-    delta = timezone.now() - timedelta(minutes = 15)    # time delta -40 minutes
-    challenge = request.get_full_path()[-1:]            # get the challenge number from the url path
-    logs = FrogPondLog.objects.order_by('-groupName')   # sort by most recent posts
-    logs = logs.filter(share = True)                    # only show logs for sharing
-    logs = logs.filter(challenge = "challenge{}".format(challenge)) # only take logs for the current challenge 
-    logs = logs.filter(logTime__gte=delta)              # only take logs from the last 40 minutes
+def fpLogDump(logs, limit_per_team):
     logcount = logs.count()
 
-    html = "<!-- SHARE BOARD CHALLENGE{} {} ENTRIES -->".format(challenge, logcount)
-    lastGroup = ""
-    teamCount = 0
+    html = "<!-- SHARE BOARD {} ENTRIES -->".format(logcount)
+    teamCounts = { }
     for log in logs:
-        if log.groupName == lastGroup:
-            teamCount += 1
+        if log.groupName in teamCounts:
+            teamCounts[log.groupName] += 1
         else:
-            teamCount = 0
-        if teamCount > 2: continue
+            teamCounts[log.groupName] = 1
+        if limit_per_team > 0 and teamCounts[log.groupName] > limit_per_team: continue
         settings = json.loads(log.settings)
         html += "<div class='share'>"
         html += "<div class='team-box'>TEAM<br><span style='font-size: 60px; line-height: 60px;'>&#{}</span></div>".format(log.groupName)
@@ -63,8 +56,26 @@ def fpShare(request):
         html += '<a href="/site_media/{}" target="_blank"><div class="program-box" style="background-image: url(/site_media/{});"></div></a>'.format(log.program, log.program)
         html += '<a href="/site_media/{}" target="_blank"><div class="world-box" style="background-image: url(/site_media/{});"></div></a>'.format(log.world, log.world)
         html += "</div>"  # share
-        lastGroup = log.groupName
-    return HttpResponse(html)
+        html += "<div class='timestamp'>{}</div>".format(log.logTime.strftime("%A, %B %d, %Y, %I:%M %p"))
+
+    return html
+
+
+def fpShare(request):
+    delta = timezone.now() - timedelta(minutes = 15)    # time delta -40 minutes
+    challenge = request.get_full_path()[-1:]            # get the challenge number from the url path
+    logs = FrogPondLog.objects.order_by('-id')   # sort by most recent posts
+    logs = logs.filter(share = True)                    # only show logs for sharing
+    logs = logs.filter(challenge = "challenge{}".format(challenge)) # only take logs for the current challenge 
+    logs = logs.filter(logTime__gte=delta)              # only take logs from the last 15 minutes
+    return HttpResponse(fpLogDump(logs, 3))
+
+
+def fpLogs(request):
+    challenge = request.get_full_path()[-1:]            # get the challenge number from the url path
+    logs = FrogPondLog.objects.order_by('-id')          # sort by most recent posts
+    logs = logs.filter(challenge = "challenge{}".format(challenge)) # only take logs for the current challenge 
+    return render_to_response('logdump.html', { 'logs' : logs, 'challenge' : challenge })
 
 
 def fpGroupInit(request):
