@@ -3,6 +3,7 @@
 
   {% load static %}
   {% load staticfiles %}
+  {% load tz %}
 <style>
 
 
@@ -40,7 +41,7 @@
     <a href="/site_media/{{ log.program }}" target="_blank"><div class="program-box" style="background-image: url('/site_media/{{log.program}}');"></div></a>
     <a href="/site_media/{{ log.world }}" target="_blank"><div class="world-box" style="background-image: url('/site_media/{{log.world}}');"></div></a>
   </div>
-  <div class="timestamp">{{ log.logTime }}</div>
+  <div class="timestamp">{{ log.logTime|localtime }}</div>
   {% endfor %}
 </div>  
 {% endblock %}
