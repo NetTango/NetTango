@@ -56,7 +56,7 @@ def fpLogDump(logs, limit_per_team):
         html += '<a href="/site_media/{}" target="_blank"><div class="program-box" style="background-image: url(/site_media/{});"></div></a>'.format(log.program, log.program)
         html += '<a href="/site_media/{}" target="_blank"><div class="world-box" style="background-image: url(/site_media/{});"></div></a>'.format(log.world, log.world)
         html += "</div>"  # share
-        html += "<div class='timestamp'>{}</div>".format(log.logTime.strftime("%A, %B %d, %Y, %I:%M %p"))
+        html += "<div class='timestamp'>{}</div>".format(timezone.localtime(log.logTime).strftime("%A, %B %d, %Y, %I:%M %p"))
 
     return html
 
