@@ -96,12 +96,6 @@ abstract class Model extends TouchLayer with Runtime {
     workspace = new CodeWorkspace("${id}");
     workspace.tmanager.addTouchLayer(this);
 
-     // bind click events for buttons    
-    bindClickEvent("play-button", (e) => playPause());
-    bindClickEvent("forward-button", (e) => fastForward());
-    bindClickEvent("step-button", (e) => stepForward());
-    bindClickEvent("restart-button", (e) { restart(); draw(); });
-
     resize(width, height);
 
     //-------------------------------------------------------------------
