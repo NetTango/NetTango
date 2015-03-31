@@ -49,14 +49,22 @@ void main() {
     STATIC_ROOT = window.localStorage["STATIC_ROOT"];
   }
   
-  Sounds.loadSound("hop", "${STATIC_ROOT}sounds");
+  Sounds.loadSound("hop0", "${STATIC_ROOT}sounds");
+  Sounds.loadSound("hop1", "${STATIC_ROOT}sounds");
+  Sounds.loadSound("hop2", "${STATIC_ROOT}sounds");
+  Sounds.loadSound("hop3", "${STATIC_ROOT}sounds");
+  Sounds.loadSound("hop4", "${STATIC_ROOT}sounds");
   Sounds.loadSound("skip", "${STATIC_ROOT}sounds");
   Sounds.loadSound("jump", "${STATIC_ROOT}sounds");
   Sounds.loadSound("chimes", "${STATIC_ROOT}sounds");
   Sounds.loadSound("croak", "${STATIC_ROOT}sounds");
   Sounds.loadSound("crunch", "${STATIC_ROOT}sounds");
   Sounds.loadSound("sing", "${STATIC_ROOT}sounds");
-  Sounds.loadSound("chirp", "${STATIC_ROOT}sounds");
+  Sounds.loadSound("chirp0", "${STATIC_ROOT}sounds");
+  Sounds.loadSound("chirp1", "${STATIC_ROOT}sounds");
+  Sounds.loadSound("chirp2", "${STATIC_ROOT}sounds");
+  Sounds.loadSound("chirp3", "${STATIC_ROOT}sounds");
+  Sounds.loadSound("chirp4", "${STATIC_ROOT}sounds");
   Sounds.loadSound("click", "${STATIC_ROOT}sounds");
   Sounds.loadSound("splash", "${STATIC_ROOT}sounds");
   Sounds.loadSound("tick", "${STATIC_ROOT}sounds");
