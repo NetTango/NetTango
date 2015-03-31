@@ -44,7 +44,7 @@ class Sounds {
 
   static void playSound(String name) {
     if (sounds[name] != null && !mute) {
-      sounds[name].volume = 0.2;
+      sounds[name].volume = 0.4;
       sounds[name].play();
     }
     /*
