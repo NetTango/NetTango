@@ -115,7 +115,7 @@ class Frog extends Turtle {
   void doPause() {
     // is the frog in the water? 
     if (inWater()) {
-      Sounds.playSound("splash");
+      _playSound("splash");
       die();
     } else {
       tween = new Tween();
@@ -136,8 +136,22 @@ class Frog extends Turtle {
     tween = new Tween();
     tween.function = TWEEN_SINE2;
     tween.delay = 0;
-    tween.duration = 12;
-    tween.onstart = (() { Sounds.playSound("hop"); label = "hop"; });
+    tween.duration = (12 * size).toInt();
+    tween.onstart = (() { 
+      if (size >= 1.65) {
+        _playSound("hop0");
+      } else if (size > 1.3) {
+        _playSound("hop1");
+      } else if (size > 0.95) {
+        _playSound("hop2");
+      } else if (size >= 0.6) {
+        _playSound("hop3");
+      } else {
+        _playSound("hop4");
+      }
+      //_playSound("hop"); 
+      label = "hop"; 
+    });
     tween.onend = (() { doPause(); });
     tween.addControlPoint(0, 0);
     tween.addControlPoint(length, 1);
@@ -205,7 +219,18 @@ class Frog extends Turtle {
     tween = new Tween();
     tween.function = TWEEN_LINEAR;
     tween.onstart = (() {
-      Sounds.playSound("chirp");
+      if (size >= 1.65) {
+        _playSound("chirp0");
+      } else if (size > 1.3) {
+        _playSound("chirp1");
+      } else if (size > 0.95) {
+        _playSound("chirp2");
+      } else if (size >= 0.6) {
+        _playSound("chirp3");
+      } else {
+        _playSound("chirp4");
+      }
+      //_playSound("chirp");
       label = "chirp";
       _sound = 0.0;
     });
@@ -238,11 +263,11 @@ class Frog extends Turtle {
     tween.ondelta = ((value) {
       _tongue += value;
       eatBug();
-      if (_tongue == 1.0) Sounds.playSound("swoosh");
+      if (_tongue == 1.0) _playSound("swoosh");
     });
     tween.onend = (() {
       if (prey != null) {
-        Sounds.playSound("gulp");
+        _playSound("gulp");
         prey.die();
         prey = null;
       }
@@ -454,5 +479,12 @@ class Frog extends Turtle {
     num iw = size;
     num ih = size;
     ctx.drawImageScaled(img, -iw/2, -ih/2, iw, ih);
+  }
+
+
+  void _playSound(String sound) {
+    if (pond.followFrog == null || pond.followFrog == this) {
+      Sounds.playSound(sound);
+    }    
   }
 }
