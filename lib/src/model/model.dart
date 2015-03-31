@@ -240,6 +240,11 @@ abstract class Model extends TouchLayer with Runtime {
   num get worldWidth => maxWorldX - minWorldX; //maxPatchX - minPatchX + 1;
   num get worldHeight => maxWorldY - minWorldY; //maxPatchY - minPatchY + 1;
 
+  num get minScreenX => minWorldX * patchSize + width / 2;
+  num get maxScreenX => maxWorldX * patchSize + width / 2;
+  num get maxScreenY => (height / 2 - minWorldY * patchSize);
+  num get minScreenY => (height / 2 - maxWorldY * patchSize);
+
   
   num screenToWorldX(num sx, num sy) {
     return (sx - centerX) / patchSize;
@@ -265,8 +270,8 @@ abstract class Model extends TouchLayer with Runtime {
  * Pan the display by the given screen coordinate deltas
  */
   void pan(num deltaX, num deltaY) {
-    centerX -= deltaX;
-    centerY -= deltaY;
+    centerX = min(maxScreenX, max(minScreenX, centerX - deltaX));
+    centerY = min(maxScreenY, max(minScreenY, centerY - deltaY));
   }
 
 
