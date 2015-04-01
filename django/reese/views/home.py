@@ -62,7 +62,7 @@ def fpLogDump(logs, limit_per_team):
 
 
 def fpShare(request):
-    delta = timezone.now() - timedelta(minutes = 15)    # time delta -40 minutes
+    delta = timezone.now() - timedelta(minutes = 25)    # time delta -40 minutes
     challenge = request.get_full_path()[-1:]            # get the challenge number from the url path
     logs = FrogPondLog.objects.order_by('-id')   # sort by most recent posts
     logs = logs.filter(share = True)                    # only show logs for sharing
