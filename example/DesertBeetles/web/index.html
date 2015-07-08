@@ -7,23 +7,66 @@
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="packages/NetTango/css/fonts.css">
   <link rel="stylesheet" href="packages/NetTango/css/toolbar.css">
+  <link rel="stylesheet" href="packages/NetTango/css/settings.css">
 </head>
 <body>
-  <div id="beetle-model">
-    <canvas id="beetle-turtles" width="900" height="700"></canvas>
-    <canvas id="beetle-workspace" width="900" height="700"></canvas>
+  <div class="world">
+    <canvas id="beetle-turtles" width="800" height="500"></canvas>
+    <canvas id="beetle-workspace" width="800" height="500"></canvas>
   
     <div id="beetle-toolbar" class="toolbar">
-      <button id="play-button"><span id="play-button-icon" class="icon-play2"></span></button>
-      <button id="forward-button"><span class="icon-forward2"></span></button>
-      <button id="step-button"><span class="icon-next"></span></button>
-      <button id="restart-button"><span class="icon-spinner2"></span></button>
-      <!--
-      <button id="plot-button"><span class="icon-bars"></span></button>
-      <button id="settings-button"><span class="icon-settings"></span></button>
-      -->
+      <button id="play-button"></button>
+      <button id="forward-button"></button>
+      <button id="step-button"></button>
+      <button id="restart-button"></button>
     </div>
   </div>
+
+<!-- BLOCK DEFINITIONS -->
+<script type="application/xml" id="beetle-model">
+<ntango>
+  <model patchSize="40" minWorldX="-9" minWorldY="-9" maxWorldX="9" maxWorldY="9" wrap="false">
+    <setup>
+      <turtle breed="Beetle" x="0" y="0" size="1.125" />
+    </setup>
+  </model>
+  <workspace>
+    <menu>
+      <block name="forward" color="#9E553B">
+        <param name="distance" type="range" min="1" max="4" step="0.2" default="1" />
+      </block>
+      <block name="left" color="#9E553B">
+        <param name="degrees" type="range" min="0" max="180" step="10" default="60" random="true" label="degrees" />
+      </block>
+      <block name="right" color="#9E553B">
+        <param name="degrees" type="range" min="0" max="180" step="10" default="60" random="true" label="degrees" />
+      </block>
+      <block name="spin" />
+      <block name="hatch" color="#b67196">
+        <param name="variation">
+          <v>size-variation</v>
+          <v>no-variation</v>
+        </param>
+      </block>
+      <block name="die" color="#b67196" />
+      <block name="chance" type="if" instances="1">
+        <param name="probability" type="range" min="0" max="100" step="1" default="25" unit="%" />
+      </block>
+      <block name="if" type="if" instances="2">
+        <param name="condition">
+          <v>full?</v>
+          <v>hungry?</v>
+          <v>starving?</v>
+          <v>see-water?</v>
+        </param>
+      </block>
+    </menu>
+    <defaultProgram>forward(1);spin();</defaultProgram>
+  </workspace>
+</ntango>
+</script>
+
+
   <script src="dart/main.dart" type="application/dart"></script>
   <script src="dart.js"></script>
   <script type="text/javascript">
