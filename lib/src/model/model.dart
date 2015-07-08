@@ -147,6 +147,16 @@ abstract class Model extends TouchLayer with Runtime {
         }
       });
     }
+
+
+    //-----------------------------------------------------
+    // bind click events for buttons    
+    //-----------------------------------------------------
+    bindClickEvent("play-button", (e) { playPause(); });
+    bindClickEvent("forward-button", (e) => fastForward());
+    bindClickEvent("step-button", (e) => stepForward());
+    bindClickEvent("restart-button", (e) { restart(); draw(); });
+    
   }
   
   int nextAgentId() => AGENT_ID++;
