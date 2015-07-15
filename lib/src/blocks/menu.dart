@@ -29,6 +29,9 @@ class Menu {
   
   /* Slots for programming blocks */
   List<Slot> slots = new List<Slot>();
+
+  /* Menu background color */
+  String background = "rgba(0, 0, 0, 0.3)";
   
   
   Menu(this.workspace, this.x, this.y, this.w, this.h);
@@ -62,7 +65,7 @@ class Menu {
   void draw(CanvasRenderingContext2D ctx) {
     ctx.save();
     {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+      ctx.fillStyle = background;
       ctx.fillRect(x, y, w, h);
 
       num ix = x + 25;
