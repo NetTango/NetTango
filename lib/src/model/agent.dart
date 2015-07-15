@@ -41,7 +41,8 @@ abstract class Agent implements Touchable {
   
   Agent(this.model) {
     id = model.nextAgentId();
-    program = new Program(model.workspace, this);
+    // empty programs by default.
+    program = new Program(null, this);
   }
 
 

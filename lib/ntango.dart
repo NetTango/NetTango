@@ -23,6 +23,7 @@ import 'dart:web_audio';
 
 part 'src/model/agent.dart';
 part 'src/model/aset.dart';
+part 'src/model/breed.dart';
 part 'src/model/color.dart';
 part 'src/model/model.dart';
 part 'src/model/patch.dart';

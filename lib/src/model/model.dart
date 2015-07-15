@@ -36,7 +36,7 @@ abstract class Model extends TouchLayer with Runtime {
   AgentSet<Patch> patches = new AgentSet<Patch>();
 
   /* Support for multiple breeds of turtles */
-  Map<Type, AgentSet> _breeds = new Map<Type, AgentSet>();
+  Map<Type, Breed> _breeds = new Map<Type, Breed>();
 
   /* Global variables and properties (defined for the model) */
   Map<String, dynamic> properties = new Map<String, dynamic>();
@@ -180,16 +180,17 @@ abstract class Model extends TouchLayer with Runtime {
 
 /**
  * Registers a new turtle breed (as a subclass of Turtle)
+ * Optionally bind breed to a code workspace
  */
-  void createBreed(Type breed) {
-    _breeds[breed] = new AgentSet();
+  void createBreed(Type breed, [CodeWorkspace workspace = null]) {
+    _breeds[breed] = new Breed(workspace);
   }
 
 
 /**
  * Get the agentset for the given breed
  */
-  AgentSet getBreed(Type breed) {
+  Breed getBreed(Type breed) {
     return _breeds[breed];
   }
 
@@ -202,9 +203,9 @@ abstract class Model extends TouchLayer with Runtime {
   void addTurtle(Turtle turtle) {
     Type breed = turtle.runtimeType;
     if (_breeds[breed] == null) {
-      _breeds[breed] = new AgentSet();
+      _breeds[breed] = new Breed();
     }
-    _breeds[breed].add(turtle);
+    _breeds[breed].addTurtle(turtle);
   }
 
 
