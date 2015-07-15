@@ -58,7 +58,7 @@ class FrogPond extends Model {
   FrogPond() : super("Frog Pond", "frog") {
 
     createBreed(LilyPad);
-    createBreed(Frog);
+    createBreed(Frog, workspace);
     createBreed(Fly);
 
 

@@ -84,7 +84,6 @@ class Beetle extends Turtle {
 class DBModel extends Model {
   
   DBModel() : super("Desert Beetles", "beetle") {
-
   }
   
   
