@@ -371,13 +371,29 @@ class CodeWorkspace extends TouchLayer {
         prev = nest.last.end;
         nest.removeLast();
         continue;
-      } 
-      else {
+      } else if (s == "else" && nest.isNotEmpty && nest.last is IfElseBlock) {
+        prev = nest.last.el;
+      } else {
         int i = s.indexOf('(');
+        int j = s.indexOf(')');
         String name = (i > 0) ? s.substring(0, i) : s;
+        String param_string = (i > 0) ? s.substring(i + 1, j) : null;
         Block block = menu.getBlockByName(name);
         if (block != null) {
           block = block.clone();
+          if (block.param != null && param_string != null) {
+            var param = double.parse(param_string, (e) => param_string);
+            if (block.param is RangeParameter) {
+              block.param.value = param;
+            } else {
+              for (var item in block.param.values) {
+                if (item == param) {
+                  block.param.index = block.param.values.indexOf(item);
+                  break;
+                }
+              }
+            }
+          }
           addBlock(block);
           prev.insertBlock(block);
           block.inserted = true;

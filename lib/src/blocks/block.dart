@@ -104,6 +104,8 @@ class Block implements Touchable {
     Map attribs = el.attributes;
     if (attribs.containsKey("type") && attribs["type"] == "if") {
       block = new IfBlock(workspace, attribs["name"]);
+    } else if (attribs.containsKey("type") && attribs["type"] == "if-else") {
+      block = new IfElseBlock(workspace);
     } else {
       block = new Block(workspace, attribs["name"]);
     }

@@ -78,6 +78,7 @@ class RangeParameter extends Parameter {
 		return p;
 	}
 
+  num set value(num i) => _value = i;
 
 	dynamic get value {
 		if (randomOption && randomChecked) {
@@ -90,7 +91,6 @@ class RangeParameter extends Parameter {
 			return _value;
 		}
 	}
-
 
   String _valueToString(num v) {
     String s = _value.toStringAsFixed(1);

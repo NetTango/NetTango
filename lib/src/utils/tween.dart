@@ -171,6 +171,102 @@ class Tween {
 }
 
 
+
+class TweenChain extends Tween {
+
+   /* List of tweens to call, one after the other */
+   List<Tween> chain = new List<Tween>();
+
+   /* Active tween index */
+   int active = -1;
+
+
+   bool running  = true;         // paused or not
+   int repeat    = 1;            // repeat count
+
+   var ontick    = null;         // action callback
+   var ondelta   = null;         // action callback
+   var onend     = null;         // tween complete callback
+   var onstart   = null;         // tween beginning callback
+
+
+
+   TweenChain() : super();
+
+
+   void addTween(Tween tween) {
+      if (tween != null) {
+         chain.add(tween);
+         if (active < 0) active = 0;
+      }
+   }
+
+   void play() {
+      if (chain.isNotEmpty) {
+         active = 0;
+         for (Tween tween in chain) {
+            tween.play();
+         }
+      }
+      animate();
+   }
+
+
+   void stop() {
+      active = -1;
+      repeat = 0;
+   }
+
+
+   bool isRunning() => (active >= 0);
+
+
+   /** It's not possible to delay the start of a chain */
+   bool isDelaying() => false;
+
+
+   bool isTweening() {
+      if (repeat == REPEAT_FOREVER) {
+         return true;
+      } else {
+         return isRunning();
+      }
+   }
+
+
+   void animate() {
+      if (active >= 0) {
+         Tween tween = chain[active];
+
+         // call onstart for the entire chain for the first tween only
+         if (active == 0 && tween.delay == tween.count) {
+            if (onstart != null) onstart();
+         }
+
+         // if current tween is still running, animate it
+         if (tween.isTweening()) {
+            tween.animate();
+         } 
+
+         // if current tween is done, move to the next in the chain
+         else {
+            active++;
+            if (active >= chain.length) {
+               if (onend != null) { onend(); };
+               active = -1;
+            }
+            else {
+               tween = chain[active];
+               tween.animate();
+            }
+         }
+      }
+   }
+}
+
+
+
+
 class ControlPoint {
    num value = 0;
    num time = 0;

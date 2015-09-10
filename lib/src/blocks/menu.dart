@@ -108,7 +108,6 @@ class Slot implements Touchable {
   num get width => block.width;
   num get height => block.height;
   
-  
   void draw(CanvasRenderingContext2D ctx) {
     int free = count - workspace.getBlockCount(block.type);
     if (free <= 0) {
