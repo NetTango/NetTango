@@ -108,9 +108,13 @@ class Plot {
 
 		// autoscale 
 		maxY = 0;
-		for (int i=0; i<data.length; i++) { maxY = max(data[i], maxY); }
-		int l10 = pow(10, (log(maxY) / log(10)).floor()).toInt();
-		maxY = (l10 * 5 > maxY) ? l10 * 5 : l10 * 10;
+		if (maxY > 0) {
+			for (int i=0; i<data.length; i++) { maxY = max(data[i], maxY); }
+			int l10 = pow(10, (log(maxY) / log(10)).floor()).toInt();
+			maxY = (l10 * 5 > maxY) ? l10 * 5 : l10 * 10;
+		} else {
+			maxY = 10;
+		}
 
 		// data fill
 		int start = (_len < data.length) ? 0 : _len % data.length;
