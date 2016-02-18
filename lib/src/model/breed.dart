@@ -35,8 +35,8 @@ class Breed extends AgentSet {
 /**
  * Add an agent to the set. If workspace is defined, create new program
  */
-  void addTurtle(Turtle t) {
-    add(t);
+  void add(Turtle t) {
+    super.add(t);
     if (workspace != null) {
       t.program = new Program(workspace.start, t);
     }
