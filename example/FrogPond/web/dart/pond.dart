@@ -47,11 +47,11 @@ class FrogPond extends Model {
   int challenge = 0;
 
 
-  AgentSet get bugs => getBreed(Fly);
+  Breed get bugs => getBreed(Fly);
 
-  AgentSet get frogs => getBreed(Frog);
+  Breed get frogs => getBreed(Frog);
 
-  AgentSet get pads => getBreed(LilyPad);
+  Breed get pads => getBreed(LilyPad);
 
 
 
@@ -93,22 +93,24 @@ class FrogPond extends Model {
     //-----------------------------------------------------
     // share button to upload programs */
     //-----------------------------------------------------
+    /*
     bindClickEvent("share-button", (e) { 
       if (window.confirm("Share your program?")) {
         shareProgram(); 
         new Timer(const Duration(seconds: 1), () { loadShareBoard(); });
       }
     });
+    */
 
 
     //-----------------------------------------------------
     // bind click events for buttons    
     //-----------------------------------------------------
-    bindClickEvent("play-button", (e) { if (isRunning) shareProgram(false); playPause(); });
-    bindClickEvent("forward-button", (e) => fastForward());
-    bindClickEvent("step-button", (e) => stepForward());
-    bindClickEvent("restart-button", (e) { if (isRunning) shareProgram(false); restart(); draw(); });
-    window.onBeforeUnload.listen((e) { if (isRunning) shareProgram(false); });
+    //bindClickEvent("play-button", (e) { if (isRunning) shareProgram(false); playPause(); });
+    //bindClickEvent("forward-button", (e) => fastForward());
+    //bindClickEvent("step-button", (e) => stepForward());
+    //bindClickEvent("restart-button", (e) { if (isRunning) shareProgram(false); restart(); draw(); });
+    //window.onBeforeUnload.listen((e) { if (isRunning) shareProgram(false); });
 
 
     //-----------------------------------------------------
@@ -153,7 +155,6 @@ class FrogPond extends Model {
     // keyboard shortcuts
     //-----------------------------------------------------
     document.onKeyDown.listen((var e) {
-      print(e.keyCode);
       // + key
       if (e.keyCode == 187 || e.keyCode == 61) {
         patchSize = min(120.0, patchSize / 0.98);
@@ -184,10 +185,10 @@ class FrogPond extends Model {
     });
 
 
-    initGroupId();
+    //initGroupId();
 
-    loadShareBoard();
-    new Timer.periodic(const Duration(seconds: 20), (timer) { loadShareBoard(); });
+    //loadShareBoard();
+    //new Timer.periodic(const Duration(seconds: 20), (timer) { loadShareBoard(); });
 
     addTouchable(new BackgroundTouchable(this));
 
@@ -213,6 +214,8 @@ class FrogPond extends Model {
         num x = toNum(t.attributes["x"], 0);
         num y = toNum(t.attributes["y"], 0);
         num size = toNum(t.attributes["size"], 0);
+
+        // TODO: Would be nice to have a factory constructor here.
         String breed = t.attributes["breed"];
         if (breed == "Frog") {
           frogs.add(new Frog(this, x, y, size));
@@ -323,7 +326,8 @@ class FrogPond extends Model {
  * only goes to the unshared log data.
  */
   void shareProgram([bool sharing = true]) {
-
+/*
+// TODO: Move sharing to another codebase or make optional 
     String workLogPostUrl = "/reese/postwork";
 
     // disable the share button temporarily
@@ -369,6 +373,8 @@ class FrogPond extends Model {
       removeHtmlClass("share-button", "disabled");
       removeHtmlAttribute("share-button", "disabled");
     });
+
+*/
   }
 
 
@@ -500,7 +506,9 @@ class FrogPond extends Model {
     }
 
     if (frog != null && !frog.dead) {
-      workspace.traceProgram(frog.program.curr.id);
+      if (frog.program != null) {
+        workspace.traceProgram(frog.program.curr.id);
+      }
     }
   }
   
