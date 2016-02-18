@@ -117,6 +117,8 @@ abstract class Model extends TouchLayer with Runtime {
         maxWorldX = toNum(attribs["maxWorldX"], 10);
         minWorldY = toNum(attribs["minWorldY"], -10);
         maxWorldY = toNum(attribs["maxWorldY"], 10);
+        centerX = width * (-minWorldX / worldWidth);
+        centerY = height * (-minWorldY / worldHeight);
         wrap = (attribs["wrap"] == "true");
         break;
       }
@@ -205,7 +207,7 @@ abstract class Model extends TouchLayer with Runtime {
     if (_breeds[breed] == null) {
       _breeds[breed] = new Breed();
     }
-    _breeds[breed].addTurtle(turtle);
+    _breeds[breed].add(turtle);
   }
 
 
@@ -251,10 +253,12 @@ abstract class Model extends TouchLayer with Runtime {
   num get worldWidth => maxWorldX - minWorldX; //maxPatchX - minPatchX + 1;
   num get worldHeight => maxWorldY - minWorldY; //maxPatchY - minPatchY + 1;
 
-  num get minScreenX => minWorldX * patchSize + width / 2;
-  num get maxScreenX => maxWorldX * patchSize + width / 2;
-  num get maxScreenY => (height / 2 - minWorldY * patchSize);
-  num get minScreenY => (height / 2 - maxWorldY * patchSize);
+
+
+  num get minScreenX => (minWorldX * patchSize) + width * (-minWorldX / worldWidth);
+  num get maxScreenX => (maxWorldX * patchSize) + width * (-minWorldX / worldWidth);
+  num get maxScreenY => height * (-minWorldY / worldHeight) - (minWorldY * patchSize);
+  num get minScreenY => height * (-minWorldY / worldHeight) - (maxWorldY * patchSize);
 
   
   num screenToWorldX(num sx, num sy) {
