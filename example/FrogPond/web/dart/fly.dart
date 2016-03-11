@@ -69,17 +69,17 @@ class Fly extends Turtle {
 
   void forward(num distance) {
     super.forward(distance);
-    if (x < model.minWorldX) {
-      x += model.worldWidth;
+    if (x < pond.minWorldX) {
+      x += pond.worldWidth;
     }
-    else if (x > model.maxWorldX) {
-      x -= model.worldWidth;
+    else if (x > pond.maxWorldX) {
+      x -= pond.worldWidth;
     }
-    if (y < model.minWorldY) {
-      y += model.worldHeight;
+    if (y < pond.minWorldY) {
+      y += pond.worldHeight;
     }
-    else if (y > model.maxWorldY) {
-      y -= model.worldHeight;
+    else if (y > pond.maxWorldY) {
+      y -= pond.worldHeight;
     }
   }
   
