@@ -1,24 +1,44 @@
-<!DOCTYPE html> 
-<html> 
-<head> 
-  <title>Frog Pond 2</title>
+<!DOCTYPE html>
+<html>
+<head>
   <meta charset="utf-8">
-  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="description" content="Frog Pond Evolution">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">  
   <link rel="stylesheet" href="css/frogpond.css">
   <link rel="stylesheet" href="packages/NetTango/css/fonts.css">
   <link rel="stylesheet" href="packages/NetTango/css/toolbar.css">
   <link rel="stylesheet" href="packages/NetTango/css/settings.css">
-  <script type="text/javascript">localStorage.setItem("STATIC_ROOT", "");</script>
+  <link rel="shortcut icon" href="images/favicon/favicon.ico">
+  <title>Frog Pond Evolution | Northwestern University</title>
 </head>
+
+
+<style>
+#team-id {
+  position: absolute;
+  top: 215px;
+  right: -110px;
+}
+
+#shareboard {
+  width: 100%;
+  margin-top: 80px;
+  padding-bottom: 80px;
+  border-top: 1px solid black;
+  background-color: #eef;
+}
+
+.share {
+  background-color: #fff;
+}
+</style>
 <body>
-
-<div class="content">
-
   <div class="chapter">
-  <!--
+
+    <!-- CHALLENGE 1 -->
     <h1>Challenge 1: Population Explosion!</h1>
     <p>
-    See if you can create a <u>stable</u> population of around 100 frogs.
+    See if you can create a <span class="glossary">stable</span> population of around 50 frogs.
     There's now a <span class="block">hatch</span> block in your box of tools. 
     Hatch will create a new frog that grows up to be slightly bigger or smaller than its parent.
     There's also a <span class="block">die</span> block that will remove a frog from the simulation.
@@ -26,19 +46,52 @@
     Use the settings below the pond to help fine-tune your population size.
     <b>Good luck!</b>
     </p>
-  -->
-  <!--
+
+    <!-- CHALLENGE 2 -->
+<!--
     <h1>Challenge 2: Little Frogs</h1>
     <p>
-    For the second challenge, see if you can create a <u>stable</u> population that has almost all little frogs.
-    <b>Hint:</b>Think about what survival advantages little frogs have over big frogs.
+    In this challenge we're going to experiment with <span class="glossary">directional</span> selection pressure. This type of selection pressure tends to drive organisms' <span class="glossary">traits</span> in one direction over successive generations. For the second challenge, see if you can create a stable population that has almost all little frogs. To get started, think about what survival advantages little frogs have over big frogs.
     </p>
-  -->
+-->
+
+    <!-- CHALLENGE 3 -->
+<!--    
     <h1>Challenge 3: Big Frogs</h1>
     <p>
-    For the second challenge, see if you can create a <u>stable</u> population that has almost all big frogs.
-    <b>Hint:</b>Think about what survival advantages big frogs have over little frogs.
+    For the third challenge, see if you can create a population that has almost all big frogs.
     </p>
+-->
+
+    <!-- CHALLENGE 4 -->
+<!--    
+    <h1>Challenge 4: Stabilizing Selection</h1>
+    <p>
+    Try to make frogs that are not too big and not too little. This is an example of <span class="glossary">stabilizing</span> selection pressure.
+    </p>
+-->
+
+    <!-- CHALLENGE 5 -->
+<!--    
+    <h1>Challenge 5: Disruptive Selection!</h1>
+    <p>
+    The last challenge is the hardest of all. This time we're going to try to simulate <span class="glossary">disruptive selection</span> pressures.
+
+    That means we want to create a situation in which it's good to be really small or really big, but bad to be medium-sized. 
+
+    In this challenge we've added a new food source&mdash;Beetles. Beetles are extremely nutritious (and crunchy!) for frogs. 
+
+    The problem is that they're big and  fast, which means that only bigger frogs can catch them. 
+
+    There's also now a couple of small lily pads on the upper-left side of the pond flower. 
+
+    You can make one of these lily pads disapper by pressing the <b>b</b> key at any time.
+    </p>
+
+    <p>
+    <b>Hint:</b> Make the little flies have less energy. If you can get a good group of frogs on the small island, press the b key to make the bridge disappear.
+    </p>
+-->
   </div>
 
   <div class="world" style="width: 800px; height: 500px;">
@@ -54,23 +107,9 @@
   </div>
 
 
-  <!-- PLOTS -->
-  <div class="chapter">
-    <br>
-    <div style="width: 380px; display: inline-block; margin: 0 20px 0 0;">
-      <b>Frog Count</b>
-      <canvas class="plot" id="big-plot" width="380" height="250"></canvas>
-    </div>
-    <div style="width: 380px; display: inline-block; margin: 0 0 0 12px;">
-      <b>Frog Sizes</b>
-      <canvas class="plot" id="big-hist" width="380" height="250"></canvas>
-    </div>
-  </div>
-
-
   <!-- SETTINGS -->
   <div class="chapter">
-    <h3>Settings</h3>
+    <!-- <h3>Settings</h3> -->
 
     <!-- FLY COUNT -->
     <div class="setting">
@@ -90,17 +129,17 @@
 
     <!-- BEETLE COUNT -->
     <div class="setting" style="display: none;">
-      <p>What is the maximum number of beetles in the pond?</p>
-      <input type="range" min="0" max="60" value="0" step="1" id="setting-max-beetles">
-      <output for="setting-max-beetles" id="output-max-beetles">0</output>
+      <p>About how many beetles should be in the pond?</p>
+      <input type="range" min="0" max="10" value="0" step="1" id="setting-max-beetles">
+      <output for="setting-max-beetles" id="output-max-beetles">4</output>
     </div>
 
 
     <!-- BEETLE ENERGY GAIN -->
     <div class="setting" style="display: none;">
       <p>How much energy does a frog gain when it eats a beetle?</p>
-      <input type="range" min="10000" max="50000" value="20000" step="100" id="setting-beetle-energy-gain">
-      <output for="setting-energy-gain" id="output-beetle-energy-gain">20000</output>
+      <input type="range" min="10000" max="50000" value="10000" step="500" id="setting-beetle-energy-gain">
+      <output for="setting-energy-gain" id="output-beetle-energy-gain">10000</output>
     </div>
 
 
@@ -118,19 +157,45 @@
       <input type="range" min="100" max="1000" value="500" step="10" id="setting-max-frogs">
       <output for="setting-max-frogs" id="output-max-frogs">500</output>
     </div>
-
   </div>
 </div>
 
+
+  <!-- PLOTS -->
+  <div class="chapter">
+    <br>
+    <div style="width: 380px; display: inline-block; margin: 0 20px 0 0;">
+      <b>Frog Count</b>
+      <canvas class="plot" id="big-plot" width="380" height="250"></canvas>
+    </div>
+    <div style="width: 380px; display: inline-block; margin: 0 0 0 12px;">
+      <b>Frog Sizes</b>
+      <canvas class="plot" id="big-hist" width="380" height="250"></canvas>
+    </div>
+  </div>
+
+
+  <!-- SHARE BOARD -->
+  <div id="shareboard" style="display: none;">
+    <div class="chapter" style="margin-top: 30px;">
+      <h2>Share Board</h2>
+      <p>
+      Here are some programs that your classmates have created. Click on a program image to try it for yourself.
+      </p>
+
+      <div id="shareboard-ajax">  
+      <div style="text-align: center;"><b>Loading...</b></div>
+      </div>
+    </div>
+  </div>
 
 
 <!-- BLOCK DEFINITIONS -->
 <script type="application/xml" id="frog-model">
 <ntango>
-  <model patchSize="40" minWorldX="-9" minWorldY="-9" maxWorldX="9" maxWorldY="9" wrap="false">
+  <model patchSize="40" minWorldX="-12" minWorldY="-9" maxWorldX="12" maxWorldY="9" wrap="false">
     <setup>
       <turtle breed="LilyPad" x="0" y="0.5" size="12" />
-      <!-- <turtle breed="Flower" x="-7.6" y="6" size="1.75" /> -->
       <turtle breed="Frog" x="0" y="0" size="1.125" />
     </setup>
   </model>
@@ -169,13 +234,19 @@
         </param>
       </block>
     </menu>
-    <defaultProgram>hop(1);spin();</defaultProgram>
+    <defaultProgram>hop(1);spin();hunt(7s);if(full?);hatch(size-variation);end;</defaultProgram>
   </workspace>
 </ntango>
 </script>
 
-<script src="dart/main.dart" type="application/dart"></script>
-<script src="dart.js"></script>
+
+  <!-- FOOTER -->  
+  <footer>
+    Copyright &copy; 2015 CCL + TIDAL Lab
+  </footer>
+
+  <script src="dart/main.dart" type="application/dart"></script>
+  <script src="dart.js"></script>
 
 
 <script type="text/javascript">
@@ -188,3 +259,4 @@
 
 </body>
 </html>
+
