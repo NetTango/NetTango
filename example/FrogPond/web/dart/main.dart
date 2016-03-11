@@ -41,13 +41,14 @@ part 'pond.dart';
 
 FrogPond model;
 
-String STATIC_ROOT = "/static/";
+//String STATIC_ROOT = "/static/";
+String STATIC_ROOT = "";
 
 void main() {
 
-  if (window.localStorage.containsKey("STATIC_ROOT")) {
-    STATIC_ROOT = window.localStorage["STATIC_ROOT"];
-  }
+//  if (window.localStorage.containsKey("STATIC_ROOT")) {
+//    STATIC_ROOT = window.localStorage["STATIC_ROOT"];
+//  }
   
   Sounds.loadSound("hop0", "${STATIC_ROOT}sounds");
   Sounds.loadSound("hop1", "${STATIC_ROOT}sounds");
