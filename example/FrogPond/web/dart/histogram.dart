@@ -94,12 +94,12 @@ class Histogram {
     ctx.lineTo(gx + gw + 0.5, gy + gh + 0.5);
     ctx.stroke();
 
-    gx += MARGIN / 4;
-    gw -= MARGIN / 2;
-    
+    gx += MARGIN ~/ 4;
+    gw -= MARGIN ~/ 2;
+
     num iw = frog.width;
     num ih = frog.height;
-    
+
     int bw = gw ~/ bins;
     int bx = gx;
     int by, bh;
@@ -109,7 +109,7 @@ class Histogram {
     double minf = 0.5;
     double maxf = 1.2;
     double step = (maxf - minf) / bins;
-    
+
     ctx.fillStyle = foreground;
     ctx.font = "200 12px sans-serif";
     ctx.textAlign = "center";
