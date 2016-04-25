@@ -108,6 +108,9 @@ class Block implements Touchable {
     else if (attribs.containsKey("type") && attribs["type"] == "if-else") {
       block = new IfElseBlock(workspace);
     }
+    else if (attribs.containsKey("type") && attribs["type"] == "repeat") {
+      block = new RepeatBlock(workspace);
+    }
     else {
       block = new Block(workspace, attribs["name"]);
     }
