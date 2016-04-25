@@ -43,6 +43,7 @@ part 'src/blocks/if.dart';
 part 'src/blocks/menu.dart';
 part 'src/blocks/parameter.dart';
 part 'src/blocks/range.dart';
+part 'src/blocks/repeat.dart';
 part 'src/blocks/runtime.dart';
 part 'src/blocks/start.dart';
 part 'src/blocks/workspace.dart';
