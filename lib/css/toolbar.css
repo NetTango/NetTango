@@ -69,6 +69,10 @@
   background-image: url('../images/toolbar/plot.png');
 }
 
+.toolbar #save-button {
+  background-image: url('../images/toolbar/check.png');
+}
+
 
 [class^="icon-"], [class*=" icon-"] {
 	font-family: 'icomoon';
