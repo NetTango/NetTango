@@ -41,8 +41,7 @@ part 'pond.dart';
 
 FrogPond model;
 
-//String STATIC_ROOT = "/static/";
-String STATIC_ROOT = "";
+String STATIC_ROOT = "/static/frogpond/";
 
 void main() {
 
