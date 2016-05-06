@@ -18,14 +18,14 @@ part of NetTango;
 
 class IfBlock extends BeginBlock {
   
-  IfBlock(CodeWorkspace workspace) : super(workspace, 'if') {
+  IfBlock(CodeWorkspace workspace, [String name = 'if']) : super(workspace, name) {
     end = new EndBlock(workspace, this);
     _addClause(end);
   }
   
   
   Block clone() {
-    IfBlock block = new IfBlock(workspace);
+    IfBlock block = new IfBlock(workspace, text);
     copyTo(block);
     return block;
   }
@@ -36,9 +36,14 @@ class IfBlock extends BeginBlock {
     for (int i=0; i<indent; i++) tab += "  ";
     return "${tab}if (${param.value}) {\n";
   }
+
+
+  String toURLString() {
+    return "${text}(${param.value});";
+  }
   
   
-  dynamic eval(Program program) { }
+  dynamic eval(Program program) { return false; }
   
   
   Block step(Program program) {
@@ -74,9 +79,14 @@ class IfElseBlock extends BeginBlock {
     for (int i=0; i<indent; i++) tab += "  ";
     return "${tab}if (${param.value}) {\n";
   }
+
+
+  String toURLString() {
+    return "${text}(${param.value})[;";
+  }
   
   
-  dynamic eval(Program program) { }
+  dynamic eval(Program program) { return false; }
   
   
   Block step(Program program) {
@@ -109,4 +119,9 @@ class ElseBlock extends ControlBlock {
     for (int i=0; i<indent-1; i++) tab += "  ";
     return "${tab}else {\n";
   }  
+
+
+  String toURLString() {
+    return "];else[;";
+  }
 }

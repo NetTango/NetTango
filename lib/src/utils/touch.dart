@@ -34,7 +34,7 @@ class TouchManager {
   TouchManager();
   
 /*
- * Add a touch layer to the list
+ * Add a touch layer to the bottom of the list (bottom layers get added after top)
  */
   void addTouchLayer(TouchLayer layer) {
     layers.add(layer);
@@ -53,11 +53,15 @@ class TouchManager {
  * See which layer wants to handle this touch
  */
   TouchBinding findTouchTarget(Contact tp) {
-    for (int i=layers.length - 1; i >= 0; i--) {
+    for (int i=0; i<layers.length; i++) {
       Touchable t = layers[i].findTouchTarget(tp);
       if (t != null) {
         layers[i].resetTouchTimer();
         return new TouchBinding(layers[i], t);
+      } else {
+        if (layers[i].backgroundTouch(tp)) {
+          return null;
+        }
       }
     }
     return null;
@@ -216,6 +220,15 @@ class TouchLayer {
   void removeTouchable(Touchable t) {
     touchables.remove(t);
   }
+
+
+/**
+ * Classes can override this function to be notified of clicks/touches in the background
+ * return true to prevent touch event from going to lower layers
+ */
+  bool backgroundTouch(Contact c) {
+    return false;
+  }  
    
    
 /*

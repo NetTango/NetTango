@@ -34,8 +34,8 @@ class Program {
   Map<String, dynamic> variables = new Map<String, dynamic>();
   
   
-  Program(CodeWorkspace workspace, this.target) {
-    start = workspace.start;
+  Program(this.start, this.target) {
+    curr = start;
   }
   
   

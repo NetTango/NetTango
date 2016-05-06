@@ -27,7 +27,10 @@ class AgentSet<T> {
   /* Random number generator */
   Random rand = new Random();
 
-  
+  /* Allows the use of for(Agent in agents) syntax */
+  Iterator get iterator => agents.iterator;
+
+
 /**
  * Create an empty agent set
  */
@@ -69,6 +72,18 @@ class AgentSet<T> {
   void remove(T agent) {
     agents.remove(agent);
   }
+
+
+/**
+ * Remove all "dead" turtles
+ */
+  void removeDead() {
+    for (int i=agents.length - 1; i >= 0; i--) {
+      if (agents[i] is Turtle && (agents[i] as Turtle).dead) {
+        agents.removeAt(i);
+      }
+    }
+  }
   
 
 /**
@@ -88,6 +103,62 @@ class AgentSet<T> {
     } else {
       return new AgentSet.fromAgent(agents[rand.nextInt(agents.length)]);
     }
+  }
+  
+  
+/**
+ * Return an agent set consisting of all agents of the given type
+ */
+  AgentSet allOf(Type breed) {
+    AgentSet result = new AgentSet();
+    for (Agent agent in agents) {
+      if (agent.runtimeType == breed) {
+        result.add(agent);
+      }
+    }
+    return result;
+  }
+
+
+/**
+ * Return the number of agents of the given type
+ */  
+  int count([Type breed]) {
+    if (breed == null) {
+      return agents.length;
+    } else {
+      int count = 0;
+      for (Agent agent in agents) {
+        if (agent.runtimeType == breed) count++;
+      }
+      return count;
+    }
+  }
+  
+
+/**
+ * Returns a Turtle at the given point (or null)
+ */
+  Turtle getTurtleAtPoint(num px, num py) {
+    for (T t in agents) {
+      if ((t as Turtle).overlapsPoint(px, py)) {
+        return t as Turtle;
+      }
+    }
+    return null;
+  }
+
+
+/**
+ * Returns a Turtle in the given radius (or null)
+ */  
+  Turtle getTurtleInRadius(num px, num py, num radius) {
+    for (T t in agents) {
+      if ((t as Turtle).overlapsPoint(px, py, radius)) {
+        return t as Turtle;
+      }
+    }
+    return null;
   }
   
 

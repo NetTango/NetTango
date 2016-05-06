@@ -28,6 +28,9 @@ abstract class Runtime {
    *   4  : play forward 4x ....
    */
   int play_state = 0;
+
+  /* Current tick count */
+  int ticks = 0;
   
   /* Manages the animation events */
   Timer timer;
@@ -74,7 +77,7 @@ abstract class Runtime {
  */
   void play() {
     play_state = 1;
-    setHtmlClass("play-button-icon", "icon-pause2");
+    setHtmlClass("play-button", "pause");
     if (timer != null && timer.isActive) timer.cancel();
     timer = new Timer.periodic(const Duration(milliseconds : 30), (timer) => _animate());
   }
@@ -87,7 +90,7 @@ abstract class Runtime {
     if (timer != null && timer.isActive) timer.cancel();
     timer = null;
     play_state = 0;
-    setHtmlClass("play-button-icon", "icon-play2");
+    setHtmlClass("play-button", "play");
   }
   
   
@@ -110,6 +113,7 @@ abstract class Runtime {
  */
   void restart() {
     pause();
+    ticks = 0;
     setup();
   }
   

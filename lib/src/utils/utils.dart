@@ -55,7 +55,7 @@ void bindClickEvent(String id, Function callback) {
 void bindClickEvents(String classname, Function callback) {
   var buttons = querySelectorAll(".${classname}");
   for (Element element in buttons) {
-    if (isFlagSet("debug")) {
+    if (!isIPad()) {
       element.onClick.listen(callback);
     } else {
       element.onTouchStart.listen(callback);
@@ -97,6 +97,28 @@ void removeHtmlClass(String id, String cls) {
   Element el = querySelector("#${id}");
   if (el != null) {
     el.classes.remove(cls);
+  }
+}
+
+
+/**
+ * Add an attribute to an HTML tag
+ */
+void setHtmlAttribute(String id, String attrib, String value) {
+  Element el = querySelector("#${id}");
+  if (el != null) {
+    el.attributes[attrib] = value;
+  }
+}
+
+
+/**
+ * Add an attribute to an HTML tag
+ */
+void removeHtmlAttribute(String id, String attrib) {
+  Element el = querySelector("#${id}");
+  if (el != null) {
+    el.attributes.remove(attrib);
   }
 }
 
@@ -219,8 +241,6 @@ void drawBubble(CanvasRenderingContext2D ctx, num x, num y, num w, num h, num ra
   ctx.quadraticCurveTo(x, b, x, b-radius);
   ctx.lineTo(x, y+radius);
   ctx.quadraticCurveTo(x, y, x+radius, y);
-  ctx.fill();
-  ctx.stroke();
 }
 
 
@@ -273,3 +293,60 @@ void drawLineArrow(CanvasRenderingContext2D ctx,
 num distance(num x0, num y0, num x1, num y1) {
   return sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0));
 }
+
+
+/**
+ * Helper function that parses an int from an object (usually a string)
+ */
+int toInt(var d, int defalutValue) {
+  if (d == null) {
+    return defalutValue;
+  } 
+  else if (d is int) {
+    return d;
+  } 
+  else if (d is String) {
+    try {
+      return int.parse(d);
+    } on Exception {
+      return defalutValue;
+    }
+  }
+  return defalutValue;
+}
+
+/**
+ * Helper function that parses an int from an object (usually a string)
+ */
+num toNum(var d, num defalutValue) {
+  if (d == null) {
+    return defalutValue;
+  } 
+  else if (d is num) {
+    return d;
+  } 
+  else if (d is String) {
+    try {
+      return num.parse(d);
+    } on Exception {
+      return defalutValue;
+    }
+  }
+  return defalutValue;
+}
+
+
+/**
+ * Returns a random normally distributed number (mean = 0; SD = 1)
+ */
+double nextGaussian() { 
+  double c, x1, x2, rad, y1;
+  do {
+    x1 = 2 * rand.nextDouble() - 1;
+    x2 = 2 * rand.nextDouble() - 1;
+    rad = x1 * x1 + x2 * x2;
+  } while (rad >= 1 || rad == 0);
+  c = sqrt(-2 * log(rad) / rad);
+  return x1 * c;
+}
+

@@ -1,0 +1,24 @@
+
+  <!-- SHARE BOARD -->
+  {% for log in logs %}
+  <div class="share">
+    <div class="team-box">TEAM<br><span style="font-size: 60px; line-height: 60px;">&#{{ log.groupName }}</span></div>
+    <div class="stats-box">
+      ticks: {{ log.tickCount }}<br>
+      frogs: {{ log.frogCount }}<br>
+      generations: {{ log.generations }}<br>
+      avgerage size: {{ log.avgSize }}<br>
+      settings: {{ log.settings }}
+      <script>
+      var settings = JSON.parse('{{ log.settings|safe }}');
+      //document.write("flies: " + settings["max-flies"] + "<br>");
+      //document.write("energy-gain: " + settings["energy-gain"]);
+      </script>
+    </div>
+    <div class="plot-box" style="background-image: url('/site_media/{{log.plot}}');"></div>
+    <div class="plot-box" style="background-image: url('/site_media/{{log.histogram}}');"></div>
+    <!-- <a href="/frogpond/{{ log.challenge }}?program={{ log.queryString }}" target="_blank"> -->
+    <a href="/site_media/{{ log.program }}" target="_blank"><div class="program-box" style="background-image: url('/site_media/{{log.program}}');"></div></a>
+    <a href="/site_media/{{ log.world }}" target="_blank"><div class="world-box" style="background-image: url('/site_media/{{log.world}}');"></div></a>
+  </div>
+  {% endfor %}

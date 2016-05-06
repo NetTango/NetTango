@@ -1,0 +1,2 @@
+ssh -i reesekey.pem ec2-user@54.69.228.220 mysqldump -u root --password=R33535 reese > backup-reese-$(date +%m%d%Y).sql
+

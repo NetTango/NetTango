@@ -23,10 +23,28 @@ class Sounds {
   static bool mute = false;
 
 
-  static void loadSound(String name) {
+  static void loadSound(String name, [String dir = "sounds"]) {
+
+    /*
     AudioElement audio = new AudioElement();
-    audio.src = "sounds/$name.wav";
+    audio.src = "$dir/$name.wav";
     sounds[name] = audio;
+    */
+    String url = "$dir/$name.wav";
+    HttpRequest request = new HttpRequest();
+    request.open("GET", url, async: true);
+    request.responseType = "arraybuffer";
+    request.onLoad.listen((e) {
+      audio.decodeAudioData(request.response).then((AudioBuffer buffer) {
+        if (buffer == null) {
+          return;
+        }
+        sounds[name] = buffer;
+      });      
+    });
+    request.onError.listen((e) => print("BufferLoader: XHR error"));
+    request.send();
+
     /*
     HttpRequest http = new HttpRequest();
     http.responseType = "arraybuffer";
@@ -36,27 +54,29 @@ class Sounds {
           (buffer) { sounds[name] = buffer; },
           (err) => print(err));
     });
-    http.open('GET', "sounds/$name.wav");
+    http.open('GET', "$dir/$name.wav");
     http.send();
     */
+
   }
 
 
   static void playSound(String name) {
+    /*
     if (sounds[name] != null && !mute) {
-      sounds[name].volume = 0.2;
+      sounds[name].volume = 0.4;
       sounds[name].play();
     }
-    /*
+    */
+
     if (sounds[name] == null) return;
     AudioBufferSourceNode source = audio.createBufferSource();
-    source.connect(audio.destination, 0, 0);
     source.buffer = sounds[name];
+    source.connectNode(audio.destination, 0, 0);
     source.loop = false;
-    source.gain.value = 0.2;
     source.playbackRate.value = 1;
     source.start(0);
-    */
+
   }
 
 }

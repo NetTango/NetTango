@@ -1,6 +1,6 @@
 /*
  * NetTango
- * Copyright (c) 2014 Michael S. Horn, Uri Wilensky, and Corey Brady
+ * Copyright (c) 2015 Michael S. Horn, Uri Wilensky, and Corey Brady
  * 
  * Northwestern University
  * 2120 Campus Drive
@@ -19,6 +19,8 @@ part of NetTango;
 
 class CodeWorkspace extends TouchLayer {
   
+  String id;
+
   /* list of blocks in the workspace */
   List<Block> blocks = new List<Block>();
   
@@ -33,34 +35,57 @@ class CodeWorkspace extends TouchLayer {
   
   /* traces execution of programs as they run */
   TraceBug bug;
-  
+
+  /* Canvas 2D drawing context */
   CanvasRenderingContext2D ctx;
-  
-  /* Runtime manager */
-  Runtime runtime;
+
+  /* Touch event manager */
+  TouchManager tmanager = new TouchManager();
+
+  /* On program changed callback */
+  Function onProgramChanged = null;
+
 
   
-  CodeWorkspace(this.runtime, String id) {
+/**
+ * id: the <canvas> element id for this workspace (e.g. "frog-workspace")
+ * Constructor will attempt to find a <script> tag with the id value of 
+ * "${id}-blocks" (e.g. "frog-workspace-blocks") to use as the JSON for 
+ * defining the blocks available in this workspace
+ */
+  CodeWorkspace(this.id) {
     
+    // initialize drawing context
     CanvasElement canvas = querySelector("#${id}-workspace");
     ctx = canvas.getContext('2d');
     width = canvas.width;
     height = canvas.height;
 
     // menu bar
-    menu = new Menu(this, 0, height - BLOCK_HEIGHT * 1.85, width, BLOCK_HEIGHT * 1.85);
+    menu = new Menu(this, 0, height - BLOCK_HEIGHT * 1.6, width, BLOCK_HEIGHT * 1.6);
     
     // start block
     start = new StartBlock(this);
     addBlock(start);
-    buildDefaultProgram();
     
     // trace bug
     bug = new TraceBug(start);
 
+    // initialize touch manager
+    tmanager.registerEvents(querySelector("#${id}-workspace"));
+    tmanager.addTouchLayer(this);
+
+    // initialize block menu
+    ScriptElement se = querySelector("#${id}-model");
+    if (se != null) {
+      DomParser parser = new DomParser();
+      var xml = parser.parseFromString(se.innerHtml, "application/xml");
+      _initBlockMenu(xml);
+    }
+
     new Timer.periodic(const Duration(milliseconds : 20), tick);
   }
-  
+
   
 /**
  * Adds a stack of blocks of the given type to the menu bar.
@@ -68,21 +93,64 @@ class CodeWorkspace extends TouchLayer {
   void addToMenu(Block block, int count) {
     menu.addBlock(block, count);
   }
+
+
+/**
+ * Adds eval implementation to to a block
+ */
+  void addBlockAction(String blockName, Function action) {
+    Block block = menu.getBlockByName(blockName);
+    if (block != null) block.action = action;
+  }
+
   
   
-  void traceProgram(Program program) {
-    bug.target = program.curr;
+/**
+ * Highlight a program block
+ */  
+  void traceProgram(int blockID) {
+    Block target = null;
+    for (Block block in blocks) {
+      if (block.id == blockID) target = block;
+    }
+    if (target != null && target is! EndProgramBlock && target is! StartBlock) {
+      bug.target = target;
+    }
   }
 
 
   void tick(Timer t) {
     if (animate()) draw();
   }
-  
-  
+
+
+/**
+ * Callback when blocks of a program have changed
+ */  
   void programChanged() {
-    runtime.pause();
-    runtime.restartPrograms();
+    if (onProgramChanged != null) {
+      Function.apply(onProgramChanged, [ ]);
+    }
+  }
+
+
+/**
+ * Close all open parameter menus
+ */  
+  void closeAllParameterMenus() {
+    for (Block block in blocks) {
+      block.closeParameterMenu();
+    }
+    draw();
+  }
+
+
+/**
+ * On a background touch, close all open parameter menus
+ */
+  bool backgroundTouch(Contact c) {
+    closeAllParameterMenus();
+    return false;
   }
   
   
@@ -90,7 +158,6 @@ class CodeWorkspace extends TouchLayer {
  * Erase a program
  */
   void removeAllBlocks() {
-    programChanged();
     Block block = start.next;
     while (block != null && block != start.end) {
       Block b = block.next;
@@ -102,12 +169,14 @@ class CodeWorkspace extends TouchLayer {
     start.next = start.end;
     start.end.prev = start;
   }
-  
-    
+
+
 /**
- * Creates a simple starting program so that there's something that can be run
+ * Subclasses override to creates a starting program so that 
+ * there's something to be run
  */
-  void buildDefaultProgram(){}
+  void buildDefaultProgram() {
+  }
   
   
 /**
@@ -149,6 +218,14 @@ class CodeWorkspace extends TouchLayer {
       if (block.type == blockType) count++;
     }
     return count;
+  }
+
+
+/**
+ * Is the program empty? Only a start block...
+ */
+  bool get isEmpty {
+    return blocks.length <= 2;  // start and end blocks together
   }
   
   
@@ -263,8 +340,6 @@ class CodeWorkspace extends TouchLayer {
       bug.draw(ctx);
       
       // draw the menu 
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-      ctx.fillRect(0, height - BLOCK_HEIGHT * 1.85, width, BLOCK_HEIGHT * 1.85);
       menu.draw(ctx);
     }
     ctx.restore();
@@ -280,4 +355,74 @@ class CodeWorkspace extends TouchLayer {
     }
     return s + "]";
   }
+
+
+/**
+ * Parses a program description stored as a URL-encoded string and builds the 
+ * block program.
+ */
+  void fromURLString(String program) {
+    program = Uri.decodeFull(program);
+    Block prev = start;
+    List<BeginBlock> nest = new List<BeginBlock>();
+
+    for (String s in program.split(';')) {
+      if (s == "end" && nest.isNotEmpty) {
+        prev = nest.last.end;
+        nest.removeLast();
+        continue;
+      } 
+      else {
+        int i = s.indexOf('(');
+        String name = (i > 0) ? s.substring(0, i) : s;
+        Block block = menu.getBlockByName(name);
+        if (block != null) {
+          block = block.clone();
+          addBlock(block);
+          prev.insertBlock(block);
+          block.inserted = true;
+          if (block is BeginBlock) {
+            nest.add(block);
+            (block as BeginBlock).addAllBlocks();
+          }
+        }
+        prev = block;
+      }
+    }
+  }
+  
+    
+/**
+ * Converts the program to a URL-encoded string
+ */
+  String toURLString() {
+    String s = "";
+    Block b = start.next;
+    while (b != null && b is! EndProgramBlock) {
+      s += b.toURLString();
+      b = b.next;
+    }
+    return Uri.encodeFull(s);
+  }
+
+
+/**
+ * This function parses a JSON block definition object and populates
+ * the block menu.
+ */
+  void _initBlockMenu(var xml) {
+    for (Element b in xml.getElementsByTagName("block")) {
+      Block block = new Block.fromXML(this, b);
+      addToMenu(block, toInt(b.attributes["instances"], 1));
+    }
+/*
+    for (var b in blocks) {
+      if (b is Map && b.containsKey("name")) {
+        Block block = new Block.fromJSON(this, b);
+        addToMenu(block, toInt(b["instances"], 1));
+      }
+    }
+    */
+  }
+
 }

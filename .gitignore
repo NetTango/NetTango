@@ -2,6 +2,7 @@
 build/
 packages
 .buildlog
+.packages
 
 # Or the files created by dart2js.
 *.dart.js
@@ -10,6 +11,14 @@ packages
 *.js.deps
 *.js.map
 .DS_Store
+
+django/static
+django/reese/settings.py
+django/login.sh
+django/*.pem
+django/reese/media
+django/uploadstatic.sh
+*.pyc
 
 # Include when developing application packages.
 pubspec.lock

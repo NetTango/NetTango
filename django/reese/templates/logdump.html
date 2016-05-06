@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block primary %}
+
+  {% load static %}
+  {% load staticfiles %}
+  {% load tz %}
+<style>
+
+
+.stats-box {
+  width: 400px;
+}
+</style>
+
+<div class="chapter">
+  <h2>Logs: Challenge {{ challenge }}</h2>
+  <h3>{{ logs.count }} entries</h3>
+
+  <!-- SHARE BOARD -->
+  {% for log in logs %}
+  {% ifchanged log.logTime.day %}
+  <h3>{{ log.logTime.date }}</h3>
+  {% endifchanged %}
+
+  <div class="share"{% if log.share %} style="background-color: #eef;"{% endif %}>
+    <div class="team-box">TEAM<br><span style="font-size: 60px; line-height: 60px;">&#{{ log.groupName }}</span></div>
+    <div class="stats-box">
+      ticks: {{ log.tickCount }}<br>
+      frogs: {{ log.frogCount }}<br>
+      generations: {{ log.generations }}<br>
+      avgerage size: {{ log.avgSize }}<br>
+      <script>
+      var settings = JSON.parse('{{ log.settings|safe }}');
+      document.write("flies: " + settings["max-flies"] + "<br>");
+      document.write("energy-gain: " + settings["energy-gain"]);
+      </script>
+    </div>
+    <div class="plot-box" style="background-image: url('/site_media/{{log.plot}}');"></div>
+    <div class="plot-box" style="background-image: url('/site_media/{{log.histogram}}');"></div>
+    <!-- <a href="/frogpond/{{ log.challenge }}?program={{ log.queryString }}" target="_blank"> -->
+    <a href="/site_media/{{ log.program }}" target="_blank"><div class="program-box" style="background-image: url('/site_media/{{log.program}}');"></div></a>
+    <a href="/site_media/{{ log.world }}" target="_blank"><div class="world-box" style="background-image: url('/site_media/{{log.world}}');"></div></a>
+  </div>
+  <div class="timestamp">{{ log.logTime|localtime }}</div>
+  {% endfor %}
+</div>  
+{% endblock %}

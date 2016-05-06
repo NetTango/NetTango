@@ -1,0 +1,78 @@
+/*
+ * NetTango
+ * Copyright (c) 2014 Michael S. Horn, Uri Wilensky, and Corey Brady
+ * 
+ * Northwestern University
+ * 2120 Campus Drive
+ * Evanston, IL 60613
+ * http://tidal.northwestern.edu
+ * http://ccl.northwestern.edu
+ *
+ * This project was funded in part by the National Science Foundation.
+ * Any opinions, findings and conclusions or recommendations expressed in this
+ * material are those of the author(s) and do not necessarily reflect the views
+ * of the National Science Foundation (NSF).
+ */
+.setting {
+  margin-bottom: 20px;
+  background-color: #eee;
+  padding: 30px;
+  border-radius: 20px;
+  width: 600px;
+}
+
+.setting p {
+  margin: 0;
+  padding: 0 0 5px 0;
+}
+
+
+.setting input[type=range] {
+  width: 400px;
+  height: 20px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.setting output {
+  display: inline-block;
+  width: 100px;
+  height: 40px;
+  line-height: 40px;
+  background-color: #39a;
+  color: white;
+  text-align: center;
+  border-radius: 10px;
+  box-sizing: border-box;
+  box-shadow: inset 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.setting input[type=checkbox] {
+  width: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0;
+  display: inline-block;
+  position: relative;;
+  z-index: 2;
+  opacity: 0;
+}
+
+.setting input[type=checkbox] + output {
+  width: 30px;
+  height: 30px;
+  margin: 0;
+  padding: 0;
+  line-height: 30px;
+  border-radius: 7px;
+  color: transparent;
+  position: relative;
+  z-index: 0;
+  left: -43px;
+  top: -20px;
+}
+
+.setting input[type=checkbox]:checked + output {
+  color: white;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}

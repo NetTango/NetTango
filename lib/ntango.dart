@@ -15,6 +15,7 @@
  */
 library NetTango;
 
+import 'dart:convert';
 import 'dart:math';
 import 'dart:async';
 import 'dart:html';
@@ -22,6 +23,7 @@ import 'dart:web_audio';
 
 part 'src/model/agent.dart';
 part 'src/model/aset.dart';
+part 'src/model/breed.dart';
 part 'src/model/color.dart';
 part 'src/model/model.dart';
 part 'src/model/patch.dart';
@@ -40,6 +42,8 @@ part 'src/blocks/control.dart';
 part 'src/blocks/if.dart';
 part 'src/blocks/menu.dart';
 part 'src/blocks/parameter.dart';
+part 'src/blocks/range.dart';
+part 'src/blocks/repeat.dart';
 part 'src/blocks/runtime.dart';
 part 'src/blocks/start.dart';
 part 'src/blocks/workspace.dart';

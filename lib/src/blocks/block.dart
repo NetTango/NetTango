@@ -16,7 +16,7 @@
 part of NetTango;
 
 const BLOCK_WIDTH = 95.0; // 58
-const BLOCK_HEIGHT = 35.0;
+const BLOCK_HEIGHT = 32.0;
 const BLOCK_SPACE = 0.0; //11;
 const BLOCK_MARGIN = 10.0;
 
@@ -36,7 +36,7 @@ class Block implements Touchable {
   int id;
   
   /* Block dimensions */
-  double x = 0.0, y = 0.0, _width = 0.0, _height = 0.0;
+  double x = 0.0, y = 0.0, _width = 0.0, _height = 0.0, _minwidth = 0.0;
   
   /* For animating blocks */
   double _targetX = null, _targetY = null;
@@ -52,6 +52,12 @@ class Block implements Touchable {
   
   /** CSS color of the text */
   String textColor = 'white';
+
+  /** CSS size of the font (e.g. "12px") */
+  String textSize = "14px";
+
+  /** CSS outline color of the block */
+  String outlineColor = 'rgba(255, 255, 255, 0.3)';
   
   /* Is the block being dragged */
   bool dragging = false;
@@ -84,11 +90,59 @@ class Block implements Touchable {
   Block(this.workspace, this.text) {
     id = Block.BLOCK_ID++;
     _width = BLOCK_WIDTH.toDouble();
+    _minwidth = BLOCK_WIDTH.toDouble();
     _height = BLOCK_HEIGHT.toDouble();
     type = text;
   }
-  
-  
+
+
+  factory Block.fromXML(CodeWorkspace workspace, Element el) {
+    //----------------------------------------------------------
+    // block type
+    //----------------------------------------------------------
+    Block block;
+    Map attribs = el.attributes;
+    if (attribs.containsKey("type") && attribs["type"] == "if") {
+      block = new IfBlock(workspace, attribs["name"]);
+    } 
+    else if (attribs.containsKey("type") && attribs["type"] == "if-else") {
+      block = new IfElseBlock(workspace);
+    }
+    else if (attribs.containsKey("type") && attribs["type"] == "repeat") {
+      block = new RepeatBlock(workspace);
+    }
+    else {
+      block = new Block(workspace, attribs["name"]);
+    }
+
+    //----------------------------------------------------------
+    // block shorthand code
+    //----------------------------------------------------------
+    if (attribs.containsKey("short")) block.type = attribs["short"];
+
+    //----------------------------------------------------------
+    // block color
+    //----------------------------------------------------------
+    if (attribs.containsKey("color")) block.color = attribs["color"];
+
+    //----------------------------------------------------------
+    // text color
+    //----------------------------------------------------------
+    if (attribs.containsKey("textColor")) block.textColor = attribs["textColor"];
+
+    //----------------------------------------------------------
+    // parameters
+    //----------------------------------------------------------
+    for (Node n in el.childNodes) {
+      if (n is Element && n.nodeName == "param") {
+        block.param = new Parameter.fromXML(block, (n as Element));
+      }
+    }
+
+    return block;
+  }
+
+
   Block clone() {
     Block b = new Block(workspace, text);
     copyTo(b);
@@ -100,10 +154,12 @@ class Block implements Touchable {
     other.x = x;
     other.y = y;
     other._width = _width;
+    other._minwidth = _minwidth;
     other._height = _height;
     other.text = text;
     other.color = color;
     other.textColor = textColor;
+    other.outlineColor = outlineColor;
     other.action = action;
     if (hasParam) {
       other.param = param.clone(other);
@@ -119,7 +175,7 @@ class Block implements Touchable {
   
   bool get isInProgram => hasPrev;
   
-  num get width => inMenu ? _width * 0.68 : _width;
+  num get width => inMenu ? _minwidth : _width;
   
   num get height => _height;
   
@@ -219,6 +275,18 @@ class Block implements Touchable {
       return "${text}(${param.value})";
     }
   }
+
+
+/**
+ * Converts the program to a URL-encoded string
+ */
+  String toURLString() {
+    if (param == null) {
+      return "${text}();";
+    } else {
+      return "${text}(${param.value});";
+    }
+  }
   
     
 /**
@@ -250,6 +318,15 @@ class Block implements Touchable {
       return dragging;
     }
   }
+
+/**
+ * If the parameter menu is open, close it
+ */  
+  void closeParameterMenu() {
+    if (param != null) {
+      param.menuOpen = false;
+    }
+  } 
   
   
 /**
@@ -278,11 +355,27 @@ class Block implements Touchable {
   }
   
   
-  void _resize(CanvasRenderingContext2D ctx) {
-    if (param != null && inserted) {
-      double cw = param.getDisplayWidth(ctx) + param.centerX - 14;
-      _width = max(cw, BLOCK_WIDTH);
+  num getTextWdith(CanvasRenderingContext2D ctx) {
+    num w = 20;
+    ctx.save();
+    {
+      ctx.font = '300 ${textSize} Nunito, sans-serif';
+      w += ctx.measureText(text).width;      
     }
+    ctx.restore();
+    return w;
+  }
+
+  
+  void _resize(CanvasRenderingContext2D ctx) {
+    num w = getTextWdith(ctx);
+    _minwidth = max(w + 3, BLOCK_WIDTH / 2.25); // for displaying in the menu
+    if (param != null && inserted) {
+      //num cw = param.getDisplayWidth(ctx) + param.centerX - 14;
+      param.left = w + 10;
+      w += param.getDisplayWidth(ctx) + 15;
+    }
+    _width = max(w, BLOCK_WIDTH);
   }
   
   
@@ -300,8 +393,8 @@ class Block implements Touchable {
     ctx.save();
     {
       ctx.fillStyle = color;
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-      ctx.lineWidth = 2;
+      ctx.strokeStyle = outlineColor;
+      ctx.lineWidth = 1.5;
       ctx.fill();
       ctx.stroke();
     }
@@ -312,7 +405,7 @@ class Block implements Touchable {
   void _drawLabel(CanvasRenderingContext2D ctx, num tx, num ty) {
     var lines = text.split('\n');
     ctx.fillStyle = textColor;
-    ctx.font = '300 12pt Nunito, sans-serif';
+    ctx.font = '300 ${textSize} Nunito, sans-serif';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
     //double tx = x + 12;

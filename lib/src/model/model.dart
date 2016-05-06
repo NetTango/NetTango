@@ -16,7 +16,6 @@
 part of NetTango;
 
 
-// TODO Patchless by default
 abstract class Model extends TouchLayer with Runtime {
   
   /* Human-readable name of the model */
@@ -26,32 +25,24 @@ abstract class Model extends TouchLayer with Runtime {
    * Internal id prefix that links this model to associated HTML identifiers
    *   Turtle Canvas:  #${id}-turtles
    *   Patches Canvas: #${id}-patches
+   *   Block Workspace Canvas: #${id}-workspace
    */
   String id = "model";
    
   /* Dimensions of the canvas for the world view */
   int width = 500, height = 500;
   
-  /* A collection of turtles in the model */
-  AgentSet<Turtle> turtles = new AgentSet<Turtle>();
-   
   /* A list of patches */
   AgentSet<Patch> patches = new AgentSet<Patch>();
-  
+
+  /* Support for multiple breeds of turtles */
+  Map<Type, Breed> _breeds = new Map<Type, Breed>();
+
   /* Global variables and properties (defined for the model) */
   Map<String, dynamic> properties = new Map<String, dynamic>();
   
-  /* Current tick count */
-  int ticks = 0;
-  
   /* does the world wrap or not? */
   bool wrap = true;
-  
-  /* Dimensions of the world in patch coordinates */
-  int maxPatchX = 12;
-  int minPatchX = -12;
-  int maxPatchY = 12;
-  int minPatchY = -12;
   
   /* Used to generate unique agent id numbers */
   int AGENT_ID = 1;
@@ -68,12 +59,24 @@ abstract class Model extends TouchLayer with Runtime {
   /* Blocks workspace */
   CodeWorkspace workspace;
   
-  /* Touch event manager */
-  TouchManager tmanager = new TouchManager();
-
   /* Is the mouse or finger down? */
   bool down = false;
-  
+
+  /* size of patches in pixels */  
+  num patchSize = 20.0;
+
+  /* center of the model in screen coordinates (used to pan the display) */
+  num centerX = 0, centerY = 0;
+
+  /* dimensions of the world regarless of patch size (in world coordinates) */
+  num minWorldX = -10;
+  num minWorldY = -10;
+  num maxWorldX = 10;
+  num maxWorldY = 10;
+
+  /* model + workspace specifications */
+  XmlDocument spec = null;
+
    
   Model(this.name, this.id) {
     
@@ -81,52 +84,223 @@ abstract class Model extends TouchLayer with Runtime {
     CanvasElement canvas = querySelector("#${id}-turtles");
     width = canvas.width;
     height = canvas.height;
+    centerX = width / 2;
+    centerY = height / 2;
     tctx = canvas.getContext("2d");
-    tmanager.registerEvents(querySelector("#${id}-workspace"));
-    tmanager.addTouchLayer(this);
- 
+
      // Patch canvas
-    canvas = document.query("#${id}-patches");
+    canvas = querySelector("#${id}-patches");
     if (canvas != null) pctx = canvas.getContext("2d");
  
      // code workspace
-    workspace = new CodeWorkspace(this, id);
-    tmanager.addTouchLayer(workspace);
-
-     // bind click events for buttons    
-    bindClickEvent("play-button", (e) => playPause());
-    bindClickEvent("forward-button", (e) => fastForward());
-    bindClickEvent("step-button", (e) => stepForward());
-    bindClickEvent("restart-button", (e) => restart());
+    workspace = new CodeWorkspace("${id}");
+    workspace.tmanager.addTouchLayer(this);
 
     resize(width, height);
-    setup();
+
+    //-------------------------------------------------------------------
+    // Load model parameters from the <script> tag.
+    // <script type="application/xml" id="frog-model">
+    // <model> tag has the following optional attributes
+    //   patchSize 
+    //   minWorldX, maxWorldX, minWorldY, maxWorldY
+    //   wrap
+    //-------------------------------------------------------------------
+    ScriptElement se = querySelector("#${id}-model");
+    if (se != null) {
+      DomParser parser = new DomParser();
+      spec = parser.parseFromString(se.innerHtml, "application/xml");
+      for (Element e in spec.getElementsByTagName("model")) {
+        Map attribs = e.attributes;
+        patchSize = toNum(attribs["patchSize"], 30);
+        minWorldX = toNum(attribs["minWorldX"], -10);
+        maxWorldX = toNum(attribs["maxWorldX"], 10);
+        minWorldY = toNum(attribs["minWorldY"], -10);
+        maxWorldY = toNum(attribs["maxWorldY"], 10);
+        centerX = width * (-minWorldX / worldWidth);
+        centerY = height * (-minWorldY / worldHeight);
+        wrap = (attribs["wrap"] == "true");
+        break;
+      }
+    }
+
+
+    //-------------------------------------------------------------------
+    // load settings from the HTML file. Currently only range and 
+    // checkbox input types are supported. Each <input> tag must have
+    // an id prefixed with "setting-" and must have class="setting"
+    //-------------------------------------------------------------------
+    var settings = querySelectorAll(".setting input");
+    for (var setting in settings) {
+      String name = setting.id.substring(8);
+      if (setting.type == "range") {
+        this[name] = toNum(setting.value, 0);
+      } else if (setting.type == "checkbox") {
+        this[name] = setting.checked;
+      }
+      setting.onInput.listen((e) {
+        var out = querySelector("#output-${name}");
+        if (out != null) out.value = e.target.value;
+        this[name] = toNum(e.target.value, 0);
+      });
+      setting.onChange.listen((e) {
+        if (setting.type == "checkbox") {
+          this[name] = e.target.checked;
+        }
+      });
+    }
+
+
+    //-----------------------------------------------------
+    // bind click events for buttons    
+    //-----------------------------------------------------
+    bindClickEvent("play-button", (e) { playPause(); });
+    bindClickEvent("forward-button", (e) => fastForward());
+    bindClickEvent("step-button", (e) => stepForward());
+    bindClickEvent("restart-button", (e) { restart(); draw(); });
+    
+  }
+  
+  int nextAgentId() => AGENT_ID++;
+  
+
+/**
+ * Returns a model property
+ */  
+  dynamic operator [] (String key) {
+    return properties[key];
+  }
+
+
+/**
+ * Assigns a model property
+ */ 
+  void operator []= (String key, var value) {
+    properties[key] = value;
+  } 
+
+
+/**
+ * Registers a new turtle breed (as a subclass of Turtle)
+ * Optionally bind breed to a code workspace
+ */
+  void createBreed(Type breed, [CodeWorkspace workspace = null]) {
+    _breeds[breed] = new Breed(workspace);
+  }
+
+
+/**
+ * Get the agentset for the given breed
+ */
+  Breed getBreed(Type breed) {
+    return _breeds[breed];
+  }
+
+
+/**
+ * Add a turtle to the model. If this matches a registered breed, it will
+ * automatically be added to that agentset. Otherwise, a new breed will be 
+ * created.
+ */
+  void addTurtle(Turtle turtle) {
+    Type breed = turtle.runtimeType;
+    if (_breeds[breed] == null) {
+      _breeds[breed] = new Breed();
+    }
+    _breeds[breed].add(turtle);
+  }
+
+
+/**
+ * Removes a turtle from the agentset
+ */
+  void removeTurtle(Turtle turtle) {
+    Type breed = turtle.runtimeType;
+    if (_breeds.containsKey(breed)) {
+      _breeds[breed].remove(turtle);
+    }
+  }
+
+
+/**
+ * Removes all turtles
+ */
+  void clearTurtles() {
+    _breeds.values.forEach((breed) => breed.clear());
+  }
+
+
+/**
+ * Parses the XML spec to build a default program
+ */
+  void buildDefaultProgram() {
+    if (spec != null) {
+      for (Element t in spec.getElementsByTagName("defaultProgram")) {
+        workspace.fromURLString(t.innerHtml);
+      }
+    }
+  }
+
+
+  /* Dimensions of the world in patch coordinates */
+  /* Assume an infinte and fluidly zoomable world */
+  /*
+  int get minPatchX => (width ~/ patchSize) ~/ -2;
+  int get maxPatchX => (width ~/ patchSize) + minPatchX - 1;
+  int get minPatchY => (height ~/ patchSize) ~/ -2;
+  int get maxPatchY => (height ~/ patchSize) + minPatchY - 1;
+  */
+  num get worldWidth => maxWorldX - minWorldX; //maxPatchX - minPatchX + 1;
+  num get worldHeight => maxWorldY - minWorldY; //maxPatchY - minPatchY + 1;
+
+
+
+  num get minScreenX => (minWorldX * patchSize) + width * (-minWorldX / worldWidth);
+  num get maxScreenX => (maxWorldX * patchSize) + width * (-minWorldX / worldWidth);
+  num get maxScreenY => height * (-minWorldY / worldHeight) - (minWorldY * patchSize);
+  num get minScreenY => height * (-minWorldY / worldHeight) - (maxWorldY * patchSize);
+
+  
+  num screenToWorldX(num sx, num sy) {
+    return (sx - centerX) / patchSize;
+  }
+   
+   
+  num screenToWorldY(num sx, num sy) {
+    return ((height - sy) - centerY) / patchSize;      
   }
   
   
-  int nextAgentId() => AGENT_ID++;
-   
-  num get minWorldY => minPatchY - 0.5;
-  num get minWorldX => minPatchX - 0.5;
-  num get maxWorldY => maxPatchY + 0.5;
-  num get maxWorldX => maxPatchX + 0.5;
-  int get worldWidth => maxPatchX - minPatchX + 1;
-  int get worldHeight => maxPatchY - minPatchY + 1;
-  num get patchSize => width / worldWidth;
+  num worldToScreenX(num wx, num wy) {
+    return wx * patchSize + centerX;
+  }
   
   
+  num worldToScreenY(num wx, num wy) {
+    return height - (wy * patchSize + centerY);
+  }
+
+
+/**
+ * Pan the display by the given screen coordinate deltas
+ */
+  void pan(num deltaX, num deltaY) {
+    centerX = min(maxScreenX, max(minScreenX, centerX - deltaX));
+    centerY = min(maxScreenY, max(minScreenY, centerY - deltaY));
+  }
+
 
 /**
  * Set up the model for a new run (abstract)
  */
   void setup();
-
-
+  
+  
 /**
  * Called when the block program changes...
  */
   void restartPrograms() {
-    turtles.restartProgram();
+    _breeds.values.forEach((breed) => breed.restartProgram());
     patches.restartProgram();
   }
   
@@ -138,21 +312,35 @@ abstract class Model extends TouchLayer with Runtime {
     ticks++;  // update the tick count
      
     // remove dead turtles
-    for (int i=turtles.length - 1; i >= 0; i--) {
-      Turtle t = turtles[i];
-      if (t.dead) turtles.remove(t);
-    }
-    turtles.tick();
+    _breeds.values.forEach((breed) => breed.removeDead());
+
+    // tick
+    _breeds.values.forEach((breed) => breed.tick());
     patches.tick();
   }
    
    
   void draw() {
+    tctx.clearRect(0, 0, width, height);
+    drawBackground(tctx);
     if (pctx != null) _drawPatches(pctx);
     _drawTurtles(tctx);
+    drawForeground(tctx);
   }
 
-   
+
+/**
+ * Subclasses can override this to draw information on top of the model
+ */
+  void drawForeground(CanvasRenderingContext2D ctx) {  }
+
+
+/**
+ * Subclasses can override this to draw information behind of the model
+ */
+  void drawBackground(CanvasRenderingContext2D ctx) {  }
+
+
   void initPatches() { 
     patches.clear();
     /*
@@ -166,12 +354,12 @@ abstract class Model extends TouchLayer with Runtime {
   
   
   void resize(int w, int h) {
-    patches.clear();
     initPatches();
   }
   
   
   Patch patchAt(num tx, num ty) {
+    /*
     int i = tx.round().toInt() - minPatchX;
     int j = ty.round().toInt() - minPatchY;
     int index = j * worldWidth + i;
@@ -180,56 +368,53 @@ abstract class Model extends TouchLayer with Runtime {
     } else {
       return null;
     }
+    */
+    return null;  // FIX ME
   }
   
   
   void _drawTurtles(CanvasRenderingContext2D ctx) {
-    ctx.clearRect(0, 0, width, height);
-    num cx = (0.5 - minPatchX) * patchSize;
-    num cy = (0.5 - minPatchY) * patchSize;
     ctx.save();
     {
-      ctx.translate(cx, cy);
+      ctx.translate(worldToScreenX(0, 0), worldToScreenY(0, 0));
       ctx.scale(patchSize, -patchSize);
-      turtles.draw(ctx);
+      _breeds.values.forEach((breed) => breed.draw(ctx));
     }
     ctx.restore();
+
+    /*
+    {
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+      ctx.beginPath();
+      for (int x = minPatchX; x <= maxPatchX + 1; x++) {
+        ctx.moveTo(worldToScreenX(x - 0.5, minPatchY - 0.5),
+                   worldToScreenY(x - 0.5, minPatchY - 0.5));
+        ctx.lineTo(worldToScreenX(x - 0.5, maxPatchY + 0.5),
+                   worldToScreenY(x - 0.5, maxPatchY + 0.5));
+      }
+      for (int y = minPatchY; y <= maxPatchY + 1; y++) {
+        ctx.moveTo(worldToScreenX(minPatchX - 0.5, y - 0.5),
+                   worldToScreenY(minPatchX - 0.5, y - 0.5));
+        ctx.lineTo(worldToScreenX(maxPatchX + 0.5, y - 0.5),
+                   worldToScreenY(maxPatchX + 0.5, y - 0.5));
+      }
+      ctx.stroke();
+    }
+    */
   }
    
    
   void _drawPatches(CanvasRenderingContext2D ctx) {
     if (patches == null) return;
-    num cx = (0.5 - minPatchX) * patchSize;
-    num cy = (0.5 - minPatchY) * patchSize;
+    num cx = worldToScreenX(0, 0);
+    num cy = worldToScreenY(0, 0);
     ctx.save();
-    ctx.translate(cx, cy);
-    ctx.scale(patchSize, -patchSize);
-    patches.draw(ctx);
+    {
+      ctx.translate(cx, cy);
+      ctx.scale(patchSize, -patchSize);
+      patches.draw(ctx);
+    }
     ctx.restore();
-  }
-   
-   
-  num screenToWorldX(num sx, num sy) {
-    num cx = (0.5 - minPatchX) * patchSize;
-    return (sx - cx) / patchSize;
-  }
-   
-   
-  num screenToWorldY(num sx, num sy) {
-    num cy = (0.5 - minPatchY) * patchSize;
-    return (cy - sy) / patchSize;      
-  }
-  
-  
-  num worldToScreenX(num wx, num wy) {
-    num cx = (0.5 - minPatchX) * patchSize;
-    return wx * patchSize + cx;
-  }
-  
-  
-  num worldToScreenY(num wx, num wy) {
-    num cy = (0.5 - minPatchY) * patchSize;
-    return wy * patchSize * -1 + cy;
-  }
+  }  
 }
 

@@ -29,6 +29,9 @@ class Menu {
   
   /* Slots for programming blocks */
   List<Slot> slots = new List<Slot>();
+
+  /* Menu background color */
+  String background = "rgba(0, 0, 0, 0.3)";
   
   
   Menu(this.workspace, this.x, this.y, this.w, this.h);
@@ -47,11 +50,24 @@ class Menu {
   bool animate() {
     return false;
   }
+
+
+  Block getBlockByName(String name) {
+    for (Slot slot in slots) {
+      if (slot.block.text == name) {
+        return slot.block;
+      }
+    }
+    return null;
+  }
   
   
   void draw(CanvasRenderingContext2D ctx) {
     ctx.save();
     {
+      ctx.fillStyle = background;
+      ctx.fillRect(x, y, w, h);
+
       num ix = x + 25;
       num iy = y + h/2;
       
@@ -96,13 +112,13 @@ class Slot implements Touchable {
   void draw(CanvasRenderingContext2D ctx) {
     int free = count - workspace.getBlockCount(block.type);
     if (free <= 0) {
-      block.x = x.toDouble() - 4;
-      block.y = y.toDouble() + 4;
+      block.x = x.toDouble() - 1;
+      block.y = y.toDouble() + 1;
       block.draw(ctx, true);
     } else {
       for (int i=0; i<free; i++) {
-        block.x = x.toDouble() + (i - 1) * 4;
-        block.y = y.toDouble() - (i - 1) * 4;
+        block.x = x.toDouble() - 1 + (i * 3);
+        block.y = y.toDouble() + 1 - (i * 3);
         block.draw(ctx);
       }
     }
