@@ -1,6 +1,6 @@
 /*
  * NetTango
- * Copyright (c) 2014 Michael S. Horn, Uri Wilensky, and Corey Brady
+ * Copyright (c) 2016 Michael S. Horn, Uri Wilensky, and Corey Brady
  * 
  * Northwestern University
  * 2120 Campus Drive
@@ -65,21 +65,6 @@ void bindClickEvents(String classname, Function callback) {
 
 
 /**
- * Hide all dialog boxes
- */
-void hideAllDialogs() {
-  setHtmlOpacity("plot-dialog", 0.0);
-  setHtmlOpacity("settings-dialog", 0.0);
-  setHtmlOpacity("mini-plot", 1.0);
-  new Timer(const Duration(milliseconds : 300), () {
-    setHtmlVisibility("overlay", false);
-    setHtmlVisibility("plot-dialog", false);
-    setHtmlVisibility("settings-dialog", false);
-  });
-}
-
-
-/**
  * Adds a class to a DOM element
  */
 void addHtmlClass(String id, String cls) {
@@ -102,28 +87,6 @@ void removeHtmlClass(String id, String cls) {
 
 
 /**
- * Add an attribute to an HTML tag
- */
-void setHtmlAttribute(String id, String attrib, String value) {
-  Element el = querySelector("#${id}");
-  if (el != null) {
-    el.attributes[attrib] = value;
-  }
-}
-
-
-/**
- * Add an attribute to an HTML tag
- */
-void removeHtmlAttribute(String id, String attrib) {
-  Element el = querySelector("#${id}");
-  if (el != null) {
-    el.attributes.remove(attrib);
-  }
-}
-
-
-/**
  * Sets a class for a DOM element
  */
 void setHtmlClass(String id, String cls) {
@@ -141,6 +104,28 @@ void toggleHtmlClass(String id, String cls) {
   Element el = querySelector("#${id}");
   if (el != null) {
     el.classes.toggle(cls);
+  }
+}
+
+
+/**
+ * Add an attribute to an HTML tag
+ */
+void setHtmlAttribute(String id, String attrib, String value) {
+  Element el = querySelector("#${id}");
+  if (el != null) {
+    el.attributes[attrib] = value;
+  }
+}
+
+
+/**
+ * Remove an attribute from an HTML tag
+ */
+void removeHtmlAttribute(String id, String attrib) {
+  Element el = querySelector("#${id}");
+  if (el != null) {
+    el.attributes.remove(attrib);
   }
 }
 
@@ -213,15 +198,6 @@ void enableHtmlButton(String id) {
   if (el != null) {
     el.disabled = false;
   }
-}
-
-
-/*
- * Send a window message to javascript
- */
-void sendMessage(String msg) {
-  String origin = "${window.location.protocol}//${window.location.host}"; 
-  window.postMessage(msg, origin);
 }
 
 
@@ -298,7 +274,7 @@ num distance(num x0, num y0, num x1, num y1) {
 /**
  * Helper function that parses an int from an object (usually a string)
  */
-int toInt(var d, int defalutValue) {
+int toInt(var d, [ int defalutValue = 0 ]) {
   if (d == null) {
     return defalutValue;
   } 
@@ -315,10 +291,11 @@ int toInt(var d, int defalutValue) {
   return defalutValue;
 }
 
+
 /**
  * Helper function that parses an int from an object (usually a string)
  */
-num toNum(var d, num defalutValue) {
+num toNum(var d, [ num defalutValue = 0 ]) {
   if (d == null) {
     return defalutValue;
   } 
@@ -340,7 +317,7 @@ num toNum(var d, num defalutValue) {
  * Returns a random normally distributed number (mean = 0; SD = 1)
  */
 double nextGaussian() { 
-  double c, x1, x2, rad, y1;
+  double c, x1, x2, rad;
   do {
     x1 = 2 * rand.nextDouble() - 1;
     x2 = 2 * rand.nextDouble() - 1;
