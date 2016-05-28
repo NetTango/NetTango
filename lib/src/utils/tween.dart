@@ -1,6 +1,6 @@
 /*
  * NetTango
- * Copyright (c) 2014 Michael S. Horn, Uri Wilensky, and Corey Brady
+ * Copyright (c) 2016 Michael S. Horn, Uri Wilensky, and Corey Brady
  * 
  * Northwestern University
  * 2120 Campus Drive
@@ -29,7 +29,6 @@ class Tween {
    int duration  = 0;            // duration of tween in ticks
    int count     = 0;            // current tick count
    int function  = TWEEN_LINEAR; // interpolation function
-   bool running  = true;         // paused or not
    int repeat    = 1;            // repeat count
 
    var ontick    = null;         // action callback
@@ -43,19 +42,15 @@ class Tween {
 
    void play() {
       count = 0;
-      running = true;
       animate();
    }
 
 
    void stop() {
-      running = false;
       count = 1;
       repeat = 0;
    }
 
-
-   bool isRunning() => running;
 
    bool isDelaying() => (count < delay);
 
@@ -140,8 +135,6 @@ class Tween {
 
 
    void animate() {
-      if (!running) return;
-
       if (isTweening()) {
          if (delay == 0 && count == 0) {
             if (onstart != null) onstart();
