@@ -16,6 +16,10 @@
 part of NetTango;
 
 
+/**
+ * Abstract class that workspaces use to communicate with thins like 
+ * Models or AgentSets
+ */
 abstract class Runtime { 
   
   /*
@@ -29,73 +33,41 @@ abstract class Runtime {
    */
   int play_state = 0;
 
-  /* Current tick count */
-  int ticks = 0;
+  /** Is the model running? */
+  bool get isRunning => play_state > 0;
   
-  /* Manages the animation events */
-  Timer timer;
-
 
 /**
- * Set up the model for a new run (abstract)
+ * Called indirectly from the restart button (after pausing the program)
  */
   void setup();
-  
-  
-/**
- * Advance model by one tick
- */
-  void tick();
 
   
 /**
- * Redraw the display
+ * Called whenever the blocks program is changed. Subclasses must restart 
+ * programs to avoid following links to non-existing code.
  */
-  void draw();
-  
-  
-/**
- * Reset all agent programs to the start block
- */
-  void restartPrograms();
-  
-  
-/**
- * Toggle play/pause 
- */
-  void playPause() {
-    if (isRunning) {
-      pause();
-    } else {
-      play();
-    }
-  }
+  void programChanged();
 
-  
+
 /**
- * Resume the program 
+ * Run the program (play button presed)
  */
   void play() {
     play_state = 1;
-    setHtmlClass("play-button", "pause");
-    if (timer != null && timer.isActive) timer.cancel();
-    timer = new Timer.periodic(const Duration(milliseconds : 30), (timer) => _animate());
   }
 
   
 /**
- * Pause a running program
+ * Pause / stop the program (paused button pressed)
  */
   void pause() {
-    if (timer != null && timer.isActive) timer.cancel();
-    timer = null;
     play_state = 0;
-    setHtmlClass("play-button", "play");
   }
   
   
 /**
- * Fast forward a program
+ * Fast forward the program (fast forward button pressed)
  */
   void fastForward() {
     if (!isRunning) {
@@ -109,44 +81,18 @@ abstract class Runtime {
   
   
 /**
- * Halts all programs and runs setup to reinit the model
+ * Step forward 1 tick (step forward button pressed)
+ */
+  void stepForward();
+
+   
+/**
+ * Called when the restart button is pressed in a workspace
  */
   void restart() {
     pause();
-    ticks = 0;
     setup();
   }
-  
-   
-/**
- * Step forward 1 tick 
- */
-  void stepForward() {
-    pause();
-    tick();
-    draw();
-  }
-   
-  
-/**
- * Is the model running?
- */
-  bool get isRunning {
-    return play_state > 0;
-  }
-  
-   
-/**
- * advance the model, animate, and repaint
- */
-  void _animate() {
-    if (play_state != 0) {
-      for (int i=0; i<play_state; i++) {
-        tick();
-      }
-      draw();
-    }
-  }
-  
+
 }
 
