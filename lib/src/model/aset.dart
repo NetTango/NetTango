@@ -1,6 +1,6 @@
 /*
  * NetTango
- * Copyright (c) 2014 Michael S. Horn, Uri Wilensky, and Corey Brady
+ * Copyright (c) 2016 Michael S. Horn, Uri Wilensky, and Corey Brady
  * 
  * Northwestern University
  * 2120 Campus Drive
@@ -22,13 +22,13 @@ part of NetTango;
 class AgentSet<T> {
 
   /* List of agents */
-  List<T> agents = new List<T>();
+  List<T> _agents = new List<T>();
   
   /* Random number generator */
   Random rand = new Random();
 
   /* Allows the use of for(Agent in agents) syntax */
-  Iterator get iterator => agents.iterator;
+  Iterator get iterator => _agents.iterator;
 
 
 /**
@@ -41,17 +41,17 @@ class AgentSet<T> {
  * Create an agent set from a single agent
  */
   AgentSet.fromAgent(T agent) {
-    if (agent != null) agents.add(agent);
+    if (agent != null) _agents.add(agent);
   }
   
   
-  bool get isEmpty => agents.isEmpty;
+  bool get isEmpty => _agents.isEmpty;
   
-  int get length => agents.length;
+  int get length => _agents.length;
   
-  T get first => (agents.isEmpty ? null : agents.first);
-  
-  T operator[](int i) => agents[i];
+  T get first => (isEmpty ? null : _agents.first);
+
+  T operator[](int i) => _agents[i];
 
   
 /**
@@ -59,7 +59,7 @@ class AgentSet<T> {
  */
   void add(T agent) {
     if (agent is Agent) {
-      agents.add(agent);
+      _agents.add(agent);
     } else {
       throw "Invalid agent type. Must be a subclass of Agent";
     }
@@ -70,7 +70,7 @@ class AgentSet<T> {
  * Remove an agent
  */
   void remove(T agent) {
-    agents.remove(agent);
+    _agents.remove(agent);
   }
 
 
@@ -78,9 +78,9 @@ class AgentSet<T> {
  * Remove all "dead" turtles
  */
   void removeDead() {
-    for (int i=agents.length - 1; i >= 0; i--) {
-      if (agents[i] is Turtle && (agents[i] as Turtle).dead) {
-        agents.removeAt(i);
+    for (int i=_agents.length - 1; i >= 0; i--) {
+      if (_agents[i] is Turtle && (_agents[i] as Turtle).dead) {
+        _agents.removeAt(i);
       }
     }
   }
@@ -90,28 +90,29 @@ class AgentSet<T> {
  * Remove all agents
  */
   void clear() {
-    agents.clear();
+    _agents.clear();
   }
-  
-  
+
+
+  T getRandomAgent() {
+    return isEmpty ? null : _agents[rand.nextInt(_agents.length)];
+  }
+
+
 /**
  * Return an agent set consisting of just one agent selected at random
  */
   AgentSet oneOf() {
-    if (agents.length == 0) {
-      return null;
-    } else {
-      return new AgentSet.fromAgent(agents[rand.nextInt(agents.length)]);
-    }
+    return isEmpty ? null : new AgentSet.fromAgent(getRandomAgent());
   }
   
   
 /**
  * Return an agent set consisting of all agents of the given type
  */
-  AgentSet allOf(Type breed) {
+  AgentSet allOfBreed(Type breed) {
     AgentSet result = new AgentSet();
-    for (Agent agent in agents) {
+    for (T agent in _agents) {
       if (agent.runtimeType == breed) {
         result.add(agent);
       }
@@ -125,10 +126,10 @@ class AgentSet<T> {
  */  
   int count([Type breed]) {
     if (breed == null) {
-      return agents.length;
+      return _agents.length;
     } else {
       int count = 0;
-      for (Agent agent in agents) {
+      for (T agent in _agents) {
         if (agent.runtimeType == breed) count++;
       }
       return count;
@@ -140,7 +141,7 @@ class AgentSet<T> {
  * Returns a Turtle at the given point (or null)
  */
   Turtle getTurtleAtPoint(num px, num py) {
-    for (T t in agents) {
+    for (T t in _agents) {
       if ((t as Turtle).overlapsPoint(px, py)) {
         return t as Turtle;
       }
@@ -153,7 +154,7 @@ class AgentSet<T> {
  * Returns a Turtle in the given radius (or null)
  */  
   Turtle getTurtleInRadius(num px, num py, num radius) {
-    for (T t in agents) {
+    for (T t in _agents) {
       if ((t as Turtle).overlapsPoint(px, py, radius)) {
         return t as Turtle;
       }
@@ -166,16 +167,18 @@ class AgentSet<T> {
  * Draw all agents
  */
   void draw(CanvasRenderingContext2D ctx) {
-    agents.forEach((t) => (t as Agent)._drawLocal(ctx));
+    _agents.forEach((t) => (t as Agent)._drawLocal(ctx));
   }
   
   
 /**
- * Call tick for all agents... iterate backwards to prevent concurrent modification errors
+ * Call tick for all agents... iterate backwards to 
+ * prevent concurrent modification errors when new agents
+ * are added to the list dynamically (e.g. hatch)
  */
   void tick() {
-    for (int i=agents.length - 1; i>=0; i--) {
-      (agents[i] as Agent).tick();
+    for (int i=_agents.length - 1; i>=0; i--) {
+      (_agents[i] as Agent).tick();
     }
   }
 
@@ -184,6 +187,6 @@ class AgentSet<T> {
  * Restart agent programs
  */
   void restartProgram() {
-    agents.forEach((t) => (t as Agent).restartProgram());
+    _agents.forEach((t) => (t as Agent).restartProgram());
   }
 }
