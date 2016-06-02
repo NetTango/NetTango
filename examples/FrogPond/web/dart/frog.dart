@@ -403,9 +403,10 @@ class Frog extends Turtle {
     return age > 500;
   }
   
-  
+
   bool seeFly() {
-    for (Fly fly in pond.bugs) {
+    for (int i=0; i<pond.bugs.length; i++) {
+      Fly fly = pond.bugs[i];
       if (!fly.dead && !fly.captured) {
         num d = distance(fly.x, fly.y, x, y);
         if (d > size * 0.1 && d < size * 1.6) {
@@ -417,7 +418,7 @@ class Frog extends Turtle {
     }
     return false;
   }
-  
+
   
   void eatBug() {
     if (prey == null) {
