@@ -19,7 +19,7 @@ part of NetTango;
 /**
  * Abstract baseclass for Turtles and Patches
  */
-abstract class Agent implements Touchable {
+abstract class Agent implements Touchable, ProgramTarget {
   
   static Random rnd = new Random();
   
@@ -99,6 +99,14 @@ abstract class Agent implements Touchable {
  */
   void draw(CanvasRenderingContext2D ctx);
   
+
+/**
+ * Called by programs during block.eval
+ */
+  dynamic doAction(String action, List params) {
+    return null;
+  }
+
   
 /**
  * Used internally to transform into agent space before drawing
