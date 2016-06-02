@@ -1,6 +1,6 @@
 /*
  * NetTango
- * Copyright (c) 2014 Michael S. Horn, Uri Wilensky, and Corey Brady
+ * Copyright (c) 2016 Michael S. Horn, Uri Wilensky, and Corey Brady
  * 
  * Northwestern University
  * 2120 Campus Drive
@@ -18,46 +18,46 @@ part of NetTango;
 
 class Color {
   
-  int r = 255, g = 255, b = 255, a = 255;
+  int _r = 255, _g = 255, _b = 255, _a = 255;
 
    
-  Color(this.r, this.g, this.b, this.a);
+  Color(this._r, this._g, this._b, this._a);
    
    
   Color clone() {
-    return new Color(r, g, b, a);
+    return new Color(_r, _g, _b, _a);
   }
    
    
   void setColor(int r, int g, int b, int a) {
-    this.r = r;
-    this.g = g;
-    this.b = b;
-    this.a = a;
+    this._r = r;
+    this._g = g;
+    this._b = b;
+    this._a = a;
   }
    
    
-  int get red => r;
-      set red(int r) { if (r >= 0) { this.r = r < 256? r : 255; }}
+  int get red => _r;
+      set red(int r) { if (r >= 0) { this._r = r < 256? r : 255; }}
 
    
-  int get green => g;
-      set green(int g) { if (g >= 0) { this.g = g < 256? g : 255; }}
+  int get green => _g;
+      set green(int g) { if (g >= 0) { this._g = g < 256? g : 255; }}
 
       
-  int get blue => b;
-      set blue(int b) { if (b >= 0) { this.b = b < 256? b : 255; }}
+  int get blue => _b;
+      set blue(int b) { if (b >= 0) { this._b = b < 256? b : 255; }}
 
       
-  int get alpha => a;
-      set alpha(int a) { if (a >= 0) { this.a = a < 256? a : 255; }}
+  int get alpha => _a;
+      set alpha(int a) { if (a >= 0) { this._a = a < 256? a : 255; }}
 
 
 /**
  * Converts to a CSS rgba string
  */
   String toString() {
-    num ad = a / 255;
-    return "rgba($r, $g, $b, $ad)";
+    num ad = _a / 255;
+    return "rgba($_r, $_g, $_b, $ad)";
   }
 }
