@@ -21,14 +21,14 @@ part of NetTango;
  */
 class StartBlock extends BeginBlock {
   
-  StartBlock(CodeWorkspace workspace) : super(workspace, 'start') {
+  StartBlock(CodeWorkspace workspace, [String name = 'start']) : super(workspace, name) {
     x = getStartX();
     y = getStartY();
     color = 'green';
     end = new EndProgramBlock(workspace, this);
     end.y = y + height + BLOCK_MARGIN + 20;
     _addClause(end);
-    workspace.addBlock(end);
+    workspace._addBlock(end);
     inserted = true;
     _width = (BLOCK_WIDTH + BLOCK_MARGIN).toDouble();
   }
