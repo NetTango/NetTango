@@ -96,49 +96,50 @@ class Block implements Touchable {
   }
 
 
-  factory Block.fromXML(CodeWorkspace workspace, Element el) {
+  factory Block.fromJSON(CodeWorkspace workspace, Map json) {
+    Block block;
+
     //----------------------------------------------------------
     // block type
     //----------------------------------------------------------
-    Block block;
-    Map attribs = el.attributes;
-    if (attribs.containsKey("type") && attribs["type"] == "if") {
-      block = new IfBlock(workspace, attribs["name"]);
-    } 
-    else if (attribs.containsKey("type") && attribs["type"] == "if-else") {
-      block = new IfElseBlock(workspace);
-    }
-    else if (attribs.containsKey("type") && attribs["type"] == "repeat") {
-      block = new RepeatBlock(workspace);
-    }
-    else {
-      block = new Block(workspace, attribs["name"]);
+    String name = json["name"];
+    String type = toStr(json["type"], "block");
+
+    switch (type) {
+      case "if":
+        block = new IfBlock(workspace, name);
+        break;
+
+      case "if-else":
+        block = new IfElseBlock(workspace, name);
+        break;
+
+      case "repeat":
+        block = new RepeatBlock(workspace);
+        break;
+
+      default:
+        block = new Block(workspace, name);
+        break;
     }
 
     //----------------------------------------------------------
-    // block shorthand code
+    // block properties
     //----------------------------------------------------------
-    if (attribs.containsKey("short")) block.type = attribs["short"];
+    block.type = toStr(json["short"], name); // shorthand code
 
-    //----------------------------------------------------------
-    // block color
-    //----------------------------------------------------------
-    if (attribs.containsKey("color")) block.color = attribs["color"];
+    block.color = toStr(json["color"], "#3399aa");
 
-    //----------------------------------------------------------
-    // text color
-    //----------------------------------------------------------
-    if (attribs.containsKey("textColor")) block.textColor = attribs["textColor"];
+    block.textColor = toStr(json["textColor"], "white");
 
     //----------------------------------------------------------
     // parameters
     //----------------------------------------------------------
-    for (Node n in el.childNodes) {
-      if (n is Element && n.nodeName == "param") {
-        block.param = new Parameter.fromXML(block, (n as Element));
+    if (json.containsKey("params")) {
+      for (var p in json["params"]) {
+        block.param = new Parameter.fromJSON(block, p);
       }
     }
-
     return block;
   }
 
@@ -380,7 +381,7 @@ class Block implements Touchable {
   
   
   void _drawMenuArrow(CanvasRenderingContext2D ctx) {
-    if (workspace.isOverMenu(this) && dragging && !inserted) {
+    if (workspace._isOverMenu(this) && dragging && !inserted) {
       ctx.fillStyle = 'orange';
       ctx.strokeStyle = 'orange';
       drawLineArrow(ctx, centerX, centerY, centerX, centerY - height, 18);
@@ -472,22 +473,22 @@ class Block implements Touchable {
     prev = null;
     next = null;
     if (wasInProgram) workspace.programChanged();
-    workspace.moveToTop(this);
+    workspace._moveToTop(this);
     workspace.draw();
     return true;
   }
   
   
   void touchUp(Contact c) {
-    if (workspace.snapTogether(this)) {
+    if (workspace._snapTogether(this)) {
       Sounds.playSound("click");
       inserted = true;
-    } else if (!inserted && workspace.isOverMenu(this)) {
+    } else if (!inserted && workspace._isOverMenu(this)) {
       workspace.snapToEnd(this);
       Sounds.playSound("click");
       inserted = true;
-    } else if (workspace.isOffscreen(this) || workspace.isOverMenu(this) || inserted) {
-      workspace.removeBlock(this);
+    } else if (workspace._isOffscreen(this) || workspace._isOverMenu(this) || inserted) {
+      workspace._removeBlock(this);
       Sounds.playSound("crunch");
     }
     dragging = false;
