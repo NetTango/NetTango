@@ -58,7 +58,7 @@ class IfElseBlock extends BeginBlock {
   
   ElseBlock el;
 
-  IfElseBlock(CodeWorkspace workspace) : super(workspace, 'if-else') {
+  IfElseBlock(CodeWorkspace workspace, [String name = 'if-else']) : super(workspace, name) {
     el = new ElseBlock(workspace, this);
     _addClause(el);
     
