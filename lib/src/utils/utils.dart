@@ -314,6 +314,36 @@ num toNum(var d, [ num defalutValue = 0 ]) {
 
 
 /**
+ * Helper function that parses a bool from an object (usually string or bool)
+ */
+bool toBool(var b, [bool defaultValue = false ]) {
+  if (b == null) {
+    return defaultValue;
+  }
+  else if (b is bool) {
+    return b;
+  }
+  else if (b is String) {
+    if (b.toLowerCase() == "true" || b.toLowerCase() == "t") {
+      return true;
+    } 
+    else if (b.toLowerCase() == "false" || b.toLowerCase() == "f") {
+      return false;
+    }
+  }
+  return defaultValue;
+}
+
+
+/**
+ * Helper function that converts a value to a string
+ */
+String toStr(var o, [ String defaultValue = "" ]) {
+  return (o == null) ? defaultValue : o.toString();
+}
+
+
+/**
  * Returns a random normally distributed number (mean = 0; SD = 1)
  */
 double nextGaussian() { 
