@@ -56,15 +56,14 @@ class RangeParameter extends Parameter {
 	}
 
 
-  RangeParameter.fromXML(Block block, Element el) : super(block) {
-    Map attribs = el.attributes;
-    minValue = toNum(attribs["min"], 0);
-    maxValue = toNum(attribs["max"], 10);
-    stepSize = toNum(attribs["step"], 1);
-    initialValue = toNum(attribs["default"], 5);
-    if (attribs.containsKey("random")) randomOption = (attribs["random"] == "true");
-    if (attribs.containsKey("unit")) unit = attribs["unit"];
-    if (attribs.containsKey("label")) label = attribs["label"];
+  RangeParameter.fromJSON(Block block, Map data) : super(block) {
+    minValue = toNum(data["min"], 0);
+    maxValue = toNum(data["max"], 10);
+    stepSize = toNum(data["step"], 1);
+    initialValue = toNum(data["default"], 5);
+    randomOption = toBool(data["random"], false);
+    unit = toStr(data["unit"], "");
+    label = toStr(data["label"], "");
   }
 
 
@@ -330,7 +329,7 @@ class RangeParameter extends Parameter {
 			menuX = block.x + block.width + 30;
       block.workspace.closeAllParameterMenus();
 			menuOpen = true;
-			block.workspace.moveToTop(block);
+			block.workspace._moveToTop(block);
 		}
 		block.workspace.draw();
 		return true;
