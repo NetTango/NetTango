@@ -167,7 +167,7 @@ abstract class Model extends TouchLayer with Runtime {
  * Optionally bind breed to a code workspace
  */
   void createBreed(Type turtleType, [CodeWorkspace workspace = null]) {
-    _breeds[turtleType] = new Breed(workspace);
+    _breeds[turtleType] = new Breed(this, turtleType, workspace);
   }
 
 
@@ -185,11 +185,11 @@ abstract class Model extends TouchLayer with Runtime {
  * created.
  */
   void addTurtle(Turtle turtle) {
-    Type breed = turtle.runtimeType;
-    if (_breeds[breed] == null) {
-      _breeds[breed] = new Breed();
+    Type turtleType = turtle.runtimeType;
+    if (_breeds[turtleType] == null) {
+      _breeds[turtleType] = new Breed(this, turtleType);
     }
-    _breeds[breed].add(turtle);
+    _breeds[turtleType].add(turtle);
   }
 
 
@@ -207,24 +207,24 @@ abstract class Model extends TouchLayer with Runtime {
 /**
  * Removes all turtles
  */
-  void clearTurtles([CodeWorkspace workspace]) {
-    _breeds.values.forEach((breed) {
-      if (workspace == null || breed.workspace == workspace) {
-        breed.clear();
-      }
-    });
+  void clearTurtles([Breed breed = null]) {
+    if (breed != null) {
+      breed.clear();
+    } else {
+      _breeds.values.forEach((breed) => breed.clear());
+    }
   }
 
   
 /**
  * Called when the block program changes...
  */
-  void restartPrograms([CodeWorkspace workspace]) {
-    _breeds.values.forEach((breed) {
-      if (workspace == null || breed.workspace == workspace) {
-        breed.restartProgram();
-      }
-    });
+  void restartPrograms([Breed breed = null]) {
+    if (breed != null) {
+      breed.restartProgram();
+    } else {
+      _breeds.values.forEach((breed) => breed.restartProgram());
+    }
   }
 
 
@@ -232,6 +232,14 @@ abstract class Model extends TouchLayer with Runtime {
  * Set up the model for a new run (abstract)
  */
   void setup();
+
+
+/**
+ * Set up just one breed (used when you have multiple code workspaces)
+ */ 
+  void breedSetup(Breed breed) {
+    // subclasses fill in if they want to...
+  }
 
 
   bool get isRunning {
@@ -261,7 +269,7 @@ abstract class Model extends TouchLayer with Runtime {
 
 
   void programChanged() {
-    
+
   }
   
   
