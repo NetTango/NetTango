@@ -32,6 +32,9 @@ class CodeWorkspace extends TouchLayer {
   
   /* fixed start block */
   StartBlock start;
+
+  /* Runtime object that this workspace controls (e.g. Models, Breeds, etc) */
+  Runtime runtime;
   
   /* traces execution of programs as they run */
   TraceBug bug;
@@ -42,48 +45,94 @@ class CodeWorkspace extends TouchLayer {
   /* Touch event manager */
   TouchManager tmanager = new TouchManager();
 
-  /* On program changed callback */
-  Function onProgramChanged = null;
 
-
-  
 /**
- * id: the <canvas> element id for this workspace (e.g. "frog-workspace")
- * Constructor will attempt to find a <script> tag with the id value of 
- * "${id}-blocks" (e.g. "frog-workspace-blocks") to use as the JSON for 
- * defining the blocks available in this workspace
+ * Construct a code workspace from a JSON object
  */
-  CodeWorkspace(this.id) {
-    
-    // initialize drawing context
-    CanvasElement canvas = querySelector("#${id}-workspace");
+  CodeWorkspace(Map json) {
+
+    //--------------------------------------------------------
+    // load canvas
+    //--------------------------------------------------------
+    String canvasId = json["canvasId"];
+    if (canvasId == null) throw "Invalid workspace JSON object. Missing 'canvas-id' field.";
+    CanvasElement canvas = querySelector("#$canvasId");
+    if (canvas == null) throw "No canvas element with ID $canvasId found.";
     ctx = canvas.getContext('2d');
     width = canvas.width;
     height = canvas.height;
 
-    // menu bar
-    menu = new Menu(this, 0, height - BLOCK_HEIGHT * 1.6, width, BLOCK_HEIGHT * 1.6);
-    
-    // start block
-    start = new StartBlock(this);
-    addBlock(start);
-    
-    // trace bug
-    bug = new TraceBug(start);
 
+    //--------------------------------------------------------
     // initialize touch manager
-    tmanager.registerEvents(querySelector("#${id}-workspace"));
+    //--------------------------------------------------------
+    String touchElement = json["touchElement"];
+    if (touchElement == null) touchElement = canvasId;
+    tmanager.registerEvents(querySelector("#$touchElement"));
     tmanager.addTouchLayer(this);
 
-    // initialize block menu
-    ScriptElement se = querySelector("#${id}-model");
-    if (se != null) {
-      DomParser parser = new DomParser();
-      var xml = parser.parseFromString(se.innerHtml, "application/xml");
-      _initBlockMenu(xml);
+
+    //--------------------------------------------------------
+    // Workspace ID
+    //--------------------------------------------------------
+    this.id = json["name"];
+    if (id == null) throw "Invalid workspace JSON object. Missing 'name' field.";
+
+
+    //--------------------------------------------------------
+    // Anchor workspace to the top, right, bottom, or left
+    //--------------------------------------------------------
+    String anchor = "bottom";
+    if (json.containsKey("anchor")) anchor = json["anchor"];
+    switch (anchor) {
+      case "left":
+        width = canvas.height;
+        height = canvas.width;
+        transform(cos(PI/2), sin(PI/2), -sin(PI/2), cos(PI/2), height, 0);        
+        break;
+      case "right":
+        width = canvas.height;
+        height = canvas.width;
+        transform(cos(PI / -2), sin(PI / -2), -sin(PI / -2), cos(PI / -2), 0, width);
+        break;
+      case "top":
+        transform(cos(-PI), sin(-PI), -sin(-PI), cos(-PI), width, height);
+        break;
+      case "bottom":
+      default:
     }
 
-    new Timer.periodic(const Duration(milliseconds : 20), tick);
+
+    //--------------------------------------------------------
+    // Create menu bar
+    //--------------------------------------------------------
+    num menuH = BLOCK_HEIGHT * 1.6;
+    menu = new Menu(this, 0, height - menuH, width, menuH);
+    if (json.containsKey("color")) menu.background = json["color"];
+
+
+    //--------------------------------------------------------
+    // start block
+    //--------------------------------------------------------
+    start = new StartBlock(this, "start $id");
+    _addBlock(start);
+    
+
+    //--------------------------------------------------------
+    // trace bug
+    //--------------------------------------------------------
+    bug = new TraceBug(start);
+
+
+    //--------------------------------------------------------
+    // initialize block menu
+    //--------------------------------------------------------
+    if (json.containsKey("blocks")) {
+      _initBlockMenu(json["blocks"]);
+    }
+
+    draw();
+    tick();
   }
 
   
@@ -119,8 +168,9 @@ class CodeWorkspace extends TouchLayer {
   }
 
 
-  void tick(Timer t) {
+  void tick() {
     if (animate()) draw();
+    window.animationFrame.then((time) => tick());
   }
 
 
@@ -128,9 +178,7 @@ class CodeWorkspace extends TouchLayer {
  * Callback when blocks of a program have changed
  */  
   void programChanged() {
-    if (onProgramChanged != null) {
-      Function.apply(onProgramChanged, [ ]);
-    }
+    if (runtime != null) runtime.programChanged();
   }
 
 
@@ -163,7 +211,7 @@ class CodeWorkspace extends TouchLayer {
       Block b = block.next;
       block.prev = null;
       block.next = null;
-      removeBlock(block);
+      _removeBlock(block);
       block = b;
     }
     start.next = start.end;
@@ -182,7 +230,7 @@ class CodeWorkspace extends TouchLayer {
 /**
  * Add a block to the workspace
  */
-  void addBlock(Block block) {
+  void _addBlock(Block block) {
     blocks.add(block);
     addTouchable(block);
     if (block.hasParam) addTouchable(block.param);
@@ -192,7 +240,7 @@ class CodeWorkspace extends TouchLayer {
 /**
  * Remove a block from the workspace
  */
-  void removeBlock(Block block) {
+  void _removeBlock(Block block) {
     blocks.remove(block);
     removeTouchable(block);
     if (block.hasParam) removeTouchable(block.param);
@@ -203,9 +251,9 @@ class CodeWorkspace extends TouchLayer {
 /**
  * Move a block to the top of the visual stack
  */
-  void moveToTop(Block block) {
-    removeBlock(block);
-    addBlock(block);
+  void _moveToTop(Block block) {
+    _removeBlock(block);
+    _addBlock(block);
   }
   
   
@@ -232,7 +280,7 @@ class CodeWorkspace extends TouchLayer {
 /**
  * Has a block been dragged off of the screen?
  */
-  bool isOffscreen(Block block) {
+  bool _isOffscreen(Block block) {
     return (block.x + block.width > width ||
             block.x < 0 ||
             block.y + block.height > height ||
@@ -243,7 +291,7 @@ class CodeWorkspace extends TouchLayer {
 /**
  * Is a block over the menu?
  */
-  bool isOverMenu(Block block) {
+  bool _isOverMenu(Block block) {
     return menu.overlaps(block);
   }
   
@@ -251,8 +299,8 @@ class CodeWorkspace extends TouchLayer {
 /**
  * Snap a block onto an existing program
  */
-  bool snapTogether(Block target) {
-    Block b = findInsertionPoint(target);
+  bool _snapTogether(Block target) {
+    Block b = _findInsertionPoint(target);
     if (b != null) {
       b.insertBlock(target);
       return true;
@@ -274,7 +322,7 @@ class CodeWorkspace extends TouchLayer {
  * As a block is being dragged, determine the position after which the block
  * will be inserted into a program
  */
-  Block findInsertionPoint(Block target) {
+  Block _findInsertionPoint(Block target) {
     Block block = start;
     Block result = null;
     while (block != null) {
@@ -310,7 +358,7 @@ class CodeWorkspace extends TouchLayer {
       
     for (Block target in blocks) {
       if (target.dragging) {
-        Block b = findInsertionPoint(target);
+        Block b = _findInsertionPoint(target);
         if (b != null) {
           b.candidate = target;
         }
@@ -328,11 +376,11 @@ class CodeWorkspace extends TouchLayer {
   void draw() {
     ctx.save();
     {
-      ctx.clearRect(0, 0, width, height);
-
       // transform into workspace coordinates
       xform.transformContext(ctx);
       
+      ctx.clearRect(0, 0, width, height);
+
       // draw blocks
       blocks.forEach((block) => block.draw(ctx));
       
@@ -378,12 +426,12 @@ class CodeWorkspace extends TouchLayer {
         Block block = menu.getBlockByName(name);
         if (block != null) {
           block = block.clone();
-          addBlock(block);
+          _addBlock(block);
           prev.insertBlock(block);
           block.inserted = true;
           if (block is BeginBlock) {
             nest.add(block);
-            (block as BeginBlock).addAllBlocks();
+            block.addAllBlocks();
           }
         }
         prev = block;
@@ -410,19 +458,11 @@ class CodeWorkspace extends TouchLayer {
  * This function parses a JSON block definition object and populates
  * the block menu.
  */
-  void _initBlockMenu(var xml) {
-    for (Element b in xml.getElementsByTagName("block")) {
-      Block block = new Block.fromXML(this, b);
-      addToMenu(block, toInt(b.attributes["instances"], 1));
+  void _initBlockMenu(var data) {
+    for (var b in data) {
+      Block block = new Block.fromJSON(this, b);
+      addToMenu(block, toInt(b["instances"], 1));
     }
-/*
-    for (var b in blocks) {
-      if (b is Map && b.containsKey("name")) {
-        Block block = new Block.fromJSON(this, b);
-        addToMenu(block, toInt(b["instances"], 1));
-      }
-    }
-    */
   }
 
 }
