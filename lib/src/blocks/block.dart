@@ -46,6 +46,9 @@ class Block implements Touchable {
   
   /* Block 'type' (usually the same as text) */
   String type = 'hop';
+
+  /* Name of the callback function called when this block is evaluated */
+  String action = null;
   
   /* CSS color of the block */
   String color = '#3399aa';
@@ -82,9 +85,6 @@ class Block implements Touchable {
   
   /* Has this been added to the program yet? */
   bool inserted = false;
-  
-  /* action this block performs */
-  Function action = null;
   
   
   Block(this.workspace, this.text) {
@@ -127,6 +127,8 @@ class Block implements Touchable {
     // block properties
     //----------------------------------------------------------
     block.type = toStr(json["short"], name); // shorthand code
+
+    block.action = toStr(json["action"], null);
 
     block.color = toStr(json["color"], "#3399aa");
 
@@ -239,8 +241,8 @@ class Block implements Touchable {
  */
   dynamic eval(Program program) {
     var pval = (param == null) ? null : param.value;
-    if (action != null) {
-      return Function.apply(action, [ program.target, pval ]);
+    if (program.target != null && action != null) {
+      return program.target.doAction(action, [ pval ]);
     } else {
       return null;
     }
