@@ -33,6 +33,9 @@ class Menu {
   /* VCR Buttons */
   List<VCRButton> _buttons = new List<VCRButton>();
 
+  /* Special VCR button play/pause: references _buttons[0] */
+  VCRButton _playButton;
+
   /* Menu background color */
   String background = "rgba(0, 0, 0, 0.3)";
   
@@ -40,7 +43,9 @@ class Menu {
   Menu(this.workspace, this.x, this.y, this.w, this.h) {
     _buttons.add(new VCRButton(this, h - 24, VCRButtonShape.Play));
     _buttons.add(new VCRButton(this, h - 24, VCRButtonShape.FastForward));
+    _buttons.add(new VCRButton(this, h - 24, VCRButtonShape.StepForward));
     _buttons.add(new VCRButton(this, h - 24, VCRButtonShape.Restart));
+    _playButton = _buttons[0];
   }
   
   
@@ -75,21 +80,12 @@ class Menu {
       switch (button.shape) {
         case VCRButtonShape.Play: 
           workspace.runtime.play(); 
-          if (workspace.runtime.isRunning) {
-            button.shape = VCRButtonShape.Pause;
-          }
           break;
         case VCRButtonShape.Pause: 
           workspace.runtime.pause(); 
-          if (!workspace.runtime.isRunning) {
-            button.shape = VCRButtonShape.Play;
-          }
           break;
         case VCRButtonShape.FastForward: 
           workspace.runtime.fastForward(); 
-          if (workspace.runtime.isRunning) {
-            _buttons[0].shape = VCRButtonShape.Pause;
-          }
           break;
         case VCRButtonShape.Restart: 
           workspace.runtime.restart(); 
@@ -99,6 +95,11 @@ class Menu {
           break;
         default: break;
       }
+    }
+    if (workspace.runtime.isRunning) {
+      _playButton.shape = VCRButtonShape.Pause;
+    } else {
+      _playButton.shape = VCRButtonShape.Play;
     }
   }
 
@@ -303,15 +304,17 @@ class VCRButton implements Touchable {
 
 
   void _stepForwardPath(CanvasRenderingContext2D ctx, num bx, num by) {
-    num bw = width * 0.8;
-    num bh = width;
-    num bar = width * 0.28;
+    num bw = width * 0.55;
+    num bh = width * 0.7;
+    by = by + width/2 - bh/2;
+    bx = bx + width/2 - bw/2;
+    num bar = width * 0.2;
     ctx.beginPath();
     ctx.moveTo(bx, by);
     ctx.lineTo(bx + bw, by + bh/2);
     ctx.lineTo(bx, by + bh);
     ctx.closePath();
-    ctx.rect(bx + width - bar, by, bar, bh);
+    ctx.rect(bx + bw - 1, by, bar, bh);
   }
 
 
