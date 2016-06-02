@@ -171,7 +171,7 @@ class ControlBlock extends Block {
     if (inserted) {
       ControlBlock b = begin;
       while (b != null) {
-        workspace.moveToTop(b);
+        workspace._moveToTop(b);
         b = b.cnext;
       }
     }
@@ -334,7 +334,7 @@ class BeginBlock extends ControlBlock {
     while (b != null) {
       b.x = x;
       b.y = y + height;
-      workspace.addBlock(b);
+      workspace._addBlock(b);
       b.inserted = true;
       b = b.cnext;
     }
@@ -348,7 +348,7 @@ class BeginBlock extends ControlBlock {
       if (b.hasNext) b.next.prev = b.prev;
       b.prev = null;
       b.next = null;
-      workspace.removeBlock(b);
+      workspace._removeBlock(b);
       b = b.cnext;
     }
   }
