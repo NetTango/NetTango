@@ -30,11 +30,18 @@ class Menu {
   /* Slots for programming blocks */
   List<Slot> slots = new List<Slot>();
 
+  /* VCR Buttons */
+  List<VCRButton> _buttons = new List<VCRButton>();
+
   /* Menu background color */
   String background = "rgba(0, 0, 0, 0.3)";
   
   
-  Menu(this.workspace, this.x, this.y, this.w, this.h);
+  Menu(this.workspace, this.x, this.y, this.w, this.h) {
+    _buttons.add(new VCRButton(this, h - 24, VCRButtonShape.Play));
+    _buttons.add(new VCRButton(this, h - 24, VCRButtonShape.FastForward));
+    _buttons.add(new VCRButton(this, h - 24, VCRButtonShape.Restart));
+  }
   
   
   void addBlock(Block block, int count) {
@@ -60,7 +67,41 @@ class Menu {
     }
     return null;
   }
-  
+
+
+
+  void _buttonAction(VCRButton button) { 
+    if (workspace != null && workspace.runtime != null) {
+      switch (button.shape) {
+        case VCRButtonShape.Play: 
+          workspace.runtime.play(); 
+          if (workspace.runtime.isRunning) {
+            button.shape = VCRButtonShape.Pause;
+          }
+          break;
+        case VCRButtonShape.Pause: 
+          workspace.runtime.pause(); 
+          if (!workspace.runtime.isRunning) {
+            button.shape = VCRButtonShape.Play;
+          }
+          break;
+        case VCRButtonShape.FastForward: 
+          workspace.runtime.fastForward(); 
+          if (workspace.runtime.isRunning) {
+            _buttons[0].shape = VCRButtonShape.Pause;
+          }
+          break;
+        case VCRButtonShape.Restart: 
+          workspace.runtime.restart(); 
+          break;
+        case VCRButtonShape.StepForward:
+          workspace.runtime.stepForward();
+          break;
+        default: break;
+      }
+    }
+  }
+
   
   void draw(CanvasRenderingContext2D ctx) {
     ctx.save();
@@ -77,12 +118,25 @@ class Menu {
         slot.draw(ctx);
         ix += slot.width + 10;
       }
+
+      num bspace = 45;
+      ix = x + w;
+
+      for (int i=_buttons.length-1; i>=0; i--) {
+        if (_buttons[i].visible) {
+          VCRButton button = _buttons[i];
+          ix -= bspace;
+          button.x = ix;
+          button.y = y + h/2 - button.width/2;
+          button.draw(ctx);
+        }
+      }
     }
     ctx.restore();
   }
 }
 
-  
+
 class Slot implements Touchable {
   
   Block block;
@@ -133,7 +187,7 @@ class Slot implements Touchable {
   bool touchDown(Contact c) {
     if (target == null && block.containsTouch(c) && isAvailable()) {
       target = block.clone();
-      workspace.addBlock(target);
+      workspace._addBlock(target);
       target.move(-2, -8);
       target.touchDown(c);
       return true;
@@ -159,3 +213,149 @@ class Slot implements Touchable {
   
   void touchSlide(Contact c) { }
 }
+
+
+enum VCRButtonShape { Play, Pause, FastForward, StepForward, Restart }
+
+
+class VCRButton implements Touchable {
+
+  Menu menu;
+
+  CodeWorkspace workspace;
+
+  num x = 0, y = 0, width;
+
+  VCRButtonShape shape = VCRButtonShape.Play;
+
+  bool _down = false;
+
+  bool visible = true;
+
+
+  VCRButton(this.menu, this.width, this.shape) {
+    this.workspace = menu.workspace;
+    workspace.addTouchable(this);
+  }
+
+
+  void draw(CanvasRenderingContext2D ctx) {
+    num bx = _down? x + 2 : x;
+    num by = _down? y + 2 : y;
+    ctx.save();
+    {
+      switch (shape) {
+        case VCRButtonShape.Play: _playPath(ctx, bx, by); break;
+        case VCRButtonShape.Pause: _pausePath(ctx, bx, by); break;
+        case VCRButtonShape.FastForward: _fastForwardPath(ctx, bx, by); break;
+        case VCRButtonShape.StepForward: _stepForwardPath(ctx, bx, by); break;
+        case VCRButtonShape.Restart: _restartPath(ctx, bx, by); break;
+      }
+      if (!_down) {
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 2;
+        ctx.shadowBlur = 4;
+        ctx.shadowColor = "rgba(0, 0, 0, 0.1)";
+      }
+      ctx.fillStyle = "rgba(255, 255, 255, ${_down ? 0.7 : 1})";
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+
+  void _playPath(CanvasRenderingContext2D ctx, num bx, num by) {
+    num bw = width * 0.9;
+    bx = bx + width/2 - bw/2;
+    by = by + width/2 - bw/2;
+    ctx.beginPath();
+    ctx.moveTo(bx, by);
+    ctx.lineTo(bx + bw, by + bw/2);
+    ctx.lineTo(bx, by + bw);
+    ctx.closePath();
+  }
+
+
+  void _pausePath(CanvasRenderingContext2D ctx, num bx, num by) {
+    num margin = 2;
+    num bw = width * 0.28;
+    ctx.beginPath();
+    ctx.rect(bx + margin, by, bw, width);
+    ctx.rect(bx + width - bw - margin, by, bw, width);
+  }
+
+
+  void _fastForwardPath(CanvasRenderingContext2D ctx, num bx, num by) {
+    num bw = width * 0.55;
+    num bh = width * 0.7;
+    by = by + width/2 - bh/2;
+    ctx.beginPath();
+    ctx.moveTo(bx, by);
+    ctx.lineTo(bx + bw, by + bh/2);
+    ctx.lineTo(bx, by + bh);
+    ctx.closePath();
+    bx += width * 0.45;
+    ctx.moveTo(bx, by);
+    ctx.lineTo(bx + bw, by + bh/2);
+    ctx.lineTo(bx, by + bh);
+    ctx.closePath();
+  }
+
+
+  void _stepForwardPath(CanvasRenderingContext2D ctx, num bx, num by) {
+    num bw = width * 0.8;
+    num bh = width;
+    num bar = width * 0.28;
+    ctx.beginPath();
+    ctx.moveTo(bx, by);
+    ctx.lineTo(bx + bw, by + bh/2);
+    ctx.lineTo(bx, by + bh);
+    ctx.closePath();
+    ctx.rect(bx + width - bar, by, bar, bh);
+  }
+
+
+  void _restartPath(CanvasRenderingContext2D ctx, num bx, num by) {
+    num bw = width * 0.85;
+    num r1 = bw * 0.5;
+    num r2 = bw * 0.3;
+    num r3 = bw * 0.4;
+    num cx = bx + width/2;
+    num cy = by + width/2;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r1, PI * 0.2, PI * 1.75, false);
+    ctx.lineTo(cx + r1 - 1, cy - r3 - 2);
+    ctx.lineTo(cx + r1 - 1, cy - 2);
+    ctx.lineTo(cx + r1 - r3 - 1, cy - 2);
+    ctx.arc(cx, cy, r2, PI * 1.75, PI * 0.2, true);
+    ctx.closePath();
+  }
+  
+
+  bool containsTouch(Contact c) {
+    return (c.touchX >= x && c.touchX <= x + width && 
+            c.touchY >= y && c.touchY <= y + width);
+  }
+  
+  
+  bool touchDown(Contact c) {
+    _down = true;
+    workspace.draw();
+    return true;
+  }
+
+    
+  void touchUp(Contact c) {
+    _down = false;
+    if (containsTouch(c)) {
+      menu._buttonAction(this);
+    }
+    workspace.draw();
+  }
+  
+  
+  void touchDrag(Contact c) { }
+  
+  void touchSlide(Contact c) { }  
+}
+
