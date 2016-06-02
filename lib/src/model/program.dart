@@ -1,6 +1,6 @@
 /*
  * NetTango
- * Copyright (c) 2014 Michael S. Horn, Uri Wilensky, and Corey Brady
+ * Copyright (c) 2016 Michael S. Horn, Uri Wilensky, and Corey Brady
  * 
  * Northwestern University
  * 2120 Campus Drive
@@ -38,11 +38,13 @@ class Program {
     curr = start;
   }
   
-  
+/**
+ * Used by Turtle.copyTo to synchronize hatched turtle's programs with the parent
+ */
   void synchronize(Program other) {
     curr = other.curr;
   }
-  
+
   
   dynamic operator[] (String key) {
     return variables[key];
@@ -72,7 +74,11 @@ class Program {
   void step() {
     if (curr != null) {
       curr = curr.step(this);
-      if (curr != null) curr.eval(this);
+      if (curr != null) {
+        curr.eval(this);
+      } else {
+        curr = start;
+      }
     }
   }
 
