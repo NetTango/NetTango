@@ -1,6 +1,6 @@
 /*
  * NetTango
- * Copyright (c) 2014 Michael S. Horn, Uri Wilensky, and Corey Brady
+ * Copyright (c) 2016 Michael S. Horn, Uri Wilensky, and Corey Brady
  * 
  * Northwestern University
  * 2120 Campus Drive
@@ -25,7 +25,7 @@ abstract class Turtle extends Agent implements Touchable {
   /* turtle size */
   num size = 1.0;
   
-  /* turtle heading in radians */
+  /* turtle heading in degrees */
   num heading = 0.0;
   
   /* visual alpha (opacity) of the turtle */
@@ -42,7 +42,7 @@ abstract class Turtle extends Agent implements Touchable {
   
   
   Turtle(Model model) : super(model) {
-    right(Agent.rnd.nextInt(350));
+    right(Agent.rnd.nextInt(360));
     color = new Color(80, 30, 0, 255);
   }
   
@@ -79,12 +79,13 @@ abstract class Turtle extends Agent implements Touchable {
    
    
   void forward(num distance) {
+    num h = (heading / 180.0) * PI;
     if (model.wrap) {
-      x = wrapX(x - sin(heading) * distance);
-      y = wrapY(y + cos(heading) * distance);
+      x = wrapX(x - sin(h) * distance);
+      y = wrapY(y + cos(h) * distance);
     } else {
-      x -= sin(heading) * distance;
-      y += cos(heading) * distance;
+      x -= sin(h) * distance;
+      y += cos(h) * distance;
     }
   }
   
@@ -95,7 +96,7 @@ abstract class Turtle extends Agent implements Touchable {
   
   
   void left(num degrees) {
-    heading += (degrees / 180) * PI;   
+    heading = (heading + degrees) % 360.0;
   }
   
   
@@ -158,8 +159,9 @@ abstract class Turtle extends Agent implements Touchable {
   double angleBetween(Turtle b) {
     double PI2 = PI * 2;
     double theta = atan2(x - b.x, b.y - y);
+    double rads = (heading / 180.0) * PI;
     if (theta < 0) theta += PI2;
-    double alpha = heading % PI2;
+    double alpha = rads % PI2;
     double ccw = (theta > alpha) ? theta - alpha : (theta + PI2) - alpha;
     ccw = (ccw <= PI) ? ccw : ccw - PI2;
     return ccw / PI * 180;
@@ -193,7 +195,7 @@ abstract class Turtle extends Agent implements Touchable {
     {
       if (opacity < 1.0) ctx.globalAlpha = opacity;
       ctx.translate(x, y);
-      ctx.rotate(heading);
+      ctx.rotate(heading / 180.0 * PI);
       draw(ctx);
       ctx.globalAlpha = 1.0;
     }
