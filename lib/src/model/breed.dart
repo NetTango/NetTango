@@ -23,12 +23,23 @@ part of NetTango;
 class Breed extends AgentSet with Runtime {
 
 /**
- * All turtles in this breed will run programs from this workspace
+ * All turtles in this breed will run programs from this workspace (if not null)
  */
   CodeWorkspace workspace = null; 
 
+/**
+ * Reference back to model to trigger repaints when necessary
+ */
+  Model model;
 
-  Breed([CodeWorkspace workspace = null]) {
+
+/** 
+ * Turtle "type" of this breed
+ */
+  Type turtleType;
+
+
+  Breed(this.model, this.turtleType, [CodeWorkspace workspace = null]) {
     if (workspace != null ) {
       this.workspace = workspace;
       workspace.runtime = this;
@@ -66,7 +77,9 @@ class Breed extends AgentSet with Runtime {
  * Step forward 1 tick (step forward button pressed)
  */
   void stepForward() {
-    tick();
+    pause();
+    super.tick();
+    model.draw();
   }
 
    
@@ -74,7 +87,10 @@ class Breed extends AgentSet with Runtime {
  * Called when the restart button is pressed in a workspace
  */
   void setup() {
+    pause();
     restartProgram();
+    model.breedSetup(this);
+    model.draw();
   }
 
   
