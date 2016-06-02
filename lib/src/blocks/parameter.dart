@@ -56,16 +56,16 @@ class Parameter implements Touchable {
   }
 
 
-  factory Parameter.fromXML(Block block, Element el) {
-    Map attribs = el.attributes;
-    if (attribs.containsKey("type") && attribs["type"] == "range") {
-      return new RangeParameter.fromXML(block, el);
-    } else {
+  factory Parameter.fromJSON(Block block, Map data) {
+    if (data.containsKey("type") && data["type"] == "range") {
+      return new RangeParameter.fromJSON(block, data);
+    } 
+    else {
       Parameter p = new Parameter(block);
-      p.values = [];
-      for (Node value in el.childNodes) {
-        if (value is Element && value.nodeName == "v") {
-          p.values.add(value.innerHtml);
+      if (data.containsKey("values")) {
+        p.values = [];
+        for (var v in data["values"]) {
+          p.values.add(v);
         }
       }
       return p;
@@ -298,7 +298,7 @@ class Parameter implements Touchable {
       downIndex = index;
       block.workspace.closeAllParameterMenus();
       menuOpen = true;
-      block.workspace.moveToTop(block);
+      block.workspace._moveToTop(block);
     }
     block.workspace.draw();
     return true;
