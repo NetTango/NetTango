@@ -1,6 +1,6 @@
 /*
  * NetTango
- * Copyright (c) 2014 Michael S. Horn, Uri Wilensky, and Corey Brady
+ * Copyright (c) 2016 Michael S. Horn, Uri Wilensky, and Corey Brady
  * 
  * Northwestern University
  * 2120 Campus Drive
@@ -23,10 +23,10 @@ abstract class Agent implements Touchable {
   
   static Random rnd = new Random();
   
-  /* all agents have a (model) unique id number */
+  /* all agents have an id number unique to their containing model */
   int id;
   
-  /* reference to the containing model */
+  /* reference to the containing model (agents can only belong to one model) */
   Model model;
   
   /* agent's color */
@@ -50,15 +50,6 @@ abstract class Agent implements Touchable {
  * Access an agent-specific property
  */
   dynamic operator[](String key) {
-    if (key == "color-red") {
-      return color.red;
-    } else if (key == "color-green") {
-      return color.green;
-    } else if (key == "color-blue") {
-      return color.blue;
-    } else if (key == "color-alpha") {
-      return color.alpha;
-    }
     return _props[key];
   }
 
@@ -67,17 +58,7 @@ abstract class Agent implements Touchable {
  * Set an agent-specific property
  */
   void operator[]=(String key, var value) {
-    if (key == "color-red") {
-      color.red = value.toInt();
-    } else if (key == "color-green") {
-      color.green = value.toInt();
-    } else if (key == "color-blue") {
-      color.blue = value.toInt();
-    } else if (key == "color-alpha") {
-      color.alpha = value.toInt();
-    } else {
-      _props[key] = value;
-    }
+    _props[key] = value;
   }
   
   
@@ -85,11 +66,7 @@ abstract class Agent implements Touchable {
  * Is the named variable defined for this agent?
  */
   bool isDefined(String name) {
-    return (name == "color-red" ||
-            name == "color-green" ||
-            name == "color-blue" ||
-            name == "color-alpha" ||
-            _props.containsKey(name));
+    return _props.containsKey(name);
   }
   
 
@@ -116,7 +93,9 @@ abstract class Agent implements Touchable {
 
   
 /**
- * This gets called every clock tick for every agent
+ * This gets called every clock tick for every agent.
+ * If model is on fast-forward, draw may only get called every
+ * 2, 4, 8, 16, etc. ticks.
  */
   void draw(CanvasRenderingContext2D ctx);
   
@@ -135,6 +114,9 @@ abstract class Agent implements Touchable {
   }
 
   
+/**
+ * Implementation of the Touchable interface
+ */  
   bool containsTouch(Contact c) { return false; }
   void touchUp(Contact c) { }
   void touchDrag(Contact c) { }
