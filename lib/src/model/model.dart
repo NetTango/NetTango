@@ -45,6 +45,9 @@ abstract class Model extends TouchLayer with Runtime {
   
   /* does the world wrap or not? */
   bool wrap = true;
+
+  /* use a batch tick model when executing programs? */
+  bool batched = false;
   
   /* Used to generate unique agent id numbers */
   int AGENT_ID = 1;
@@ -115,6 +118,7 @@ abstract class Model extends TouchLayer with Runtime {
     centerX = width * (-minWorldX / worldWidth);
     centerY = height * (-minWorldY / worldHeight);
     wrap = toBool(config["wrap"]);
+    batched = toBool(config["batched"]);
 
     //-------------------------------------------------------------------
     // load settings from the HTML file. Currently only range and 

@@ -54,6 +54,7 @@ class Breed extends AgentSet with Runtime {
     super.add(t);
     if (workspace != null) {
       t.program = new Program(workspace.start, t);
+      t.program.batched = model.batched;
     }
   }
 
