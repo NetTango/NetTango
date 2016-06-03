@@ -56,11 +56,11 @@ class Block implements Touchable {
   /** CSS color of the text */
   String textColor = 'white';
 
-  /** CSS size of the font (e.g. "12px") */
-  String textSize = "14px";
-
   /** CSS outline color of the block */
   String outlineColor = 'rgba(255, 255, 255, 0.3)';
+
+  /** CSS font spec */
+  String font = "400 16px Raleway, sans-serif";
   
   /* Is the block being dragged */
   bool dragging = false;
@@ -362,7 +362,7 @@ class Block implements Touchable {
     num w = 20;
     ctx.save();
     {
-      ctx.font = '300 ${textSize} Nunito, sans-serif';
+      ctx.font = font;
       w += ctx.measureText(text).width;      
     }
     ctx.restore();
@@ -408,7 +408,7 @@ class Block implements Touchable {
   void _drawLabel(CanvasRenderingContext2D ctx, num tx, num ty) {
     var lines = text.split('\n');
     ctx.fillStyle = textColor;
-    ctx.font = '300 ${textSize} Nunito, sans-serif';
+    ctx.font = font;
     ctx.textAlign = 'left';
     ctx.textBaseline = 'middle';
     //double tx = x + 12;
