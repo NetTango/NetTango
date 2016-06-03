@@ -49,6 +49,8 @@ class RangeParameter extends Parameter {
 	/* is the random box checked or not? */
 	bool randomChecked = false;
 
+  Random _rnd = new Random();
+
 
 	RangeParameter(Block block, this.minValue, this.maxValue, this.stepSize, this.initialValue) : super(block) {
 		_value = initialValue;
@@ -80,7 +82,7 @@ class RangeParameter extends Parameter {
 
 	dynamic get value {
 		if (randomOption && randomChecked) {
-			return "random";
+			return minValue + _rnd.nextDouble() * (maxValue - minValue);
 		} 
 		else if (unit != null && unit != "") {
 			return "${_valueToString(_value)}${unit}";
@@ -98,7 +100,11 @@ class RangeParameter extends Parameter {
 
 
 	String get valueAsString {
-    return (value is String) ? value : _valueToString(_value);
+    if (randomOption && randomChecked) {
+      return "random";
+    } else {
+      return (value is String) ? value : _valueToString(_value);
+    }
 	}
 
 	num get valueRange => maxValue - minValue;
