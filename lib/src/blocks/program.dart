@@ -34,6 +34,9 @@ class Program {
   
   /* Is the program running? */
   bool running = false;
+
+  /* Execute blocks one at a time or as a whole program */
+  bool batched = true;
   
   /* Target agent of this program */
   ProgramTarget target = null;
@@ -77,9 +80,18 @@ class Program {
   void clearVariables() {
     variables.clear();
   }
-  
-  
+
+
   void step() {
+    if (batched) {
+      _stepProgram();
+    } else {
+      _stepBlock();
+    }
+  }
+  
+  
+  void _stepBlock() {
     if (curr != null) {
       curr = curr.step(this);
       if (curr != null) {
@@ -87,6 +99,19 @@ class Program {
       } else {
         curr = start;
       }
+    }
+  }
+
+
+  void _stepProgram() {
+    while (curr != null) {
+      curr = curr.step(this);
+      if (curr != null) {
+        curr.eval(this);
+      } else {
+        curr = start;
+      }
+      if (curr == start) return;
     }
   }
 
