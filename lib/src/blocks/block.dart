@@ -44,8 +44,8 @@ class Block implements Touchable {
   /* Text displayed inside the block */
   String text = 'hop';
   
-  /* Block 'type' (usually the same as text) */
-  String type = 'hop';
+  /* Block short name for menu (usually the same as text) */
+  String short = 'hop';
 
   /* Name of the callback function called when this block is evaluated */
   String action = null;
@@ -92,7 +92,7 @@ class Block implements Touchable {
     _width = BLOCK_WIDTH.toDouble();
     _minwidth = BLOCK_WIDTH.toDouble();
     _height = BLOCK_HEIGHT.toDouble();
-    type = text;
+    short = text;
   }
 
 
@@ -126,7 +126,7 @@ class Block implements Touchable {
     //----------------------------------------------------------
     // block properties
     //----------------------------------------------------------
-    block.type = toStr(json["short"], name); // shorthand code
+    block.short = toStr(json["short"], name); // shorthand code
 
     block.action = toStr(json["action"], null);
 
@@ -237,7 +237,7 @@ class Block implements Touchable {
   
   
 /**
- * When the program is running, this evaluates this block for a specific frog
+ * When the program is running, this evaluates this block 
  */
   dynamic eval(Program program) {
     var pval = (param == null) ? null : param.value;
@@ -358,12 +358,13 @@ class Block implements Touchable {
   }
   
   
-  num getTextWdith(CanvasRenderingContext2D ctx) {
+  num getTextWidth(CanvasRenderingContext2D ctx) {
     num w = 20;
+    String t = inMenu ? short : text;
     ctx.save();
     {
       ctx.font = font;
-      w += ctx.measureText(text).width;      
+      w += ctx.measureText(t).width;      
     }
     ctx.restore();
     return w;
@@ -371,7 +372,7 @@ class Block implements Touchable {
 
   
   void _resize(CanvasRenderingContext2D ctx) {
-    num w = getTextWdith(ctx);
+    num w = getTextWidth(ctx);
     _minwidth = max(w + 3, BLOCK_WIDTH / 2.25); // for displaying in the menu
     if (param != null && inserted) {
       //num cw = param.getDisplayWidth(ctx) + param.centerX - 14;
@@ -406,7 +407,8 @@ class Block implements Touchable {
   
   
   void _drawLabel(CanvasRenderingContext2D ctx, num tx, num ty) {
-    var lines = text.split('\n');
+    String t = inMenu ? short : text;
+    var lines = t.split('\n');
     ctx.fillStyle = textColor;
     ctx.font = font;
     ctx.textAlign = 'left';
@@ -415,7 +417,7 @@ class Block implements Touchable {
     //double ty = centerY;
 
     if (lines.length == 1) {
-      ctx.fillText(text, tx, ty);
+      ctx.fillText(t, tx, ty);
     } else {
       ctx.fillText(lines[0], tx, ty - 7);
       ctx.fillText(lines[1], tx, ty + 7);
