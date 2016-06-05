@@ -25,6 +25,7 @@ class StartBlock extends BeginBlock {
     x = getStartX();
     y = getStartY();
     color = 'green';
+    action = 'start';
     end = new EndProgramBlock(workspace, this);
     end.y = y + height + BLOCK_MARGIN + 20;
     _addClause(end);
