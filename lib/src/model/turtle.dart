@@ -103,8 +103,8 @@ abstract class Turtle extends Agent implements Touchable {
   void right(num degrees) {
     left(-degrees);
   }
-  
-  
+
+
   void pulse() {
     tween = new Tween();
     tween.function = TWEEN_SINE2;
@@ -165,6 +165,37 @@ abstract class Turtle extends Agent implements Touchable {
     double ccw = (theta > alpha) ? theta - alpha : (theta + PI2) - alpha;
     ccw = (ccw <= PI) ? ccw : ccw - PI2;
     return ccw / PI * 180;
+  }
+
+
+/**
+ * return the difference between this turtle's heading and the given turtle's
+ * heading. the value will be between -180.0 and 180.0 degrees. Negative angles
+ * represent a clockwise (right) turn.
+ */
+  double headingDifference(Turtle b) {
+    num h = heading % 360.0;
+    num bh = b.heading % 360.0;
+    num delta = (bh - h);
+    if (delta > 180.0) {
+      return delta - 360.0;
+    }
+    else if (delta < -180.0) {
+      return delta + 360.0;
+    }
+    else {
+      return delta;
+    }
+  }
+
+
+/**
+ * Distance between two turtles
+ */ 
+  double distanceBetween(Turtle t) {
+    num dx = t.x - x;
+    num dy = t.y - y;
+    return sqrt((dx * dx) + (dy * dy));
   }
   
   
