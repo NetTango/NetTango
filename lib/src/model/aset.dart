@@ -15,7 +15,6 @@
  */
 part of NetTango;
 
-
 /**
  * A collection of agents
  */
@@ -160,6 +159,20 @@ class AgentSet<T> {
       }
     }
     return null;
+  }
+
+
+/**
+ * Returns a list of Turtles in the given radius (or null) 
+ */
+  AgentSet getTurtlesInRadius(num px, num py, num radius) {
+    AgentSet result = new AgentSet();
+    for (T t in _agents) {
+      if ((t as Turtle).overlapsPoint(px, py, radius)) {
+        result.add(t);
+      }
+    }
+    return result;
   }
   
 
