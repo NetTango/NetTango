@@ -156,7 +156,7 @@ class Slot implements Touchable {
   
   
   bool isAvailable() {
-    return workspace.getBlockCount(block.type) < count;
+    return workspace.getBlockCount(block.text) < count;
   }
   
   
@@ -165,7 +165,7 @@ class Slot implements Touchable {
   
   
   void draw(CanvasRenderingContext2D ctx) {
-    int free = count - workspace.getBlockCount(block.type);
+    int free = count - workspace.getBlockCount(block.text);
     if (free <= 0) {
       block.x = x.toDouble() - 1;
       block.y = y.toDouble() + 1;
