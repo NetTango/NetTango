@@ -253,7 +253,7 @@ class CodeWorkspace extends TouchLayer {
   int getBlockCount(String blockType) {
     int count = 0;
     for (Block block in blocks) {
-      if (block.type == blockType) count++;
+      if (block.text == blockType) count++;
     }
     return count;
   }
