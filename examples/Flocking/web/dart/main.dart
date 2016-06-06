@@ -263,6 +263,7 @@ void main() {
     "touchElement" : "green-workspace",
     "anchor" : "left",
     "color" : "rgba(0, 0, 0, 0.6)",
+    "defaultProgram" : "forward(0.3);left(1);",
     "blocks" : [
       {
         "name" : "forward",
@@ -275,7 +276,7 @@ void main() {
             "min" : 0,
             "max" : 1.5,
             "step" : 0.1,
-            "default" : 0.2,
+            "default" : 0.3,
             "random" : true,
             "unit" : "",
             "label" : "speed"
@@ -293,7 +294,7 @@ void main() {
             "min" : 0,
             "max" : 20,
             "step" : 0.5,
-            "default" : 3,
+            "default" : 1,
             "random" : true,
             "label" : "degrees"
           }
@@ -311,7 +312,7 @@ void main() {
             "min" : 0,
             "max" : 20,
             "step" : 0.5,
-            "default" : 3,
+            "default" : 1,
             "random" : true,
             "label" : "degrees"
           }
@@ -405,7 +406,6 @@ void main() {
   FlockModel model = new FlockModel(modelConfig);
   CodeWorkspace workspace = new CodeWorkspace(json);
   model.createBreed(BlueBird, workspace);
-
 
   json["anchor"] = "right";
   json["canvasId"] = "green-workspace";
