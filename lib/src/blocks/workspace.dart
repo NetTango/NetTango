@@ -131,6 +131,13 @@ class CodeWorkspace extends TouchLayer {
       _initBlockMenu(json["blocks"]);
     }
 
+    //--------------------------------------------------------
+    // default program
+    //--------------------------------------------------------
+    if (json.containsKey("defaultProgram")) {
+      fromURLString(json["defaultProgram"]);
+    }
+
     draw();
     tick();
   }
@@ -209,14 +216,6 @@ class CodeWorkspace extends TouchLayer {
   }
 
 
-/**
- * Subclasses override to creates a starting program so that 
- * there's something to be run
- */
-  void buildDefaultProgram() {
-  }
-  
-  
 /**
  * Add a block to the workspace
  */
