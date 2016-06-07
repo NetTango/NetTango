@@ -130,6 +130,25 @@ class Menu {
           button.x = ix;
           button.y = y + h/2 - button.width/2;
           button.draw(ctx);
+
+          // draw fast-forward indicator
+          if (button.shape == VCRButtonShape.FastForward) {
+            if (workspace != null && workspace.runtime != null) {
+              if (workspace.runtime.play_state > 1) {
+                ctx.fillStyle = "#993300";
+                ctx.beginPath();
+                ctx.arc(button.x + button.width/2, button.y - 30, 25, 0, PI * 2, true);
+                ctx.fill();
+                ctx.font = '400 14pt Nunito, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillStyle = 'white';
+                String s = "x${workspace.runtime.play_state}";
+                //num fw = ctx.measureText(s).width + 14;
+                ctx.fillText(s, button.x + button.width/2, button.y - 30);
+              }
+            }
+          }
         }
       }
     }
