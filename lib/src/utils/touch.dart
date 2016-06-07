@@ -74,9 +74,11 @@ class TouchManager {
   void registerEvents(Element element) {
     parent = element;
    
-    element.onMouseDown.listen((e) => _mouseDown(e));
-    element.onMouseUp.listen((e) => _mouseUp(e));
-    element.onMouseMove.listen((e) => _mouseMove(e));
+    if (isFlagSet("debug")) {
+      element.onMouseDown.listen((e) => _mouseDown(e));
+      element.onMouseUp.listen((e) => _mouseUp(e));
+      element.onMouseMove.listen((e) => _mouseMove(e));
+    }
 
     element.onTouchStart.listen((e) => _touchDown(e));
     element.onTouchMove.listen((e) => _touchDrag(e));
