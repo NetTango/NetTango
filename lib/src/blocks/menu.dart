@@ -336,8 +336,8 @@ class VCRButton implements Touchable {
   
 
   bool containsTouch(Contact c) {
-    return (c.touchX >= x && c.touchX <= x + width && 
-            c.touchY >= y && c.touchY <= y + width);
+    return (c.touchX >= x - 5 && c.touchX <= x + width + 5 && 
+            c.touchY >= y - 5 && c.touchY <= y + width + 5);
   }
   
   
