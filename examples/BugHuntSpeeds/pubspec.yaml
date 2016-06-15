@@ -1,0 +1,23 @@
+name: BugHuntSpeeds
+dependencies:
+
+  browser: any
+  
+  NetTango:
+    # if you point to a local copy of NetTango, update the path accordingly
+    path: ../..
+    
+    # otherwise, uncomment these lines to use github (preferred)
+    #git:
+    #  url: https://github.com/NetTango/NetTango.git
+    #  ref: version_0.4
+
+transformers:
+- $dart2js:
+    checked: true
+    minify: true
+    verbose: true
+    #analyzeAll: true
+    suppressWarnings: false
+    suppressHints: false
+    terse: false

@@ -1,7 +1,7 @@
 <!DOCTYPE html> 
 <html> 
 <head> 
-  <title>NetTango: Flocking</title>
+  <title>NetTango: BugHunt Speeds</title>
   <meta charset="utf-8">
   <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
   <link href='https://fonts.googleapis.com/css?family=Oswald|Nunito:400,300,700|Raleway:400' rel='stylesheet' type='text/css'>  
@@ -13,19 +13,11 @@
     margin: 0;
   }
 
-  #flocking {
-    width: 1920px;
-    height: 1080px;
-    position: relative;
-    margin: 0;
-    padding: 0;
-  }
-
   #turtles {
     position: absolute;
     top: 0px;
     left: 0px;
-    background-image: url('images/sky.jpg');
+    background-image: url('images/sand_texture.jpg');
     background-size: cover;
   }
 
@@ -35,19 +27,28 @@
     left: 0px;
   }
 
-  #green-workspace {
+  #histogram {
     position: absolute;
-    top: 0px;
-    right: 0px;
+    top: 40px;
+    right: 40px;
+    border-radius: 8px;
+    color: white;
+    background-color: black;
+  }
+
+  #contents {
+    width: 1920px;
+    height: 1080px;
+    position: relative;
   }
 
   </style>
 </head>
 <body>
-  <div id="flocking">
+  <div id="contents">
     <canvas id="turtles" width="1920" height="1080"></canvas>
-    <canvas id="blue-workspace" width="960" height="1080"></canvas>
-    <canvas id="green-workspace" width="960" height="1080"></canvas>
+    <canvas id="blue-workspace" width="1920" height="1080"></canvas>
+    <canvas id="histogram" width="250" height="180"></canvas>
   </div>
 
   <script type="application/dart" src="dart/main.dart"></script>

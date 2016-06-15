@@ -1,0 +1,4 @@
+name: testserver
+description: A sample application
+dependencies:
+  http_server: ^0.9.2

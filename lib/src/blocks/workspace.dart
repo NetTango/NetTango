@@ -1,6 +1,6 @@
 /*
  * NetTango
- * Copyright (c) 2015 Michael S. Horn, Uri Wilensky, and Corey Brady
+ * Copyright (c) 2016 Michael S. Horn, Uri Wilensky, and Corey Brady
  * 
  * Northwestern University
  * 2120 Campus Drive
@@ -131,6 +131,14 @@ class CodeWorkspace extends TouchLayer {
       _initBlockMenu(json["blocks"]);
     }
 
+
+    //--------------------------------------------------------
+    // customize menu buttons
+    //--------------------------------------------------------
+    menu.fastForwardButton.visible = toBool(json['fastForwardButton'], true);
+    menu.stepForwardButton.visible = toBool(json['stepForwardButton'], true);
+
+
     //--------------------------------------------------------
     // default program
     //--------------------------------------------------------
@@ -183,10 +191,13 @@ class CodeWorkspace extends TouchLayer {
  * Close all open parameter menus
  */  
   void closeAllParameterMenus() {
+    bool repaint = false;
     for (Block block in blocks) {
-      block.closeParameterMenu();
+      if (block.closeParameterMenu()) {
+        repaint = true;
+      }
     }
-    draw();
+    if (repaint) draw();
   }
 
 

@@ -60,6 +60,9 @@ abstract class Model extends TouchLayer with Runtime {
    
   /* Drawing context for patches */
   CanvasRenderingContext2D pctx = null;
+
+  /* Touch event manager */
+  TouchManager tmanager = new TouchManager();
   
   /* Is the mouse or finger down? */
   bool down = false;
@@ -87,6 +90,11 @@ abstract class Model extends TouchLayer with Runtime {
     centerX = width / 2;
     centerY = height / 2;
     tctx = canvas.getContext("2d");
+    if (config.containsKey('touchElement')) {
+      tmanager.registerEvents(querySelector("#${config['touchElement']}"));
+      tmanager.addTouchLayer(this);
+    }
+
 
      // Patch canvas (not implemented)
     //canvas = querySelector("#${id}-patches");
