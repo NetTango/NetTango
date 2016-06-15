@@ -121,7 +121,7 @@ class Menu {
       }
 
       num bspace = 45;
-      ix = x + w;
+      ix = x + w - bspace;
 
       for (int i=_buttons.length-1; i>=0; i--) {
         if (_buttons[i].visible) {
@@ -135,17 +135,13 @@ class Menu {
           if (button.shape == VCRButtonShape.FastForward) {
             if (workspace != null && workspace.runtime != null) {
               if (workspace.runtime.play_state > 1) {
-                ctx.fillStyle = "#993300";
-                ctx.beginPath();
-                ctx.arc(button.x + button.width/2, button.y - 30, 25, 0, PI * 2, true);
-                ctx.fill();
-                ctx.font = '400 14pt Nunito, sans-serif';
-                ctx.textAlign = 'center';
+                ctx.font = '400 18pt Nunito, sans-serif';
+                ctx.textAlign = 'left';
                 ctx.textBaseline = 'middle';
                 ctx.fillStyle = 'white';
                 String s = "x${workspace.runtime.play_state}";
                 //num fw = ctx.measureText(s).width + 14;
-                ctx.fillText(s, button.x + button.width/2, button.y - 30);
+                ctx.fillText(s, x + w - 50, y + h/2);
               }
             }
           }
@@ -355,8 +351,8 @@ class VCRButton implements Touchable {
   
 
   bool containsTouch(Contact c) {
-    return (c.touchX >= x - 5 && c.touchX <= x + width + 5 && 
-            c.touchY >= y - 5 && c.touchY <= y + width + 5);
+    return (c.touchX >= x - 10 && c.touchX <= x + width + 10 && 
+            c.touchY >= y - 30 && c.touchY <= y + width + 20);
   }
   
   
