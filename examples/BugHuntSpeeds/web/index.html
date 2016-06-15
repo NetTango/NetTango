@@ -1,0 +1,53 @@
+<!DOCTYPE html> 
+<html> 
+<head> 
+  <title>NetTango: BugHunt Speeds</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link href='https://fonts.googleapis.com/css?family=Oswald|Nunito:400,300,700|Raleway:400' rel='stylesheet' type='text/css'>  
+  <style>
+
+  body {
+    font-family: 'Oswald', sans-serif;
+    font-family: 'Nunito', sans-serif;
+  }
+
+  #turtles {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    background-image: url('images/sand_texture.jpg');
+    background-size: cover;
+  }
+
+  #blue-workspace {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+  }
+
+  #green-workspace {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+  }
+
+  </style>
+</head>
+<body>
+  <canvas id="turtles" width="1920" height="1080"></canvas>
+  <canvas id="blue-workspace" width="1920" height="1080"></canvas>
+  <canvas id="green-workspace" width="1920" height="1080"></canvas>
+
+  <script type="application/dart" src="dart/main.dart"></script>
+  <script src="packages/browser/dart.js"></script>
+  <script type="text/javascript">
+
+    window.oncontextmenu = function(event) {
+      event.preventDefault();
+      event.stopPropagation();
+      return false;
+    };
+  </script>
+</body>
+</html>
