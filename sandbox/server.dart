@@ -7,6 +7,7 @@
 
     var staticFiles = new VirtualDirectory(pathToBuild);
     staticFiles.allowDirectoryListing = true;
+    staticFiles.followLinks = true;
     staticFiles.directoryHandler = (dir, request) {
       var indexUri = new Uri.file(dir.path).resolve('index.html');
       staticFiles.serveFile(new File(indexUri.toFilePath()), request);
