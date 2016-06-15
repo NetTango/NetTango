@@ -183,10 +183,13 @@ class CodeWorkspace extends TouchLayer {
  * Close all open parameter menus
  */  
   void closeAllParameterMenus() {
+    bool repaint = false;
     for (Block block in blocks) {
-      block.closeParameterMenu();
+      if (block.closeParameterMenu()) {
+        repaint = true;
+      }
     }
-    draw();
+    if (repaint) draw();
   }
 
 
