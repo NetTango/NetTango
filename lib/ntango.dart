@@ -35,6 +35,7 @@ part 'src/utils/tween.dart';
 
 part 'src/blocks/block.dart';
 part 'src/blocks/bug.dart';
+part 'src/blocks/chance.dart';
 part 'src/blocks/control.dart';
 part 'src/blocks/if.dart';
 part 'src/blocks/menu.dart';

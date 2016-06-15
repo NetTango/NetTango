@@ -114,6 +114,10 @@ class Block implements Touchable {
         block = new IfElseBlock(workspace, name);
         break;
 
+      case "chance":
+        block = new ChanceBlock(workspace, toStr(json["name"], "chance"));
+        break;
+
       case "repeat":
         block = new RepeatBlock(workspace);
         break;
