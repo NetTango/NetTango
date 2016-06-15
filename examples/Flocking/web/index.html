@@ -10,6 +10,15 @@
   body {
     font-family: 'Oswald', sans-serif;
     font-family: 'Nunito', sans-serif;
+    margin: 0;
+  }
+
+  #flocking {
+    width: 1920px;
+    height: 1080px;
+    position: relative;
+    margin: 0;
+    padding: 0;
   }
 
   #turtles {
@@ -29,15 +38,17 @@
   #green-workspace {
     position: absolute;
     top: 0px;
-    left: 0px;
+    right: 0px;
   }
 
   </style>
 </head>
 <body>
-  <canvas id="turtles" width="1920" height="1080"></canvas>
-  <canvas id="blue-workspace" width="1920" height="1080"></canvas>
-  <canvas id="green-workspace" width="1920" height="1080"></canvas>
+  <div id="flocking">
+    <canvas id="turtles" width="1920" height="1080"></canvas>
+    <canvas id="blue-workspace" width="960" height="1080"></canvas>
+    <canvas id="green-workspace" width="960" height="1080"></canvas>
+  </div>
 
   <script type="application/dart" src="dart/main.dart"></script>
   <script src="packages/browser/dart.js"></script>

@@ -240,7 +240,7 @@ void main() {
   var json = {
     "name" : "Blue Birds",
     "canvasId" : "blue-workspace",
-    "touchElement" : "green-workspace",
+    "touchElement" : "blue-workspace",
     "anchor" : "left",
     "color" : "rgba(0, 0, 0, 0.6)",
     "defaultProgram" : "forward(0.3);left(1);",
@@ -391,6 +391,7 @@ void main() {
 
   json["anchor"] = "right";
   json["canvasId"] = "green-workspace";
+  json["touchElement"] = "green-workspace";
   json["name"] = "Green Birds";
   workspace = new CodeWorkspace(json);
   model.createBreed(GreenBird, workspace);
