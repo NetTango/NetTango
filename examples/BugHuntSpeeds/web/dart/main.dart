@@ -6,10 +6,11 @@ library BugHuntSpeeds;
 import 'dart:html';
 import 'dart:math';
 import 'package:NetTango/ntango.dart';
+part 'histogram.dart';
 
 const MIN_SPEED = 0.01;
-const MAX_SPEED = 0.3;
-const MID_SPEED = 0.1;
+const MAX_SPEED = 0.24;
+const MID_SPEED = 0.12;
 
 
 class Beetle extends Turtle {
@@ -64,7 +65,7 @@ class Beetle extends Turtle {
     pulse();
     Sounds.playSound("crunch");
     model.removeTouchable(this);
-    tween.onend = (() { die();  });
+    tween.onend = (() { die(); (model as BeetleModel).kills++; });
   }
 
 
@@ -77,8 +78,10 @@ class Beetle extends Turtle {
       model.addTouchable(baby);
       if (param == "speed-variation") {
         double g = nextGaussian() * 0.05;
+        print(g);
         speed = max(speed + g, MIN_SPEED);
       }
+      (model as BeetleModel).updateHistogram();
     }
   }
 
@@ -107,8 +110,15 @@ class BeetleModel extends Model {
 
   Breed get beetles => getBreed(Beetle);
 
+  Histogram hist;
+
+  int kills = 0;
+
 
   BeetleModel(Map config) : super(config) {
+    hist = new Histogram("histogram", true);
+    hist.update([ 23, 33, 43, 33, 10 ]);
+    hist.draw();
   }
 
   void setup() {
@@ -128,7 +138,34 @@ class BeetleModel extends Model {
         addTouchable(beetle);
       }
     }
+    updateHistogram();
   }
+
+
+  void updateHistogram() {
+    var bins = [ 0, 0, 0, 0, 0 ];
+    for (int i=0; i<beetles.length; i++) {
+      num speed = beetles[i].speed;
+      num split = MAX_SPEED / 5;
+      for (int j=0; j<bins.length; j++) {
+        if (speed > split * j && speed <= split * (j+1)) {
+          bins[j]++;
+        }
+      }
+    }
+    hist.update(bins);
+    hist.draw();
+  }
+
+
+  void drawForeground(CanvasRenderingContext2D ctx) {  
+    ctx.fillStyle = "black";
+    ctx.font = "600 24px sans-serif";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+    ctx.fillText("$kills bugs squished", 20, 20);
+  }
+
 }
 
 
@@ -141,7 +178,7 @@ void main() {
   var modelConfig = {
     "name" : "BugHuntSpeeds",
     "canvasId" : "turtles",
-    "touchElement" : "green-workspace",
+    "touchElement" : "blue-workspace",
     "patchSize" : 35,
     "minWorldX" : -10,
     "maxWorldX" : 10,
@@ -155,7 +192,7 @@ void main() {
   var json = {
     "name" : "Beetle",
     "canvasId" : "blue-workspace",
-    "touchElement" : "green-workspace",
+    "touchElement" : "blue-workspace",
     "anchor" : "bottom",
     "color" : "rgba(0, 0, 0, 0.6)",
     "defaultProgram" : "forward(0.3);left(1);",
@@ -171,15 +208,15 @@ void main() {
 
       {
         "name" : "left",
-        "instances" : 2,
+        "instances" : 3,
         "action" : "left",
         "params" : [
           {
             "type" : "range",
             "min" : 0,
-            "max" : 45,
-            "step" : 0.5,
-            "default" : 1,
+            "max" : 90,
+            "step" : 1,
+            "default" : 3,
             "random" : true,
             "label" : "degrees"
           }
@@ -189,15 +226,15 @@ void main() {
 
       {
         "name" : "right",
-        "instances" : 2,
+        "instances" : 3,
         "action" : "right",
         "params" : [
           {
             "type" : "range",
             "min" : 0,
-            "max" : 45,
-            "step" : 0.5,
-            "default" : 1,
+            "max" : 90,
+            "step" : 1,
+            "default" : 3,
             "random" : true,
             "label" : "degrees"
           }
@@ -230,6 +267,17 @@ void main() {
       {
         "name" : "chance",
         "type" : "chance",
+        "instances" : 2,
+        "params" : [
+          {
+            "type" : "range",
+            "min" : 0,
+            "max" : 10,
+            "step" : 0.2,
+            "default" : 2,
+            "unit" : "%"
+          }
+        ]
       }
 
 /*
