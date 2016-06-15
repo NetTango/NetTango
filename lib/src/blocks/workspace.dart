@@ -1,6 +1,6 @@
 /*
  * NetTango
- * Copyright (c) 2015 Michael S. Horn, Uri Wilensky, and Corey Brady
+ * Copyright (c) 2016 Michael S. Horn, Uri Wilensky, and Corey Brady
  * 
  * Northwestern University
  * 2120 Campus Drive
@@ -130,6 +130,14 @@ class CodeWorkspace extends TouchLayer {
     if (json.containsKey("blocks")) {
       _initBlockMenu(json["blocks"]);
     }
+
+
+    //--------------------------------------------------------
+    // customize menu buttons
+    //--------------------------------------------------------
+    menu.fastForwardButton.visible = toBool(json['fastForwardButton'], true);
+    menu.stepForwardButton.visible = toBool(json['stepForwardButton'], true);
+
 
     //--------------------------------------------------------
     // default program

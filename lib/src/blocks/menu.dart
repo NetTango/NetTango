@@ -34,7 +34,7 @@ class Menu {
   List<VCRButton> _buttons = new List<VCRButton>();
 
   /* Special VCR button play/pause: references _buttons[0] */
-  VCRButton _playButton;
+  VCRButton playButton, fastForwardButton, stepForwardButton;
 
   /* Menu background color */
   String background = "rgba(0, 0, 0, 0.3)";
@@ -45,7 +45,9 @@ class Menu {
     _buttons.add(new VCRButton(this, h - 24, VCRButtonShape.FastForward));
     _buttons.add(new VCRButton(this, h - 24, VCRButtonShape.StepForward));
     _buttons.add(new VCRButton(this, h - 24, VCRButtonShape.Restart));
-    _playButton = _buttons[0];
+    playButton = _buttons[0];
+    fastForwardButton = _buttons[1];
+    stepForwardButton = _buttons[2];
   }
   
   
@@ -97,9 +99,9 @@ class Menu {
       }
     }
     if (workspace.runtime.isRunning) {
-      _playButton.shape = VCRButtonShape.Pause;
+      playButton.shape = VCRButtonShape.Pause;
     } else {
-      _playButton.shape = VCRButtonShape.Play;
+      playButton.shape = VCRButtonShape.Play;
     }
   }
 
@@ -121,7 +123,8 @@ class Menu {
       }
 
       num bspace = 45;
-      ix = x + w - bspace;
+      ix = x + w;
+      if (fastForwardButton.visible) ix -= bspace;
 
       for (int i=_buttons.length-1; i>=0; i--) {
         if (_buttons[i].visible) {
@@ -130,21 +133,19 @@ class Menu {
           button.x = ix;
           button.y = y + h/2 - button.width/2;
           button.draw(ctx);
+        }
+      }
 
-          // draw fast-forward indicator
-          if (button.shape == VCRButtonShape.FastForward) {
-            if (workspace != null && workspace.runtime != null) {
-              if (workspace.runtime.play_state > 1) {
-                ctx.font = '400 18pt Nunito, sans-serif';
-                ctx.textAlign = 'left';
-                ctx.textBaseline = 'middle';
-                ctx.fillStyle = 'white';
-                String s = "x${workspace.runtime.play_state}";
-                //num fw = ctx.measureText(s).width + 14;
-                ctx.fillText(s, x + w - 50, y + h/2);
-              }
-            }
-          }
+      // draw fast-forward indicator
+      if (fastForwardButton.visible && workspace != null && workspace.runtime != null) {
+        if (workspace.runtime.play_state > 1) {
+          ctx.font = '400 18pt Nunito, sans-serif';
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'middle';
+          ctx.fillStyle = 'white';
+          String s = "x${workspace.runtime.play_state}";
+          //num fw = ctx.measureText(s).width + 14;
+          ctx.fillText(s, x + w - 50, y + h/2);
         }
       }
     }
