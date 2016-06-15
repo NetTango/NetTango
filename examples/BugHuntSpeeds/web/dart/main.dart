@@ -7,6 +7,10 @@ import 'dart:html';
 import 'dart:math';
 import 'package:NetTango/ntango.dart';
 
+const MIN_SPEED = 0.01;
+const MAX_SPEED = 0.3;
+const MID_SPEED = 0.1;
+
 
 class Beetle extends Turtle {
 
@@ -72,15 +76,15 @@ class Beetle extends Turtle {
       model.addTurtle(baby);
       model.addTouchable(baby);
       if (param == "speed-variation") {
-        double g = nextGaussian() * 0.025;
-        speed = max(speed + g, 0.01);
+        double g = nextGaussian() * 0.05;
+        speed = max(speed + g, MIN_SPEED);
       }
     }
   }
 
 
   void doForward(param) {
-    forward(speed);
+    forward(max(min(speed, 0.3), 0.01));
   }
   
   void doLeft(param) {
@@ -119,7 +123,7 @@ class BeetleModel extends Model {
         Beetle beetle = new Beetle(this);
         beetle.x = minWorldX + Agent.rnd.nextDouble() * worldWidth;
         beetle.y = minWorldY + Agent.rnd.nextDouble() * worldHeight;
-        beetle.speed = max(0.01, nextGaussian() * 0.025 + 0.06);
+        beetle.speed = max(MIN_SPEED, nextGaussian() * 0.05 + MID_SPEED);
         addTurtle(beetle);
         addTouchable(beetle);
       }
@@ -173,7 +177,7 @@ void main() {
           {
             "type" : "range",
             "min" : 0,
-            "max" : 20,
+            "max" : 45,
             "step" : 0.5,
             "default" : 1,
             "random" : true,
@@ -191,7 +195,7 @@ void main() {
           {
             "type" : "range",
             "min" : 0,
-            "max" : 20,
+            "max" : 45,
             "step" : 0.5,
             "default" : 1,
             "random" : true,
@@ -221,6 +225,11 @@ void main() {
         "name" : "squish",
         "color" : "#b67196",
         "action" : "squish",
+      },
+
+      {
+        "name" : "chance",
+        "type" : "chance",
       }
 
 /*
