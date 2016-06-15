@@ -12,6 +12,8 @@ const MIN_SPEED = 0.01;
 const MAX_SPEED = 0.24;
 const MID_SPEED = 0.12;
 
+List<ImageElement> BEETLE_IMAGES = new List<ImageElement>(5);
+
 
 class Beetle extends Turtle {
 
@@ -19,21 +21,40 @@ class Beetle extends Turtle {
 
   bool touched = false;
 
-  num speed = 0.05;
+  num _speed = 0.05;
+
+  num get speed => _speed;
+
+  set speed(num s) {
+    _speed = max(min(s, MAX_SPEED), MIN_SPEED);
+    num split = MAX_SPEED / 5;
+    for (int j=0; j<BEETLE_IMAGES.length; j++) {
+      if (speed > split * j && speed <= split * (j+1)) {
+        img = BEETLE_IMAGES[j];
+      }
+    }
+  }
+
 
   Beetle(Model model) : super(model) {
     img.src = "images/beetle.png";
+    x = model.minWorldX + Agent.rnd.nextDouble() * model.worldWidth;
+    y = model.minWorldY + Agent.rnd.nextDouble() * model.worldHeight;
   }
+
 
   Turtle hatch() {
     Beetle clone = new Beetle(model);
     copyTo(clone);
+    clone.speed = speed;
     return clone;
   }
+
 
   void tick() {
     super.tick();
   }
+
 
   void draw(CanvasRenderingContext2D ctx) {
     ctx.save();
@@ -71,15 +92,12 @@ class Beetle extends Turtle {
 
   void doHatch(param) {
     if ((model as BeetleModel).beetles.length < 1000) {
-      Beetle baby = hatch();
-      baby.x = model.minWorldX + Agent.rnd.nextDouble() * model.worldWidth;
-      baby.y = model.minWorldY + Agent.rnd.nextDouble() * model.worldHeight;
+      Beetle parent = (model as BeetleModel).beetles.getRandomAgent();
+      Beetle baby = parent.hatch();
       model.addTurtle(baby);
       model.addTouchable(baby);
       if (param == "speed-variation") {
-        double g = nextGaussian() * 0.05;
-        print(g);
-        speed = max(speed + g, MIN_SPEED);
+        baby.speed = baby.speed + nextGaussian() * 0.06;
       }
       (model as BeetleModel).updateHistogram();
     }
@@ -133,7 +151,7 @@ class BeetleModel extends Model {
         Beetle beetle = new Beetle(this);
         beetle.x = minWorldX + Agent.rnd.nextDouble() * worldWidth;
         beetle.y = minWorldY + Agent.rnd.nextDouble() * worldHeight;
-        beetle.speed = max(MIN_SPEED, nextGaussian() * 0.05 + MID_SPEED);
+        beetle.speed = min(max(MIN_SPEED, nextGaussian() * 0.06 + MID_SPEED), MAX_SPEED);
         addTurtle(beetle);
         addTouchable(beetle);
       }
@@ -174,6 +192,12 @@ void main() {
   Sounds.loadSound("splat");
   Sounds.loadSound("crunch");
   Sounds.loadSound("tick");
+
+  BEETLE_IMAGES[0] = new ImageElement() .. src = "images/grey-beetle.png";
+  BEETLE_IMAGES[1] = new ImageElement() .. src = "images/blue-beetle.png";
+  BEETLE_IMAGES[2] = new ImageElement() .. src = "images/green-beetle.png";
+  BEETLE_IMAGES[3] = new ImageElement() .. src = "images/yellow-beetle.png";
+  BEETLE_IMAGES[4] = new ImageElement() .. src = "images/red-beetle.png";
 
   var modelConfig = {
     "name" : "BugHuntSpeeds",
