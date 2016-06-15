@@ -10,6 +10,7 @@
   body {
     font-family: 'Oswald', sans-serif;
     font-family: 'Nunito', sans-serif;
+    margin: 0;
   }
 
   #turtles {
@@ -26,18 +27,29 @@
     left: 0px;
   }
 
-  #green-workspace {
+  #histogram {
     position: absolute;
-    top: 0px;
-    left: 0px;
+    top: 40px;
+    right: 40px;
+    border-radius: 8px;
+    color: white;
+    background-color: black;
+  }
+
+  #contents {
+    width: 1920px;
+    height: 1080px;
+    position: relative;
   }
 
   </style>
 </head>
 <body>
-  <canvas id="turtles" width="1920" height="1080"></canvas>
-  <canvas id="blue-workspace" width="1920" height="1080"></canvas>
-  <canvas id="green-workspace" width="1920" height="1080"></canvas>
+  <div id="contents">
+    <canvas id="turtles" width="1920" height="1080"></canvas>
+    <canvas id="blue-workspace" width="1920" height="1080"></canvas>
+    <canvas id="histogram" width="250" height="180"></canvas>
+  </div>
 
   <script type="application/dart" src="dart/main.dart"></script>
   <script src="packages/browser/dart.js"></script>
