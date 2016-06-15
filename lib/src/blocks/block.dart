@@ -325,10 +325,12 @@ class Block implements Touchable {
 /**
  * If the parameter menu is open, close it
  */  
-  void closeParameterMenu() {
-    if (param != null) {
+  bool closeParameterMenu() {
+    if (param != null && param.menuOpen) {
       param.menuOpen = false;
+      return true;
     }
+    return false;
   } 
   
   
