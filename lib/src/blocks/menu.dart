@@ -97,11 +97,11 @@ class Menu {
           break;
         default: break;
       }
-    }
-    if (workspace.runtime.isRunning) {
-      playButton.shape = VCRButtonShape.Pause;
-    } else {
-      playButton.shape = VCRButtonShape.Play;
+      if (workspace.runtime.isRunning) {
+        playButton.shape = VCRButtonShape.Pause;
+      } else {
+        playButton.shape = VCRButtonShape.Play;
+      }
     }
   }
 
