@@ -132,7 +132,7 @@ class Block implements Touchable {
     //----------------------------------------------------------
     block.short = toStr(json["short"], name); // shorthand code
 
-    block.action = toStr(json["action"], null);
+    block.action = toStr(json["action"], name);
 
     block.color = toStr(json["color"], "#3399aa");
 
