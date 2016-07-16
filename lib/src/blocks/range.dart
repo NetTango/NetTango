@@ -262,10 +262,13 @@ class RangeParameter extends Parameter {
 			dragging = false;
 			down = false;
 			if (_captureThumb != null) {
-				if (_captureThumb.value != _captureThumb.lastValue) changed = true;
+
+        if (_captureThumb.value != _captureThumb.lastValue) {
+          changed = true;
+          block.workspace.programChanged();
+          menuOpen = false;
+        }
 				_captureThumb.lastValue = _captureThumb.value;
-				//menuOpen = false;
-        block.workspace.programChanged();
 			} 
       else if (_captureRandom && isOverRandom()) {
         randomChecked = !randomChecked;
