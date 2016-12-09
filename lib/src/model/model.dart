@@ -330,6 +330,9 @@ abstract class Model extends TouchLayer with Runtime {
   num get maxScreenY => height * (-minWorldY / worldHeight) - (minWorldY * patchSize);
   num get minScreenY => height * (-minWorldY / worldHeight) - (maxWorldY * patchSize);
 
+  num get randomX => (minWorldX + Model.rnd.nextDouble() * worldWidth);
+  num get randomY => (minWorldY + Model.rnd.nextDouble() * worldHeight);
+
   
   num screenToWorldX(num sx, num sy) {
     return (sx - centerX) / patchSize;
