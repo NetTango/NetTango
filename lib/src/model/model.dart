@@ -83,7 +83,8 @@ abstract class Model extends TouchLayer with Runtime {
    
   Model(Map config) {
     
-    // Turtle canvas
+    // Turtle canvas context
+    //CanvasElement canvas = querySelector("#${config['turtleCanvas']}");
     CanvasElement canvas = querySelector("#${config['canvasId']}");
     width = canvas.width;
     height = canvas.height;
@@ -95,12 +96,11 @@ abstract class Model extends TouchLayer with Runtime {
       tmanager.addTouchLayer(this);
     }
 
-
-     // Patch canvas (not implemented)
-    //canvas = querySelector("#${id}-patches");
-    //if (canvas != null) pctx = canvas.getContext("2d");
- 
-    // TODO Patches not implemented!
+    // Patch canvas context
+    if (config.containsKey('patchCanvas')) {
+      canvas = querySelector("#${config['patchCanvas']}");
+      if (canvas != null) pctx = canvas.getContext("2d");
+    }
     patches.clear(); 
 
     //-------------------------------------------------------------
