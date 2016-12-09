@@ -70,6 +70,7 @@ Moving right along... let's set up our rudimentary HTML page for the NetTango mo
 I recommend opening this up in the Google Dartium web browser that comes as an optional part of your Dart installation. Dartium is a speical version of Chrome that will run dart code directly (without you having to recompile after every change). Later I'll show you how to compile your code so that it will work on any browser, but for now you can open the file from a shell using this command:
 
 ```
+$ pub serve
 $ cd web
 $ dartium index.html &
 ```
@@ -266,7 +267,8 @@ A NetTango model needs a few configuration settings that we can set up with a JS
 <script id="model-spec" type="application/json">
   {
     "name" : "GasModel",
-    "canvasId" : "turtles",
+    "turtleCanvas" : "turtles",
+    "patchCanvas" : "patches",
     "patchSize" : 10,
     "autoSize" : true,
     "batched" : true,
