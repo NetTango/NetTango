@@ -24,7 +24,7 @@ dependencies:
   NetTango:
     git:
       url: https://github.com/NetTango/NetTango.git
-      ref: version_0.4
+      ref: version_0.5
 ```
 
 Once you have your `pubspec.yaml` file ready, this is a good chance to test your Dart installation. Try these commands from your 
@@ -58,6 +58,7 @@ Moving right along... let's set up our rudimentary HTML page for the NetTango mo
   <h1>Gas Law Model</h1>
   <p>Check out my new model of gas molecules in a box...</p>
   <div id="model-container">
+    <canvas id="patches" width="800" height="600"></canvas>
     <canvas id="turtles" width="800" height="600"></canvas>
     <canvas id="workspace" width="800" height="600"></canvas>
   </div>
@@ -300,8 +301,9 @@ void main() {
   // Create a Particle breed that's controlled by our workspace blocks
   model.createBreed(Particle, workspace);
 
-  // Call setup to get things stated
+  // Call setup and animate to get things stated
   model.setup();
+  model.animate();
 }
 ```
 Refresh your browser window. If all goes well, you should see a bunch of purple dots on the screen. These won't actually do anything until we connect the workspace to the model. That's our next step!
