@@ -21,13 +21,6 @@ abstract class Model extends TouchLayer with Runtime {
   /* Human-readable name of the model */
   String name = "model";
 
-  /*  
-   * Internal id prefix that links this model to associated HTML identifiers
-   *   Turtle Canvas:  #${id}-turtles
-   *   Patches Canvas: #${id}-patches
-   */
-  String id = "model";
-
   /* Current tick count */
   int ticks = 0;
    
@@ -73,19 +66,18 @@ abstract class Model extends TouchLayer with Runtime {
   /* center of the model in screen coordinates (used to pan the display) */
   num centerX = 0, centerY = 0;
 
-  /* dimensions of the world regarless of patch size (in world coordinates) */
-  num minWorldX = -10;
-  num minWorldY = -10;
-  num maxWorldX = 10;
-  num maxWorldY = 10;
+  /* dimensions of the world regardless of patch size (in world coordinates) */
+  num minWorldX = -10.5;
+  num minWorldY = -10.5;
+  num maxWorldX = 10.5;
+  num maxWorldY = 10.5;
 
 
    
   Model(Map config) {
     
     // Turtle canvas context
-    //CanvasElement canvas = querySelector("#${config['turtleCanvas']}");
-    CanvasElement canvas = querySelector("#${config['canvasId']}");
+    CanvasElement canvas = querySelector("#${config['turtleCanvas']}");
     width = canvas.width;
     height = canvas.height;
     centerX = width / 2;
@@ -99,28 +91,30 @@ abstract class Model extends TouchLayer with Runtime {
     // Patch canvas context
     if (config.containsKey('patchCanvas')) {
       canvas = querySelector("#${config['patchCanvas']}");
-      if (canvas != null) pctx = canvas.getContext("2d");
+      if (canvas != null) {
+        pctx = canvas.getContext("2d");
+        _initPatches();
+      }
     }
-    patches.clear(); 
 
     //-------------------------------------------------------------
     // Load model parameters from config map
     //-------------------------------------------------------------
     patchSize = toNum(config["patchSize"], 30);
-    minWorldX = toNum(config["minWorldX"], -10);
-    maxWorldX = toNum(config["maxWorldX"], 10);
-    minWorldY = toNum(config["minWorldY"], -10);
-    maxWorldY = toNum(config["maxWorldY"], 10);
+    minWorldX = toNum(config["minWorldX"], -10.5);
+    maxWorldX = toNum(config["maxWorldX"], 10.5);
+    minWorldY = toNum(config["minWorldY"], -10.5);
+    maxWorldY = toNum(config["maxWorldY"], 10.5);
     if (toBool(config["autoSize"])) {
       int patches = width ~/ patchSize;
       if (patches % 2 == 0) patches++;
-      minWorldX = patches ~/ -2;
-      maxWorldX = patches ~/ 2;
+      minWorldX = patches / -2;
+      maxWorldX = patches / 2;
 
       patches = height ~/ patchSize;
       if (patches % 2 == 0) patches++;
-      minWorldY = patches ~/ -2;
-      maxWorldY = patches ~/ 2;
+      minWorldY = patches / -2;
+      maxWorldY = patches / 2;
     }
 
     centerX = width * (-minWorldX / worldWidth);
@@ -246,14 +240,6 @@ abstract class Model extends TouchLayer with Runtime {
   void setup();
 
 
-/**
- * Set up just one breed (used when you have multiple code workspaces)
- */ 
-  void breedSetup(Breed breed) {
-    // subclasses fill in if they want to...
-  }
-
-
   bool get isRunning {
     for (Breed breed in _breeds.values) {
       if (breed.isRunning) return true;
@@ -279,11 +265,6 @@ abstract class Model extends TouchLayer with Runtime {
     draw();
   }
 
-
-  void programChanged() {
-
-  }
-  
   
 /**
  * Advance the model by one tick
@@ -375,21 +356,18 @@ abstract class Model extends TouchLayer with Runtime {
   void drawBackground(CanvasRenderingContext2D ctx) {  }
 
   
-  Patch patchAt(num tx, num ty) {
-    /*
-    int i = tx.round().toInt() - minPatchX;
-    int j = ty.round().toInt() - minPatchY;
+  Patch patchAt(num worldX, num worldY) {
+    int i = (worldX - 0.5 + minWorldX).round().toInt();
+    int j = (worldY - 0.5 + minWorldY).round().toInt();
     int index = j * worldWidth + i;
     if (index < patches.length) {
       return patches[index];
     } else {
       return null;
     }
-    */
-    return null;  // FIX ME
   }
-  
-  
+
+
   void _drawTurtles(CanvasRenderingContext2D ctx) {
     ctx.save();
     {
@@ -413,5 +391,18 @@ abstract class Model extends TouchLayer with Runtime {
     }
     ctx.restore();
   }  
+
+
+  void _initPatches() {
+    int index = 0;
+    for (int j = 0; j<worldHeight; j++) {
+      for (int i = 0; i<worldWidth; i++) {
+        int patchX = (i + minWorldX + 0.5).toInt();
+        int patchY = (j + minWorldY + 0.5).toInt();
+
+        patches[index++] = new Patch(this, patchX, patchY);
+      }
+    }
+  }
 }
 
