@@ -293,7 +293,7 @@ abstract class Model extends TouchLayer with Runtime {
  * Subclasses can override this if they want a notification on program changed
  */
   void programChanged() {
-    
+
   }  
 
 
@@ -407,7 +407,7 @@ abstract class Model extends TouchLayer with Runtime {
         int patchX = (i + minWorldX + 0.5).toInt();
         int patchY = (j + minWorldY + 0.5).toInt();
 
-        patches[index++] = new Patch(this, patchX, patchY);
+        patches.add(new Patch(this, patchX, patchY));
       }
     }
   }
