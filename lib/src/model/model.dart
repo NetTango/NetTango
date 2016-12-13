@@ -289,6 +289,13 @@ abstract class Model extends TouchLayer with Runtime {
     drawForeground(tctx);
   }
 
+/**
+ * Subclasses can override this if they want a notification on program changed
+ */
+  void programChanged() {
+    
+  }  
+
 
 /**
  * Parses the XML spec to build a default program
