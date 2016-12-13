@@ -25,7 +25,7 @@ class Patch extends Agent implements Touchable {
    
    
   Patch(Model model, this.x, this.y) : super(model) {
-    color = new Color(0, 100, 0, 0);
+    color = new Color(0, 100, 0, 100);
     dirty = true;
   }
   
