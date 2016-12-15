@@ -72,6 +72,20 @@ abstract class Model extends TouchLayer with Runtime {
   num maxWorldX = 10.5;
   num maxWorldY = 10.5;
 
+  num get worldWidth => maxWorldX - minWorldX; //maxPatchX - minPatchX + 1;
+  num get worldHeight => maxWorldY - minWorldY; //maxPatchY - minPatchY + 1;
+
+  num get minScreenX => (minWorldX * patchSize) + width * (-minWorldX / worldWidth);
+  num get maxScreenX => (maxWorldX * patchSize) + width * (-minWorldX / worldWidth);
+  num get maxScreenY => height * (-minWorldY / worldHeight) - (minWorldY * patchSize);
+  num get minScreenY => height * (-minWorldY / worldHeight) - (maxWorldY * patchSize);
+
+  int get minPatchX => (minWorldX + 0.5).toInt();
+  int get maxPatchX => (maxWorldX - 0.5).toInt();
+  int get minPatchY => (minWorldY + 0.5).toInt();
+  int get maxPatchY => (maxWorldY - 0.5).toInt();
+
+
 
    
   Model(Map config) {
@@ -88,14 +102,6 @@ abstract class Model extends TouchLayer with Runtime {
       tmanager.addTouchLayer(this);
     }
 
-    // Patch canvas context
-    if (config.containsKey('patchCanvas')) {
-      canvas = querySelector("#${config['patchCanvas']}");
-      if (canvas != null) {
-        pctx = canvas.getContext("2d");
-        _initPatches();
-      }
-    }
 
     //-------------------------------------------------------------
     // Load model parameters from config map
@@ -121,6 +127,17 @@ abstract class Model extends TouchLayer with Runtime {
     centerY = height * (-minWorldY / worldHeight);
     wrap = toBool(config["wrap"]);
     batched = toBool(config["batched"]);
+
+
+    // Patch canvas context
+    if (config.containsKey('patchCanvas')) {
+      canvas = querySelector("#${config['patchCanvas']}");
+      if (canvas != null) {
+        pctx = canvas.getContext("2d");
+        _initPatches();
+      }
+    }
+
 
     //-------------------------------------------------------------------
     // load settings from the HTML file. Currently only range and 
@@ -310,14 +327,6 @@ abstract class Model extends TouchLayer with Runtime {
   }
 */
 
-  num get worldWidth => maxWorldX - minWorldX; //maxPatchX - minPatchX + 1;
-  num get worldHeight => maxWorldY - minWorldY; //maxPatchY - minPatchY + 1;
-
-  num get minScreenX => (minWorldX * patchSize) + width * (-minWorldX / worldWidth);
-  num get maxScreenX => (maxWorldX * patchSize) + width * (-minWorldX / worldWidth);
-  num get maxScreenY => height * (-minWorldY / worldHeight) - (minWorldY * patchSize);
-  num get minScreenY => height * (-minWorldY / worldHeight) - (maxWorldY * patchSize);
-
   num get randomX => (minWorldX + Model.rnd.nextDouble() * worldWidth);
   num get randomY => (minWorldY + Model.rnd.nextDouble() * worldHeight);
 
@@ -364,9 +373,9 @@ abstract class Model extends TouchLayer with Runtime {
 
   
   Patch patchAt(num worldX, num worldY) {
-    int i = (worldX - 0.5 + minWorldX).round().toInt();
-    int j = (worldY - 0.5 + minWorldY).round().toInt();
-    int index = j * worldWidth + i;
+    int i = (worldX - minPatchX).round().toInt();
+    int j = (worldY - minPatchY).round().toInt();
+    int index = (j * worldWidth + i).toInt();
     if (index < patches.length) {
       return patches[index];
     } else {
