@@ -22,6 +22,8 @@ class Patch extends Agent implements Touchable {
   int x, y;
   
   bool dirty = false;
+
+  /** TODO: If the model changes a patch's color, it needs to set the dirty flag */
    
    
   Patch(Model model, this.x, this.y) : super(model) {
