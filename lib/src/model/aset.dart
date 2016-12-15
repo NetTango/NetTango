@@ -51,6 +51,14 @@ class AgentSet<T> {
   T get first => (isEmpty ? null : _agents.first);
 
   T operator[](int i) => _agents[i];
+  
+
+/**
+ * Just an alias for the forEach function
+ */
+  void ask(void f(T agent)) { 
+    return _agents.forEach(f);
+  }
 
   
 /**
