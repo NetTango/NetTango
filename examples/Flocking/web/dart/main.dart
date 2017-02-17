@@ -226,7 +226,7 @@ void main() {
 
   var modelConfig = {
     "name" : "Flocking",
-    "canvasId" : "turtles",
+    "turtleCanvas" : "turtles",
     "patchSize" : 30,
     "minWorldX" : -10,
     "maxWorldX" : 10,
