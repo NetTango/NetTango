@@ -30,8 +30,8 @@ class CodeWorkspace extends TouchLayer {
   /* block menu */
   Menu menu;
   
-  /* fixed start block */
-  StartBlock start;
+  /* fixed start blocks */
+  List<StartBlock> starts = new List<StartBlock>();
 
   /* Runtime object that this workspace controls (e.g. Models, Breeds, etc) */
   Runtime runtime;
@@ -114,14 +114,15 @@ class CodeWorkspace extends TouchLayer {
     //--------------------------------------------------------
     // start block
     //--------------------------------------------------------
-    start = new StartBlock(this, "start $id");
-    _addBlock(start);
-    
+    StartBlock sb = new StartBlock(this, "start $id");
+    _addBlock(sb);
+    starts.add(sb);
+
 
     //--------------------------------------------------------
-    // trace bug
+    // trace bug  
     //--------------------------------------------------------
-    bug = new TraceBug(start);
+    bug = new TraceBug(start);   // FIXME multi-start
 
 
     //--------------------------------------------------------
@@ -149,6 +150,12 @@ class CodeWorkspace extends TouchLayer {
     draw();
     tick();
   }
+
+
+/**
+ * returns the first start block in the list
+ */
+  StartBlock get start => starts[0];
 
   
 /**
@@ -211,8 +218,9 @@ class CodeWorkspace extends TouchLayer {
   
   
 /**
- * Erase a program
+ * Erase a program  (DOESN'T WORK IN MULTI-BLOCK ENVIRONMENT)
  */
+/* 
   void removeAllBlocks() {
     Block block = start.next;
     while (block != null && block != start.end) {
@@ -225,7 +233,7 @@ class CodeWorkspace extends TouchLayer {
     start.next = start.end;
     start.end.prev = start;
   }
-
+*/
 
 /**
  * Add a block to the workspace
@@ -272,9 +280,9 @@ class CodeWorkspace extends TouchLayer {
 /**
  * Is the program empty? Only a start block...
  */
-  bool get isEmpty {
-    return blocks.length <= 2;  // start and end blocks together
-  }
+//  bool get isEmpty {
+//    return blocks.length <= 2;  // start and end blocks together
+//  }
   
   
 /**
@@ -311,7 +319,7 @@ class CodeWorkspace extends TouchLayer {
   
   
 /**
- * Add a new block to the end of an existing program
+ * Add a new block to the end of an existing program (defaults to first start)
  */
   void snapToEnd(Block target) {
     start.end.prev.insertBlock(target);
@@ -323,16 +331,20 @@ class CodeWorkspace extends TouchLayer {
  * will be inserted into a program
  */
   Block _findInsertionPoint(Block target) {
-    Block block = start;
     Block result = null;
-    while (block != null) {
-      if (block.overlaps(target) && target.checkSyntax(block)) {
-        result = block;
+
+    for (StartBlock sb in starts) {
+      Block block = sb;
+      while (block != null) {
+        if (block.overlaps(target) && target.checkSyntax(block)) {
+          result = block;
+        }
+        block = block.next;
       }
-      block = block.next;
     }
     if (result == null && !target.inserted) {
-      return start.end.prev;
+      //return start.end.prev;
+      return null;
     } else if (target.y > start.end.y) {
       return null;
     } else {
@@ -394,9 +406,10 @@ class CodeWorkspace extends TouchLayer {
   }
 
   
-  String toString() {
+  String toString([StartBlock sb]) {
+    if (sb == null) sb = start;
     String s = "[ START, ";
-    Block b = start.next;
+    Block b = sb.next;
     while (b != null && !(b is EndProgramBlock)) {
       s += "${b.toString()}, ";
       b = b.next;
@@ -408,6 +421,7 @@ class CodeWorkspace extends TouchLayer {
 /**
  * Parses a program description stored as a URL-encoded string and builds the 
  * block program.
+ * FIXME - defaults to single start block
  */
   void fromURLString(String program) {
     program = Uri.decodeFull(program);
@@ -443,9 +457,10 @@ class CodeWorkspace extends TouchLayer {
 /**
  * Converts the program to a URL-encoded string
  */
-  String toURLString() {
+  String toURLString([StartBlock sb]) {
+    if (sb == null) sb = start;
     String s = "";
-    Block b = start.next;
+    Block b = sb.next;
     while (b != null && b is! EndProgramBlock) {
       s += b.toURLString();
       b = b.next;
