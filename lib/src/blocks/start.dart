@@ -20,10 +20,11 @@ part of NetTango;
  * Start block
  */
 class StartBlock extends BeginBlock {
-  
+
+
   StartBlock(CodeWorkspace workspace, [String name = 'start']) : super(workspace, name) {
-    x = getStartX();
-    y = getStartY();
+    x = 40.0;
+    y = workspace.height - 160.0;
     color = 'green';
     action = 'start';
     end = new EndProgramBlock(workspace, this);
@@ -33,26 +34,15 @@ class StartBlock extends BeginBlock {
     inserted = true;
     _width = (BLOCK_WIDTH + BLOCK_MARGIN).toDouble();
   }
-  
+
   
   double getProgramHeight() {
     return (end.y + end.height) - y;
   }
   
   
-  double getStartX() {
-    return 20.0;
-  }
-  
-  
-  double getStartY() {
-    return workspace.height - 160.0;
-  }
-  
-  
   bool get isInProgram => true;
 
-  
   bool touchDown(Contact c) {
     dragging = false;
     _lastX = c.touchX;
