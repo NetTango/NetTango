@@ -112,11 +112,15 @@ class CodeWorkspace extends TouchLayer {
 
 
     //--------------------------------------------------------
-    // start block
+    // start blocks
     //--------------------------------------------------------
-    StartBlock sb = new StartBlock(this, "start $id");
-    _addBlock(sb);
-    starts.add(sb);
+    if (json.containsKey("startBlocks") && json["startBlocks"] is List) {
+      for (var spec in json["startBlocks"]) {
+        addStartBlock(spec["name"], spec["color"], spec["position"]);
+      }
+    } else {
+      addStartBlock("start $id", "green", 40);
+    }
 
 
     //--------------------------------------------------------
@@ -158,6 +162,41 @@ class CodeWorkspace extends TouchLayer {
   StartBlock get start => starts[0];
 
   
+/**
+ * Adds a start block to the workspace
+ */
+  void addStartBlock(String name, String color, num position) {
+    StartBlock sb = new StartBlock(this, name) 
+      .. color = color
+      .. x = position;
+    _addBlock(sb);
+    starts.add(sb);
+  }
+
+
+/** 
+ * Gets a start block instance based on its name
+ */
+  StartBlock getStartBlock(String name) {
+    for (StartBlock sb in starts) {
+      if (sb.text == name) return sb;
+    }
+    return null;
+  }
+
+
+/**
+ * Removes a start block
+ */
+  void removeStartBlock(String name) {
+    StartBlock sb = getStartBlock(name);
+    if (sb != null) {
+      starts.remove(sb);
+      _removeBlock(sb);
+    }
+  } 
+
+
 /**
  * Adds a stack of blocks of the given type to the menu bar.
  */
