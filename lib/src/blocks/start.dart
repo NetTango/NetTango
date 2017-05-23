@@ -81,7 +81,7 @@ class EndProgramBlock extends EndBlock {
 
   
   Block step(Program program) {
-    return begin;
+    return program.autoLoop ? begin : null;
   }  
 
   
