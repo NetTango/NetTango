@@ -37,6 +37,9 @@ class Program {
 
   /* Execute blocks one at a time or as a whole program */
   bool batched = true;
+
+  /* automatically loop without a repeat block */
+  bool autoLoop = false;
   
   /* Target agent of this program */
   ProgramTarget target = null;
@@ -97,7 +100,7 @@ class Program {
       if (curr != null) {
         curr.eval(this);
       } else {
-        curr = start;
+        curr = autoLoop ? start : null;
       }
     }
   }
