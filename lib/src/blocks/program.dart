@@ -101,6 +101,7 @@ class Program {
         curr.eval(this);
       } else {
         curr = autoLoop ? start : null;
+        if (curr == null) running = false;
       }
     }
   }
