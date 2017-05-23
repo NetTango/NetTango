@@ -24,7 +24,7 @@ class ChanceBlock extends BeginBlock {
     color = "#3399aa";
     end = new EndBlock(workspace, this);
     _addClause(end);
-    param = new Parameter.fromJSON(this,
+    params.add(new Parameter.fromJSON(this,
      {
         "type" : "range",
         "min" : 0,
@@ -32,12 +32,13 @@ class ChanceBlock extends BeginBlock {
         "step" : 1,
         "default" : 4,
         "unit" : "%"
-      });
+      }));
   }
   
   
   Block clone() {
     ChanceBlock block = new ChanceBlock(workspace, text);
+    block.params.clear();
     copyTo(block);
     return block;
   }
@@ -46,12 +47,12 @@ class ChanceBlock extends BeginBlock {
   String compile(int indent) {
     String tab = "";
     for (int i=0; i<indent; i++) tab += "  ";
-    return "${tab}chance (${param.value}) {\n";
+    return "${tab}chance (${params[0].value}) {\n";
   }
 
 
   String toURLString() {
-    return "${text}(${param.value});";
+    return "${text}(${params[0].value});";
   }
   
   
@@ -59,7 +60,7 @@ class ChanceBlock extends BeginBlock {
   
   
   Block step(Program program) {
-    bool c = (_rand.nextDouble() * 100.0) <= param.value;
+    bool c = (_rand.nextDouble() * 100.0) <= params[0].value;
     return c ? next : end.next;
   }
 }

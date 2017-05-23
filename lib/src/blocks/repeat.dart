@@ -34,19 +34,19 @@ class RepeatBlock extends BeginBlock {
   String compile(int indent) {
     String tab = "";
     for (int i=0; i<indent; i++) tab += "  ";
-    return "${tab}repeat (${param.value}) {\n";
+    return "${tab}repeat (${params[0].value}) {\n";
   }
 
 
   String toURLString() {
-    return "${text}(${param.value});";
+    return "${text}(${params[0].value});";
   }
   
   
   dynamic eval(Program program) {
     String key = "repeat-$id";
     if (!program.hasVariable(key)) {
-      String pval = (param == null) ? null : param.value.toString();
+      String pval = (params.isEmpty) ? null : params[0].value.toString();
       int count = -1;
       if (pval != null) {
         count = int.parse(pval, onError: (e) => -1);

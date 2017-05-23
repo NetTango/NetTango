@@ -34,12 +34,12 @@ class IfBlock extends BeginBlock {
   String compile(int indent) {
     String tab = "";
     for (int i=0; i<indent; i++) tab += "  ";
-    return "${tab}if (${param.value}) {\n";
+    return "${tab}if (${params[0].value}) {\n";
   }
 
 
   String toURLString() {
-    return "${text}(${param.value});";
+    return "${text}(${params[0].value});";
   }
   
   
@@ -77,12 +77,12 @@ class IfElseBlock extends BeginBlock {
   String compile(int indent) {
     String tab = "";
     for (int i=0; i<indent; i++) tab += "  ";
-    return "${tab}if (${param.value}) {\n";
+    return "${tab}if (${params[0].value}) {\n";
   }
 
 
   String toURLString() {
-    return "${text}(${param.value})[;";
+    return "${text}(${params[0].value})[;";
   }
   
   

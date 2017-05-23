@@ -223,7 +223,7 @@ class BeginBlock extends ControlBlock {
     _drawMenuArrow(ctx);
     _drawOutline(ctx);
     _drawLabel(ctx, x + 12, centerY);
-    _drawParam(ctx);
+    _drawParams(ctx);
     ctx.globalAlpha = 1.0;
     ControlBlock cn = cnext;
     if (!inMenu && inserted) {

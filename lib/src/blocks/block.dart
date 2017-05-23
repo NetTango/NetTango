@@ -74,8 +74,8 @@ class Block implements Touchable {
   /* Previous block in the chain */
   Block prev;
   
-  /* Parameter for this block? */
-  Parameter param = null;
+  /* Parameters for this block? */
+  List<Parameter> params = new List<Parameter>();
   
   /* Used for dragging the block on the screen */
   double _lastX, _lastY;
@@ -143,7 +143,7 @@ class Block implements Touchable {
     //----------------------------------------------------------
     if (json.containsKey("params")) {
       for (var p in json["params"]) {
-        block.param = new Parameter.fromJSON(block, p);
+        block.params.add(new Parameter.fromJSON(block, p));
       }
     }
     return block;
@@ -168,13 +168,13 @@ class Block implements Touchable {
     other.textColor = textColor;
     other.outlineColor = outlineColor;
     other.action = action;
-    if (hasParam) {
-      other.param = param.clone(other);
+    for (Parameter param in params) {
+      other.params.add(param.clone(other));
     }
   }
   
   
-  bool get hasParam => param != null;
+  bool get hasParams => params.isNotEmpty;
   
   bool get hasNext => next != null;
   
@@ -244,9 +244,12 @@ class Block implements Touchable {
  * When the program is running, this evaluates this block 
  */
   dynamic eval(Program program) {
-    var pval = (param == null) ? null : param.value;
+    var pvals = [];
+    for (Parameter param in params) {
+      pvals.add(param.value);
+    }
     if (program.target != null && action != null) {
-      return program.target.doAction(action, [ pval ]);
+      return program.target.doAction(action, pvals);
     } else {
       return null;
     }
@@ -267,19 +270,19 @@ class Block implements Touchable {
   String compile(int indent) {
     String tab = "";
     for (int i=0; i<indent; i++) tab += "  ";
-    if (param == null) {
+    if (params.isEmpty) {
       return "${tab}${text}();\n";
     } else {
-      return "${tab}${text.replaceAll(' ', '-')}(${param.value});\n";
+      return "${tab}${text.replaceAll(' ', '-')}(${params[0].value});\n";
     }
   }
   
   
   String toString() {
-    if (param == null) {
+    if (params.isEmpty) {
       return "${text}";
     } else {
-      return "${text}(${param.value})";
+      return "${text}(${params[0].value})";
     }
   }
 
@@ -288,10 +291,10 @@ class Block implements Touchable {
  * Converts the program to a URL-encoded string
  */
   String toURLString() {
-    if (param == null) {
+    if (params.isEmpty) {
       return "${text}();";
     } else {
-      return "${text}(${param.value});";
+      return "${text}(${params[0].value});";
     }
   }
   
@@ -330,11 +333,14 @@ class Block implements Touchable {
  * If the parameter menu is open, close it
  */  
   bool closeParameterMenu() {
-    if (param != null && param.menuOpen) {
-      param.menuOpen = false;
-      return true;
+    bool open = false;
+    for (Parameter param in params) {
+      if (param.menuOpen) {
+        param.menuOpen = false;
+        open = true;
+      }
     }
-    return false;
+    return open;
   } 
   
   
@@ -359,7 +365,7 @@ class Block implements Touchable {
     _resize(ctx);
     _drawOutline(ctx);
     _drawLabel(ctx, x + 12, centerY);
-    _drawParam(ctx);
+    _drawParams(ctx);
     ctx.globalAlpha = 1.0;
   }
   
@@ -380,10 +386,12 @@ class Block implements Touchable {
   void _resize(CanvasRenderingContext2D ctx) {
     num w = getTextWidth(ctx);
     _minwidth = max(w + 3, BLOCK_WIDTH / 2.25); // for displaying in the menu
-    if (param != null && inserted) {
-      //num cw = param.getDisplayWidth(ctx) + param.centerX - 14;
-      param.left = w + 10;
-      w += param.getDisplayWidth(ctx) + 15;
+    if (hasParams && inserted) {
+      for (Parameter param in params) {
+        //num cw = param.getDisplayWidth(ctx) + param.centerX - 14;
+        param.left = w + 10;
+        w += param.getDisplayWidth(ctx) + 15;
+      }
     }
     _width = max(w, BLOCK_WIDTH);
   }
@@ -431,9 +439,11 @@ class Block implements Touchable {
   }
   
   
-  void _drawParam(CanvasRenderingContext2D ctx) {
-    if (param != null && inserted) {
-      param.draw(ctx);
+  void _drawParams(CanvasRenderingContext2D ctx) {
+    if (inserted) {
+      for (Parameter param in params) {
+        param.draw(ctx);
+      }
     }
   }
 

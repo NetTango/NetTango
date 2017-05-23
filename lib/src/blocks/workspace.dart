@@ -280,7 +280,9 @@ class CodeWorkspace extends TouchLayer {
   void _addBlock(Block block) {
     blocks.add(block);
     addTouchable(block);
-    if (block.hasParam) addTouchable(block.param);
+    for (Paramter param in block.params) {
+      addTouchable(param);
+    }
   }
   
   
@@ -290,7 +292,9 @@ class CodeWorkspace extends TouchLayer {
   void _removeBlock(Block block) {
     blocks.remove(block);
     removeTouchable(block);
-    if (block.hasParam) removeTouchable(block.param);
+    for (Parameter param in block.params) {
+      removeTouchable(param);
+    }
     draw();
   }
   
