@@ -35,6 +35,7 @@ class ControlBlock extends Block {
   ControlBlock(CodeWorkspace workspace, BeginBlock begin, String text) : super(workspace, text) {
     color = '#c92';  // yellow-orange color
     this.begin = begin;
+    this.action = "[$text]";
   }
 
   
@@ -359,6 +360,7 @@ class EndBlock extends ControlBlock {
   
   EndBlock(CodeWorkspace workspace, BeginBlock begin) : super(workspace, begin, '') {
     _height = BLOCK_MARGIN * 1.8;
+    action = "[end ${begin.text}]";
   }
   
   
