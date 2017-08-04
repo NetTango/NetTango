@@ -3,9 +3,4 @@ dependencies:
       
 transformers:
 - $dart2js:
-    checked: true
-    minify: true
-    verbose: true
-    suppressWarnings: false
-    suppressHints: false
-    terse: false
+    commandLineOptions: [--show-package-warnings]
