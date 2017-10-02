@@ -1,6 +1,6 @@
 /*
  * NetTango
- * Copyright (c) 2015 Michael S. Horn, Uri Wilensky, and Corey Brady
+ * Copyright (c) 2017 Michael S. Horn, Uri Wilensky, and Corey Brady
  * 
  * Northwestern University
  * 2120 Campus Drive
@@ -16,302 +16,291 @@
 part of NetTango;
 
 
-  
+/// Represents a block's parameter value  
 class Parameter implements Touchable {
-  
-  double left, centerY, width, height;
-  
-  double lastX = 0.0, lastY = 0.0;
-  
-  // location of callout menu
-  num menuX = 0, menuY = 0, menuW = 0, menuH = 0;
 
-  int downIndex = 0;
-  
-  var values = [ 0, 10, 20, 30, 40, 50, 60, 70, 80, 90, '?' ];
-  
-  int _index = 0;
-  
-  String color = 'white'; //'#777';
-  
-  String textColor = 'blue'; //'white';
-  
-  bool dragging = false;  // is a finger / mouse dragging on the screen?
+  /// Used to generate unique, internal parameter id numbers
+  static int _PARAM_ID = 0;
 
-  bool down = false;  // is a finger / mouse down on the screen?
+  /// unique internal parameter id
+  int id;
 
-  bool menuOpen = false;  // is the parameter menu open
-  
-  bool changed = false;
-  
+  /// parent block
   Block block;
-  
 
-  Parameter(this.block) {
-    left = block.width - 20;  // this will get reset on draw
-    centerY = block.height / 2;
-    width = 28.0;
-    height = 20.0;
-    textColor = block.color;
+  /// current parameter value
+  var _value;
+
+  /// default / initial value (can be null)
+  var defaultValue;
+
+  /// parameter type: can be "number", "int", "range", "text", or "selection"
+  String type = "int";
+
+  /// name of the parameter (e.g. degrees, length)
+  String name = "";
+
+  /// short unit name that will be displayed after the value (e.g. %, px, m, mm, s) 
+  String unit = "";
+
+  /// position of the parameter
+  num _left = 0; 
+  num width = 28.0; 
+  num height = BLOCK_HEIGHT * 0.6;
+
+  /// is the mouse down on the parameter in the block
+  bool _down = false;
+
+
+  /// subclasses override this property definition
+  dynamic get value => toStr(_value, "");
+
+  set value(var v) => _value = toStr(v, "");
+
+  String get valueAsString => "${_value.toString()}$unit";
+
+
+  Parameter(this.block, Map data) {
+    id = Parameter._PARAM_ID++;
+    type = toStr(data["type"], "number");
+    name = toStr(data["name"], "");
+    unit = toStr(data["unit"], "");
+    defaultValue = data["default"];
+    value = defaultValue;
   }
 
 
-  factory Parameter.fromJSON(Block block, Map data) {
-    if (data.containsKey("type") && data["type"] == "range") {
-      return new RangeParameter.fromJSON(block, data);
-    } 
-    else {
-      Parameter p = new Parameter(block);
-      if (data.containsKey("values")) {
-        p.values = [];
-        for (var v in data["values"]) {
-          p.values.add(v);
-        }
-      }
-      return p;
-    }
-  }
-  
-  
   Parameter clone(Block parent) {
-    Parameter p = new Parameter(parent);
-    copyTo(p);
-    return p;
+    return new Parameter.fromJSON(parent, toJSON());
   }
 
 
-  void copyTo(Parameter other) {
-    other.left = left;
-    other.centerY = centerY;
-    other.width = width;
-    other.height = height;
-    other.values = values;
-    other.index = index;
-    other.color = color;
-    other.textColor = textColor;
+  Map toJSON() {
+    return {
+      "type" : type,
+      "name" : name,
+      "unit" : unit,
+      "default" : defaultValue
+    };
   }
-  
-  
-  int get index => _index;
-  
-  
-  void set index(int i) { _index = (max(i, 0) % values.length); }
-  
-  
-  String compile() {
-    return valueAsString;
-  }
-  
-  
-  dynamic operator[](int i) {
-    return values[i % values.length];
-  }
-  
-  
-  void operator[]=(int i, var value) {
-    if (i >= 0 && i < values.length) {
-      values[i] = value;
+
+
+  factory Parameter.fromJSON(Block parent, Map data) {
+    switch(toStr(data["type"], "number")) {
+      case "int": return new IntParameter(parent, data);
+      
+      case "num": 
+      case "number": return new NumParameter(parent, data);
+
+      case "range": return new RangeParameter(parent, data);
+
+      case "selection": return new SelectParameter(parent, data);
+
+      case "text": 
+      default: return new Parameter(parent, data);
     }
   }
 
-  
-  String get valueAsString {
-    return value.toString();
-  }
-  
-  
-  dynamic get value {
-    if (index >= 0 && index < values.length) {
-      return values[index];
-    } else {
-      return null;
-    }
-  }
-  
-  
-  num getDisplayWidth(CanvasRenderingContext2D ctx) {
-    num w = 20;
+
+  void _resize(CanvasRenderingContext2D ctx) {
+    width = BLOCK_PADDING * 2;
     ctx.save();
     {
-      ctx.font = '400 10pt Nunito, sans-serif';
-      w += ctx.measureText(valueAsString).width;      
+      ctx.font = block.font;
+      width += ctx.measureText(valueAsString).width;      
     }
-    ctx.restore();
-    return w;
   }
   
   
-  void draw(CanvasRenderingContext2D ctx) {
-    
-    ctx.font = '400 10pt Nunito, sans-serif';
+  void draw(CanvasRenderingContext2D ctx, num left) {
+    this._left = left;
+
+    ctx.font = block.font;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    width = ctx.measureText(valueAsString).width + 14;
 
-    double x = block.x + left; 
-    double y = centerY + block.y;
-    double w = width;
-    double h = height;
+    num x = block.x + _left;
+    num y = block.y + block.height / 2;
+    num w = width;
+    num h = height;
     
     ctx.beginPath();
     roundRect(ctx, x, y - h/2, w, h, h/2);
-    ctx.fillStyle = color;
-    ctx.strokeStyle = textColor;
-    ctx.lineWidth = 1;
+    ctx.fillStyle = _down ? block.blockColor : block.borderColor;
     ctx.fill();
-    ctx.stroke();
-    ctx.fillStyle = textColor;
+    ctx.fillStyle = _down ? block.borderColor : block.blockColor;
     ctx.fillText(valueAsString, x + w/2, y);
-    
-    if (down || menuOpen) {
-      drawMenu(ctx);
-    }
   }
   
-  
-  void drawMenu(CanvasRenderingContext2D ctx) {
-    ctx.font = '400 15px Nunito, sans-serif';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'top';
-    
-    num margin = 20;
-    menuW = 120; //margin * 2;
-    menuH = values.length * 30 + margin;
-    menuY = max(block.y + block.height + 30 - menuH, 0);
-    for (int i=0; i<values.length; i++) {
-      menuW = max(menuW, ctx.measureText(values[i].toString()).width + margin * 2);
-    }
-    
-    ctx.fillStyle = '#3399aa';
-    ctx.strokeStyle = 'white';
-    calloutRect(ctx, menuX, menuY, menuW, menuH, 10, block.y + centerY);
-    ctx.fill();
-    ctx.stroke();
-    
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-    ctx.strokeStyle = 'rgba(0, 30, 50, 0.4)';
-    num mx = menuX + 5;
-    num my = menuY + 5;
-    num mw = menuW - 10;
-    num mh = menuH - 10;
-    roundRect(ctx, mx, my, mw, mh, 8);
-    ctx.fill();
-    ctx.stroke();
-    
-    ctx.fillStyle = '#3399aa';
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
-    
-    bool matched = false;
-    
-    for (int i=0; i<values.length; i++) {
-      num ty = my + 5 + 30 * i;
-      if (i == downIndex) {
-        ctx.fillStyle = 'rgba(51, 150, 170, 0.7)';
-        ctx.fillRect(mx, ty, mw, 30);
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-      } else {
-        ctx.fillStyle = '#3399aa';
-      }
-      
-      if (lastX >= mx && lastX <= mx + mw &&
-          lastY >= ty && lastY < ty + 30) {
-        ctx.fillStyle = 'rgba(170, 20, 0, 0.8)';
-        ctx.fillRect(mx, ty, mw, 30);
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-        index = i;
-        block.workspace.programChanged();
-        matched = true;
-      } 
-      ctx.fillText(values[i].toString(), mx + 15, ty + 6);
-    }
-    if (!matched) index = downIndex;
-  }
-  
-  
-  void calloutRect(CanvasRenderingContext2D ctx, num x, num y, num w, num h, num r, num cy) {
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    
-    ctx.lineTo(x, cy + 12);
-    ctx.lineTo(x - 25, cy);
-    ctx.lineTo(x, max(cy - 12, y + r));
-    
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
-  }
-
   
   bool containsTouch(Contact c) {
-    if (menuOpen) {
-      return isOverMenu(c);
-    }
-    else {
-      return (block.isInProgram && 
-        c.touchX >= block.x + left &&
-        c.touchY >= block.y &&
-        c.touchX <= block.x + block.width &&
-        c.touchY <= block.y + block.height);
-    }
-  }
-
-
-  bool isOverMenu(Contact c) {
     return (
-      menuOpen && 
-      block.isInProgram &&
-      c.touchX >= menuX && 
-      c.touchY >= menuY && 
-      c.touchX <= menuX + menuW && 
-      c.touchY <= menuY + menuH);   
+      c.touchX >= block.x + _left &&
+      c.touchY >= block.y &&
+      c.touchX <= block.x + _left + width &&
+      c.touchY <= block.y + block.height);
   }
-  
-  
-  void touchUp(Contact c) {
-    if (dragging || isOverMenu(c)) {
-      if (index != downIndex) changed = true;
-      block.workspace.programChanged();
-      downIndex = index;
-      menuOpen = false;
-    }
-    dragging = false;
-    down = false;
-    block.workspace.draw();
-  }
-  
-  
-  bool touchDown(Contact c) {
-    lastX = c.touchX;
-    lastY = c.touchY;
-    down = true;
-    dragging = false;
 
-    if (!menuOpen) {
-      // fix location of the callout menu
-      menuX = block.x + block.width + 30; 
-      downIndex = index;
-      block.workspace.closeAllParameterMenus();
-      menuOpen = true;
-      block.workspace._moveToTop(block);
-    }
-    block.workspace.draw();
-    return true;
-  }
-  
-  
-  void touchDrag(Contact c) {
-    dragging = true;
-    lastX = c.touchX;
-    lastY = c.touchY;
+
+  void touchUp(Contact c) {
+    _down = false;
+    _showParameterDialog();
     block.workspace.draw();
   }
   
+  Touchable touchDown(Contact c) {
+    _down = true;
+    block.workspace.draw();
+    return this;
+  }
+  
+  void touchDrag(Contact c) { }
   
   void touchSlide(Contact c) { }
+
+
+  void _showParameterDialog() {
+    DivElement backdrop = new DivElement() .. className = "backdrop";
+    String inputCode = _buildHTMLInput();
+    backdrop.appendHtml("""
+      <div class="nt-param-dialog">
+        <div class="nt-param-table">
+          <div class="nt-param-row">
+            <div class="nt-param-name">${name}</div>
+            <div class="nt-param-value">${inputCode}</div>
+          </div>
+        </div>
+        <button class="nt-param-confirm">OK</button>
+        <button class="nt-param-cancel">Cancel</button>
+      </div>""");
+    querySelector("#wrapper").append(backdrop);
+
+    HtmlElement label = querySelector("#nt-param-label-$id");
+    HtmlElement input = querySelector("#nt-param-$id");
+
+    querySelectorAll(".nt-param-confirm").onClick.listen((e) { 
+      if (input != null) {
+        value = input.value;
+        print("${input.value}");
+      }
+      backdrop.remove();
+      block.workspace.draw();
+    });
+
+    querySelectorAll(".nt-param-cancel").onClick.listen((e) => backdrop.remove());
+
+    backdrop.classes.add("show");
+
+    if (input != null) {
+      input.focus();
+      if (label != null) {
+        input.onChange.listen((e) { label.innerHtml = input.value; });
+        input.onInput.listen((e) { label.innerHtml = input.value; });
+      }
+    }
+  }
+
+
+  String _buildHTMLInput() {
+    return """
+      <input class="nt-param-input" id="nt-param-${id}" type="text" value="${valueAsString}">
+      <span class="nt-param-unit">${unit}</span>
+    """;
+  }
+}
+
+//-------------------------------------------------------------------------
+/// Represents an integer parameter
+//-------------------------------------------------------------------------
+class IntParameter extends Parameter {
+
+  IntParameter(Block block, Map data) : super(block, data);
+
+  dynamic get value => toInt(_value, 0);
+  set value(var v) => _value = toInt(v, 0);
+}
+
+
+//-------------------------------------------------------------------------
+/// Represents a number parameter
+//-------------------------------------------------------------------------
+class NumParameter extends Parameter {
+
+  NumParameter(Block block, Map data) : super(block, data);
+
+  dynamic get value => toNum(_value, 0.0);
+  set value(var v) => _value = toNum(v, 0.0);
+
+  String get valueAsString {
+    String s = (value as num).toStringAsFixed(1);
+    s = (s.endsWith('.0')) ? s.substring(0, s.length - 2) : s;
+    return "$s$unit";
+  }
+}
+
+
+//-------------------------------------------------------------------------
+/// Represents a range of numbers 
+//-------------------------------------------------------------------------
+class RangeParameter extends NumParameter {
+
+  /// lowest possible value that the user can select (for numbers and range)
+  num minValue = 0;
+
+  /// highest possible value that the user can select (for numbers and range)
+  num maxValue = 10;
+
+  /// step interval for selections (for numbers and range)
+  num stepSize = 1;
+
+
+  RangeParameter(Block block, Map data) : super(block, data) {
+    minValue = toNum(data["min"], minValue);
+    maxValue = toNum(data["max"], maxValue);
+    stepSize = toNum(data["step"], stepSize);
+  }
+
+
+  Map toJSON() {
+    Map json = super.toJSON();
+    json["min"] = minValue;
+    json["max"] = maxValue;
+    json["step"] = stepSize;
+    return json;
+  }
+
+  String _buildHTMLInput() {
+    return """
+      <input class="nt-param-input" id="nt-param-${id}" type="range" value="${valueAsString}" min="$minValue" max="$maxValue" step="$stepSize">
+      <label class="nt-param-label" id="nt-param-label-${id}" for="nt-param-${id}">${value}</label>
+      <span class="nt-param-unit">${unit}</span>
+    """;
+  }
+}
+
+
+//-------------------------------------------------------------------------
+/// Represents a value selected from a list of options
+//-------------------------------------------------------------------------
+class SelectParameter extends Parameter {
+
+  /// list of possible values for select type
+  var values = [ ];
+
+
+  SelectParameter(Block block, Map data) : super(block, data) {
+    if (data["values"] is List) values = data["values"];
+  }
+
+
+  Parameter clone(Block parent) {
+    return new SelectParameter(parent, toJSON());
+  }
+
+
+  Map toJSON() {
+    Map json = super.toJSON();
+    json["values"] = values;
+    return json;
+  }
 }
