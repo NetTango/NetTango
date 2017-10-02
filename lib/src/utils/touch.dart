@@ -1,14 +1,10 @@
 /*
- * NetTango
- * Copyright (c) 2016 Michael S. Horn, Uri Wilensky, and Corey Brady
- * 
+ * Michael S. Horn
  * Northwestern University
- * 2120 Campus Drive
- * Evanston, IL 60613
- * http://tidal.northwestern.edu
- * http://ccl.northwestern.edu
- 
- * This project was funded in part by the National Science Foundation.
+ * michael-horn@northwestern.edu
+ * Copyright 2017, Michael S. Horn
+ *
+ * This project was funded by the National Science Foundation (grant DRL-1612619).
  * Any opinions, findings and conclusions or recommendations expressed in this
  * material are those of the author(s) and do not necessarily reflect the views
  * of the National Science Foundation (NSF).
@@ -74,15 +70,17 @@ class TouchManager {
   void registerEvents(Element element) {
     parent = element;
    
-    if (isFlagSet("debug")) {
+    //if (isFlagSet("debug")) {
       element.onMouseDown.listen((e) => _mouseDown(e));
       element.onMouseUp.listen((e) => _mouseUp(e));
       element.onMouseMove.listen((e) => _mouseMove(e));
-    }
-
+    //}
+/*
     element.onTouchStart.listen((e) => _touchDown(e));
     element.onTouchMove.listen((e) => _touchDrag(e));
     element.onTouchEnd.listen((e) => _touchUp(e));
+*/
+    document.onKeyDown.listen((e) => _keyDown(e));
       
     // Prevent screen from dragging on ipad
     document.onTouchMove.listen((e) => e.preventDefault());
@@ -122,14 +120,14 @@ class TouchManager {
  * Convert mouseMove to touchDrag events
  */
   void _mouseMove(MouseEvent evt) {
-    if (mdown) {
-      Contact t = new Contact.fromMouse(evt);
-      TouchBinding target = touch_bindings[-1];
+    Contact t = new Contact.fromMouse(evt);
+    TouchBinding target = touch_bindings[-1];
+    if (target != null) {
+      target.touchDrag(t);
+    } else {
+      target = findTouchTarget(t);
       if (target != null) {
-        target.touchDrag(t);
-      } else {
-        target = findTouchTarget(t);
-        if (target != null) {
+        if (mdown) {
           target.touchSlide(t);
         }
       }
@@ -179,6 +177,13 @@ class TouchManager {
       }
     }
   }
+
+
+  void _keyDown(KeyboardEvent kbd) {
+    for (int i=0; i<layers.length; i++) {
+      if (layers[i].keyDown(kbd)) return;
+    }
+  }
 }
 
 
@@ -191,20 +196,45 @@ class TouchLayer {
   Map<int, Touchable> touch_bindings = new Map<int, Touchable>();
    
   /* Transformation matrices */
-  Matrix2D xform = new Matrix2D();
-  Matrix2D iform = new Matrix2D();
+  Matrix2D xform = new Matrix2D.identity();
+  Matrix2D iform = new Matrix2D.identity();
 
   /* Last touch event timestamp */
-  DateTime last_touch;
+  DateTime last_touch = new DateTime.now();
   
-  TouchLayer() {
-    last_touch = new DateTime.now();   
-  }
-
   
   void transform(num m11, num m12, num m21, num m22, num dx, num dy) {
     xform.setTransform(m11, m12, m21, m22, dx, dy);
     iform = xform.invert();
+  }
+
+
+  void resetTransform() {
+    xform.reset();
+    iform = xform.invert();
+  }
+
+
+  void scale(num sx, num sy) {
+    xform.scale(sx, sy);
+    iform = xform.invert();
+  }
+
+
+  void scaleAroundPoint(num sx, num sy, num dx, num dy) {
+    xform.scaleAroundPoint(sx, sy, dx, dy);
+    iform = xform.invert();
+  }
+
+
+  void translate(num dx, num dy) {
+    xform.translate(dx, dy);
+    iform = xform.invert();
+  }
+
+
+  void transformContext(CanvasRenderingContext2D ctx) {
+    xform.transformContext(ctx);
   }
 
    
@@ -216,11 +246,19 @@ class TouchLayer {
   }
    
 
-/*
+/**
  * Remove a touchable object from the master list
  */
   void removeTouchable(Touchable t) {
     touchables.remove(t);
+  }
+
+
+/**
+ * Remove all touchable objects
+ */
+  void clearTouchables() {
+    touchables.clear();
   }
 
 
@@ -230,7 +268,15 @@ class TouchLayer {
  */
   bool backgroundTouch(Contact c) {
     return false;
-  }  
+  }
+
+
+/**
+ * Classes can override this function to handle keyboard events
+ */
+  bool keyDown(KeyboardEvent kbd) {
+    return false;
+  }
    
    
 /*
@@ -309,7 +355,8 @@ class TouchBinding {
   
   bool touchDown(Contact c) {
     layer.transformContact(c);
-    return touchable.touchDown(c);
+    touchable = touchable.touchDown(c);
+    return (touchable != null);
   }
   
   void touchUp(Contact c) {
@@ -337,9 +384,9 @@ abstract class Touchable {
   bool containsTouch(Contact event);
    
   // This gets fired if a touch down lands on the touchable object. 
-  // Return true to 'own' the touch event for the duration 
-  // Return false to ignore the event (e.g. if disabled or if you want slide events)
-  bool touchDown(Contact event);
+  // Return the touchable object that will 'own' the touch event for the duration 
+  // Return null to ignore the event (e.g. if disabled or if you want slide events)
+  Touchable touchDown(Contact event);
    
   void touchUp(Contact event);
    
@@ -347,7 +394,7 @@ abstract class Touchable {
   void touchDrag(Contact event);
    
   // This gets fired when an unbound touch events slides over an object
-  void touchSlide(Contact event);
+  void touchSlide(Contact event) { }
 }
 
 
