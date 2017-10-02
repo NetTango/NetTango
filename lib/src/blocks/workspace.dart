@@ -1,6 +1,6 @@
 /*
  * NetTango
- * Copyright (c) 2016 Michael S. Horn, Uri Wilensky, and Corey Brady
+ * Copyright (c) 2017 Michael S. Horn, Uri Wilensky, and Corey Brady
  * 
  * Northwestern University
  * 2120 Campus Drive
@@ -16,7 +16,6 @@
 part of NetTango;
 
 
-
 class CodeWorkspace extends TouchLayer {
   
   String id;
@@ -24,20 +23,14 @@ class CodeWorkspace extends TouchLayer {
   /* list of blocks in the workspace */
   List<Block> blocks = new List<Block>();
   
-  /* size of the canvas */
+  /// size of the canvas
   int width, height;
   
-  /* block menu */
-  Menu menu;
+  /// block menu 
+  BlockMenu menu;
   
   /* fixed start blocks */
-  List<StartBlock> starts = new List<StartBlock>();
-
-  /* Runtime object that this workspace controls (e.g. Models, Breeds, etc) */
-  Runtime runtime;
-  
-  /* traces execution of programs as they run */
-  TraceBug bug;
+  //List<StartBlock> starts = new List<StartBlock>();
 
   /* Canvas 2D drawing context */
   CanvasRenderingContext2D ctx;
@@ -66,9 +59,10 @@ class CodeWorkspace extends TouchLayer {
     //--------------------------------------------------------
     // initialize touch manager
     //--------------------------------------------------------
-    String touchElement = json["touchElement"];
-    if (touchElement == null) touchElement = canvasId;
-    tmanager.registerEvents(querySelector("#$touchElement"));
+    //String touchElement = json["touchElement"];
+    //if (touchElement == null) touchElement = canvasId;
+    //tmanager.registerEvents(querySelector("#$touchElement"));
+    tmanager.registerEvents(canvas);
     tmanager.addTouchLayer(this);
 
 
@@ -80,76 +74,28 @@ class CodeWorkspace extends TouchLayer {
 
 
     //--------------------------------------------------------
-    // Anchor workspace to the top, right, bottom, or left
-    //--------------------------------------------------------
-    String anchor = "bottom";
-    if (json.containsKey("anchor")) anchor = json["anchor"];
-    switch (anchor) {
-      case "left":
-        width = canvas.height;
-        height = canvas.width;
-        transform(cos(PI/2), sin(PI/2), -sin(PI/2), cos(PI/2), height, 0);        
-        break;
-      case "right":
-        width = canvas.height;
-        height = canvas.width;
-        transform(cos(PI / -2), sin(PI / -2), -sin(PI / -2), cos(PI / -2), 0, width);
-        break;
-      case "top":
-        transform(cos(-PI), sin(-PI), -sin(-PI), cos(-PI), width, height);
-        break;
-      case "bottom":
-      default:
-    }
-
-
-    //--------------------------------------------------------
-    // Create menu bar
-    //--------------------------------------------------------
-    num menuH = BLOCK_HEIGHT * 1.6;
-    menu = new Menu(this, 0, height - menuH, width, menuH);
-    if (json.containsKey("color")) menu.background = json["color"];
-
-
-    //--------------------------------------------------------
-    // start blocks
-    //--------------------------------------------------------
-    if (json.containsKey("startBlocks") && json["startBlocks"] is List) {
-      for (var spec in json["startBlocks"]) {
-        addStartBlock(spec["name"], spec["color"], spec["position"]);
-      }
-    } else {
-      addStartBlock("start $id", "green", 40);
-    }
-
-
-    //--------------------------------------------------------
-    // trace bug  
-    //--------------------------------------------------------
-    bug = new TraceBug(start);   // FIXME multi-start
-
-
-    //--------------------------------------------------------
     // initialize block menu
     //--------------------------------------------------------
-    if (json.containsKey("blocks")) {
-      _initBlockMenu(json["blocks"]);
+    menu = new BlockMenu(this);
+    if (json['blocks'] is List) {
+      for (var b in json['blocks']) {
+        Block block = new Block.fromJSON(this, b) 
+          .. moveBlock(100, 100)
+          .. font = "14px 'Poppins', sans-serif";
+        //_addBlock(block);
+        menu.addBlock(block, 2);
+      }
     }
-
-
-    //--------------------------------------------------------
-    // customize menu buttons
-    //--------------------------------------------------------
-    menu.fastForwardButton.visible = toBool(json['fastForwardButton'], true);
-    menu.stepForwardButton.visible = toBool(json['stepForwardButton'], true);
-
 
     //--------------------------------------------------------
     // default program
     //--------------------------------------------------------
-    if (json.containsKey("defaultProgram")) {
-      fromURLString(json["defaultProgram"]);
-    }
+    //if (json.containsKey("defaultProgram")) {
+    //  fromURLString(json["defaultProgram"]);
+    //}
+
+    //_addBlock(new Block(this, "hop") .. x = 100 .. y = 100 .. font = "20px 'Montserrat', sans-serif");
+    Sounds.loadSound("click", "packages/NetTango/sounds/click.wav");
 
     draw();
     tick();
@@ -157,68 +103,13 @@ class CodeWorkspace extends TouchLayer {
 
 
 /**
- * returns the first start block in the list
- */
-  StartBlock get start => starts[0];
-
-  
-/**
- * Adds a start block to the workspace
- */
-  void addStartBlock(String name, String color, num position) {
-    StartBlock sb = new StartBlock(this, name) 
-      .. color = color
-      .. x = position;
-    _addBlock(sb);
-    starts.add(sb);
-  }
-
-
-/** 
- * Gets a start block instance based on its name
- */
-  StartBlock getStartBlock(String name) {
-    for (StartBlock sb in starts) {
-      if (sb.text == name) return sb;
-    }
-    return null;
-  }
-
-
-/**
- * Removes a start block
- */
-  void removeStartBlock(String name) {
-    StartBlock sb = getStartBlock(name);
-    if (sb != null) {
-      starts.remove(sb);
-      _removeBlock(sb);
-    }
-  } 
-
-
-/**
  * Adds a stack of blocks of the given type to the menu bar.
  */
-  void addToMenu(Block block, int count) {
-    menu.addBlock(block, count);
-  }
+  //void addToMenu(Block block, int count) {
+  //  menu.addBlock(block, count);
+  //}
   
   
-/**
- * Highlight a program block
- */  
-  void traceProgram(int blockID) {
-    Block target = null;
-    for (Block block in blocks) {
-      if (block.id == blockID) target = block;
-    }
-    if (target != null && target is! EndProgramBlock && target is! StartBlock) {
-      bug.target = target;
-    }
-  }
-
-
   void tick() {
     if (animate()) draw();
     window.animationFrame.then((time) => tick());
@@ -229,21 +120,9 @@ class CodeWorkspace extends TouchLayer {
  * Callback when blocks of a program have changed
  */  
   void programChanged() {
-    if (runtime != null) runtime.programChanged();
-  }
-
-
-/**
- * Close all open parameter menus
- */  
-  void closeAllParameterMenus() {
-    bool repaint = false;
-    for (Block block in blocks) {
-      if (block.closeParameterMenu()) {
-        repaint = true;
-      }
-    }
-    if (repaint) draw();
+    draw();
+    // TODO Callback!
+    //if (runtime != null) runtime.programChanged();
   }
 
 
@@ -251,36 +130,17 @@ class CodeWorkspace extends TouchLayer {
  * On a background touch, close all open parameter menus
  */
   bool backgroundTouch(Contact c) {
-    closeAllParameterMenus();
     return false;
   }
   
   
-/**
- * Erase a program  (DOESN'T WORK IN MULTI-BLOCK ENVIRONMENT)
- */
-/* 
-  void removeAllBlocks() {
-    Block block = start.next;
-    while (block != null && block != start.end) {
-      Block b = block.next;
-      block.prev = null;
-      block.next = null;
-      _removeBlock(block);
-      block = b;
-    }
-    start.next = start.end;
-    start.end.prev = start;
-  }
-*/
-
 /**
  * Add a block to the workspace
  */
   void _addBlock(Block block) {
     blocks.add(block);
     addTouchable(block);
-    for (Paramter param in block.params) {
+    for (Parameter param in block.params) {
       addTouchable(param);
     }
   }
@@ -311,23 +171,15 @@ class CodeWorkspace extends TouchLayer {
 /**
  * How many blocks of the given type have been used in the program so far?
  */
-  int getBlockCount(String blockType) {
+  int getBlockCount(String action) {
     int count = 0;
     for (Block block in blocks) {
-      if (block.text == blockType) count++;
+      if (block.action == action) count++;
     }
     return count;
   }
 
 
-/**
- * Is the program empty? Only a start block...
- */
-//  bool get isEmpty {
-//    return blocks.length <= 2;  // start and end blocks together
-//  }
-  
-  
 /**
  * Has a block been dragged off of the screen?
  */
@@ -338,88 +190,94 @@ class CodeWorkspace extends TouchLayer {
             block.y < 0);
   }
   
-  
-/**
- * Is a block over the menu?
- */
-  bool _isOverMenu(Block block) {
-    return menu.overlaps(block);
-  }
-  
 
 /**
  * Snap a block onto an existing program
  */
   bool _snapTogether(Block target) {
-    Block b = _findInsertionPoint(target);
-    if (b != null) {
-      b.insertBlock(target);
+    Block hit = _findTopConnector(target);
+    if (hit != null) {
+      target._snapBelow(hit);
       return true;
-    } else {
-      return false;
+    } 
+      
+    hit = _findBottomConnector(target);
+    if (hit != null) {
+      target._snapAbove(hit);
+      return true;
     }
-  }
-  
-  
-/**
- * Add a new block to the end of an existing program (defaults to first start)
- */
-  void snapToEnd(Block target) {
-    start.end.prev.insertBlock(target);
-  }
-  
 
-/**
- * As a block is being dragged, determine the position after which the block
- * will be inserted into a program
- */
-  Block _findInsertionPoint(Block target) {
-    Block result = null;
+    return false;
+  }
 
-    for (StartBlock sb in starts) {
-      Block block = sb;
-      while (block != null) {
-        if (block.overlaps(target) && target.checkSyntax(block)) {
-          result = block;
-        }
-        block = block.next;
+
+  /// throw chain into the trash
+  bool _trashChain(Block target) {
+    if (menu.isOverMenu(target)) {
+      while (target != null) {
+        blocks.remove(target);
+        removeTouchable(target);
+        target = target.nextChain;
       }
     }
-    if (result == null && !target.inserted) {
-      //return start.end.prev;
-      return null;
-    } else if (target.y > start.end.y) {
-      return null;
-    } else {
-      return result;
-    }
   }
-  
+
+
+  /// return a block near the top connector of target (or null)
+  Block _findTopConnector(Block target) {
+    if (target.prev == null && target.hasTopConnector) {
+      for (Block block in blocks) {
+        if (block != target) {
+
+          // do the blocks overlap horizontally at all?
+          if (target.x < block.x + block.width && target.x + target.width > block.x) {
+
+            num by0 = block.y;
+            num by1 = block.y + block.height;
+            num by2 = by1 + block.height * 0.8;
+
+            if (block.hasNext && target.topConnectorY < by1 && target.topConnectorY > by0) {
+              return block;
+            }
+            else if (!block.hasNext && target.topConnectorY > by0 && target.topConnectorY < by2) {
+              return block;
+            }
+          }
+        }
+      }
+    }
+    return null;
+  }
+
+
+  /// return a block near the bottom connector of target (or null) 
+  Block _findBottomConnector(Block target) {
+    if (target.next == null) {
+      for (Block block in blocks) {
+        if (block != target && block.prev == null && block.hasTopConnector) {
+
+          // do the blocks overlap horizontally at all?
+          if (target.x < block.x + block.width && target.x + target.width > block.x) {
+
+            if ((block.topConnectorY - target.bottomConnectorY).abs() < 20) {
+              return block;
+            }
+          }
+        } 
+      }
+    }
+    return null;
+  }
+
   
 /**
  * Animate the blocks and return true if any of the blocks changed
  */
   bool animate() {
     bool refresh = false;
-    
-    if (bug.animate()) refresh = true;
-    
+
     if (menu.animate()) refresh = true;
     
-    //----------------------------------------------
-    // for each block being dragged, identify active insertion points 
-    //----------------------------------------------
-    for (Block block in blocks) block.candidate = null;
-      
-    for (Block target in blocks) {
-      if (target.dragging) {
-        Block b = _findInsertionPoint(target);
-        if (b != null) {
-          b.candidate = target;
-        }
-      }
-    }
-      
     for (Block block in blocks) {
       if (block.animate()) refresh = true;
     }
@@ -427,7 +285,7 @@ class CodeWorkspace extends TouchLayer {
     return refresh;
   }
   
-  
+
   void draw() {
     ctx.save();
     {
@@ -436,91 +294,41 @@ class CodeWorkspace extends TouchLayer {
       
       ctx.clearRect(0, 0, width, height);
 
-      // draw blocks
-      blocks.forEach((block) => block.draw(ctx));
-      
-      // draw the trace bug
-      bug.draw(ctx);
-      
-      // draw the menu 
-      menu.draw(ctx);
+      List<Block> drags = new List<Block>();
+
+      bool overMenu = false;
+
+      for (Block block in blocks) {
+        if (!block.hasPrev && block is! ClauseBlock) {
+          block._reindentChain(0, null);
+          block._repositionChain();
+          block._resizeChain(ctx, BLOCK_WIDTH);
+        }
+        if (block._dragging) drags.add(block);
+        if (menu.isOverMenu(block)) overMenu = true;
+      }
+
+      menu.draw(ctx, overMenu);
+
+      for (Block block in blocks) {
+        if (block._dragging) {
+          Block target = _findTopConnector(block);
+          if (target != null) {
+            target._drawBottomConnector(ctx);
+          } else {
+            target = _findBottomConnector(block);
+            if (target != null) target._drawTopConnector(ctx);
+          }
+        }
+
+        block._drawBlock(ctx);
+        block._drawLabel(ctx);
+        block._drawParameters(ctx);
+        if (drags.isNotEmpty) block._drawOutline(ctx);
+      }
     }
     ctx.restore();
   }
-
-  
-  String toString([StartBlock sb]) {
-    if (sb == null) sb = start;
-    String s = "[ START, ";
-    Block b = sb.next;
-    while (b != null && !(b is EndProgramBlock)) {
-      s += "${b.toString()}, ";
-      b = b.next;
-    }
-    return s + "]";
-  }
-
-
-/**
- * Parses a program description stored as a URL-encoded string and builds the 
- * block program.
- * FIXME - defaults to single start block
- */
-  void fromURLString(String program) {
-    program = Uri.decodeFull(program);
-    Block prev = start;
-    List<BeginBlock> nest = new List<BeginBlock>();
-
-    for (String s in program.split(';')) {
-      if (s == "end" && nest.isNotEmpty) {
-        prev = nest.last.end;
-        nest.removeLast();
-        continue;
-      } 
-      else {
-        int i = s.indexOf('(');
-        String name = (i > 0) ? s.substring(0, i) : s;
-        Block block = menu.getBlockByName(name);
-        if (block != null) {
-          block = block.clone();
-          _addBlock(block);
-          prev.insertBlock(block);
-          block.inserted = true;
-          if (block is BeginBlock) {
-            nest.add(block);
-            block.addAllBlocks();
-          }
-        }
-        prev = block;
-      }
-    }
-  }
-  
-    
-/**
- * Converts the program to a URL-encoded string
- */
-  String toURLString([StartBlock sb]) {
-    if (sb == null) sb = start;
-    String s = "";
-    Block b = sb.next;
-    while (b != null && b is! EndProgramBlock) {
-      s += b.toURLString();
-      b = b.next;
-    }
-    return Uri.encodeFull(s);
-  }
-
-
-/**
- * This function parses a JSON block definition object and populates
- * the block menu.
- */
-  void _initBlockMenu(var data) {
-    for (var b in data) {
-      Block block = new Block.fromJSON(this, b);
-      addToMenu(block, toInt(b["instances"], 1));
-    }
-  }
-
 }
+
+
