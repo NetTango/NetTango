@@ -1,6 +1,6 @@
 # Getting Started with NetTango Modeling 
 
-###What You'll Need to Get Started
+##What You'll Need to Get Started
 * Dart Programming Language (http://dartlang.org/downloads)
 
 Start by creating a project directory for your NetTango model. In this example, we'll explore a Gas Law model, so we'll use the name `GasLaw` for the top-level directory. Then create empty files and a directory structure that looks like this:
