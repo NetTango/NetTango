@@ -23,18 +23,19 @@ class Sounds {
   static bool mute = false;
 
 
-  static void loadSound(String name, [String dir = "sounds"]) {
-    String url = "$dir/$name.wav";
-    HttpRequest request = new HttpRequest();
-    request.open("GET", url, async: true);
-    request.responseType = "arraybuffer";
-    request.onLoad.listen((e) {
-      audio.decodeAudioData(request.response).then((AudioBuffer buffer) {
-        if (buffer != null) sounds[name] = buffer;
-      });      
-    });
-    request.onError.listen((e) => print("BufferLoader: XHR error"));
-    request.send();
+  static void loadSound(String name, String url) {
+    if (!sounds.containsKey(name)) {
+      HttpRequest request = new HttpRequest();
+      request.open("GET", url, async: true);
+      request.responseType = "arraybuffer";
+      request.onLoad.listen((e) {
+        audio.decodeAudioData(request.response).then((AudioBuffer buffer) {
+          if (buffer != null) sounds[name] = buffer;
+        });      
+      });
+      request.onError.listen((e) => print("BufferLoader: XHR error"));
+      request.send();
+    }
   }
 
 
