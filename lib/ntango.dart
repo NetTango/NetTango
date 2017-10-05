@@ -17,6 +17,7 @@ library NetTango;
 
 import 'dart:math';
 import 'dart:html';
+import 'dart:convert';
 import 'dart:web_audio';
 
 part 'src/utils/matrix.dart';
@@ -27,6 +28,7 @@ part 'src/utils/utils.dart';
 
 part 'src/blocks/block.dart';
 part 'src/blocks/control.dart';
+part 'src/blocks/formatter.dart';
 part 'src/blocks/menu.dart';
 part 'src/blocks/parameter.dart';
 part 'src/blocks/workspace.dart';
