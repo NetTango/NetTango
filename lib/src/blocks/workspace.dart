@@ -101,14 +101,6 @@ class CodeWorkspace extends TouchLayer {
     tick();
   }
 
-
-/**
- * Adds a stack of blocks of the given type to the menu bar.
- */
-  //void addToMenu(Block block, int count) {
-  //  menu.addBlock(block, count);
-  //}
-  
   
   void tick() {
     if (animate()) draw();
@@ -121,8 +113,24 @@ class CodeWorkspace extends TouchLayer {
  */  
   void programChanged() {
     draw();
-    // TODO Callback!
-    //if (runtime != null) runtime.programChanged();
+    print(exportParseTree());
+  }
+
+
+/**
+ * Returns a JSON object representing the program's parse tree
+ */
+  Map exportParseTree() {
+    Map json = {
+      "workspace" : id,
+      "chains" : [ ]
+    };
+    for (Block block in blocks) {
+      if (block.isStartOfChain) {
+        json["chains"].add(block.exportParseTree());
+      }
+    }
+    return json;
   }
 
 
