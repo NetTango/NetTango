@@ -71,6 +71,8 @@ class ClauseBlock extends ControlBlock {
 
   int get indentBelow => 1;
 
+  bool get isStartOfChain => false;
+
 
   ClauseBlock(CodeWorkspace workspace, String action) : super(workspace, action) {
     hasTopConnector = false;
@@ -81,6 +83,18 @@ class ClauseBlock extends ControlBlock {
     _copyTo(other);
     return other;
   }
+
+
+//-------------------------------------------------------------------------
+/// export this chain of blocks 
+//-------------------------------------------------------------------------
+  void _exportParseTree(List chain) {
+    Map json = toJSON();
+    json["children"] = [];
+    chain.add(json);
+    if (next != null) next._exportParseTree(json["children"]);
+  }
+
 
   void _drawOutline(CanvasRenderingContext2D ctx) { }
   void _drawBlock(CanvasRenderingContext2D ctx) { }
@@ -109,6 +123,8 @@ class EndBlock extends ClauseBlock {
     this.parent = parent;
     if (hasNext) next._reindentChain(indent + indentBelow, parent);
   }  
+
+  void _exportParseTree(List chain) { }
 
   void _drawLabel(CanvasRenderingContext2D ctx) { }
 }
@@ -150,6 +166,22 @@ class BeginBlock extends ControlBlock {
 
 
   Block get bottomOfChain => end.bottomOfChain;
+
+
+//-------------------------------------------------------------------------
+/// export this chain of blocks 
+//-------------------------------------------------------------------------
+  void _exportParseTree(List chain) {
+    Map json = toJSON();
+    json["children"] = [];
+    json["clauses"] = [];
+    chain.add(json);
+    if (next != null) next._exportParseTree(json["children"]);
+    for (ClauseBlock clause in clauses) {
+      clause._exportParseTree(json["clauses"]);
+    }
+    if (end.next != null) end.next._exportParseTree(chain);
+  }
 
 
 //-------------------------------------------------------------------------

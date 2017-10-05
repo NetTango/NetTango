@@ -39,6 +39,9 @@ class Block implements Touchable {
   /// internal action name (usually the same as text)
   String action;
 
+  /// language specific command type used by code formatters
+  var type;
+
   /// block dimensions and position
   num x = 0.0, y = 0.0, width = 0.0, height = 0.0;
 
@@ -109,6 +112,8 @@ class Block implements Touchable {
 
   Block get nextChain => hasNext ? next : (parent != null) ? parent.nextClause : null;
 
+  bool get isStartOfChain => !hasPrev;
+
 
   Block(this.workspace, this.action) {
     id = Block._BLOCK_ID++;
@@ -128,33 +133,25 @@ class Block implements Touchable {
     //----------------------------------------------------------
     // block types
     //----------------------------------------------------------
-    String type = toStr(json["type"], "block");
-    switch (type) {
-      case "start":
-        block = new Block(workspace, action) .. hasTopConnector = false;
-        break;
-
-      case "control":
-        block = new BeginBlock(workspace, action);
-        break;
-
-      case "clause":
-        block = new ClauseBlock(workspace, action);
-        break;
-
-      default:
-        block = new Block(workspace, action);
-        break;
+    if (json["clauses"] is List) {
+      block = new BeginBlock(workspace, action);
     }
-
+    else if (json["type"] == "clause") {
+      block = new ClauseBlock(workspace, action);
+    }
+    else {
+      block = new Block(workspace, action);
+    }
 
     //----------------------------------------------------------
     // block properties
     //----------------------------------------------------------
     block.name = name;
+    block.type = toStr(json["type"]);
     block.blockColor = toStr(json["blockColor"], block.blockColor);
     block.textColor = toStr(json["textColor"], block.textColor);
     block.font = toStr(json["font"], block.font);
+    block.hasTopConnector = ! toBool(json["start"], false);
 
     //----------------------------------------------------------
     // parameters
@@ -191,6 +188,7 @@ class Block implements Touchable {
 
   void _copyTo(Block other) {
     other.name = name;
+    other.type = type;
     other.blockColor = blockColor;
     other.textColor = textColor;
     other.font = font;
@@ -201,6 +199,42 @@ class Block implements Touchable {
       other.params.add(param.clone(other));
     }
   }
+
+
+//-------------------------------------------------------------------------
+/// export block to a JSON object
+//-------------------------------------------------------------------------
+  Map toJSON() {
+    var data = { };
+    data["id"] = id;
+    data["name"] = name;
+    data["action"] = action;
+    data["type"] = type;
+    data["start"] = hasTopConnector;
+    if (params.isNotEmpty) {
+      data["params"] = [];
+      for (Parameter param in params) {
+        data["params"].add(param.toJSON());
+      }
+    }
+    return data;
+  }
+
+
+//-------------------------------------------------------------------------
+/// export this chain of blocks 
+//-------------------------------------------------------------------------
+  List exportParseTree() {
+    List chain = [];
+    _exportParseTree(chain);
+    return chain;
+  }
+
+  void _exportParseTree(List chain) {
+    chain.add(toJSON());
+    if (next != null) next._exportParseTree(chain);
+  }
+
 
 //-------------------------------------------------------------------------
 /// resize a chain of blocks.
