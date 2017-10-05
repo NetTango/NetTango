@@ -80,6 +80,7 @@ class Parameter implements Touchable {
       "type" : type,
       "name" : name,
       "unit" : unit,
+      "value" : value,
       "default" : defaultValue
     };
   }
@@ -176,15 +177,15 @@ class Parameter implements Touchable {
     querySelector("#wrapper").append(backdrop);
 
     HtmlElement label = querySelector("#nt-param-label-$id");
-    HtmlElement input = querySelector("#nt-param-$id");
+    InputElement input = querySelector("#nt-param-$id");
 
     querySelectorAll(".nt-param-confirm").onClick.listen((e) { 
       if (input != null) {
         value = input.value;
-        print("${input.value}");
       }
       backdrop.remove();
       block.workspace.draw();
+      block.workspace.programChanged();
     });
 
     querySelectorAll(".nt-param-cancel").onClick.listen((e) => backdrop.remove());
@@ -209,24 +210,32 @@ class Parameter implements Touchable {
   }
 }
 
-//-------------------------------------------------------------------------
-/// Represents an integer parameter
-//-------------------------------------------------------------------------
-class IntParameter extends Parameter {
-
-  IntParameter(Block block, Map data) : super(block, data);
-
-  dynamic get value => toInt(_value, 0);
-  set value(var v) => _value = toInt(v, 0);
-}
-
 
 //-------------------------------------------------------------------------
 /// Represents a number parameter
 //-------------------------------------------------------------------------
 class NumParameter extends Parameter {
 
-  NumParameter(Block block, Map data) : super(block, data);
+  /// represents a random number?
+  bool random = false;
+
+  /// step interval for selections (for numbers and range)
+  num stepSize = 1;
+
+
+  NumParameter(Block block, Map data) : super(block, data) {
+    random = toBool(data["random"], false);
+    stepSize = toNum(data["step"], stepSize);
+  }
+
+
+  Map toJSON() {
+    Map json = super.toJSON();
+    json["random"] = random;
+    json["step"] = stepSize;
+    return json;
+  }
+
 
   dynamic get value => toNum(_value, 0.0);
   set value(var v) => _value = toNum(v, 0.0);
@@ -236,6 +245,25 @@ class NumParameter extends Parameter {
     s = (s.endsWith('.0')) ? s.substring(0, s.length - 2) : s;
     return "$s$unit";
   }
+
+  String _buildHTMLInput() {
+    return """
+      <input class="nt-param-input" id="nt-param-${id}" type="number" step="${stepSize} value="${valueAsString}">
+      <span class="nt-param-unit">${unit}</span>
+    """;
+  }
+}
+
+
+//-------------------------------------------------------------------------
+/// Represents an integer parameter
+//-------------------------------------------------------------------------
+class IntParameter extends NumParameter {
+
+  IntParameter(Block block, Map data) : super(block, data) { stepSize = 1; }
+
+  dynamic get value => toInt(_value, 0);
+  set value(var v) => _value = toInt(v, 0);
 }
 
 
@@ -250,14 +278,10 @@ class RangeParameter extends NumParameter {
   /// highest possible value that the user can select (for numbers and range)
   num maxValue = 10;
 
-  /// step interval for selections (for numbers and range)
-  num stepSize = 1;
-
 
   RangeParameter(Block block, Map data) : super(block, data) {
     minValue = toNum(data["min"], minValue);
     maxValue = toNum(data["max"], maxValue);
-    stepSize = toNum(data["step"], stepSize);
   }
 
 
@@ -265,7 +289,6 @@ class RangeParameter extends NumParameter {
     Map json = super.toJSON();
     json["min"] = minValue;
     json["max"] = maxValue;
-    json["step"] = stepSize;
     return json;
   }
 
