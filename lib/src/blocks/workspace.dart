@@ -113,8 +113,11 @@ class CodeWorkspace extends TouchLayer {
  */  
   void programChanged() {
     draw();
-    print(exportParseTree());
+    var parseTree = exportParseTree();
+    //print(new PlainFormatter().format(parseTree));
   }
+
+
 
 
 /**
