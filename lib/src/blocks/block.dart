@@ -30,7 +30,7 @@ class Block implements Touchable {
   /// Used to generate unique block id numbers
   static int _BLOCK_ID = 0;
 
-  /// unique block ID number
+  /// unique internal block ID number
   int id;
   
   /// text displayed inside the block
@@ -39,8 +39,13 @@ class Block implements Touchable {
   /// internal action name (usually the same as text)
   String action;
 
-  /// language specific command type used by code formatters
+  /// language specific command type used by code formatters (e.g. nlogo:command)
   var type;
+
+  /// formatting hint to help translate the parse tree into source code.
+  /// parameters can be referenced using python format syntax. e.g. 
+  /// "if random 100 > {0}"
+  String format;
 
   /// block dimensions and position
   num x = 0.0, y = 0.0, width = 0.0, height = 0.0;
@@ -148,6 +153,7 @@ class Block implements Touchable {
     //----------------------------------------------------------
     block.name = name;
     block.type = toStr(json["type"]);
+    block.format = toStr(json["format"], null);
     block.blockColor = toStr(json["blockColor"], block.blockColor);
     block.textColor = toStr(json["textColor"], block.textColor);
     block.font = toStr(json["font"], block.font);
@@ -189,6 +195,7 @@ class Block implements Touchable {
   void _copyTo(Block other) {
     other.name = name;
     other.type = type;
+    other.format = format;
     other.blockColor = blockColor;
     other.textColor = textColor;
     other.font = font;
@@ -210,6 +217,7 @@ class Block implements Touchable {
     data["name"] = name;
     data["action"] = action;
     data["type"] = type;
+    data["format"] = format;
     data["start"] = hasTopConnector;
     if (params.isNotEmpty) {
       data["params"] = [];
