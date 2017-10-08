@@ -24,8 +24,26 @@ abstract class CodeFormatter  {
   String format(var parseTree);
 
 
-  void _formatIndent(StringBuffer out, int indent) {
-    for (int i=0; i<=indent; i++) out.write(_indent);
+  void _formatOutput(StringBuffer out, int indent, String post) {
+    for (int i=0; i<indent; i++) out.write(_indent);
+    out.writeln(post);
+  }
+
+
+  void _formatBlock(StringBuffer out, var block, int indent) {
+    String fmt = block["format"];
+    var params = block["params"];
+    int pcount = (params is List) ? params.length : 0;
+
+    if (fmt is! String) {
+      fmt = "${block['action']}";
+      for (int i=0; i<pcount; i++) fmt += " {$i}";
+    }
+    for (int i=0; i<pcount; i++) {
+      fmt = fmt.replaceAll("{0}", toStr(params[i]["value"]));
+    }
+
+    _formatOutput(out, indent, fmt);
   }
 }
 
@@ -60,22 +78,10 @@ class PlainFormatter extends CodeFormatter {
       }
     }
   }
-
-
-  void _formatBlock(StringBuffer out, var block, int indent) {
-    _formatIndent(out, indent);
-    out.write(block["action"] + "( ");
-    if (block["params"] is List) {
-      for (var param in block["params"]) {
-        out.write("${param["value"]} ");
-      }
-    }
-    out.writeln(")");
-  }
 }
 
 
-/*
+
 class NetLogoFormatter extends CodeFormatter {
 
   NetLogoFormatter();
@@ -83,61 +89,37 @@ class NetLogoFormatter extends CodeFormatter {
 
   String format(var parseTree) {
     StringBuffer out = new StringBuffer();
-    for (Block block in workspace.blocks) {
-      if (block.type == "nlogo:procedure") {
-        out.writeln("to ${block.action}");
-        _formatChain(out, block);
+    for (var chain in parseTree["chains"]) {
+      if (chain.length > 0 && chain[0]["type"] == "nlogo:procedure") {
+        var block = chain.removeAt(0);
+        _formatBlock(out, block, 0);
+        _formatChain(out, chain, 1);
         out.writeln("end");
-      } 
+        out.writeln();
+      }
     }
-    print(out);
     return out.toString();
   }
 
 
-  void _formatChain(StringBuffer out, Block start) {
-    Block block = start.nextChain;
-
-    while (block != null) {
-      if (block.type == "nlogo:command") {
-        _formatIndent(out, block);
-        out.write("${block.action} ");
-        _formatParams(out, block);
-        out.writeln();
+  void _formatChain(StringBuffer out, var chain, int indent) {
+    for (var block in chain) {
+      _formatBlock(out, block, indent);
+      if (block["children"] is List) {
+        _formatOutput(out, indent, "[");
+        _formatChain(out, block["children"], indent+1);
+        _formatOutput(out, indent, "]");
       }
-      else if (block.type == "nlogo:chance") {
-        _formatIndent(out, block);
-        out.write("ifelse random-float 100 < ");
-        _formatParams(out, block);
-        out.writeln("[");
-      }
-      else if (block is EndBlock) {
-        _formatIndent(out, block);
-        out.writeln("]");
-      }
-      else if (block is ClauseBlock) {
-        _formatIndent(out, block);
-        out.writeln("]");
-        _formatIndent(out, block);
-        out.writeln("[");
-      }
-      block = block.nextChain;
-    }
-  }
-
-
-  void _formatParams(StringBuffer out, Block block) {
-    for (Parameter param in block.params) {
-      if (param is IntParameter && param.random) {
-        out.write("random ${param.value} ");
-      } 
-      else if (param is NumParameter && param.random) {
-        out.write("random-float ${param.value} ");
-      } 
-      else {
-        out.write("${param.value} ");
+      if (block["clauses"] is List) {
+        for (var clause in block["clauses"]) {
+          _formatBlock(out, clause, indent);
+          if (clause["children"] is List) {
+            _formatOutput(out, indent, "[");
+            _formatChain(out, clause["children"], indent+1);
+            _formatOutput(out, indent, "]");
+          }
+        }
       }
     }
   }
 }
-*/

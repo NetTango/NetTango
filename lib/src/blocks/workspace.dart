@@ -114,10 +114,8 @@ class CodeWorkspace extends TouchLayer {
   void programChanged() {
     draw();
     var parseTree = exportParseTree();
-    //print(new PlainFormatter().format(parseTree));
+    print(new NetLogoFormatter().format(parseTree));
   }
-
-
 
 
 /**
