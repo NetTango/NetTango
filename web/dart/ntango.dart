@@ -47,3 +47,7 @@ void NetTangoInitWorkspace(var json) {
   }
 }
 
+
+void main() {
+  js.context['NetTango_InitWorkspace'] = NetTangoInitWorkspace;
+}  
