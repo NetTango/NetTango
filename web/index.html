@@ -1,0 +1,350 @@
+<!DOCTYPE html> 
+<html> 
+<head> 
+  <title>NetTango Example</title>
+  <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">   
+  <link rel="stylesheet" href="css/main.css"> 
+  <script src="packages/NetTango/js/ntango.js"></script>
+  <style>
+* {
+  font-family: Poppins, sans-serif;
+  font-size: 16px;
+}  
+
+#workspace {
+  background-color: #e9e5cd;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;  
+}
+
+/* Popup container - can be anything you want */
+#wrapper {
+  position: relative;
+  width: 800px;
+  height: 800px;
+  margin: 0;
+}
+
+/* Backdrop for the parameter popup menu */
+.backdrop {
+  visibility: hidden;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  background-color: rgba(0, 0, 0, 0.1);
+  position: absolute;
+  z-index: 1;
+}
+
+/* Toggle this class - hide and show the popup */
+.backdrop.show {
+  visibility: visible;
+  animation: fadeIn 0.25s;
+}
+
+.nt-param-dialog {
+  border-radius: 15px;
+  background-color: white;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 20%;
+  border: 2px solid rgba(0, 0, 0, 0.4);
+  padding: 20px;
+  color: #555;
+  max-width: 330px;
+  line-height: 120%;
+  position: relative;
+}
+
+
+.nt-param-close {
+  width: 40px;
+  height: 40px;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  color: #555;
+  outline: none;
+  border: none;
+  font-size: 25px;
+  background-color: transparent;
+  border-radius: 20px;
+  vertical-align: top;
+}
+
+.nt-param-table {
+  display: table;
+  width: 100%;
+}
+
+.nt-param-row {
+  display: table-row;
+  margin: 8px 0;
+}
+
+.nt-param-name, .nt-param-value {
+  display: table-cell;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  text-align: left;
+}
+
+.nt-param-label {
+  margin-left: 15px;
+}
+
+.nt-param-input {
+  width: 130px;
+}
+
+.nt-param-unit {
+  margin-right: 10px;
+}
+
+.nt-param-confirm {
+  border: none;
+  background-color: #6b9bc3;
+  color: white;
+  margin-top: 12px;
+  margin-right: 5px;
+  padding: 8px 15px;
+}
+
+.nt-param-confirm:active { color: #ccc; }
+
+.nt-param-cancel {
+  border: none;
+  background-color: #aaa;
+  color: white;
+  margin-top: 12px;
+  padding: 8px 15px;
+}
+
+@keyframes fadeIn {
+  from {opacity: 0;}
+  to {opacity: 1;}
+}
+
+input[type=range] {
+    -webkit-appearance: none;
+    border: 1px solid white;
+    width: 180px;
+}
+
+input[type=range]::-webkit-slider-runnable-track {
+    width: 180px;
+    height: 5px;
+    background: #ddd;
+    border: none;
+    border-radius: 3px;
+}
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    border: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: goldenrod;
+    margin-top: -4px;
+}
+input[type=range]:focus {
+    outline: none;
+}
+input[type=range]:focus::-webkit-slider-runnable-track {
+    background: #ccc;
+}
+
+input[type=range]::-moz-range-track {
+    width: 180px;
+    height: 5px;
+    background: #ddd;
+    border: none;
+    border-radius: 3px;
+}
+input[type=range]::-moz-range-thumb {
+    border: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: goldenrod;
+}
+
+/*hide the outline behind the border*/
+input[type=range]:-moz-focusring{
+    outline: 1px solid white;
+    outline-offset: -1px;
+}
+
+input[type=range]::-ms-track {
+    width: 180px;
+    height: 5px;
+    
+    /*remove bg colour from the track, we'll use ms-fill-lower and ms-fill-upper instead */
+    background: transparent;
+    
+    /*leave room for the larger thumb to overflow with a transparent border */
+    border-color: transparent;
+    border-width: 6px 0;
+
+    /*remove default tick marks*/
+    color: transparent;
+}
+input[type=range]::-ms-fill-lower {
+    background: #777;
+    border-radius: 10px;
+}
+input[type=range]::-ms-fill-upper {
+    background: #ddd;
+    border-radius: 10px;
+}
+input[type=range]::-ms-thumb {
+    border: none;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: goldenrod;
+}
+input[type=range]:focus::-ms-fill-lower {
+    background: #888;
+}
+input[type=range]:focus::-ms-fill-upper {
+    background: #ccc;
+}
+
+  </style>
+</head>
+<body>
+  <div id="wrapper">
+    <canvas id="workspace" width="800" height="800"></canvas>
+  </div>
+  <script type="application/dart" src="dart/main.dart"></script>
+  <script src="packages/browser/dart.js"></script>
+
+  <script>
+
+  var json = {
+    "name" : "NetTango Example",
+    "canvasId" : "workspace",
+    "color" : "rgba(0, 0, 0, 0.6)",
+    "blocks" : [
+
+      {
+        "name" : "wolf actions",
+        "action" : "wolf-actions",
+        "type" : "nlogo:procedure",
+        "start" : true,
+        "format" : "to wolf-actions",
+        "blockColor" : "#b86f4c"
+      },
+
+    
+      {
+        "name" : "forward",
+        "action" : "forward",
+        "params" : [
+          {
+            "type" : "range",
+            "min" : 0,
+            "max" : 3,
+            "step" : 0.1,
+            "default" : 1,
+            "name" : "steps"
+          }
+        ]
+      },
+
+      {
+        "name" : "left",
+        "action" : "left",
+        "format" : "left random {0}",
+        "params" : [
+          {
+            "type" : "range",
+            "min" : 0,
+            "max" : 90,
+            "step" : 1,
+            "default" : 50,
+            "random" : true,
+            "name" : "amount",
+            "unit" : "\u00B0"
+          }
+        ]
+      },
+
+
+      {
+        "name" : "right",
+        "action" : "right",
+        "type" : "nlogo:command",
+        "params" : [
+          {
+            "type" : "range",
+            "min" : 0,
+            "max" : 90,
+            "step" : 1,
+            "default" : 50,
+            "random" : true,
+            "name" : "amount",
+            "unit" : "\u00B0"
+          }
+        ]
+      },
+
+
+      {
+        "action" : "die",
+        "type" : "nlogo:command"
+      },
+
+      {
+        "name" : "turn away",
+        "action" : "away",
+        "instances" : 2,
+        "params" : [
+          {
+            "type" : "range",
+            "min" : 0,
+            "max" : 20,
+            "step" : 0.25,
+            "default" : 1.5,
+            "name" : "max degrees"
+          }
+        ]
+      },
+
+      {
+        "name" : "chance",
+        "action" : "chance",
+        "type" : "nlogo:ifelse",
+        "format" : "ifelse random 100 < {0}",
+        "clauses" : [
+          {
+            "name" : "else",
+            "action" : "chance-else",
+            "format" : ""
+          }
+        ],
+        "params" : [
+          {
+            "type" : "range",
+            "min" : 0,
+            "max" : 100,
+            "step" : 0.5,
+            "default" : 20,
+            "unit" : "%",
+            "name" : "percent"
+          }
+        ]
+      }
+    ]
+  };
+  NetTango.init([json]);
+  console.log("hello");
+  </script>
+
+
+</body>
+</html>
