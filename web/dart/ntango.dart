@@ -21,33 +21,43 @@ import 'dart:convert';
 import 'dart:web_audio';
 import 'dart:js' as js;
 
-part 'src/utils/matrix.dart';
-part 'src/utils/sounds.dart';
-part 'src/utils/touch.dart';
-part 'src/utils/tween.dart';
-part 'src/utils/utils.dart';
+part 'utils/matrix.dart';
+part 'utils/sounds.dart';
+part 'utils/touch.dart';
+part 'utils/utils.dart';
 
-part 'src/blocks/block.dart';
-part 'src/blocks/control.dart';
-part 'src/blocks/formatter.dart';
-part 'src/blocks/menu.dart';
-part 'src/blocks/parameter.dart';
-part 'src/blocks/workspace.dart';
+part 'blocks/block.dart';
+part 'blocks/control.dart';
+part 'blocks/formatter.dart';
+part 'blocks/menu.dart';
+part 'blocks/parameter.dart';
+part 'blocks/workspace.dart';
 
 
-var _workspaces = [];
+var _workspaces = { };
 
 
 /// Javascript hook to initialize a workspace
-void NetTangoInitWorkspace(var json) {
-  if (json is Map && json["canvasId"] is String) {
-    if (querySelector("#${json['canvasId']}") != null) {
-      _workspaces[json["canvasId"]] = new CodeWorkspace(json);
-    }
+void JSInitWorkspace(String canvasId, String jsonString) {
+  var json = JSON.decode(jsonString);
+  if (json is Map) {
+    _workspaces[canvasId] = new CodeWorkspace(canvasId, json);
+    _workspaces[canvasId].draw();
   }
 }
 
 
+/// Javascript hook to export code from a workspace
+String JSExportCode(String canvasId, String language) {
+  if (_workspaces.containsKey(canvasId)) {
+    return CodeFormatter.formatCode(language, _workspaces[canvasId].exportParseTree());
+  }
+  return null;
+} 
+
+
+/// Expose core API functions to Javascript 
 void main() {
-  js.context['NetTango_InitWorkspace'] = NetTangoInitWorkspace;
+  js.context['NetTango_InitWorkspace'] = JSInitWorkspace;
+  js.context['NetTango_ExportCode'] = JSExportCode;
 }  
