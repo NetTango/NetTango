@@ -18,7 +18,8 @@ part of NetTango;
 
 class CodeWorkspace extends TouchLayer {
   
-  String id;
+  /* HTML Canvas ID */
+  String canvasId;
 
   /* list of blocks in the workspace */
   List<Block> blocks = new List<Block>();
@@ -29,9 +30,6 @@ class CodeWorkspace extends TouchLayer {
   /// block menu 
   BlockMenu menu;
   
-  /* fixed start blocks */
-  //List<StartBlock> starts = new List<StartBlock>();
-
   /* Canvas 2D drawing context */
   CanvasRenderingContext2D ctx;
 
@@ -42,13 +40,11 @@ class CodeWorkspace extends TouchLayer {
 /**
  * Construct a code workspace from a JSON object
  */
-  CodeWorkspace(Map json) {
+  CodeWorkspace(this.canvasId, Map json) {
 
     //--------------------------------------------------------
     // load canvas
     //--------------------------------------------------------
-    String canvasId = json["canvasId"];
-    if (canvasId == null) throw "Invalid workspace JSON object. Missing 'canvas-id' field.";
     CanvasElement canvas = querySelector("#$canvasId");
     if (canvas == null) throw "No canvas element with ID $canvasId found.";
     ctx = canvas.getContext('2d');
@@ -59,18 +55,8 @@ class CodeWorkspace extends TouchLayer {
     //--------------------------------------------------------
     // initialize touch manager
     //--------------------------------------------------------
-    //String touchElement = json["touchElement"];
-    //if (touchElement == null) touchElement = canvasId;
-    //tmanager.registerEvents(querySelector("#$touchElement"));
     tmanager.registerEvents(canvas);
     tmanager.addTouchLayer(this);
-
-
-    //--------------------------------------------------------
-    // Workspace ID
-    //--------------------------------------------------------
-    this.id = json["name"];
-    if (id == null) throw "Invalid workspace JSON object. Missing 'name' field.";
 
 
     //--------------------------------------------------------
@@ -93,9 +79,7 @@ class CodeWorkspace extends TouchLayer {
     //if (json.containsKey("defaultProgram")) {
     //  fromURLString(json["defaultProgram"]);
     //}
-
-    //_addBlock(new Block(this, "hop") .. x = 100 .. y = 100 .. font = "20px 'Montserrat', sans-serif");
-    Sounds.loadSound("click", "packages/NetTango/sounds/click.wav");
+    Sounds.loadSound("click", "sounds/click.wav");
 
     draw();
     tick();
@@ -113,8 +97,11 @@ class CodeWorkspace extends TouchLayer {
  */  
   void programChanged() {
     draw();
-    var parseTree = exportParseTree();
-    print(new NetLogoFormatter().format(parseTree));
+    try {
+      js.context["NetTango"].callMethod("_relayCallback", [ canvasId ]);
+    } catch (e) { 
+      print("Unable to relay program changed event to Javascript"); 
+    }
   }
 
 
@@ -123,7 +110,6 @@ class CodeWorkspace extends TouchLayer {
  */
   Map exportParseTree() {
     Map json = {
-      "workspace" : id,
       "chains" : [ ]
     };
     for (Block block in blocks) {
