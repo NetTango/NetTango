@@ -19,9 +19,26 @@ part of NetTango;
 abstract class CodeFormatter  {
 
   String _indent = "  ";
+
+  static Map<String, CodeFormatter> _formatters = null;
+
+
+  static String formatCode(String language, var parseTree) {
+    if (_formatters == null) {
+      _formatters = new Map<String, CodeFormatter>();
+      _formatters["NetLogo"] = new NetLogoFormatter();
+      _formatters["plain"] = new PlainFormatter();
+    }
+    if (_formatters.containsKey(language)) {
+      return _formatters[language]._format(parseTree);
+    } else {
+      return JSON.encode(parseTree);
+    }
+  }
+
   
   /// convert parse tree output from workspace into source code of a target output language
-  String format(var parseTree);
+  String _format(var parseTree);
 
 
   void _formatOutput(StringBuffer out, int indent, String post) {
@@ -51,7 +68,7 @@ abstract class CodeFormatter  {
 
 class PlainFormatter extends CodeFormatter {
 
-  String format(var parseTree) {
+  String _format(var parseTree) {
     StringBuffer out = new StringBuffer();
     for (var chain in parseTree["chains"]) {
       _formatChain(out, chain, 0);
@@ -87,7 +104,7 @@ class NetLogoFormatter extends CodeFormatter {
   NetLogoFormatter();
 
 
-  String format(var parseTree) {
+  String _format(var parseTree) {
     StringBuffer out = new StringBuffer();
     for (var chain in parseTree["chains"]) {
       if (chain.length > 0 && chain[0]["type"] == "nlogo:procedure") {
