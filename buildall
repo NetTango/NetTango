@@ -1,0 +1,2 @@
+pub build
+cat build/web/dart/ntango.dart.js web/js/ntango.js > lib/ntango.js

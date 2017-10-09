@@ -1,0 +1,21 @@
+Javascript public API
+
+Implement random checkbox for ranges and numbers
+
+Between ranges.
+
+Properties
+
+Readme with language manifesto
+
+Range jiggle
+
+Limit on the number of certain types of blocks
+
+Switch to bootstrap?
+
+Only one of certain types of blocks (like wolf-actions).
+
+Property lists.
+
+Select parameters
