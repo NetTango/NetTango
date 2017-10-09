@@ -1,5 +1,7 @@
 name: NetTango
+
 dependencies:
+  browser: any
 
 transformers:
 - $dart2js:
