@@ -1,6 +1,6 @@
 /*
  * NetTango
- * Copyright (c) 2014 Michael S. Horn, Uri Wilensky, and Corey Brady
+ * Copyright (c) 2017 Michael S. Horn and Uri Wilensky
  * 
  * Northwestern University
  * 2120 Campus Drive
@@ -13,24 +13,16 @@
  * material are those of the author(s) and do not necessarily reflect the views
  * of the National Science Foundation (NSF).
  */
+
 * {
   font-family: Poppins, sans-serif;
   font-size: 16px;
 }  
 
-#workspace {
-  background-color: #e9e5cd;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;  
-}
-
 /* Popup container - can be anything you want */
-#wrapper {
+#nt-container {
   position: relative;
-  width: 800px;
-  height: 800px;
+  display: inline-block;
   margin: 0;
 }
 
