@@ -1,5 +1,3 @@
-Limit on the number of certain types of blocks
-
 Wolf / sheep example
 
 Readme with language manifesto
