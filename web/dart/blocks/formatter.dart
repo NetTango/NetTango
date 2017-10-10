@@ -50,14 +50,20 @@ abstract class CodeFormatter  {
   void _formatBlock(StringBuffer out, var block, int indent) {
     String fmt = block["format"];
     var params = block["params"];
+    var props = block["properties"];
     int pcount = (params is List) ? params.length : 0;
+    int rcount = (props is List) ? props.length : 0;
 
     if (fmt is! String) {
       fmt = "${block['action']}";
       for (int i=0; i<pcount; i++) fmt += " {$i}";
+      for (int i=0; i<rcount; i++) fmt += " {P$i}";
     }
     for (int i=0; i<pcount; i++) {
-      fmt = fmt.replaceAll("{0}", toStr(params[i]["value"]));
+      fmt = fmt.replaceAll("{$i}", toStr(params[i]["value"]));
+    }
+    for (int i=0; i<rcount; i++) {
+      fmt = fmt.replaceAll("{P$i}", toStr(props[i]["value"]));
     }
 
     _formatOutput(out, indent, fmt);
