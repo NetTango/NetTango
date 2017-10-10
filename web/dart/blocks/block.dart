@@ -48,7 +48,7 @@ class Block implements Touchable {
   String format;
 
   /// block dimensions and position
-  num x = 0.0, y = 0.0, width = 0.0, height = 0.0;
+  num x = 0.0, y = 0.0, width = 0.0, _height = 0.0;
 
   /// next block in the chain (below)
   Block next;
@@ -64,6 +64,10 @@ class Block implements Touchable {
 
   /// parameters for this block (optional)
   List<Parameter> params = new List<Parameter>();
+
+  /// properties for this block (optional)
+  /// properties are just named paramters that get listed vertically
+  List<Parameter> properties = new List<Parameter>();
 
   /// CSS color of the block
   String blockColor = '#6b9bc3'; //'#d2584a';
@@ -95,6 +99,9 @@ class Block implements Touchable {
   /// was this block just dragged from the menu for the first time? 
   bool _wasInMenu = true;
 
+  /// height of the block
+  num get height => _inMenu ? BLOCK_HEIGHT : _height;
+
   /// indentation delta above this block
   int get indentAbove => 0;
 
@@ -102,6 +109,8 @@ class Block implements Touchable {
   int get indentBelow => 0;
 
   bool get hasParams => params.isNotEmpty;
+
+  bool get hasProperties => properties.isNotEmpty;
 
   bool get hasNext => next != null;
   
@@ -123,7 +132,7 @@ class Block implements Touchable {
   Block(this.workspace, this.action) {
     id = Block._BLOCK_ID++;
     width = BLOCK_WIDTH;
-    height = BLOCK_HEIGHT;
+    _height = BLOCK_HEIGHT;
     name = action;
   }
 
@@ -171,6 +180,18 @@ class Block implements Touchable {
 
 
     //----------------------------------------------------------
+    // properties
+    //----------------------------------------------------------
+    if (json["properties"] is List) {
+      for (var p in json["properties"]) {
+        Parameter prop = new Parameter.fromJSON(block, p);
+        if (prop != null) block.properties.add(prop);
+      }
+    }
+    block._height = (1 + block.properties.length) * BLOCK_HEIGHT;
+
+
+    //----------------------------------------------------------
     // clauses
     //----------------------------------------------------------
     if (block is BeginBlock && json["clauses"] is List) {
@@ -200,10 +221,13 @@ class Block implements Touchable {
     other.textColor = textColor;
     other.font = font;
     other.width = width;
-    other.height = height;
+    other._height = _height;
     other.hasTopConnector = hasTopConnector;
     for (Parameter param in params) {
       other.params.add(param.clone(other));
+    }
+    for (Parameter prop in properties) {
+      other.properties.add(prop.clone(other));
     }
   }
 
@@ -223,6 +247,12 @@ class Block implements Touchable {
       data["params"] = [];
       for (Parameter param in params) {
         data["params"].add(param.toJSON());
+      }
+    }
+    if (properties.isNotEmpty) {
+      data["properties"] = [];
+      for (Parameter prop in properties) {
+        data["properties"].add(prop.toJSON());
       }
     }
     return data;
@@ -251,7 +281,7 @@ class Block implements Touchable {
 
     width = max(BLOCK_WIDTH, _getNaturalWidth(ctx));
 
-    /// resize all of the parameters
+    // resize all of the parameters
     num pwidth = 0;
     if (!_inMenu && hasParams) {
       for (Parameter param in params) {
@@ -259,7 +289,16 @@ class Block implements Touchable {
         pwidth += param.width + BLOCK_PADDING;
       }
     }
-    maxX = max(maxX, x + width + pwidth);
+
+    // resize the properties
+    num rwidth = 0;
+    if (!_inMenu && hasProperties) {
+      for (Parameter prop in properties) {
+        rwidth = max(rwidth, prop._resizeProperty(ctx));
+      }
+    }
+
+    maxX = max(maxX, max(x + rwidth, x + width + pwidth));
     Block below = nextChain;
     if (below != null) {
       maxX = below._resizeChain(ctx, maxX);
@@ -349,7 +388,7 @@ class Block implements Touchable {
 
 
 //=================================================================  
-// WARNING: EXTREMELY MESSY DRAWING CODE BELOW THIS POINT.
+// WARNING: EXTREMELY UGLY DRAWING CODE BELOW THIS POINT.
 // TRIED TO MAKE IT AS NEAT AS POSSIBLE
 //=================================================================  
 
@@ -360,7 +399,7 @@ class Block implements Touchable {
       ctx.font = font;
       ctx.textAlign = "left";
       ctx.textBaseline = "middle";
-      ctx.fillText(name, x + BLOCK_PADDING, y + height / 2);
+      ctx.fillText(name, x + BLOCK_PADDING, y + BLOCK_HEIGHT / 2);
     }
     ctx.restore();
   }
@@ -425,6 +464,14 @@ class Block implements Touchable {
     for (int i=params.length - 1; i >= 0; i--) {
       left -= (BLOCK_PADDING + params[i].width);
       params[i].draw(ctx, left);
+    }
+  }
+
+
+  void _drawProperties(CanvasRenderingContext2D ctx) {
+    for (int i=0; i < properties.length; i++) {
+      num top = BLOCK_HEIGHT * (i + 1);
+      properties[i].drawProperty(ctx, top);    
     }
   }
 
