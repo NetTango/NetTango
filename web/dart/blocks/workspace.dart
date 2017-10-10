@@ -68,8 +68,8 @@ class CodeWorkspace extends TouchLayer {
         Block block = new Block.fromJSON(this, b) 
           .. moveBlock(100, 100)
           .. font = "14px 'Poppins', sans-serif";
-        //_addBlock(block);
-        menu.addBlock(block, 2);
+        int limit = toInt(b['limit'], -1);
+        menu.addBlock(block, limit);
       }
     }
 

@@ -632,6 +632,5 @@ class Block implements Touchable {
   }
 
   void touchSlide(Contact c) { 
-    print("slide");
   }  
 }

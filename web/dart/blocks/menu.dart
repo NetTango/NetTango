@@ -107,7 +107,7 @@ class Slot implements Touchable {
   
   CodeWorkspace workspace;
   
-  int count = 2;
+  int count = -1;
   
   
   Slot(this.block, this.workspace, this.count) {
@@ -117,7 +117,8 @@ class Slot implements Touchable {
   
   
   bool isAvailable() {
-    return true;
+    int free = count - workspace.getBlockCount(block.action);
+    return (count < 0 || free > 0);
   }
   
   
@@ -126,26 +127,18 @@ class Slot implements Touchable {
   
   
   void draw(CanvasRenderingContext2D ctx) {
-    block.x = x;
-    block.y = y;
-    block._resizeChain(ctx, BLOCK_WIDTH);
-    block._drawBlock(ctx);
-    block._drawLabel(ctx);
-    block._drawOutline(ctx);
-    /*
     int free = count - workspace.getBlockCount(block.action);
-    if (free <= 0) {
-      block.x = x.toDouble() - 1;
-      block.y = y.toDouble() + 1;
-      block.draw(ctx, true);
-    } else {
-      for (int i=0; i<free; i++) {
-        block.x = x.toDouble() - 1 + (i * 3);
-        block.y = y.toDouble() + 1 - (i * 3);
-        block.draw(ctx);
-      }
+    ctx.save();
+    {
+      if (!isAvailable()) ctx.globalAlpha = 0.3;
+      block.x = x;
+      block.y = y;
+      block._resizeChain(ctx, BLOCK_WIDTH);
+      block._drawBlock(ctx);
+      block._drawLabel(ctx);
+      block._drawOutline(ctx);
     }
-    */
+    ctx.restore();
   }
   
   
