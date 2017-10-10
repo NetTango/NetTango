@@ -27,7 +27,18 @@ document.body.onload = function() {
         "action" : "wolf-actions",
         "type" : "nlogo:procedure",
         "start" : true,
+        "limit" : 1,
         "format" : "to wolf-actions",
+        "blockColor" : "#b86f4c"
+      },
+
+      {
+        "name" : "wolf setup",
+        "action" : "wolf-setup",
+        "type" : "nlogo:procedure",
+        "start" : true,
+        "limit" : 1,
+        "format" : "to wolf-setup",
         "blockColor" : "#b86f4c"
       },
 
@@ -35,6 +46,7 @@ document.body.onload = function() {
       {
         "name" : "create wolves",
         "action" : "create-wolves",
+        "limit" : 1,
         "type" : "nlogo:create",
         "format" : "create-wolves {0} [ set size {P0} set color {P1} ]",
         "params" : [
@@ -104,6 +116,14 @@ document.body.onload = function() {
         "action" : "die",
         "type" : "nlogo:command"
       },
+
+
+      {
+        "action" : "decrease energy",
+        "format" : "set energy energy - {0}",
+        "params" : [ { "type" : "range", "min" : 0, "max" : 5, "step" : 0.5, "name" : "amount" }]
+      },
+
 
       {
         "name" : "turn away",
