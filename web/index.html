@@ -4,27 +4,25 @@
   <title>NetTango Example</title>
   <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">   
   <link href="css/ntango.css" rel="stylesheet">
+  <script src="lib/ntango.js"></script>
 </head>
 <body>
-  <div id="wrapper">
-    <canvas id="workspace" width="800" height="800"></canvas>
+  <div id="nt-container">
+    <canvas id="nt-workspace" width="800" height="800" style="background: #e9e5cd;"></canvas>
   </div>
+  <!--
   <script type="application/dart" src="dart/ntango.dart"></script>
   <script src="packages/browser/dart.js"></script>
   <script src="js/ntango.js"></script>
-
-  <!-- script type="text/javascript" src="lib/ntango.js"></script -->
+  -->
   <script>
 
 document.body.onload = function() {
 
-  var json = {
-    "color" : "rgba(0, 0, 0, 0.6)",
+  var workspaceDefinition = {
     "blocks" : [
-
       {
-        "name" : "wolf actions",
-        "action" : "wolf-actions",
+        "action" : "wolf actions",
         "type" : "nlogo:procedure",
         "start" : true,
         "limit" : 1,
@@ -33,8 +31,7 @@ document.body.onload = function() {
       },
 
       {
-        "name" : "wolf setup",
-        "action" : "wolf-setup",
+        "action" : "wolf setup",
         "type" : "nlogo:procedure",
         "start" : true,
         "limit" : 1,
@@ -44,23 +41,21 @@ document.body.onload = function() {
 
 
       {
-        "name" : "create wolves",
-        "action" : "create-wolves",
+        "action" : "create wolves",
         "limit" : 1,
-        "type" : "nlogo:create",
         "format" : "create-wolves {0} [ set size {P0} set color {P1} ]",
         "params" : [
           { "type" : "range", "min" : 0, "max" : 50, "step" : 1, "default" : 20, "name" : "count" }
         ],
         "properties" : [
           { "type" : "range", "name" : "size", "min" : "0.2", "max" : "5", "step" : 0.1, "default" : 1 },
-          { "type" : "select", "name" : "color", "values" : [ "red", "green", "blue", "yellow" ] }
+          { "type" : "select", "name" : "color", "values" : [ "black", "brown", "red", "green", "blue", "yellow" ] },
+          { "type" : "select", "name" : "position", "values" : [ "random", "centered"] }
         ]
       },
 
     
       {
-        "name" : "forward",
         "action" : "forward",
         "params" : [
           {
@@ -75,7 +70,6 @@ document.body.onload = function() {
       },
 
       {
-        "name" : "left",
         "action" : "left",
         "format" : "left random {0}",
         "params" : [
@@ -94,9 +88,8 @@ document.body.onload = function() {
 
 
       {
-        "name" : "right",
         "action" : "right",
-        "type" : "nlogo:command",
+        "format" : "right random {0}",
         "params" : [
           {
             "type" : "range",
@@ -111,40 +104,34 @@ document.body.onload = function() {
         ]
       },
 
+      { "action" : "hatch" },
 
-      {
-        "action" : "die",
-        "type" : "nlogo:command"
-      },
+      { "action" : "die" },
 
 
       {
         "action" : "decrease energy",
         "format" : "set energy energy - {0}",
-        "params" : [ { "type" : "range", "min" : 0, "max" : 5, "step" : 0.5, "name" : "amount" }]
+        "params" : [ { "type" : "range", "min" : 0, "max" : 5, "step" : 0.5, "default" : 1, "name" : "amount" }]
       },
 
 
       {
-        "name" : "turn away",
-        "action" : "away",
-        "instances" : 2,
-        "params" : [
-          {
-            "type" : "range",
-            "min" : 0,
-            "max" : 20,
-            "step" : 0.25,
-            "default" : 1.5,
-            "name" : "max degrees"
-          }
-        ]
+        "action" : "increase energy",
+        "format" : "set energy energy + {0}",
+        "params" : [ { "type" : "range", "min" : 0, "max" : 50, "step" : 1, "default" : 10, "name" : "amount" }]
       },
 
+
       {
-        "name" : "chance",
+        "action" : "if energy depleted",
+        "format" : "if energy < 0",
+        "clauses" : [ ]
+      },
+
+
+      {
         "action" : "chance",
-        "type" : "nlogo:ifelse",
         "format" : "ifelse random 100 < {0}",
         "clauses" : [
           {
@@ -167,10 +154,11 @@ document.body.onload = function() {
       }
     ]
   };
-  NetTango.init("workspace", json);
+  
+  NetTango.init("nt-workspace", workspaceDefinition);
 
-  NetTango.addProgramChangedCallback("workspace", function(canvasId) {
-    var code = NetTango.exportCode("workspace", "NetLogo");
+  NetTango.addProgramChangedCallback("nt-workspace", function(canvasId) {
+    var code = NetTango.exportCode(canvasId, "NetLogo");
     console.log(code);
   });
 }
