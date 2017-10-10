@@ -9,11 +9,11 @@
   <div id="wrapper">
     <canvas id="workspace" width="800" height="800"></canvas>
   </div>
-
   <script type="application/dart" src="dart/ntango.dart"></script>
   <script src="packages/browser/dart.js"></script>
   <script src="js/ntango.js"></script>
 
+  <!-- script type="text/javascript" src="lib/ntango.js"></script -->
   <script>
 
 document.body.onload = function() {
@@ -29,6 +29,21 @@ document.body.onload = function() {
         "start" : true,
         "format" : "to wolf-actions",
         "blockColor" : "#b86f4c"
+      },
+
+
+      {
+        "name" : "create wolves",
+        "action" : "create-wolves",
+        "type" : "nlogo:create",
+        "format" : "create-wolves {0} [ set size {P0} set color {P1} ]",
+        "params" : [
+          { "type" : "range", "min" : 0, "max" : 50, "step" : 1, "default" : 20, "name" : "count" }
+        ],
+        "properties" : [
+          { "type" : "range", "name" : "size", "min" : "0.2", "max" : "5", "step" : 0.1, "default" : 1 },
+          { "type" : "select", "name" : "color", "values" : [ "red", "green", "blue", "yellow" ] }
+        ]
       },
 
     
@@ -136,7 +151,6 @@ document.body.onload = function() {
 
   NetTango.addProgramChangedCallback("workspace", function(canvasId) {
     var code = NetTango.exportCode("workspace", "NetLogo");
-    console.log(canvasId);
     console.log(code);
   });
 }
