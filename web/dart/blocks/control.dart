@@ -115,7 +115,7 @@ class EndBlock extends ClauseBlock {
 
   EndBlock(CodeWorkspace workspace, String action) : 
     super(workspace, action) {
-    this.height = BLOCK_HEIGHT / 2;
+    this._height = BLOCK_HEIGHT / 2;
   }
 
   void _reindentChain(int indent, ControlBlock parent) {
