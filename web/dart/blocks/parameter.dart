@@ -44,7 +44,7 @@ class Parameter implements Touchable {
   String unit = "";
 
   /// position of the parameter
-  num _left = 0; 
+  num _left = 0, _top = 0;
   num width = 28.0; 
   num height = BLOCK_HEIGHT * 0.6;
 
@@ -95,7 +95,7 @@ class Parameter implements Touchable {
 
       case "range": return new RangeParameter(parent, data);
 
-      case "selection": return new SelectParameter(parent, data);
+      case "select": return new SelectParameter(parent, data);
 
       case "text": 
       default: return new Parameter(parent, data);
@@ -110,36 +110,64 @@ class Parameter implements Touchable {
       ctx.font = block.font;
       width += ctx.measureText(valueAsString).width;      
     }
+    ctx.restore();
+  }
+
+
+  num _resizeProperty(CanvasRenderingContext2D ctx) {
+    _resize(ctx);
+    num w = width;
+    ctx.save();
+    {
+      ctx.font = block.font;
+      w += BLOCK_INDENT + ctx.measureText("\u25B8    $name").width + BLOCK_PADDING * 2;
+    }
+    ctx.restore();
+    return w;
   }
   
   
-  void draw(CanvasRenderingContext2D ctx, num left) {
+  void draw(CanvasRenderingContext2D ctx, num left, [ num top = 0 ]) {
     this._left = left;
+    this._top = top;
 
     ctx.font = block.font;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
 
     num x = block.x + _left;
-    num y = block.y + block.height / 2;
+    num y = block.y + _top + BLOCK_HEIGHT / 2 - height/2;
     num w = width;
     num h = height;
     
     ctx.beginPath();
-    roundRect(ctx, x, y - h/2, w, h, h/2);
+    roundRect(ctx, x, y, w, h, h/2);
     ctx.fillStyle = _down ? block.blockColor : block.borderColor;
     ctx.fill();
     ctx.fillStyle = _down ? block.borderColor : block.blockColor;
-    ctx.fillText(valueAsString, x + w/2, y);
+    ctx.fillText(valueAsString, x + w/2, y + h/2);
+  }
+
+
+  void drawProperty(CanvasRenderingContext2D ctx, num top) {
+    num left = block.width - (BLOCK_PADDING + width);
+    num y = block.y + top + BLOCK_HEIGHT / 2;
+    num x = block.x + BLOCK_INDENT;
+    ctx.fillStyle = block.textColor;
+    ctx.font = block.font;
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText("\u25B8    $name", x, y);
+    draw(ctx, left, top);
   }
   
   
   bool containsTouch(Contact c) {
     return (
       c.touchX >= block.x + _left &&
-      c.touchY >= block.y &&
+      c.touchY >= block.y + _top &&
       c.touchX <= block.x + _left + width &&
-      c.touchY <= block.y + block.height);
+      c.touchY <= block.y + _top + BLOCK_HEIGHT);
   }
 
 
@@ -310,9 +338,14 @@ class SelectParameter extends Parameter {
   /// list of possible values for select type
   var values = [ ];
 
+  String get valueAsString => "${_value.toString()}$unit \u25BE";
+
 
   SelectParameter(Block block, Map data) : super(block, data) {
-    if (data["values"] is List) values = data["values"];
+    if (data["values"] is List && data["values"].length > 0) {
+      values = data["values"];
+      _value = values[0];
+    }
   }
 
 
@@ -325,5 +358,15 @@ class SelectParameter extends Parameter {
     Map json = super.toJSON();
     json["values"] = values;
     return json;
+  }
+
+
+  String _buildHTMLInput() {
+    String input = "<select id='nt-param-${id}'>";
+    for (var v in values) {
+      input += "<option value='${v}' ${v == value ? 'selected' : ''}>${v}</option>";      
+    }
+    input += "</select>";
+    return input;
   }
 }
