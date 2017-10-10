@@ -2,6 +2,8 @@ Wolf / sheep example
 
 Readme with language manifesto
 
+Can't have a fixed nt-container ID for the <div>!
+
 Clean up CSS
 
 Implement random checkbox for ranges and numbers
@@ -9,8 +11,6 @@ Implement random checkbox for ranges and numbers
 Between ranges.
 
 Range jiggle
-
-Switch to bootstrap?
 
 Only one of certain types of blocks (like wolf-actions).
 
