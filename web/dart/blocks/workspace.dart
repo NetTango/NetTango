@@ -138,7 +138,7 @@ class CodeWorkspace extends TouchLayer {
     for (Parameter param in block.params) {
       addTouchable(param);
     }
-    for (Property prop in block.properties) {
+    for (Parameter prop in block.properties) {
       addTouchable(prop);
     }
   }
@@ -153,7 +153,7 @@ class CodeWorkspace extends TouchLayer {
     for (Parameter param in block.params) {
       removeTouchable(param);
     }
-    for (Property prop in block.properties) {
+    for (Parameter prop in block.properties) {
       removeTouchable(prop);
     }
     draw();
