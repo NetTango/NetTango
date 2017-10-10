@@ -45,8 +45,7 @@ document.body.onload = function() {
 
     // send code to NetLogo Web here!
   });
-  
-
+}
 </script>
 </body>
 </html>
