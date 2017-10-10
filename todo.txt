@@ -1,21 +1,19 @@
-Javascript public API
+Limit on the number of certain types of blocks
+
+Wolf / sheep example
+
+Readme with language manifesto
+
+Clean up CSS
 
 Implement random checkbox for ranges and numbers
 
 Between ranges.
 
-Properties
-
-Readme with language manifesto
-
 Range jiggle
-
-Limit on the number of certain types of blocks
 
 Switch to bootstrap?
 
 Only one of certain types of blocks (like wolf-actions).
 
-Property lists.
-
-Select parameters
+Double click to preview? 
