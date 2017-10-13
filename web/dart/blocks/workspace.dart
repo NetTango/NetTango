@@ -55,6 +55,7 @@ class CodeWorkspace extends TouchLayer {
     //--------------------------------------------------------
     // initialize touch manager
     //--------------------------------------------------------
+    scale(1/SCALE, 1/SCALE);
     tmanager.registerEvents(canvas);
     tmanager.addTouchLayer(this);
 
@@ -65,9 +66,7 @@ class CodeWorkspace extends TouchLayer {
     menu = new BlockMenu(this);
     if (json['blocks'] is List) {
       for (var b in json['blocks']) {
-        Block block = new Block.fromJSON(this, b) 
-          .. moveBlock(100, 100)
-          .. font = "14px 'Poppins', sans-serif";
+        Block block = new Block.fromJSON(this, b);
         int limit = toInt(b['limit'], -1);
         menu.addBlock(block, limit);
       }
@@ -291,7 +290,7 @@ class CodeWorkspace extends TouchLayer {
     ctx.save();
     {
       // transform into workspace coordinates
-      xform.transformContext(ctx);
+      //xform.transformContext(ctx);
       
       ctx.clearRect(0, 0, width, height);
 

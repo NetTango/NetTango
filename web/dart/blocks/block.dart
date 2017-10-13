@@ -15,11 +15,12 @@
  */
 part of NetTango;
 
-const BLOCK_WIDTH = 80.0; // 58
-const BLOCK_HEIGHT = 34.0; //50.0;
-const BLOCK_PADDING = 10.0;
-const BLOCK_INDENT = 25.0;  /// left side connector area for blocks
-const BLOCK_GUTTER = 10.0;
+final num SCALE = window.devicePixelRatio;
+final num BLOCK_WIDTH = 80.0 * SCALE; // 58
+final num BLOCK_HEIGHT = 34.0 * SCALE; //50.0;
+final num BLOCK_PADDING = 10.0 * SCALE;
+final num BLOCK_INDENT = 25.0 * SCALE;  /// left side connector area for blocks
+final num BLOCK_GUTTER = 10.0 * SCALE;
 
 
 /**
@@ -79,7 +80,7 @@ class Block implements Touchable {
   String borderColor = "rgba(255, 255, 255, 0.8)";
 
   /// CSS font spec
-  String font = "400 14px 'Poppins', sans-serif";
+  String font = "400 ${14 * SCALE}px 'Poppins', sans-serif";
 
   /// link back to the main workspace
   CodeWorkspace workspace;
@@ -167,6 +168,7 @@ class Block implements Touchable {
     block.textColor = toStr(json["textColor"], block.textColor);
     block.font = toStr(json["font"], block.font);
     block.hasTopConnector = ! toBool(json["start"], false);
+
 
     //----------------------------------------------------------
     // parameters
@@ -410,7 +412,7 @@ class Block implements Touchable {
     {
       _outlineBlock(ctx);
       ctx.strokeStyle = borderColor;
-      ctx.lineWidth = 1.5;
+      ctx.lineWidth = 1.5 * SCALE;
       ctx.lineJoin = "round";
       ctx.stroke();
     }
