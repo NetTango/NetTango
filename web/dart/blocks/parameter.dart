@@ -202,7 +202,9 @@ class Parameter implements Touchable {
         <button class="nt-param-confirm">OK</button>
         <button class="nt-param-cancel">Cancel</button>
       </div>""");
-    querySelector("#nt-container").append(backdrop);
+    HtmlElement container = querySelector("#${block.workspace.canvasId}").parent;
+    if (container == null) return;
+    container.append(backdrop);
 
     HtmlElement label = querySelector("#nt-param-label-$id");
     InputElement input = querySelector("#nt-param-$id");
