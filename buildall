@@ -1,2 +1,3 @@
 pub build
 cat build/web/dart/ntango.dart.js web/js/ntango.js > web/lib/ntango.js
+cat build/web/dart/ntango.dart.js web/js/ntango.js > build/web/lib/ntango.js
