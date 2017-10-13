@@ -7,7 +7,7 @@
   <!-- script src="lib/ntango.js"></script -->
 </head>
 <body>
-  <div id="nt-container">
+  <div id="nt-containerish">
     <canvas id="nt-workspace" width="600" height="600" style="background: #e9e5cd;"></canvas>
   </div>
 
@@ -30,6 +30,7 @@ document.body.onload = function() {
         "blockColor" : "#b86f4c"
       },
 
+/*
       {
         "action" : "wolf setup",
         "type" : "nlogo:procedure",
@@ -38,7 +39,6 @@ document.body.onload = function() {
         "format" : "to wolf-setup",
         "blockColor" : "#b86f4c"
       },
-
 
       {
         "action" : "create wolves",
@@ -53,7 +53,7 @@ document.body.onload = function() {
           { "type" : "select", "name" : "position", "values" : [ "random", "centered"] }
         ]
       },
-
+*/
     
       {
         "action" : "forward",
@@ -126,6 +126,12 @@ document.body.onload = function() {
       {
         "action" : "if energy depleted",
         "format" : "if energy < 0",
+        "clauses" : [ ]
+      },
+
+      {
+        "action" : "ask sheep-here",
+        "format" : "ask sheep-here",
         "clauses" : [ ]
       },
 
