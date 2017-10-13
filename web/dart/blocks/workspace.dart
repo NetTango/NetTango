@@ -48,14 +48,23 @@ class CodeWorkspace extends TouchLayer {
     CanvasElement canvas = querySelector("#$canvasId");
     if (canvas == null) throw "No canvas element with ID $canvasId found.";
     ctx = canvas.getContext('2d');
-    width = canvas.width;
-    height = canvas.height;
+
+
+    //--------------------------------------------------------
+    // rescale according to devicePixelRatio
+    //--------------------------------------------------------
+    canvas.style.width = "${canvas.width}px";
+    canvas.style.height = "${canvas.height}px";
+    width = canvas.width * SCALE;
+    height = canvas.height * SCALE;
+    canvas.width = width;
+    canvas.height = height;
+    scale(1/SCALE, 1/SCALE);  // scales touch input
 
 
     //--------------------------------------------------------
     // initialize touch manager
     //--------------------------------------------------------
-    scale(1/SCALE, 1/SCALE);
     tmanager.registerEvents(canvas);
     tmanager.addTouchLayer(this);
 
