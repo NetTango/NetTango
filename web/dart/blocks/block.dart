@@ -77,10 +77,13 @@ class Block implements Touchable {
   String textColor = 'white';
 
   /// CSS border color of the block
-  String borderColor = "rgba(255, 255, 255, 0.8)";
+  String borderColor = "rgba(255, 255, 255, 0.6)";
 
   /// CSS font spec
   String font = "400 ${14 * SCALE}px 'Poppins', sans-serif";
+
+  /// Tells a code formatter that at least one block of this type is required
+  bool required = false;
 
   /// link back to the main workspace
   CodeWorkspace workspace;
@@ -168,6 +171,7 @@ class Block implements Touchable {
     block.textColor = toStr(json["textColor"], block.textColor);
     block.font = toStr(json["font"], block.font);
     block.hasTopConnector = ! toBool(json["start"], false);
+    block.required = toBool(json["required"], block.required);
 
 
     //----------------------------------------------------------
@@ -222,6 +226,7 @@ class Block implements Touchable {
     other.blockColor = blockColor;
     other.textColor = textColor;
     other.font = font;
+    other.required = required;
     other.width = width;
     other._height = _height;
     other.hasTopConnector = hasTopConnector;
@@ -245,6 +250,7 @@ class Block implements Touchable {
     data["type"] = type;
     data["format"] = format;
     data["start"] = hasTopConnector;
+    data["required"] = required;
     if (params.isNotEmpty) {
       data["params"] = [];
       for (Parameter param in params) {
@@ -412,7 +418,7 @@ class Block implements Touchable {
     {
       _outlineBlock(ctx);
       ctx.strokeStyle = borderColor;
-      ctx.lineWidth = 1.5 * SCALE;
+      ctx.lineWidth = .5 * SCALE;
       ctx.lineJoin = "round";
       ctx.stroke();
     }
