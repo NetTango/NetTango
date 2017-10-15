@@ -142,9 +142,9 @@ class Parameter implements Touchable {
     
     ctx.beginPath();
     roundRect(ctx, x, y, w, h, h/2);
-    ctx.fillStyle = _down ? block.blockColor : block.borderColor;
+    ctx.fillStyle = _down ? block.blockColor : block.textColor;
     ctx.fill();
-    ctx.fillStyle = _down ? block.borderColor : block.blockColor;
+    ctx.fillStyle = _down ? block.textColor : block.blockColor;
     ctx.fillText(valueAsString, x + w/2, y + h/2);
   }
 
@@ -278,7 +278,7 @@ class NumParameter extends Parameter {
 
   String _buildHTMLInput() {
     return """
-      <input class="nt-param-input" id="nt-param-${id}" type="number" step="${stepSize} value="${valueAsString}">
+      <input class="nt-param-input" id="nt-param-${id}" type="number" step="${stepSize}" value="${value}">
       <span class="nt-param-unit">${unit}</span>
     """;
   }
@@ -324,7 +324,7 @@ class RangeParameter extends NumParameter {
 
   String _buildHTMLInput() {
     return """
-      <input class="nt-param-input" id="nt-param-${id}" type="range" value="${valueAsString}" min="$minValue" max="$maxValue" step="$stepSize">
+      <input class="nt-param-input" id="nt-param-${id}" type="range" value="${value}" min="$minValue" max="$maxValue" step="$stepSize">
       <label class="nt-param-label" id="nt-param-label-${id}" for="nt-param-${id}">${value}</label>
       <span class="nt-param-unit">${unit}</span>
     """;
