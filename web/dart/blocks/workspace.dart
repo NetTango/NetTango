@@ -125,6 +125,13 @@ class CodeWorkspace extends TouchLayer {
         json["chains"].add(block.exportParseTree());
       }
     }
+    for (Slot slot in menu.slots) {
+      if (slot.block.required) {
+        if (getBlockCount(slot.block.action) == 0) {
+          json["chains"].add(slot.block.exportParseTree());          
+        }
+      }
+    }
     return json;
   }
 
@@ -334,7 +341,8 @@ class CodeWorkspace extends TouchLayer {
         block._drawLabel(ctx);
         block._drawParameters(ctx);
         block._drawProperties(ctx);
-        if (drags.isNotEmpty) block._drawOutline(ctx);
+        //if (drags.isNotEmpty) 
+        block._drawOutline(ctx);
       }
     }
     ctx.restore();
