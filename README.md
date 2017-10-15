@@ -16,8 +16,8 @@
   <script src="ntango.js"></script>
 </head>
 <body>
-  <div id="nt-container">
-    <canvas id="nt-workspace" width="800" height="800" style="background: #e9e5cd;"></canvas>
+  <div id="nt-containerish">
+    <canvas id="nt-workspace" width="800" height="600" style="background: #fef9f6;"></canvas>
   </div>
 
 <script>
@@ -56,43 +56,21 @@ document.body.onload = function() {
 * The next step is to try a more full-fledged block definition object. Try replacing workspaceDefinition with this object:
 
 ```javascript
-
   var workspaceDefinition = {
     "blocks" : [
       {
-        "action" : "wolf actions",
+        "action" : "\uD83D\uDC3A   wolf actions ",
         "type" : "nlogo:procedure",
         "start" : true,
         "limit" : 1,
         "format" : "to wolf-actions",
-        "blockColor" : "#b86f4c"
+        "blockColor" : "#b55",
+        "required" : true
       },
 
       {
-        "action" : "wolf setup",
-        "type" : "nlogo:procedure",
-        "start" : true,
-        "limit" : 1,
-        "format" : "to wolf-setup",
-        "blockColor" : "#b86f4c"
-      },
-
-      {
-        "action" : "create wolves",
-        "limit" : 1,
-        "format" : "create-wolves {0} [ set size {P0} set color {P1} ]",
-        "params" : [
-          { "type" : "range", "min" : 0, "max" : 50, "step" : 1, "default" : 20, "name" : "count" }
-        ],
-        "properties" : [
-          { "type" : "range", "name" : "size", "min" : "0.2", "max" : "5", "step" : 0.1, "default" : 1 },
-          { "type" : "select", "name" : "color", "values" : [ "black", "brown", "red", "green", "blue", "yellow" ] },
-          { "type" : "select", "name" : "position", "values" : [ "random", "centered"] }
-        ]
-      },
-    
-      {
-        "action" : "forward",
+        "action" : "\uD83D\uDC3A   forward",
+        "format" : "forward {0}",
         "params" : [
           {
             "type" : "range",
@@ -106,7 +84,7 @@ document.body.onload = function() {
       },
 
       {
-        "action" : "left",
+        "action" : "\uD83D\uDC3A   left",
         "format" : "left random {0}",
         "params" : [
           {
@@ -123,7 +101,7 @@ document.body.onload = function() {
       },
 
       {
-        "action" : "right",
+        "action" : "\uD83D\uDC3A   right",
         "format" : "right random {0}",
         "params" : [
           {
@@ -139,38 +117,53 @@ document.body.onload = function() {
         ]
       },
 
-      { "action" : "hatch" },
-
-      { "action" : "die" },
-
       {
-        "action" : "decrease energy",
-        "format" : "set energy energy - {0}",
-        "params" : [ { "type" : "range", "min" : 0, "max" : 5, "step" : 0.5, "default" : 1, "name" : "amount" }]
-      },
-
-      {
-        "action" : "increase energy",
+        "action" : "\uD83D\uDC3A   change energy",
         "format" : "set energy energy + {0}",
-        "params" : [ { "type" : "range", "min" : 0, "max" : 50, "step" : 1, "default" : 10, "name" : "amount" }]
+        "params" : [ { "type" : "range", "min" : -20, "max" : 20, "step" : 0.5, "default" : 1, "name" : "amount" }]
+      },
+
+      { 
+        "action" : "\uD83D\uDC3A   hatch", 
+        "format" : "hatch 1", 
+        "blockColor" : "#916da0",
+        "params" : [
+          { "type" : "int", "min" : 1, "name" : "child count", "default" : 1 }
+        ]
+      },
+
+      { 
+        "action" : "die", 
+        "blockColor" : "#916da0",
       },
 
       {
-        "action" : "if energy depleted",
-        "format" : "if energy < 0",
+        "action" : "\uD83D\uDC3A   if energy <= 0?",
+        "format" : "if energy <= 0",
+        "blockColor" : "#89a",
         "clauses" : [ ]
       },
 
       {
+        "action" : "\uD83D\uDC11   if sheep-here?",
+        "format" : "if energy < 0",
+        "blockColor" : "#89a",
+        "clauses" : [ ]
+      },
+
+      {
+        "action" : "\uD83D\uDC11   ask sheep-here",
+        "blockColor" : "#89a",
+        "format" : "ask sheep-here",
+        "clauses" : [ ]
+      },
+
+
+      {
         "action" : "chance",
+        "blockColor" : "#89a",
         "format" : "ifelse random 100 < {0}",
-        "clauses" : [
-          {
-            "name" : "else",
-            "action" : "chance-else",
-            "format" : ""
-          }
-        ],
+        "clauses" : [ ],
         "params" : [
           {
             "type" : "range",
