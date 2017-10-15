@@ -8,7 +8,7 @@
 </head>
 <body>
   <div id="nt-containerish">
-    <canvas id="nt-workspace" width="600" height="600" style="background: #e9e5cd;"></canvas>
+    <canvas id="nt-workspace" width="800" height="600" style="background: #fef9f6;"></canvas>
   </div>
 
   <script type="application/dart" src="dart/ntango.dart"></script>
@@ -22,12 +22,13 @@ document.body.onload = function() {
   var workspaceDefinition = {
     "blocks" : [
       {
-        "action" : "wolf actions",
+        "action" : "\uD83D\uDC3A   wolf actions ",
         "type" : "nlogo:procedure",
         "start" : true,
         "limit" : 1,
         "format" : "to wolf-actions",
-        "blockColor" : "#b86f4c"
+        "blockColor" : "#b55",
+        "required" : true
       },
 
 /*
@@ -56,7 +57,8 @@ document.body.onload = function() {
 */
     
       {
-        "action" : "forward",
+        "action" : "\uD83D\uDC3A   forward",
+        "format" : "forward {0}",
         "params" : [
           {
             "type" : "range",
@@ -70,7 +72,7 @@ document.body.onload = function() {
       },
 
       {
-        "action" : "left",
+        "action" : "\uD83D\uDC3A   left",
         "format" : "left random {0}",
         "params" : [
           {
@@ -88,7 +90,7 @@ document.body.onload = function() {
 
 
       {
-        "action" : "right",
+        "action" : "\uD83D\uDC3A   right",
         "format" : "right random {0}",
         "params" : [
           {
@@ -104,33 +106,43 @@ document.body.onload = function() {
         ]
       },
 
-      { "action" : "hatch" },
-
-      { "action" : "die" },
-
-
       {
-        "action" : "decrease energy",
-        "format" : "set energy energy - {0}",
-        "params" : [ { "type" : "range", "min" : 0, "max" : 5, "step" : 0.5, "default" : 1, "name" : "amount" }]
-      },
-
-
-      {
-        "action" : "increase energy",
+        "action" : "\uD83D\uDC3A   change energy",
         "format" : "set energy energy + {0}",
-        "params" : [ { "type" : "range", "min" : 0, "max" : 50, "step" : 1, "default" : 10, "name" : "amount" }]
+        "params" : [ { "type" : "range", "min" : -20, "max" : 20, "step" : 0.5, "default" : 1, "name" : "amount" }]
       },
 
+      { 
+        "action" : "\uD83D\uDC3A   hatch", 
+        "format" : "hatch 1", 
+        "blockColor" : "#916da0",
+        "params" : [
+          { "type" : "int", "min" : 1, "name" : "child count", "default" : 1 }
+        ]
+      },
+
+      { 
+        "action" : "die", 
+        "blockColor" : "#916da0",
+      },
 
       {
-        "action" : "if energy depleted",
-        "format" : "if energy < 0",
+        "action" : "\uD83D\uDC3A   if energy <= 0?",
+        "format" : "if energy <= 0",
+        "blockColor" : "#89a",
         "clauses" : [ ]
       },
 
       {
-        "action" : "ask sheep-here",
+        "action" : "\uD83D\uDC11   if sheep-here?",
+        "format" : "if energy < 0",
+        "blockColor" : "#89a",
+        "clauses" : [ ]
+      },
+
+      {
+        "action" : "\uD83D\uDC11   ask sheep-here",
+        "blockColor" : "#89a",
         "format" : "ask sheep-here",
         "clauses" : [ ]
       },
@@ -138,13 +150,16 @@ document.body.onload = function() {
 
       {
         "action" : "chance",
+        "blockColor" : "#89a",
         "format" : "ifelse random 100 < {0}",
         "clauses" : [
+        /*
           {
             "name" : "else",
             "action" : "chance-else",
             "format" : ""
           }
+        */
         ],
         "params" : [
           {
