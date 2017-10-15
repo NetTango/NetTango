@@ -112,6 +112,7 @@ class NetLogoFormatter extends CodeFormatter {
 
   String _format(var parseTree) {
     StringBuffer out = new StringBuffer();
+    out.writeln("; --- NETTANGO BEGIN ---");
     for (var chain in parseTree["chains"]) {
       if (chain.length > 0 && chain[0]["type"] == "nlogo:procedure") {
         var block = chain.removeAt(0);
@@ -121,6 +122,7 @@ class NetLogoFormatter extends CodeFormatter {
         out.writeln();
       }
     }
+    out.writeln("; --- NETTANGO END ---");
     return out.toString();
   }
 
