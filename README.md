@@ -162,7 +162,7 @@ document.body.onload = function() {
       {
         "action" : "chance",
         "blockColor" : "#89a",
-        "format" : "ifelse random 100 < {0}",
+        "format" : "if random 100 < {0}",
         "clauses" : [ ],
         "params" : [
           {
