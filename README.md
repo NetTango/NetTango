@@ -146,7 +146,7 @@ document.body.onload = function() {
 
       {
         "action" : "\uD83D\uDC11   if sheep-here?",
-        "format" : "if energy < 0",
+        "format" : "if any? sheep-here",
         "blockColor" : "#89a",
         "clauses" : [ ]
       },
