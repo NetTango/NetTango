@@ -29,9 +29,11 @@ class Sounds {
       request.open("GET", url, async: true);
       request.responseType = "arraybuffer";
       request.onLoad.listen((e) {
-        audio.decodeAudioData(request.response).then((AudioBuffer buffer) {
-          if (buffer != null) sounds[name] = buffer;
-        });      
+        try {
+          audio.decodeAudioData(request.response).then((AudioBuffer buffer) {
+            if (buffer != null) sounds[name] = buffer;
+          });      
+        } catch (x) { ; }
       });
       request.onError.listen((e) => print("BufferLoader: XHR error"));
       request.send();
