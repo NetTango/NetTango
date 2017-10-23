@@ -14,13 +14,10 @@
  * of the National Science Foundation (NSF).
  */
 
-* {
-  font-family: Poppins, sans-serif;
-  font-size: 16px;
-}  
-
 /* Popup container - can be anything you want */
 #nt-container {
+  font-family: Poppins, sans-serif;
+  font-size: 16px;
   position: relative;
   display: inline-block;
   margin: 0;
