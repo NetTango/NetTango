@@ -34,10 +34,7 @@ class Block implements Touchable {
   /// unique internal block ID number
   int id;
   
-  /// text displayed inside the block
-  String name;
-  
-  /// internal action name (usually the same as text)
+  /// text displayed on the block 
   String action;
 
   /// language specific command type used by code formatters (e.g. nlogo:command)
@@ -137,7 +134,6 @@ class Block implements Touchable {
     id = Block._BLOCK_ID++;
     width = BLOCK_WIDTH;
     _height = BLOCK_HEIGHT;
-    name = action;
   }
 
 
@@ -146,7 +142,6 @@ class Block implements Touchable {
 
     Block block;
     String action = toStr(json["action"]);  // required - must be unique
-    String name = toStr(json["name"], action);
 
     //----------------------------------------------------------
     // block types
@@ -164,11 +159,11 @@ class Block implements Touchable {
     //----------------------------------------------------------
     // block properties
     //----------------------------------------------------------
-    block.name = name;
     block.type = toStr(json["type"]);
     block.format = toStr(json["format"], null);
     block.blockColor = toStr(json["blockColor"], block.blockColor);
     block.textColor = toStr(json["textColor"], block.textColor);
+    block.borderColor = toStr(json["borderColor"], block.borderColor);
     block.font = toStr(json["font"], block.font);
     block.hasTopConnector = ! toBool(json["start"], false);
     block.required = toBool(json["required"], block.required);
@@ -220,11 +215,12 @@ class Block implements Touchable {
 
 
   void _copyTo(Block other) {
-    other.name = name;
+    other.action = action;
     other.type = type;
     other.format = format;
     other.blockColor = blockColor;
     other.textColor = textColor;
+    other.borderColor = borderColor;
     other.font = font;
     other.required = required;
     other.width = width;
@@ -245,7 +241,6 @@ class Block implements Touchable {
   Map toJSON() {
     var data = { };
     data["id"] = id;
-    data["name"] = name;
     data["action"] = action;
     data["type"] = type;
     data["format"] = format;
@@ -372,7 +367,7 @@ class Block implements Touchable {
     ctx.save();
     {
       ctx.font = font;
-      w = ctx.measureText(name).width;
+      w = ctx.measureText(action).width;
     }
     ctx.restore();
     return w;
@@ -407,7 +402,7 @@ class Block implements Touchable {
       ctx.font = font;
       ctx.textAlign = "left";
       ctx.textBaseline = "middle";
-      ctx.fillText(name, x + BLOCK_PADDING, y + BLOCK_HEIGHT / 2);
+      ctx.fillText(action, x + BLOCK_PADDING, y + BLOCK_HEIGHT / 2);
     }
     ctx.restore();
   }
