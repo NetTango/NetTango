@@ -39,6 +39,9 @@ var _workspaces = { };
 
 /// Javascript hook to initialize a workspace
 void JSInitWorkspace(String canvasId, String jsonString) {
+  if (_workspaces[canvasId] is CodeWorkspace) {
+    _workspaces[canvasId].unload();
+  }
   var json = JSON.decode(jsonString);
   if (json is Map) {
     _workspaces[canvasId] = new CodeWorkspace(canvasId, json);
