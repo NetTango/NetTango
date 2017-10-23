@@ -93,6 +93,16 @@ class CodeWorkspace extends TouchLayer {
     tick();
   }
 
+
+/**
+ * Detaches this workspace object from the canvas
+ */
+  void unload() {
+    clearTouchables();
+    blocks.clear();
+    tmanager.removeTouchLayer(this);
+  }
+
   
   void tick() {
     if (animate()) draw();
