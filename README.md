@@ -146,7 +146,7 @@ document.body.onload = function() {
 
       {
         "action" : "\uD83D\uDC11   if sheep-here?",
-        "format" : "if energy < 0",
+        "format" : "if any? sheep-here",
         "blockColor" : "#89a",
         "clauses" : [ ]
       },
@@ -162,7 +162,7 @@ document.body.onload = function() {
       {
         "action" : "chance",
         "blockColor" : "#89a",
-        "format" : "ifelse random 100 < {0}",
+        "format" : "if random 100 < {0}",
         "clauses" : [ ],
         "params" : [
           {
