@@ -55,12 +55,24 @@ function loadBlockTemplate() {
   //--------------------------------
   // Trigger popovers
   //--------------------------------
+  $(".nt-field").each(function (index) {
+    var popover = $(this).data('popover');
+    console.log(popover);
+    $(this).popover({
+      trigger: 'focus', 
+      html: true,
+      content: popover
+    })
+    .blur(function () { $(this).popover('hide'); });
+  });
+  /*
   $(".nt-field").popover({
     trigger: 'focus', 
     html: true,
-    content: $(this).data('content')
+    content: $(this).data('popover')
   })
   .blur(function () { $(this).popover('hide'); });
+  */
 
   $("#add-block").click(updateBlockList);
   $('#add-parameter').click(addParameter);

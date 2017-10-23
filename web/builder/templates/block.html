@@ -22,7 +22,7 @@
           <!-- ACTION -->
           <div class="form-group">
             <label for="block-action">Block Name</label>
-            <input type="text" class="nt-field form-control" id="block-action" name="action" required="true" data-content="Text that will appear in the block itself." value="My Block">
+            <input type="text" class="nt-field form-control" id="block-action" name="action" required="true" data-popover="Text that will appear in the block itself." value="My Block">
           </div>
 
 
@@ -35,7 +35,7 @@
               type="text" 
               class="nt-field form-control" 
               list="typelist" 
-              data-content="Type is a hint provided to the language formatter. NetLogo procedures must have the type, nlogo:procedure.">
+              data-popover="Type is a hint provided to the language formatter. NetLogo procedures must have the type, nlogo:procedure.">
             <datalist id="typelist">
               <option>nlogo:procedure</option>
               <option>nlogo:command</option>
@@ -49,7 +49,7 @@
           <!-- FORMAT -->
           <div class="form-group">
             <label for="block-format">Format</label>
-            <input type="text" class="form-control nt-field" id="block-format" name="format" style="font-family: monospace;" data-content="How the block will be formatted in the destination language. <br>Parameters can be referenced by their order: {0}, {1}, {2}. <br>Properties can be accessed with a 'P' prefix: {P0}, {P1}<br>Examples: <br><code>crt {0} [ set size {P0} ]</code><br><code>forward {0}">
+            <input type="text" class="form-control nt-field" id="block-format" name="format" style="font-family: monospace;" data-popover="How the block will be formatted in the destination language. <br>Parameters can be referenced by their order: {0}, {1}, {2}. <br>Properties can be accessed with a 'P' prefix: {P0}, {P1}<br>Examples: <br><code>crt {0} [ set size {P0} ]</code><br><code>forward {0}">
           </div>
 
 
@@ -59,7 +59,7 @@
             <!-- START BLOCK -->
             <div class="col-sm">
               <label for="block-start">Start Block?</label>
-              <select class="form-control nt-field" id="block-start" name="start" data-content="Start blocks start a chain of blocks (they cannot be connected below another block).">
+              <select class="form-control nt-field" id="block-start" name="start" data-popover="Start blocks start a chain of blocks (they cannot be connected below another block).">
                 <option>No</option>
                 <option>Yes</option>
               </select>
@@ -69,7 +69,7 @@
             <!-- CONTROL BLOCK -->
             <div class="col-sm">
               <label for="block-control">Control Block?</label>
-              <select class="form-control nt-field" id="block-control" name="control" data-content="Control blocks have other blocks nested inside them.">
+              <select class="form-control nt-field" id="block-control" name="control" data-popover="Control blocks have other blocks nested inside them.">
                 <option>No</option>
                 <option>Yes</option>
               </select>
@@ -79,7 +79,7 @@
             <!-- LIMIT -->
             <div class="col-sm">
               <label for="block-limit">Limit</label>
-              <input type="number" class="form-control nt-field" id="block-limit" name="limit" data-content="Optional limit to the number of blocks allowed in the user's program? NetLogo procedures should have a limit of 1. Leave blank to indicate unlimited blocks.">
+              <input type="number" class="form-control nt-field" id="block-limit" name="limit" data-popover="Optional limit to the number of blocks allowed in the user's program? NetLogo procedures should have a limit of 1. Leave blank to indicate unlimited blocks.">
             </div>
           </div>
 
@@ -89,7 +89,7 @@
           <div class="form-group row">
             <div class="col-sm">
               <label for="block-font-weight">Font Weight</label>
-              <input id="block-font-weight" class="form-control nt-field" type="number" name="font-weight" data-content="The block's font weight." value="400" list="font-weight-list">
+              <input id="block-font-weight" class="form-control nt-field" type="number" name="font-weight" value="400" list="font-weight-list">
               <datalist id="font-weight-list">
                 <option>100</option>
                 <option>200</option>
@@ -106,15 +106,15 @@
 
             <!-- FONT SIZE -->
             <div class="col-sm">
-              <label for="block-font-size">Font Size</label>
-              <input class="form-control nt-field" type="number" id="block-font-size" name="font-size" data-content="The block's font size in pixels (px)." value="14">
+              <label for="block-font-size">Font Size (px)</label>
+              <input class="form-control nt-field" type="number" id="block-font-size" name="font-size" value="14">
             </div>
 
 
             <!-- FONT TYPEFACE -->
             <div class="col-sm">
               <label for="block-font">Typeface</label>
-              <input class="form-control nt-field" type="text" id="block-font" name="font" data-content="The block's typeface." value="'Poppins', sans-serif">
+              <input class="form-control nt-field" type="text" id="block-font" name="font" value="'Poppins', sans-serif">
             </div>
 
           </div>
