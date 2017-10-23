@@ -1,0 +1,72 @@
+<div class="form-group row">
+
+  <!-- PARAMETER NAME -->
+  <div class="col-sm">
+    <input class="form-control form-control-sm" type="text" data-id="param-name" placeholder="name">
+  </div>
+
+
+  <!-- PARAMETER TYPE -->
+  <div class="col-sm">
+    <select class="form-control form-control-sm" type="text" data-id="param-type" >
+      <option>int</option>
+      <option>number</option>
+      <option>text</option>
+      <option>range</option>
+      <option>select</option>
+    </select>
+  </div>
+
+
+  <!-- PARAMETER UNIT --> 
+  <div class="col-sm">
+    <input class="form-control form-control-sm" type="text" data-id="param-unit" placeholder="unit label">
+  </div>
+
+</div>
+
+
+<!-- MIN VALUE, MAX VALUE, STEP VALUE (for range only) -->
+<div class="form-group row" data-id="param-range-options">
+
+  <div class="col-sm">
+    <input class="form-control form-control-sm" type="number" data-id="param-min" placeholder="min value">
+  </div>
+
+  <div class="col-sm">
+    <input class="form-control form-control-sm" type="number" data-id="param-max" placeholder="max value">
+  </div>
+
+  <div class="col-sm">
+    <input class="form-control form-control-sm" type="number" data-id="param-step" placeholder="step size">
+  </div>
+</div>
+
+
+
+<!-- SELECT OPTIONS -->
+<div class="form-group row" data-id="param-select-options">
+  <div class="col-sm">
+    <textarea class="form-control form-control-sm" data-id="param-options" placeholder="options separated by newlines"></textarea>
+  </div>
+</div>
+
+
+
+<div class="form-group row">
+
+  <!-- PARAMETER DEFAULT VALUE -->
+  <div class="col-sm">
+    <input class="form-control form-control-sm" type="text" data-id="param-default" placeholder="default value">
+  </div>
+
+  <div class="col-sm">&nbsp;</div>
+
+
+  <!-- PARAMETER DELETE BUTTON -->
+  <div class="col-sm">
+    <button type="button" class="btn btn-danger btn-sm" data-id="param-delete">Delete</button>
+  </div>
+</div>
+
+<hr/>

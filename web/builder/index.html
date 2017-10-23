@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+  <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">   
+  <link href="../css/ntango.css" rel="stylesheet">
+
+  <style>
+
+#preview {
+  border: 1px solid #999;
+  background: #fef9f6;
+  display: inline-block;
+}
+
+#json-preview {
+  background: #eee;
+  display: inline-block;
+}
+
+  </style>
+</head>
+
+
+<body>
+
+  <div class="container">
+    <br><br>
+
+    <div class="row">
+
+      <!-- PREVIEW CANVAS -->
+      <div class="col-sm">
+        <h4>NetTango Block Builder</h4>
+        <div id="block-preview">
+          <canvas id="preview" width="500" height="500" ></canvas>
+        </div>
+        <button type="button" class="btn btn-small btn-primary" data-toggle="modal" data-target="#block-modal">Add Block</button>
+      </div>
+
+
+      <div class="col-sm">
+        <h4>Block Specification</h4>
+        <textarea id="json-preview" style="width: 400px; height: 500px; font-family: monospace;"></textarea>
+        <button type="button" class="btn btn-small btn-primary" id="refresh-button">Refresh Workspace</button>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm">
+        <br><br>
+        <h5>Code Output</h5>
+        <pre id="code-preview" style="width: 500px; height: 400px; background: #eee;"></pre>
+      </div>
+
+      <div class="col-sm">
+        <br><br>
+        <h5>Ouput Language</h5>
+        <select id="code-formatter">
+          <option>NetLogo</option>
+          <option>Python</option>
+          <option>plain</option>
+          <option>JSON</option>
+        </select>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="block-dialog"></div>
+
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+  <!-- script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script -->
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+
+
+  <script src="lib/jquery.loadTemplate.min.js"></script>
+
+  <script src="js/builder.js"></script>
+  <script src="../lib/ntango.js"></script>
+
+</body>
+</html>
