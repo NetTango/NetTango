@@ -87,7 +87,7 @@ class CodeWorkspace extends TouchLayer {
     //if (json.containsKey("defaultProgram")) {
     //  fromURLString(json["defaultProgram"]);
     //}
-    Sounds.loadSound("click", "sounds/click.wav");
+    //Sounds.loadSound("click", "sounds/click.wav");
 
     draw();
     tick();

@@ -620,10 +620,10 @@ class Block implements Touchable {
     _inMenu = false;
     _wasInMenu = false;
     if (workspace._trashChain(this)) {
-      Sounds.playSound("trash");
+      //Sounds.playSound("trash");
     }
     else if (workspace._snapTogether(this)) {
-      Sounds.playSound("click");
+      //Sounds.playSound("click");
     }
     workspace.programChanged();
   }
