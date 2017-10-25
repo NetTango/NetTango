@@ -57,10 +57,10 @@ function loadBlockTemplate() {
   //--------------------------------
   $(".nt-field").each(function (index) {
     var popover = $(this).data('popover');
-    console.log(popover);
     $(this).popover({
       trigger: 'focus', 
       html: true,
+      animation: false,
       content: popover
     })
     .blur(function () { $(this).popover('hide'); });
