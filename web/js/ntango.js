@@ -32,7 +32,7 @@ var NetTango = {
   /// Add a callback function to receive programChanged events from the 
   /// workspace. Callback functions should take one parameter, which is 
   /// the canvasId for the workspace (as a String).
-  addProgramChangedCallback : function(canvasId, callback) {
+  onProgramChanged : function(canvasId, callback) {
     NetTango._callbacks[canvasId] = callback;
   },
 
