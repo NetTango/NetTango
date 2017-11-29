@@ -178,7 +178,7 @@ document.body.onload = function() {
   
   NetTango.init("nt-workspace", workspaceDefinition);
 
-  NetTango.addProgramChangedCallback("nt-workspace", function(canvasId) {
+  NetTango.onProgramChanged("nt-workspace", function(canvasId) {
     var code = NetTango.exportCode(canvasId, "NetLogo");
     console.log(code);
   });
