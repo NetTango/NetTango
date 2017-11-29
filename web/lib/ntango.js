@@ -5577,13 +5577,12 @@ if(!!J.k(u.h(v,"children")).$isf)this.ae(a,u.h(v,"children"),y)}}}},
 hH:{"^":"c5;a",
 d9:function(a){var z,y,x,w
 z=new P.aG("")
-z.l="; --- NETTANGO BEGIN ---\n"
 for(y=J.L(a.h(0,"chains"));y.u();){x=y.gw()
 w=J.B(x)
 if(J.bt(w.gj(x),0)&&J.N(J.af(w.h(x,0),"type"),"nlogo:procedure")){this.aG(z,w.ay(x,0),0)
 this.ae(z,x,1)
 w=z.l+="end\n"
-z.l=w+"\n"}}y=z.l+="; --- NETTANGO END ---\n"
+z.l=w+"\n"}}y=z.l
 return y.charCodeAt(0)==0?y:y},
 ae:function(a,b,c){var z,y,x,w,v,u
 for(z=J.L(b),y=c+1;z.u();){x=z.gw()
@@ -6955,7 +6954,7 @@ var NetTango = {
   /// Add a callback function to receive programChanged events from the 
   /// workspace. Callback functions should take one parameter, which is 
   /// the canvasId for the workspace (as a String).
-  addProgramChangedCallback : function(canvasId, callback) {
+  onProgramChanged : function(canvasId, callback) {
     NetTango._callbacks[canvasId] = callback;
   },
 
