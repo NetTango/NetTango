@@ -41,7 +41,6 @@ to go
     wolf-actions
     let prey one-of sheep in-radius 3
     if prey != nobody [
-      ask prey [ die ]
       wolf-meets-sheep
     ]
   ]
@@ -51,9 +50,6 @@ end
 
 ; --- NETTANGO BEGIN ---
 to wolf-actions
-  fd 1
-  rt random 10
-  lt random 10
 end
 
 to sheep-actions
