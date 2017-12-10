@@ -194,10 +194,7 @@ class Parameter implements Touchable {
     backdrop.appendHtml("""
       <div class="nt-param-dialog">
         <div class="nt-param-table">
-          <div class="nt-param-row">
-            <div class="nt-param-name">${name}</div>
-            <div class="nt-param-value">${inputCode}</div>
-          </div>
+          <div class="nt-param-row">${inputCode}</div>
         </div>
         <button class="nt-param-confirm">OK</button>
         <button class="nt-param-cancel">Cancel</button>
@@ -278,8 +275,11 @@ class NumParameter extends Parameter {
 
   String _buildHTMLInput() {
     return """
-      <input class="nt-param-input" id="nt-param-${id}" type="number" step="${stepSize}" value="${value}">
-      <span class="nt-param-unit">${unit}</span>
+      <div class="nt-param-name">${name}</div>
+      <div class="nt-param-value">
+        <input class="nt-param-input" id="nt-param-${id}" type="number" step="${stepSize}" value="${value}">
+        <span class="nt-param-unit">${unit}</span>
+      </div>
     """;
   }
 }
@@ -324,9 +324,14 @@ class RangeParameter extends NumParameter {
 
   String _buildHTMLInput() {
     return """
-      <input class="nt-param-input" id="nt-param-${id}" type="range" value="${value}" min="$minValue" max="$maxValue" step="$stepSize">
-      <label class="nt-param-label" id="nt-param-label-${id}" for="nt-param-${id}">${value}</label>
-      <span class="nt-param-unit">${unit}</span>
+      <div class="nt-param-name">${name}</div>
+      <div class="nt-param-value">
+        <input class="nt-param-input" id="nt-param-${id}" type="range" value="${value}" min="$minValue" max="$maxValue" step="$stepSize">
+      </div>
+      <div class="nt-param-label">
+        <label id="nt-param-label-${id}" for="nt-param-${id}">${value}</label>
+        <span class="nt-param-unit">${unit}</span>
+      </div>
     """;
   }
 }
@@ -369,6 +374,9 @@ class SelectParameter extends Parameter {
       input += "<option value='${v}' ${v == value ? 'selected' : ''}>${v}</option>";      
     }
     input += "</select>";
-    return input;
+    return """
+      <div class="nt-param-name">${name}</div>
+      <div class="nt-param-value">${input}</div>
+    """;
   }
 }
