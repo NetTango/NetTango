@@ -1,0 +1,125 @@
+<!DOCTYPE html> 
+<html> 
+<head> 
+  <title>NetTango Example</title>
+  <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">   
+  <link href="css/ntango.css" rel="stylesheet">
+  <!-- script src="lib/ntango.js"></script -->
+  <style>
+  * {
+    font-family: Poppins, sans-serif;
+    font-size: 18px;
+  }
+
+  .nt-expression {
+    display: inline-block;
+    padding: 0;
+    color: #555;
+    border: 3px solid transparent;
+  }
+
+  .nt-expression:hover {
+    cursor: default;
+  }
+
+  .nt-expression.highlight {
+    background-color: rgba(150, 200, 255, 0.2);
+    border: 3px solid rgba(150, 200, 255, 0.4);
+  }
+
+  .editable:hover {
+    text-decoration: underline;
+  }
+
+  .nt-expression.empty {
+    border: 1px solid rgba(150, 200, 255, 0.4);
+    border-radius: 0.2em;
+    width: 4em;
+    padding: 0 0.2em;
+    text-align: right;
+  }
+
+  .nt-expression.empty.warn {
+    background-color: rgba(255, 0, 0, 0.2);
+  }
+
+  .nt-expression.empty:hover {
+    text-decoration: none;
+  }
+
+  .nt-expression-text {
+    padding: 0 0.2em;
+    display: inline;
+  }
+
+  .nt-expression-text.literal {
+    font-weight: bold;
+    color: #222;
+  }
+
+  .nt-expression-text.variable {
+    font-style: italic;
+    color: #222;
+  }
+
+  .nt-expression-text.parenthesis {
+    padding: 0 0 0 0.1em;
+  }
+
+  .nt-number-input {
+    width: 5em;
+  }
+
+
+.nt-pulldown-menu {
+  position: absolute;
+  min-width: 8em;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 0.25em;
+  padding: 0.5em 0.5em;
+  z-index: 1;
+  margin: 0;
+  background-color: white;
+  display: block;
+  text-align: left;
+  font-size: 80%;
+}
+
+.nt-pulldown-menu a {
+  color: black;
+  text-decoration: none;
+  display: block;
+  padding: 0.2em 1em;
+}
+
+.nt-pulldown-menu a.selected {
+  background-color: rgba(150, 200, 255, 0.5);
+}
+
+.nt-pulldown-menu a.clear {
+  color: #a00;
+}
+
+.nt-pulldown-menu a:hover {
+  background-color: rgba(150, 200, 255, 0.2);
+}
+
+
+  small {
+    font-size: 0.7em;
+  }
+  </style>
+</head>
+<body>
+
+  <div id="my-dialog" style="margin: 80px; padding: 30px;">
+    <div id="expression-holder" style="height: 100px;"></div>
+    <button class="nt-param-confirm" id="confirm-button">OK</button>
+    <button class="nt-param-cancel">Cancel</button>
+  </div>
+
+  <script type="application/dart" src="dart/expressions/main.dart"></script>
+  <script src="packages/browser/dart.js"></script>
+</body>
+</html>
