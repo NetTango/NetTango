@@ -5805,28 +5805,27 @@ this.b.fy.a8()
 return this},
 b3:function(a){},
 b4:function(a){},
-fS:function(){var z,y,x,w,v,u,t,s
+fS:function(){var z,y,x,w,v,u,t
 z=document
 y=z.createElement("div")
 y.className="backdrop"
-x=this.bb()
-C.f.hH(y,"beforeend",'      <div class="nt-param-dialog">\n        <div class="nt-param-table">\n          <div class="nt-param-row">\n            <div class="nt-param-name">'+H.b(this.f)+'</div>\n            <div class="nt-param-value">'+x+'</div>\n          </div>\n        </div>\n        <button class="nt-param-confirm">OK</button>\n        <button class="nt-param-cancel">Cancel</button>\n      </div>',null,null)
-w=z.querySelector("#"+H.b(this.b.fy.f)).parentElement
-if(w==null)return
-w.appendChild(y)
-v=z.querySelector("#nt-param-label-"+this.a)
-u=z.querySelector("#nt-param-"+this.a)
-t=[null]
-s=[W.au]
-new W.ef(new W.ei(z.querySelectorAll(".nt-param-confirm"),t),!1,"click",s).dV(new U.hP(this,y,u))
-new W.ef(new W.ei(z.querySelectorAll(".nt-param-cancel"),t),!1,"click",s).dV(new U.hQ(y))
+C.f.hH(y,"beforeend",'      <div class="nt-param-dialog">\n        <div class="nt-param-table">\n          <div class="nt-param-row">'+this.bb()+'</div>\n        </div>\n        <button class="nt-param-confirm">OK</button>\n        <button class="nt-param-cancel">Cancel</button>\n      </div>',null,null)
+x=z.querySelector("#"+H.b(this.b.fy.f)).parentElement
+if(x==null)return
+x.appendChild(y)
+w=z.querySelector("#nt-param-label-"+this.a)
+v=z.querySelector("#nt-param-"+this.a)
+u=[null]
+t=[W.au]
+new W.ef(new W.ei(z.querySelectorAll(".nt-param-confirm"),u),!1,"click",t).dV(new U.hP(this,y,v))
+new W.ef(new W.ei(z.querySelectorAll(".nt-param-cancel"),u),!1,"click",t).dV(new U.hQ(y))
 y.classList.add("show")
-if(u!=null){z=J.m(u)
-z.dL(u)
-if(v!=null){t=z.gdZ(u)
-W.aw(t.a,t.b,new U.hR(v,u),!1,H.H(t,0))
-z=z.ge_(u)
-W.aw(z.a,z.b,new U.hS(v,u),!1,H.H(z,0))}}},
+if(v!=null){z=J.m(v)
+z.dL(v)
+if(w!=null){u=z.gdZ(v)
+W.aw(u.a,u.b,new U.hR(w,v),!1,H.H(u,0))
+z=z.ge_(v)
+W.aw(z.a,z.b,new U.hS(w,v),!1,H.H(z,0))}}},
 bb:function(){return'      <input class="nt-param-input" id="nt-param-'+this.a+'" type="text" value="'+this.gb7(this)+'">\n      <span class="nt-param-unit">'+H.b(this.r)+"</span>\n    "},
 aB:function(a,b){var z,y
 z=$.dC
@@ -5902,7 +5901,7 @@ return z},
 gb7:function(a){var z=J.fl(H.kG(this.gF(this)),1)
 if(C.d.hs(z,".0"))z=C.d.ac(z,0,z.length-2)
 return z+H.b(this.r)},
-bb:function(){return'      <input class="nt-param-input" id="nt-param-'+this.a+'" type="number" step="'+H.b(this.cy)+'" value="'+H.b(this.gF(this))+'">\n      <span class="nt-param-unit">'+H.b(this.r)+"</span>\n    "}},
+bb:function(){return'      <div class="nt-param-name">'+H.b(this.f)+'</div>\n      <div class="nt-param-value">\n        <input class="nt-param-input" id="nt-param-'+this.a+'" type="number" step="'+H.b(this.cy)+'" value="'+H.b(this.gF(this))+'">\n        <span class="nt-param-unit">'+H.b(this.r)+"</span>\n      </div>\n    "}},
 fW:{"^":"co;cx,cy,a,b,c,d,e,f,r,x,y,z,Q,ch",
 gF:function(a){return U.cP(this.c,0)},
 sF:function(a,b){var z=U.cP(b,0)
@@ -5913,7 +5912,7 @@ W:function(){var z=this.eJ()
 z.n(0,"min",this.db)
 z.n(0,"max",this.dx)
 return z},
-bb:function(){return'      <input class="nt-param-input" id="nt-param-'+this.a+'" type="range" value="'+H.b(U.an(this.c,0))+'" min="'+H.b(this.db)+'" max="'+H.b(this.dx)+'" step="'+H.b(this.cy)+'">\n      <label class="nt-param-label" id="nt-param-label-'+this.a+'" for="nt-param-'+this.a+'">'+H.b(U.an(this.c,0))+'</label>\n      <span class="nt-param-unit">'+H.b(this.r)+"</span>\n    "}},
+bb:function(){return'      <div class="nt-param-name">'+H.b(this.f)+'</div>\n      <div class="nt-param-value">\n        <input class="nt-param-input" id="nt-param-'+this.a+'" type="range" value="'+H.b(U.an(this.c,0))+'" min="'+H.b(this.db)+'" max="'+H.b(this.dx)+'" step="'+H.b(this.cy)+'">\n      </div>\n      <div class="nt-param-label">\n        <label id="nt-param-label-'+this.a+'" for="nt-param-'+this.a+'">'+H.b(U.an(this.c,0))+'</label>\n        <span class="nt-param-unit">'+H.b(this.r)+"</span>\n      </div>\n    "}},
 ia:{"^":"ak;cx,a,b,c,d,e,f,r,x,y,z,Q,ch",
 gb7:function(a){return H.b(J.A(this.c))+H.b(this.r)+" \u25be"},
 bt:function(a,b){return U.dN(b,this.W())},
@@ -5925,7 +5924,8 @@ z="<select id='nt-param-"+this.a+"'>"
 for(y=J.L(this.cx);y.u();){x=y.gw()
 w="<option value='"+H.b(x)+"' "
 v=this.c
-z+=w+(J.N(x,v==null?"":J.A(v))?"selected":"")+">"+H.b(x)+"</option>"}return z+"</select>"},
+z+=w+(J.N(x,v==null?"":J.A(v))?"selected":"")+">"+H.b(x)+"</option>"}z+="</select>"
+return'      <div class="nt-param-name">'+H.b(this.f)+'</div>\n      <div class="nt-param-value">'+z+"</div>\n    "},
 eU:function(a,b){var z=J.B(b)
 if(!!J.k(z.h(b,"values")).$isf&&J.bt(J.ag(z.h(b,"values")),0)){z=z.h(b,"values")
 this.cx=z
