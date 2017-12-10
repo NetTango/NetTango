@@ -33,7 +33,7 @@ $(function () {
   //--------------------------------------
   initWorkspace();
 
-  NetTango.addProgramChangedCallback("preview", function(canvasId) {
+  NetTango.onProgramChanged("preview", function(canvasId) {
     var lang = $("#code-formatter").val();
     var code = NetTango.exportCode(canvasId, lang);
     $("#code-preview").text(code);
