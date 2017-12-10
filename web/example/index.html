@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <title>NetTangoizer</title>
   <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">   
-  <link href="css/ntango.css" rel="stylesheet">
+  <link href="../css/ntango.css" rel="stylesheet">
   <link href="css/codefirst.css" rel="stylesheet">
   <style>
     body {
@@ -65,7 +65,6 @@
       overflow-y: scroll;
     }
   </style>
-  <script src="js/ntango.js"></script>
 </head>
 
 <body>
@@ -98,6 +97,7 @@
   <pre id="netlogo-code">
   </pre>
 
+<script src="../lib/ntango.js"></script>
 
 <script type="text/javascript">
 
@@ -141,6 +141,7 @@ function buildCode() {
 // initialize NetTango workspaces
 // -------------------------------------------------------------
 document.body.onload = function() {
+  console.log("hello");
   NetTango.init("nt-wolf-code", wolfDefinition);
   NetTango.init("nt-sheep-code", sheepDefinition);
 
@@ -153,6 +154,7 @@ document.body.onload = function() {
     document.getElementById("recompile-overlay").style.display = "block";
     document.getElementById("netlogo-code").innerHTML = buildCode();
   });
+  console.log("goodbye");
 }
 
 
