@@ -116,6 +116,7 @@ class EndBlock extends ClauseBlock {
   EndBlock(CodeWorkspace workspace, String action) : 
     super(workspace, action) {
     this._height = BLOCK_HEIGHT / 2;
+    format = "";
   }
 
   void _reindentChain(int indent, ControlBlock parent) {
@@ -124,7 +125,9 @@ class EndBlock extends ClauseBlock {
     if (hasNext) next._reindentChain(indent + indentBelow, parent);
   }  
 
-  void _exportParseTree(List chain) { }
+  void _exportParseTree(List chain) {
+    chain.add(toJSON());
+  }
 
   void _drawLabel(CanvasRenderingContext2D ctx) { }
 }
@@ -161,6 +164,7 @@ class BeginBlock extends ControlBlock {
         other._addClause(clause.clone());
       }
     }
+    other.end.format = end.format;
     return other;
   }
 

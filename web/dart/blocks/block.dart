@@ -141,7 +141,7 @@ class Block implements Touchable {
   factory Block.fromJSON(CodeWorkspace workspace, Map json) {
 
     Block block;
-    String action = toStr(json["action"]);  // required - must be unique
+    String action = toStr(json["action"]);  // required
 
     //----------------------------------------------------------
     // block types
@@ -202,6 +202,15 @@ class Block implements Touchable {
         (block as BeginBlock)._addClause(clause);
       }
     }
+
+
+    //----------------------------------------------------------
+    // add formatting for end block
+    //----------------------------------------------------------
+    if (block is BeginBlock && json["end"] != null) {
+      (block as BeginBlock).end.format = toStr(json["end"]["format"], null);
+    }
+
 
     return block;
   }
