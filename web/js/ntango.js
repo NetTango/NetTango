@@ -1,4 +1,3 @@
-
 /*
  * NetTango
  * Copyright (c) 2017 Michael S. Horn, Uri Wilensky, and Corey Brady
@@ -44,6 +43,18 @@ var NetTango = {
   },
 
 
+  /// Exports the current state of the workspace as a JSON object to be 
+  /// restored at a later point.
+  save : function(canvasId) {
+    return NetTango_Save(canvasId);
+  },
+
+
+  /// Restores a workspace to a previously saved state (json object). 
+  /// Note, for now this is just an alias of the NetTango.init function.
+  restore : function(canvasId, json) {
+    NetTango_InitWorkspace(canvasId, JSON.stringify(json));
+  },
 
 
   _relayCallback : function(canvasId) {
