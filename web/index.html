@@ -10,14 +10,13 @@
   <div class="nt-container">
     <canvas id="nt-workspace" width="800" height="600" style="background: #fef9f6;"></canvas>
   </div>
+  <button onclick="saveRestore()">SAVE</button>
 
   <script type="application/dart" src="dart/ntango.dart"></script>
   <script src="packages/browser/dart.js"></script>
   <script src="js/ntango.js"></script>
 
   <script>
-
-document.body.onload = function() {
 
   var workspaceDefinition = {
     "blocks" : [
@@ -153,13 +152,11 @@ document.body.onload = function() {
         "blockColor" : "#89a",
         "format" : "ifelse random 100 < {0}",
         "clauses" : [
-        /*
           {
             "name" : "else",
             "action" : "chance-else",
             "format" : ""
           }
-        */
         ],
         "params" : [
           {
@@ -175,15 +172,26 @@ document.body.onload = function() {
       }
     ]
   };
-  
+
+document.body.onload = function() {
+
   NetTango.init("nt-workspace", workspaceDefinition);
 
   NetTango.onProgramChanged("nt-workspace", function(canvasId) {
     var code = NetTango.exportCode(canvasId, "NetLogo");
-    console.log(code);
   });
+
 }
 
+
+  function saveRestore() {
+    var json = JSON.parse(NetTango.save('nt-workspace'));
+    var canvas = document.getElementById("nt-workspace");
+    canvas.getAttributeNode("width").value = "800";
+    canvas.getAttributeNode("height").value = "600";
+    NetTango.init('nt-workspace', json);
+    console.log(json);
+  }
   </script>
 </body>
 </html>
