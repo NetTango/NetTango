@@ -49,10 +49,16 @@
   margin-top: 20%;
   border: 2px solid rgba(0, 0, 0, 0.4);
   padding: 30px;
-  color: #555;
   max-width: 400px;
+  color: #555;
   line-height: 120%;
   position: relative;
+}
+
+.nt-param-dialog.small {
+  border-radius: 5px;
+  max-width: 300px;
+  padding: 15px;
 }
 
 .nt-param-close {
@@ -120,6 +126,18 @@
   margin-top: 12px;
   padding: 8px 15px;
 }
+
+.nt-select-option {
+  /* background-color: #efefef; */
+  font-size: 15px;
+  color: #333;
+  padding: 5px;
+  line-height: 150%;
+}
+
+.nt-select-option:hover { background-color: #eee; }
+.nt-select-option.selected { background-color: rgba(107, 155, 195, 0.5); }
+.nt-select-option:active { background-color: rgba(107, 155, 195, 1.0); color: white; }
 
 @keyframes fadeIn {
   from {opacity: 0;}
