@@ -322,17 +322,50 @@ class RangeParameter extends NumParameter {
     return json;
   }
 
-  String _buildHTMLInput() {
-    return """
-      <div class="nt-param-name">${name}</div>
-      <div class="nt-param-value">
-        <input class="nt-param-input" id="nt-param-${id}" type="range" value="${value}" min="$minValue" max="$maxValue" step="$stepSize">
-      </div>
-      <div class="nt-param-label">
-        <label id="nt-param-label-${id}" for="nt-param-${id}">${value}</label>
-        <span class="nt-param-unit">${unit}</span>
-      </div>
-    """;
+
+  void _showParameterDialog() {
+    DivElement backdrop = new DivElement() .. className = "backdrop";
+    DivElement dialog = new DivElement() .. className = "nt-param-dialog";
+    DivElement table = new DivElement() .. className = "nt-param-table";
+
+    table.appendHtml(
+      """
+        <div class="nt-param-row">
+          <div class="nt-param-label">
+            ${name}:
+            <label id="nt-param-label-${id}" for="nt-param-${id}">${value}</label>
+            <span class="nt-param-unit">${unit}</span>
+          </div>
+        </div>
+        <div class="nt-param-row">
+          <div class="nt-param-value">
+            <input class="nt-param-input" id="nt-param-${id}" type="range" value="${value}" min="$minValue" max="$maxValue" step="$stepSize">
+          </div>
+        </div>
+      """);
+
+    dialog.append(table);
+    dialog.onClick.listen((e) { e.stopPropagation(); });
+    backdrop.append(dialog);
+    backdrop.onClick.listen((e) { backdrop.remove(); });
+    HtmlElement container = querySelector("#${block.workspace.canvasId}").parent;
+    if (container != null) container.append(backdrop);
+
+    HtmlElement label = querySelector("#nt-param-label-$id");
+    InputElement input = querySelector("#nt-param-$id");
+    if (input != null && label != null) {
+      input.onChange.listen((e) {
+        value = input.value;
+        backdrop.remove();
+        block.workspace.draw();
+        block.workspace.programChanged();
+        e.stopPropagation();
+      });
+      input.onInput.listen((e) { label.innerHtml = input.value; });
+    }
+
+
+    backdrop.classes.add("show");
   }
 }
 
