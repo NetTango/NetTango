@@ -365,7 +365,6 @@ class CodeWorkspace extends TouchLayer {
 
   /// restore a constructed program from a previously saved state
   void _restoreProgram(Map json) {
-    print(json);
     if (json['chains'] is List) {
       for (var chain in json['chains']) {
         if (chain is List) {
@@ -404,6 +403,8 @@ class CodeWorkspace extends TouchLayer {
         }
       }
 
+      _restoreParams(block, json['params'], json['properties']);
+
       if (json['children'] is List) {
         for (var child in json['children']) {
           if (child is Map) _restoreBlock(child);
@@ -416,6 +417,29 @@ class CodeWorkspace extends TouchLayer {
             for (var child in clause['children']) _restoreBlock(child);
           }
         }
+      }
+    }
+  }
+
+
+  /// restore parameters for a block from a previously saved program
+  void _restoreParams(Block block, List params, List properties) {
+    int index = 0;
+    if (params is List) {
+      for (var param in params) {
+        if (param is Map && param.containsKey('value')) {
+          block.params[index].value = param['value'];
+        }
+        index++;
+      }
+    }
+    index = 0;
+    if (properties is List) {
+      for (var prop in properties) {
+        if (prop is Map && prop.containsKey('value')) {
+          block.properties[index].value = prop['value'];
+        }
+        index++;
       }
     }
   }
