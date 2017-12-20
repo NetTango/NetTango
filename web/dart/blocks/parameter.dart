@@ -368,15 +368,33 @@ class SelectParameter extends Parameter {
   }
 
 
-  String _buildHTMLInput() {
-    String input = "<select id='nt-param-${id}'>";
+  void _showParameterDialog() {
+    DivElement backdrop = new DivElement() .. className = "backdrop";
+    DivElement dialog = new DivElement() .. className = "nt-param-dialog small";
+    DivElement table = new DivElement() .. className = "nt-param-table";
+
     for (var v in values) {
-      input += "<option value='${v}' ${v == value ? 'selected' : ''}>${v}</option>";      
+      DivElement row = new DivElement() .. className = "nt-param-row";
+      DivElement opt = new DivElement() .. className = "nt-select-option" .. innerHtml = v;
+      if (v == value) opt.classes.add("selected");
+      opt.onClick.listen((e) {
+        value = v;
+        backdrop.remove();
+        block.workspace.draw();
+        block.workspace.programChanged();
+        e.stopPropagation();
+      });
+      row.append(opt);
+      table.append(row);
     }
-    input += "</select>";
-    return """
-      <div class="nt-param-name">${name}</div>
-      <div class="nt-param-value">${input}</div>
-    """;
+
+    dialog.append(table);
+    backdrop.append(dialog);
+    backdrop.onClick.listen((e) { backdrop.remove(); });
+
+    HtmlElement container = querySelector("#${block.workspace.canvasId}").parent;
+    if (container != null) container.append(backdrop);
+
+    backdrop.classes.add("show");
   }
 }
