@@ -30,7 +30,6 @@
         "required" : true
       },
 
-/*
       {
         "action" : "wolf setup",
         "type" : "nlogo:procedure",
@@ -53,7 +52,6 @@
           { "type" : "select", "name" : "position", "values" : [ "random", "centered"] }
         ]
       },
-*/
     
       {
         "action" : "\uD83D\uDC3A   forward",
@@ -66,6 +64,14 @@
             "step" : 0.1,
             "default" : 1,
             "name" : "steps"
+          },
+          {
+            "type" : "range",
+            "min" : 0,
+            "max" : 3,
+            "step" : 0.1,
+            "default" : 1,
+            "name" : "stagger"
           }
         ]
       },
@@ -186,11 +192,11 @@ document.body.onload = function() {
 
   function saveRestore() {
     var json = JSON.parse(NetTango.save('nt-workspace'));
+    console.log(NetTango.save('nt-workspace'));
     var canvas = document.getElementById("nt-workspace");
     canvas.getAttributeNode("width").value = "800";
     canvas.getAttributeNode("height").value = "600";
     NetTango.init('nt-workspace', json);
-    console.log(json);
   }
   </script>
 </body>
