@@ -18,11 +18,14 @@ part of NetTango;
 
 class CodeWorkspace extends TouchLayer {
   
-  /* HTML Canvas ID */
+  /// HTML Canvas ID 
   String canvasId;
 
-  /* list of blocks in the workspace */
+  /// list of blocks in the workspace
   List<Block> blocks = new List<Block>();
+
+  /// save a copy of the workspace definition objetc for the save() function
+  Map definition;
   
   /// size of the canvas
   int width, height;
@@ -40,7 +43,7 @@ class CodeWorkspace extends TouchLayer {
 /**
  * Construct a code workspace from a JSON object
  */
-  CodeWorkspace(this.canvasId, Map json) {
+  CodeWorkspace(this.canvasId, this.definition) {
 
     //--------------------------------------------------------
     // load canvas
@@ -73,8 +76,8 @@ class CodeWorkspace extends TouchLayer {
     // initialize block menu
     //--------------------------------------------------------
     menu = new BlockMenu(this);
-    if (json['blocks'] is List) {
-      for (var b in json['blocks']) {
+    if (definition['blocks'] is List) {
+      for (var b in definition['blocks']) {
         Block block = new Block.fromJSON(this, b);
         int limit = toInt(b['limit'], -1);
         menu.addBlock(block, limit);
@@ -82,12 +85,11 @@ class CodeWorkspace extends TouchLayer {
     }
 
     //--------------------------------------------------------
-    // default program
+    // saved program state
     //--------------------------------------------------------
-    //if (json.containsKey("defaultProgram")) {
-    //  fromURLString(json["defaultProgram"]);
-    //}
-    //Sounds.loadSound("click", "sounds/click.wav");
+    if (definition['program'] is Map) {
+      _restoreProgram(definition['program']);
+    }
 
     draw();
     tick();
@@ -189,6 +191,7 @@ class CodeWorkspace extends TouchLayer {
  * Move a block to the top of the visual stack
  */
   void _moveToTop(Block block) {
+    //List<Block> sorted = blocks.sublist(0) ..sort((a, b) => (b.y - a.y));
     _removeBlock(block);
     _addBlock(block);
   }
@@ -251,6 +254,7 @@ class CodeWorkspace extends TouchLayer {
 
   /// return a block near the top connector of target (or null)
   Block _findTopConnector(Block target) {
+
     if (target.prev == null && target.hasTopConnector) {
       for (Block block in blocks) {
         if (block != target) {
@@ -260,7 +264,7 @@ class CodeWorkspace extends TouchLayer {
 
             num by0 = block.y;
             num by1 = block.y + block.height;
-            num by2 = by1 + block.height * 0.8;
+            num by2 = by1 + BLOCK_PADDING;
 
             if (block.hasNext && target.topConnectorY < by1 && target.topConnectorY > by0) {
               return block;
@@ -356,6 +360,64 @@ class CodeWorkspace extends TouchLayer {
       }
     }
     ctx.restore();
+  }
+
+
+  /// restore a constructed program from a previously saved state
+  void _restoreProgram(Map json) {
+    print(json);
+    if (json['chains'] is List) {
+      for (var chain in json['chains']) {
+        if (chain is List) {
+          for (var b in chain) {
+            if (b is Map) _restoreBlock(b);
+          }
+        }
+      }
+    }
+  }
+
+
+  /// restore a block from a previously saved program state
+  void _restoreBlock(Map json) {
+    Block proto = menu.getBlockByAction(json['action']);
+    if (proto != null) {
+      Block block = proto.clone();
+      if (json['x'] is num && json['y'] is num) {
+        block.x = json['x'];
+        block.y = json['y'];
+      }
+      _addBlock(block);
+      if (block is BeginBlock) {
+        for (ClauseBlock clause in block.clauses) {
+          _addBlock(clause);
+        }
+      }
+
+      _snapTogether(block);
+
+      for (Block block in blocks) {
+        if (!block.hasPrev && block is! ClauseBlock) {
+          block._reindentChain(0, null);
+          block._repositionChain();
+          block._resizeChain(ctx, BLOCK_WIDTH);
+        }
+      }
+
+      if (json['children'] is List) {
+        for (var child in json['children']) {
+          if (child is Map) _restoreBlock(child);
+        }
+      }
+
+      if (json['clauses'] is List) {
+        for (var clause in json['clauses']) {
+          if (clause is Map && clause['children'] is List) {
+            for (var child in clause['children']) _restoreBlock(child);
+          }
+        }
+      }
+    }
   }
 }
 
