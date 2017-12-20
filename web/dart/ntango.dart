@@ -38,7 +38,7 @@ var _workspaces = { };
 
 
 /// Javascript hook to initialize a workspace
-void JSInitWorkspace(String canvasId, String jsonString) {
+void JSInitWorkspace(String canvasId, var jsonString) {
   if (_workspaces[canvasId] is CodeWorkspace) {
     _workspaces[canvasId].unload();
   }
@@ -56,11 +56,22 @@ String JSExportCode(String canvasId, String language) {
     return CodeFormatter.formatCode(language, _workspaces[canvasId].exportParseTree());
   }
   return null;
-} 
+}
+
+
+/// Javascript hook to export the entire state of a workspace
+String JSSaveWorkspace(String canvasId) {
+  if (_workspaces.containsKey(canvasId)) {
+    var defs = _workspaces[canvasId].definition;
+    defs['program'] = _workspaces[canvasId].exportParseTree();
+    return JSON.encode(defs);
+  }
+}
 
 
 /// Expose core API functions to Javascript 
 void main() {
   js.context['NetTango_InitWorkspace'] = JSInitWorkspace;
   js.context['NetTango_ExportCode'] = JSExportCode;
+  js.context['NetTango_Save'] = JSSaveWorkspace;
 }  
