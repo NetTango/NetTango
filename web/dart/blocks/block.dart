@@ -255,6 +255,8 @@ class Block implements Touchable {
     data["format"] = format;
     data["start"] = hasTopConnector;
     data["required"] = required;
+    data["x"] = x;
+    data["y"] = y;
     if (params.isNotEmpty) {
       data["params"] = [];
       for (Parameter param in params) {
@@ -447,7 +449,7 @@ class Block implements Touchable {
     ctx.save();
     {
       ctx.lineWidth = 5;
-      ctx.strokeStyle = borderColor;
+      ctx.strokeStyle = "cyan"; //borderColor;
       ctx.beginPath();
       ctx.moveTo(x + BLOCK_PADDING + BLOCK_INDENT * indentAbove, y);
       _outlineTop(ctx, !hasPrev && hasTopConnector);
@@ -461,7 +463,7 @@ class Block implements Touchable {
     ctx.save();
     {
       ctx.lineWidth = 5;
-      ctx.strokeStyle = borderColor;
+      ctx.strokeStyle = "cyan"; //borderColor;
       ctx.beginPath();
       ctx.moveTo(x + width - BLOCK_PADDING, y + height);
       _outlineBottom(ctx, !hasNext && indent == 0);
