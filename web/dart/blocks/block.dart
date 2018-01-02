@@ -21,6 +21,7 @@ final num BLOCK_HEIGHT = 34.0 * SCALE; //50.0;
 final num BLOCK_PADDING = 10.0 * SCALE;
 final num BLOCK_INDENT = 25.0 * SCALE;  /// left side connector area for blocks
 final num BLOCK_GUTTER = 10.0 * SCALE;
+final num BLOCK_UNIT = BLOCK_PADDING;  /// unit value for saving and restoring
 
 
 /**
@@ -255,8 +256,8 @@ class Block implements Touchable {
     data["format"] = format;
     data["start"] = hasTopConnector;
     data["required"] = required;
-    data["x"] = x;
-    data["y"] = y;
+    data["x"] = x / BLOCK_UNIT;
+    data["y"] = y / BLOCK_UNIT;
     if (params.isNotEmpty) {
       data["params"] = [];
       for (Parameter param in params) {
