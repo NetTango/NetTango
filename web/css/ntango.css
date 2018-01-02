@@ -14,13 +14,14 @@
  * of the National Science Foundation (NSF).
  */
 
-/* Popup container - can be anything you want */
+/* Workspace container <div> */
 .nt-container {
   font-family: Poppins, sans-serif;
   font-size: 18px;
   position: relative;
   display: inline-block;
   margin: 0;
+  overflow-y: scroll;
 }
 
 /* Backdrop for the parameter popup menu */
