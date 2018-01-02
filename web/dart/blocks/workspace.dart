@@ -110,7 +110,9 @@ class CodeWorkspace extends TouchLayer {
  * Allows workspace to dyanamically grow and shrink the canvas
  * to allow for longer programs
  */  
-  void reshapeCanvas(int w, int h) {
+  void reshapeCanvas(num w, num h) {
+    w = w.round();
+    h = h.round();
     CanvasElement canvas = querySelector("#$canvasId");
     if (canvas != null) {
       canvas.style.width = "${w}px";
@@ -227,19 +229,6 @@ class CodeWorkspace extends TouchLayer {
     return count;
   }
 
-
-/**
- * Has a block been dragged off of the screen?
- */
- /*
-  bool _isOffscreen(Block block) {
-    return (block.x + block.width > width ||
-            block.x < 0 ||
-            block.y + block.height > height ||
-            block.y < 0);
-  }
-  */
-  
 
 /**
  * Snap a block onto an existing program
@@ -412,8 +401,8 @@ class CodeWorkspace extends TouchLayer {
     if (proto != null) {
       Block block = proto.clone();
       if (json['x'] is num && json['y'] is num) {
-        block.x = json['x'];
-        block.y = json['y'];
+        block.x = json['x'] * BLOCK_UNIT;
+        block.y = json['y'] * BLOCK_UNIT;
       }
       _addBlock(block);
       if (block is BeginBlock) {
