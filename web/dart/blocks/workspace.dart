@@ -105,6 +105,25 @@ class CodeWorkspace extends TouchLayer {
     tmanager.removeTouchLayer(this);
   }
 
+
+/**
+ * Allows workspace to dyanamically grow and shrink the canvas
+ * to allow for longer programs
+ */  
+  void reshapeCanvas(int w, int h) {
+    CanvasElement canvas = querySelector("#$canvasId");
+    if (canvas != null) {
+      canvas.style.width = "${w}px";
+      canvas.style.height = "${h}px";
+      width = w * SCALE;
+      height = h * SCALE;
+      canvas.width = width;
+      canvas.height = height;
+      ctx = canvas.getContext('2d');
+      draw();
+    }
+  }
+
   
   void tick() {
     if (animate()) draw();
@@ -212,12 +231,14 @@ class CodeWorkspace extends TouchLayer {
 /**
  * Has a block been dragged off of the screen?
  */
+ /*
   bool _isOffscreen(Block block) {
     return (block.x + block.width > width ||
             block.x < 0 ||
             block.y + block.height > height ||
             block.y < 0);
   }
+  */
   
 
 /**
@@ -308,8 +329,16 @@ class CodeWorkspace extends TouchLayer {
 
     if (menu.animate()) refresh = true;
     
+    num lowestY = 0.0;
     for (Block block in blocks) {
       if (block.animate()) refresh = true;
+      lowestY = max(block.bottomConnectorY, lowestY);
+    }
+
+    if (lowestY > height) {
+      if (!refresh) {
+        reshapeCanvas(width / SCALE, (lowestY + BLOCK_HEIGHT * 3) / SCALE);
+      }
     }
     
     return refresh;
