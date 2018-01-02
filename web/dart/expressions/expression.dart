@@ -13,229 +13,256 @@
  * material are those of the author(s) and do not necessarily reflect the views
  * of the National Science Foundation (NSF).
  */
-part of NetTango;
+library NetTango;
 
-const BOOL_EXPRESSION = "boolean";
-
-const NUM_EXPRESSION = "number";
-
-final num EXPRESSION_WIDTH = 60 * SCALE;
-
-final num EXPRESSION_HEIGHT = 35 * SCALE;
-
-final num EXPRESSION_PADDING = 10 * SCALE;
+import 'dart:math';
+import 'dart:html';
+import 'dart:convert';
+import 'dart:web_audio';
+import 'dart:js' as js;
 
 
-/**
- * Placeholder for a single expression that has yet to be specified
- */
-class ExpressionHolder {
-
-  /// type of the expression
-  String type;
-
-  /// current expression in the holder
-  Expression expression = null;
-
-  /// parent expression that owns this holder
-  Expression parent = null;
-
-  ExpressionHolder(this.type);
-  ExpressionHolder.Boolean() { type = BOOL_EXPRESSION; }
-  ExpressionHolder.Number() { type = NUM_EXPRESSION; }
-
-  /// block dimensions and position
-  num x = 0.0, y = 0.0, width = EXPRESSION_WIDTH, height = EXPRESSION_HEIGHT;
-
-
-  bool get isEmpty => expression == null;
+var EXPRESSIONS = [
+      { "name" : "true", "type" : "bool", "form" : "literal" },
+      { "name" : "false", "type" : "bool", "form" : "literal" },
+      { "name" : "AND", "type" : "bool", "form" : "operator", "arguments" : [ "bool", "bool"] },
+      { "name" : "OR", "type" : "bool", "form" : "operator", "arguments" : [ "bool", "bool" ] },
+      { "name" : "NOT", "type" : "bool", "form" : "operator", "arguments" : [ "bool"] },
+      { "name" : ">", "type" : "bool", "form" : "operator", "arguments" : [ "num", "num" ] },
+      { "name" : ">=", "type" : "bool", "form" : "operator", "arguments" : [ "num", "num" ] },
+      { "name" : "<", "type" : "bool", "form" : "operator", "arguments" : [ "num", "num" ] },
+      { "name" : "<=", "type" : "bool", "form" : "operator", "arguments" : [ "num", "num" ] },
+      { "name" : "!=", "type" : "bool", "form" : "operator", "arguments" : [ "num", "num" ] },
+      { "name" : "=", "type" : "bool", "form" : "operator", "arguments" : [ "num", "num" ] },
+      { "name" : "energy?", "type" : "bool", "form" : "variable" },
+      { "name" : "mouseX", "type" : "num", "form" : "variable" },
+      { "name" : "mouseY", "type" : "num", "form" : "variable" },
+      { "name" : "NUMBER", "type" : "num", "form" : "literal" },
+      { "name" : "+", "type" : "num", "form" : "operator", "arguments" : [ "num", "num"] },
+      { "name" : "-", "type" : "num", "form" : "operator", "arguments" : [ "num", "num"] },
+      { "name" : "&times;", "type" : "num", "form" : "operator", "arguments" : [ "num", "num"] },
+      { "name" : "/", "type" : "num", "form" : "operator", "arguments" : [ "num", "num"] }
+    ];
 
 
-  num resize(CanvasRenderingContext2D ctx, num startX, num startY) {
-    if (expression != null) expression.resize(ctx, startX, startY);
-    x = startX;
-    y = startY;
-    width = (expression == null) ? EXPRESSION_WIDTH : expression.width;
-    return x + width;
-  }
 
 
-  void draw(CanvasRenderingContext2D ctx, bool highlight) {
-    ctx.save();
-    {
-      ctx.strokeStyle = "#555";
-      ctx.lineWidth = 1.5;
-      roundRect(ctx, x, y, width, height, height/4);
-      if (highlight) {
-        ctx.fillStyle = "cyan";
-        ctx.fill();
-      }
-      ctx.stroke();
-      ctx.fillStyle = "#555";
-      ctx.font = Expression.font;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText("…", x + width/2, y + height/2);
+class Expression {
+
+  ExpressionBuilder builder;
+
+  String name = null;
+
+  String type = "";
+
+  String form = "";
+
+  bool get isEmpty => (name == null);
+
+  bool get isUnary => (children.length == 1);
+
+  bool get isBinary => (children.length == 2);
+
+  bool get isChildless => (children.length == 0);
+
+  List<Expression> children = new List<Expression>();
+
+
+  Expression(this.builder, this.type);
+
+
+  // test to see if the current children match arg list?
+  // if so, leave them alone rather than replace them
+  bool childMismatch(List args) {
+    if (args == null) return children.isNotEmpty;
+    if (children.length != args.length) return true;
+    for (int i=0; i<args.length; i++) {
+      if (args[i] != children[i].type) return true;
     }
-    ctx.restore();
-  }
-
-
-  bool animate() {
     return false;
   }
-}
 
 
-/**
- * Visual expression block
- */
-class Expression implements Touchable {
-  
-  /// Used to generate unique block id numbers
-  static int _EXPRESSION_ID = 0;
-
-  /// unique internal ID number
-  int id;
-  
-  /// text displayed for the expression (e.g. ">", "false", "+") 
-  String name;
-
-  /// type of the expression
-  String type;
-
-  /// holder of this expression
-  ExpressionHolder _parent = null;
-
-  /// parent of this expression in the expression tree
-  Expression get parent => (_parent == null) ? null : _parent.parent;
-
-  /// children of this expression
-  List<ExpressionHolder> _children = new List<ExpressionHolder>();
-
-  /// block dimensions and position
-  num x = 300, y = 300, width = EXPRESSION_WIDTH, height = EXPRESSION_HEIGHT;
-
-  /// CSS font spec
-  static String font = "400 ${18 * SCALE}px 'Poppins', sans-serif";
-
-  /// is the block being dragged 
-  bool _dragging = false, _redraw = false;
-  
-  /// used for dragging the block on the screen
-  num _touchX, _touchY, _lastX, _lastY;
-
-
-  Expression(this.name, this.type) {
-    id = Expression._EXPRESSION_ID++;
-  }
-
-
-  Expression clone() {
-    Expression other = new Expression(name, type);
-    return other;
-  }
-
-
-  void addChild(String type) {
-    _children.add(new ExpressionHolder(type));
-  }
-
-  bool get hasParent => (parent != null);
-
-
-  num resize(CanvasRenderingContext2D ctx, num startX, num startY) {
-    x = startX;
-    y = startY;
-    width = EXPRESSION_WIDTH;
-    ctx.save();
-    {
-      ctx.font = font;
-      width = ctx.measureText(name).width + EXPRESSION_PADDING * 2;
-    }
-    ctx.restore();
-    startX = x + width;
-    for (ExpressionHolder child in _children) {
-      startX = child.resize(ctx, startX, startY);
-    }
-    return startX;
-  }
-
-
-  bool animate() {
-    if (_dragging) {
-      x += _touchX - _lastX;
-      y += _touchY - _lastY;
-      _lastX = _touchX;
-      _lastY = _touchY;
-    }
-    return _dragging || _redraw;
-  }
-
-
-  void draw(CanvasRenderingContext2D ctx, bool highlight) {
-    ctx.save();
-    {
-      ctx.strokeStyle = "#555";
-      ctx.fillStyle = _dragging? "#eee" : "white";
-      ctx.lineWidth = 1.5;
-      roundRect(ctx, x, y, width, height, height/4);
-      if (!hasParent) {
-        ctx.fill();
-        ctx.stroke();
+  void setChildren(List args) {
+    if (childMismatch(args)) {
+      children.clear();
+      if (args != null) {
+        for (int i=0; i<args.length; i++) {
+          children.add(new Expression(builder, args[i]));
+        }
       }
-      ctx.fillStyle = "#555";
-      ctx.font = font;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(name, x + width/2, y + height/2);
-    }
-    ctx.restore();
-    for (ExpressionHolder child in _children) {
-      child.draw(ctx, highlight);
-    }
-    _redraw = false;
-  }
-
-
-  void highlightEmpty(CanvasRenderingContext2D ctx) {
-    for (ExpressionHolder child in _children) {
-      child.highlight(ctx);
     }
   }
 
 
-  bool containsTouch(Contact c) {
-    double tx = c.touchX;
-    double ty = c.touchY;
-    return (tx >= x && ty >= y && tx <= x + width && ty <= y + height);
+  void appendOperator(DivElement parent) {
+    DivElement div = new DivElement()
+      .. innerHtml = "$name"
+      .. classes.add("nt-expression-text")
+      .. classes.add("editable")
+      .. classes.add("$type");
+
+    div.onClick.listen((e) { 
+      openPulldown(div); 
+      e.stopPropagation();
+    });
+    electricBrace(div, parent);
+    parent.append(div);
   }
 
 
-  Touchable touchDown(Contact c) {
-    _dragging = true;
-    _redraw = true;
-    _touchX = c.touchX;
-    _touchY = c.touchY;
-    _lastX = c.touchX;
-    _lastY = c.touchY;
-    return this;
-  }
-
-  
-  void touchUp(Contact c) {
-    _dragging = false;
-    _redraw = true;
+  void electricBrace(DivElement curr, DivElement parent) {
+    curr.onMouseEnter.listen((e) { parent.classes.add("highlight"); });
+    curr.onMouseLeave.listen((e) { parent.classes.remove("highlight"); });
   }
 
 
-  void touchDrag(Contact c) {
-    _touchX = c.touchX;
-    _touchY = c.touchY;
-    _redraw = true;
+  void appendParen(DivElement parent, bool left) {
+    DivElement paren = new DivElement()
+      .. innerHtml = left ? "(" : ")"
+      .. classes.add("nt-expression-text")
+      .. classes.add("parenthesis");
+    electricBrace(paren, parent);
+    parent.append(paren);
   }
 
 
-  void touchSlide(Contact c) { 
-  }  
+  void appendNumber(DivElement parent) {
+    NumberInputElement input = new NumberInputElement()
+      .. className = "nt-number-input"
+      .. value = (num.parse(name, (e) => 0)).toString()
+      .. step = "1";
+    input.onChange.listen((e) { 
+      name = input.value; 
+      if (name == "") {
+        name = "0";
+        input.value = "0";
+      }
+    });
+    parent.append(input);
+  }
+
+
+  void renderHtml(DivElement parent) {
+    DivElement div = new DivElement() .. className = "nt-expression";
+    if (isEmpty) {
+      div.classes.add("empty");
+      div.appendHtml("<small>&#9660;</small>");
+    } 
+    else if (form == "literal" && type == "num") {
+      appendNumber(div);
+    }
+    else if (isUnary) {
+      appendParen(div, true);
+      appendOperator(div);
+      children[0].renderHtml(div);
+      appendParen(div, false);
+    } 
+    else if (isBinary) {
+      appendParen(div, true);
+      children[0].renderHtml(div);
+      appendOperator(div);
+      children[1].renderHtml(div);
+      appendParen(div, false);
+    } 
+    else {
+      div.appendHtml("<div class='nt-expression-text $type'>$name</div>");
+    }
+    if (isChildless) {
+      div.classes.add("editable");
+      div.onClick.listen((e) {
+        openPulldown(div);
+        e.stopPropagation();
+      });
+    }
+    parent.append(div);
+  }
+
+
+ //-------------------------------------------------------------
+ // Creates an expression pulldown menu 
+ //-------------------------------------------------------------
+  void openPulldown(Element expander) {
+    querySelectorAll('.nt-pulldown-menu').forEach((el) => el.remove());
+    DivElement hmenu = new DivElement() .. classes.add('nt-pulldown-menu');
+
+    for (var item in EXPRESSIONS) {
+      if (item['type'] == type) {
+        AnchorElement link = new AnchorElement(href : "#") 
+          .. innerHtml = "${item['name']}";
+        hmenu.append(link);
+        link.onClick.listen((e) {
+          hmenu.remove();
+          name = item['name'];
+          type = item['type'];
+          form = item['form'];
+          setChildren(item['arguments']);
+          builder.renderHtml();
+          e.stopPropagation();
+          e.preventDefault();
+        });
+      }
+    }
+    hmenu.appendHtml("<hr>");
+    AnchorElement link = new AnchorElement(href : "#") 
+      .. innerHtml = "Clear"
+      .. className = "clear";
+    hmenu.append(link);
+    link.onClick.listen((e) {
+      hmenu.remove();
+      name = null;
+      form = "";
+      children.clear();
+      builder.renderHtml();
+      e.stopPropagation();
+      e.preventDefault();
+    });
+      
+
+    expander.append(hmenu);
+  }
 }
+
+
+class ExpressionBuilder {
+
+  Element parent;
+
+  Expression root;
+
+
+  ExpressionBuilder(this.parent) {
+    root = new Expression(this, "bool");
+    renderHtml();
+    parent.onClick.listen((e) {
+      querySelectorAll('.nt-pulldown-menu').forEach((el) => el.remove());
+    });
+  }
+
+
+  renderHtml() {
+    parent.children.clear();
+    root.renderHtml(parent);
+  }
+}
+
+
+void main() {
+
+  ExpressionBuilder builder = new ExpressionBuilder(querySelector("#expression-holder"));
+
+  var okButton = querySelector("#confirm-button");
+  if (okButton != null) {
+    okButton.onMouseDown.listen((e) { 
+      querySelectorAll(".nt-expression.empty").forEach((el) => el.classes.add('warn'));
+    });
+    okButton.onMouseUp.listen((e) { 
+      querySelectorAll(".nt-expression.empty").forEach((el) => el.classes.remove('warn'));
+    });
+    okButton.onClick.listen((e) {
+      var empties = querySelectorAll(".nt-expression.empty");
+      if (empties.length > 0) return false;
+    });
+  }
+}  
+
