@@ -27,6 +27,7 @@ part 'utils/touch.dart';
 part 'utils/utils.dart';
 
 part 'blocks/block.dart';
+part 'blocks/expression.dart';
 part 'blocks/control.dart';
 part 'blocks/formatter.dart';
 part 'blocks/menu.dart';
