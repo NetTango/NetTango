@@ -17,11 +17,8 @@ part of NetTango;
 
 
 /// TODO 
-///   default values
 ///   times sign for NetLogo formatter
 ///   NetLogo formatter
-///   Boolean expression builder
-
 
 class Expression {
 
@@ -152,9 +149,10 @@ class Expression {
 
 
   void appendNumber(DivElement parent) {
+    name = toNum(name, 0).toString();
     NumberInputElement input = new NumberInputElement()
       .. className = "nt-number-input"
-      .. value = toNum(name, 0).toString()
+      .. value = name
       .. step = "1";
     input.onChange.listen((e) { 
       name = input.value; 
