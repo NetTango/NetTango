@@ -34,7 +34,7 @@ class Parameter implements Touchable {
   /// default / initial value (can be null)
   var defaultValue;
 
-  /// parameter type: can be "number", "int", "range", "text", or "selection"
+  /// parameter type: can be "number", "int", "range", "expression", "text", or "selection"
   String type = "int";
 
   /// name of the parameter (e.g. degrees, length)
@@ -87,6 +87,10 @@ class Parameter implements Touchable {
 
 
   factory Parameter.fromJSON(Block parent, Map data) {
+    if (data['expression']) {
+      return new ExpressionParameter(parent, data);
+    }
+
     switch(toStr(data["type"], "number")) {
       case "int": return new IntParameter(parent, data);
       
@@ -97,7 +101,8 @@ class Parameter implements Touchable {
 
       case "select": return new SelectParameter(parent, data);
 
-      case "text": 
+      case "text": return new Parameter(parent, data);
+
       default: return new Parameter(parent, data);
     }
   }
@@ -429,5 +434,90 @@ class SelectParameter extends Parameter {
     if (container != null) container.append(backdrop);
 
     backdrop.classes.add("show");
+  }
+}
+
+
+
+//-------------------------------------------------------------------------
+/// Represents an expression (boolean or number) 
+//-------------------------------------------------------------------------
+class ExpressionParameter extends Parameter {
+
+  ExpressionBuilder builder; 
+
+  String get valueAsString => (builder != null) ? builder.toString() : "";
+
+  dynamic get value => _value;
+
+  set value(var v) {
+    _value = v;
+    if (builder != null) builder.fromJSON(v);
+  }
+
+
+  ExpressionParameter(Block block, Map data) : super(block, data) {
+    builder = new ExpressionBuilder(block.workspace, data['type']);
+    builder.fromJSON(value);
+  }
+
+
+  Parameter clone(Block parent) {
+    return new ExpressionParameter(parent, toJSON());
+  }
+
+
+  Map toJSON() {
+    Map json = super.toJSON();
+    json["expression"] = true;
+    return json;
+  }
+
+
+  void _showParameterDialog() {
+    DivElement backdrop = new DivElement() .. className = "backdrop";
+    backdrop.appendHtml("""
+      <div class="nt-param-dialog">
+        <div class="nt-param-table">
+          <div class="nt-param-row">
+            <div class="nt-param-label">${name}:</div>
+          </div>
+          <div class="nt-param-row">
+            <div id="nt-expression-${id}" class="nt-expression-root"></div>
+          </div>
+        </div>
+        <button class="nt-param-confirm">OK</button>
+        <button class="nt-param-cancel">Cancel</button>
+      </div>""");
+    HtmlElement container = querySelector("#${block.workspace.canvasId}").parent;
+    if (container == null) return;
+    container.append(backdrop);
+
+    querySelectorAll(".nt-param-confirm").onClick.listen((e) { 
+      var empties = querySelectorAll(".nt-expression.empty");
+      if (empties.length > 0) return false;
+      backdrop.remove();
+      block.workspace.draw();
+      block.workspace.programChanged();
+      value = builder.toJSON();
+    });
+
+    querySelectorAll(".nt-param-confirm").onMouseDown.listen((e) { 
+      querySelectorAll(".nt-expression.empty").forEach((el) => el.classes.add('warn'));
+    });
+    querySelectorAll(".nt-param-confirm").onMouseUp.listen((e) { 
+      querySelectorAll(".nt-expression.empty").forEach((el) => el.classes.remove('warn'));
+    });
+    querySelectorAll(".nt-param-cancel").onClick.listen((e) {
+      backdrop.remove();
+    });
+
+    backdrop.classes.add("show");
+
+    builder.open("#nt-expression-${id}");
+
+    querySelectorAll(".nt-param-dialog").onClick.listen((e) {
+      querySelectorAll('.nt-pulldown-menu').forEach((el) => el.remove());
+    });
   }
 }
