@@ -35,11 +35,12 @@
       { "name" : "+", "type" : "num", "arguments" : [ "num", "num"] },
       { "name" : "-", "type" : "num", "arguments" : [ "num", "num"] },
       { "name" : "×", "type" : "num", "arguments" : [ "num", "num"] },
-      { "name" : "/", "type" : "num", "arguments" : [ "num", "num"] }
+      { "name" : "/", "type" : "num", "arguments" : [ "num", "num"] },
+      { "name" : "random", "type" : "num", "arguments" : [ "num" ] }
     ],
 
     "variables" : [
-      { "name" : "energy?", "type" : "bool" },
+      { "name" : "energy", "type" : "num" },
       { "name" : "mouseX", "type" : "num" },
       { "name" : "mouseY", "type" : "num" }
     ],
@@ -83,11 +84,10 @@
         "format" : "forward {0}",
         "params" : [
           {
-            "expression" : true,
             "type" : "num",
             "name" : "steps",
             "default" : 2
-          },
+          }
         ]
       },
 
@@ -147,9 +147,15 @@
       },
 
       {
-        "action" : "\uD83D\uDC3A   if energy <= 0?",
-        "format" : "if energy <= 0",
+        "action" : "\uD83D\uDC3A   if",
+        "format" : "if {0}",
         "blockColor" : "#89a",
+        "params" : [
+          {
+            "type" : "bool",
+            "name" : "check"
+          }
+        ],
         "clauses" : [ ]
       },
 
@@ -200,6 +206,7 @@ document.body.onload = function() {
 
   NetTango.onProgramChanged("nt-workspace", function(canvasId) {
     var code = NetTango.exportCode(canvasId, "NetLogo");
+    console.log(code);
   });
 
 }
