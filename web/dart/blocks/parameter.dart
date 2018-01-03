@@ -34,7 +34,7 @@ class Parameter implements Touchable {
   /// default / initial value (can be null)
   var defaultValue;
 
-  /// parameter type: can be "number", "int", "range", "expression", "text", or "selection"
+  /// parameter type: can be "bool", "num", "int", "range", "text", or "selection"
   String type = "int";
 
   /// name of the parameter (e.g. degrees, length)
@@ -62,7 +62,7 @@ class Parameter implements Touchable {
 
   Parameter(this.block, Map data) {
     id = Parameter._PARAM_ID++;
-    type = toStr(data["type"], "number");
+    type = toStr(data["type"], "num");
     name = toStr(data["name"], "");
     unit = toStr(data["unit"], "");
     defaultValue = data["default"];
@@ -87,15 +87,12 @@ class Parameter implements Touchable {
 
 
   factory Parameter.fromJSON(Block parent, Map data) {
-    if (data['expression']) {
-      return new ExpressionParameter(parent, data);
-    }
-
-    switch(toStr(data["type"], "number")) {
+    switch(toStr(data["type"], "num")) {
       case "int": return new IntParameter(parent, data);
       
-      case "num": 
-      case "number": return new NumParameter(parent, data);
+      case "num": return new ExpressionParameter(parent, data);
+
+      case "bool": return new ExpressionParameter(parent, data);
 
       case "range": return new RangeParameter(parent, data);
 
@@ -464,13 +461,6 @@ class ExpressionParameter extends Parameter {
 
   Parameter clone(Block parent) {
     return new ExpressionParameter(parent, toJSON());
-  }
-
-
-  Map toJSON() {
-    Map json = super.toJSON();
-    json["expression"] = true;
-    return json;
   }
 
 
