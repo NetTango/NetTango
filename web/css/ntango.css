@@ -28,10 +28,9 @@
 .backdrop {
   visibility: hidden;
   width: 100%;
-  height: 100%;
   left: 0;
   top: 0;
-  background-color: rgba(0, 0, 0, 0.1);
+  bottom: 0;
   position: absolute;
   z-index: 1;
 }
@@ -47,7 +46,7 @@
   background-color: white;
   margin-left: auto;
   margin-right: auto;
-  margin-top: 20%;
+  margin-top: 15%;
   border: 2px solid rgba(0, 0, 0, 0.4);
   padding: 30px;
   max-width: 400px;
@@ -217,3 +216,112 @@ input[type=range]:focus::-ms-fill-lower {
 input[type=range]:focus::-ms-fill-upper {
     background: #ccc;
 }
+
+
+/* 
+ * EXPRESSION BUILDER 
+ */
+.nt-expression {
+  display: inline-block;
+  padding: 0;
+  color: #555;
+  border: 3px solid transparent;
+  line-height: 150%;
+  font-size: 16px;
+}
+
+.nt-expression-root {
+  padding: 1em 0;
+}
+
+.nt-expression:hover {
+  cursor: default;
+}
+
+.nt-expression.highlight {
+  background-color: rgba(150, 200, 255, 0.2);
+  border: 3px solid rgba(150, 200, 255, 0.4);
+}
+
+.editable:hover {
+  text-decoration: underline;
+}
+
+.nt-expression.empty {
+  border: 1px solid rgba(150, 200, 255, 0.4);
+  border-radius: 0.2em;
+  width: 4em;
+  padding: 0 0.2em;
+  text-align: right;
+}
+
+.nt-expression.empty.warn {
+  background-color: rgba(255, 0, 0, 0.2);
+}
+
+.nt-expression.empty:hover {
+  text-decoration: none;
+}
+
+.nt-expression-text {
+  padding: 0 0.2em;
+  display: inline;
+}
+
+.nt-expression-text.literal {
+  font-weight: bold;
+  color: #222;
+}
+
+.nt-expression-text.variable {
+  font-style: italic;
+  color: #222;
+}
+
+.nt-expression-text.parenthesis {
+  padding: 0 0 0 0.1em;
+}
+
+.nt-number-input {
+  font-size: 16px;
+  border: 1px solid rgba(150, 200, 255, 0.4);
+  border-radius: 0.2em;
+  width: 4em;
+  height: 1.5em;
+  padding: 0 0.2em;
+}
+
+.nt-pulldown-menu {
+  position: absolute;
+  min-width: 8em;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 0.25em;
+  padding: 0.5em 0.5em;
+  z-index: 1;
+  margin: 0;
+  background-color: white;
+  display: block;
+  text-align: left;
+  font-size: 90%;
+}
+
+.nt-pulldown-menu a {
+  color: black;
+  text-decoration: none;
+  display: block;
+  padding: 0.1em 1em;
+}
+
+.nt-pulldown-menu a.selected {
+  background-color: rgba(150, 200, 255, 0.5);
+}
+
+.nt-pulldown-menu a.clear {
+  color: #a00;
+}
+
+.nt-pulldown-menu a:hover {
+  background-color: rgba(150, 200, 255, 0.2);
+}
+
