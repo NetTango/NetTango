@@ -32,6 +32,12 @@ class CodeWorkspace extends TouchLayer {
   
   /// block menu 
   BlockMenu menu;
+
+  /// global variable definitions and types
+  List variables = new List();
+
+  /// list of expressions
+  List expressions = new List();
   
   /* Canvas 2D drawing context */
   CanvasRenderingContext2D ctx;
@@ -82,6 +88,20 @@ class CodeWorkspace extends TouchLayer {
         int limit = toInt(b['limit'], -1);
         menu.addBlock(block, limit);
       }
+    }
+
+    //--------------------------------------------------------
+    // initialize global variables 
+    //--------------------------------------------------------
+    if (definition['variables'] is List) {
+      variables = definition['variables'];
+    }
+
+    //--------------------------------------------------------
+    // initialize expression builder
+    //--------------------------------------------------------
+    if (definition['expressions'] is List) {
+      expressions = definition['expressions'];
     }
 
     //--------------------------------------------------------
