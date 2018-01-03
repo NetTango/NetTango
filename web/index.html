@@ -4,11 +4,12 @@
   <title>NetTango Example</title>
   <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">   
   <link href="css/ntango.css" rel="stylesheet">
+  <meta charset="utf-8">
   <!-- script src="lib/ntango.js"></script -->
 </head>
 <body>
   <div class="nt-container" style="height: 500px;">
-    <canvas id="nt-workspace" width="800" height="500" style="background: #fef9f6;"></canvas>
+    <canvas id="nt-workspace" width="800" height="400" style="background: #fef9f6;"></canvas>
   </div>
   <button onclick="saveRestore()">SAVE</button>
 
@@ -19,6 +20,30 @@
   <script>
 
   var workspaceDefinition = {
+    "expressions" : [
+      { "name" : "true", "type" : "bool" },
+      { "name" : "false", "type" : "bool" },
+      { "name" : "AND", "type" : "bool", "arguments" : [ "bool", "bool"] },
+      { "name" : "OR", "type" : "bool", "arguments" : [ "bool", "bool" ] },
+      { "name" : "NOT", "type" : "bool", "arguments" : [ "bool"] },
+      { "name" : ">", "type" : "bool", "arguments" : [ "num", "num" ] },
+      { "name" : ">=", "type" : "bool", "arguments" : [ "num", "num" ] },
+      { "name" : "<", "type" : "bool", "arguments" : [ "num", "num" ] },
+      { "name" : "<=", "type" : "bool", "arguments" : [ "num", "num" ] },
+      { "name" : "!=", "type" : "bool", "arguments" : [ "num", "num" ] },
+      { "name" : "=", "type" : "bool", "arguments" : [ "num", "num" ] },
+      { "name" : "+", "type" : "num", "arguments" : [ "num", "num"] },
+      { "name" : "-", "type" : "num", "arguments" : [ "num", "num"] },
+      { "name" : "×", "type" : "num", "arguments" : [ "num", "num"] },
+      { "name" : "/", "type" : "num", "arguments" : [ "num", "num"] }
+    ],
+
+    "variables" : [
+      { "name" : "energy?", "type" : "bool" },
+      { "name" : "mouseX", "type" : "num" },
+      { "name" : "mouseY", "type" : "num" }
+    ],
+
     "blocks" : [
       {
         "action" : "\uD83D\uDC3A   wolf actions ",
@@ -58,18 +83,11 @@
         "format" : "forward {0}",
         "params" : [
           {
-            "type" : "range",
-            "min" : 0,
-            "max" : 3,
-            "step" : 0.1,
-            "default" : 1,
-            "name" : "steps"
+            "expression" : true,
+            "type" : "num",
+            "name" : "steps",
+            "default" : 2
           },
-          {
-            "type" : "int",
-            "default" : 1,
-            "name" : "stagger"
-          }
         ]
       },
 
@@ -192,7 +210,7 @@ document.body.onload = function() {
     console.log(NetTango.save('nt-workspace'));
     var canvas = document.getElementById("nt-workspace");
     canvas.getAttributeNode("width").value = "800";
-    canvas.getAttributeNode("height").value = "500";
+    canvas.getAttributeNode("height").value = "400";
     NetTango.init('nt-workspace', json);
   }
   </script>
