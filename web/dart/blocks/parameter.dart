@@ -147,7 +147,7 @@ class Parameter implements Touchable {
     ctx.fillStyle = _down ? block.blockColor : block.textColor;
     ctx.fill();
     ctx.fillStyle = _down ? block.textColor : block.blockColor;
-    ctx.fillText(valueAsString, x + w/2, y + h/2);
+    ctx.fillText(valueAsString, x + w/2, y + h*.55);
   }
 
 
@@ -486,10 +486,10 @@ class ExpressionParameter extends Parameter {
     querySelectorAll(".nt-param-confirm").onClick.listen((e) { 
       var empties = querySelectorAll(".nt-expression.empty");
       if (empties.length > 0) return false;
+      _value = builder.toJSON();
       backdrop.remove();
       block.workspace.draw();
       block.workspace.programChanged();
-      value = builder.toJSON();
     });
 
     querySelectorAll(".nt-param-confirm").onMouseDown.listen((e) { 
