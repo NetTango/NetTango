@@ -60,13 +60,47 @@ abstract class CodeFormatter  {
       for (int i=0; i<rcount; i++) fmt += " {P$i}";
     }
     for (int i=0; i<pcount; i++) {
-      fmt = fmt.replaceAll("{$i}", toStr(params[i]["value"]));
+      fmt = fmt.replaceAll("{$i}", _formatParameter(params[i]));
     }
     for (int i=0; i<rcount; i++) {
-      fmt = fmt.replaceAll("{P$i}", toStr(props[i]["value"]));
+      fmt = fmt.replaceAll("{P$i}", _formatParameter(props[i]));
     }
 
     _formatOutput(out, indent, fmt);
+  }
+
+
+  String _formatParameter(var param) {
+    if (param["value"] is Map) {
+      return _formatExpression(param["value"]);
+    } else {
+      return toStr(param["value"]);
+    }
+  }
+
+
+  String _formatExpression(var expression) {
+    var c = expression["children"];
+    if (c == null || c is! List) c = [];
+
+    String name = toStr(expression["name"]);
+
+    if (expression["format"] is String) {
+      String fmt = expression["format"];
+      for (int i=0; i<c.length; i++) {
+        fmt = fmt.replaceAll("{$i}", _formatExpression(c[i]));
+      }
+      return fmt;
+    }
+    else if (c.length == 1) {
+      return "($name ${_formatExpression(c[0])})";
+    }
+    else if (c.length == 2) {
+      return "(${_formatExpression(c[0])} $name ${_formatExpression(c[1])})";
+    }
+    else {
+      return name;
+    }
   }
 }
 
