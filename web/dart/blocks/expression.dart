@@ -17,9 +17,7 @@ part of NetTango;
 
 
 /// TODO 
-///   times sign for NetLogo formatter
-///   NetLogo formatter
-
+///   limit length of inline expressions on blocks.
 class Expression {
 
   ExpressionBuilder builder;
@@ -27,6 +25,8 @@ class Expression {
   String name = null;
 
   String type = "num";
+
+  String format = null;
 
   bool get isRoot => (builder.root == this);
 
@@ -46,18 +46,18 @@ class Expression {
   Expression(this.builder, this.type);
 
 
-  void formatString(StringBuffer out) {
+  void displayString(StringBuffer out) {
     if (isUnary) {
       if (!isRoot) out.write("(");
       out.write("$name ");
-      children[0].formatString(out);
+      children[0].displayString(out);
       if (!isRoot) out.write(")");
     } 
     else if (isBinary) {
       if (!isRoot) out.write("(");
-      children[0].formatString(out);
+      children[0].displayString(out);
       out.write(" $name ");
-      children[1].formatString(out);
+      children[1].displayString(out);
       if (!isRoot) out.write(")");
     } 
     else if (name != null) {
@@ -74,6 +74,7 @@ class Expression {
         json["children"].add(child.toJSON());
       }
     }
+    if (format != null) json["format"] = format;
     return json;
   }
 
@@ -105,11 +106,19 @@ class Expression {
 
 
   void setChildren(List args) {
+    bool childless = isChildless;
+
     if (childMismatch(args)) {
       children.clear();
       if (args != null) {
         for (int i=0; i<args.length; i++) {
-          children.add(new Expression(builder, args[i]));
+
+          // chain first expression?
+          if (i == 0 && childless && args[i] == type) {
+            children.add(new Expression(builder, args[i]) .. name = name);
+          } else {
+            children.add(new Expression(builder, args[i]));
+          }
         }
       }
     }
@@ -250,9 +259,10 @@ class Expression {
         hmenu.append(link);
         link.onClick.listen((e) {
           hmenu.remove();
+          setChildren(item['arguments']);
           name = item['name'];
           type = item['type'];
-          setChildren(item['arguments']);
+          format = item['format'];
           builder.renderHtml();
           e.stopPropagation();
           e.preventDefault();
@@ -284,7 +294,7 @@ class ExpressionBuilder {
 
   String toString() {
     StringBuffer out = new StringBuffer();
-    root.formatString(out);
+    root.displayString(out);
     return out.toString();
   }
 
