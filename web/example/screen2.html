@@ -37,7 +37,7 @@
     .nt-container {
       display: inline-block;
       overflow-y: scroll;
-      height: 550px;
+      height: 600px;
     }
 
     #recompile-button {
@@ -60,7 +60,6 @@
 
     #netlogo-code {
       margin: 40px;
-      widows: 500px;
       min-height: 200px;
       border: 1px solid #555;
       background-color: #efefef;
@@ -98,13 +97,13 @@
   <h3>NetTango Code</h3>
 
   <div class="nt-container">
-    <canvas id="nt-wolf-code" class="nt-canvas" width="470" height="500"></canvas>
+    <canvas id="nt-wolf-code" class="nt-canvas" width="470" height="560"></canvas>
     <i class="fa fa-trash fa-2x trashcan"></i>
   </div>
 
 
   <div class="nt-container">
-    <canvas id="nt-sheep-code" class="nt-canvas" width="470" height="500"></canvas>
+    <canvas id="nt-sheep-code" class="nt-canvas" width="470" height="560"></canvas>
     <i class="fa fa-trash fa-2x trashcan"></i>
   </div>
   <br>
@@ -244,7 +243,6 @@ var wolfDefinition = {
       ]
     },
 
-
     {
       "action" : "right",
       "format" : "right random {0}",
@@ -260,6 +258,16 @@ var wolfDefinition = {
           "unit" : "\u00B0"
         }
       ]
+    },
+
+    {
+      "action" : "pen down",
+      "format" : "pen-down"
+    },
+
+    {
+      "action" : "pen up",
+      "format" : "pen-up"
     },
 
     { 
@@ -362,6 +370,16 @@ var sheepDefinition = {
           "unit" : "\u00B0"
         }
       ]
+    },
+
+    {
+      "action" : "pen down",
+      "format" : "pen-down"
+    },
+
+    {
+      "action" : "pen up",
+      "format" : "pen-up"
     },
 
     { 

@@ -60,7 +60,6 @@
 
     #netlogo-code {
       margin: 40px;
-      widows: 500px;
       min-height: 200px;
       border: 1px solid #555;
       background-color: #efefef;
@@ -192,8 +191,8 @@ document.body.onload = function() {
     //set the origin on message receipt
     //can also filter origin here
     //the payload is in e.data
+    origin = e.origin;
     if (typeof e.data === "string") {
-      origin = e.origin;
       //verify data is valid and update the model
       var data = JSON.parse(e.data);
       var canvas = document.getElementById("nt-wolf-code");
@@ -218,7 +217,7 @@ function sendMessage() {
   var data = NetTango.save('nt-wolf-code');
   //if origin is set, send the data to the parent window
   if (origin) {
-    parent.postMessage(data, origin);
+    window.parent.postMessage(data, origin);
   }
 }
 
