@@ -84,13 +84,13 @@
 
 <body>
 
-  <h3>Wolves and Sheep</h3>
+  <h3>Isle Royale</h3>
 
   <div class="netlogo-container">
     <div class="overlay" id="recompile-overlay">
       <button id="recompile-button" onclick="recompile()">Recompile</button>
     </div>
-    <iframe id="netlogo" frameborder="0" height="430" scrolling="yes" width="100%" src="WSP1.html"></iframe>
+    <iframe id="netlogo" frameborder="0" height="430" scrolling="yes" width="100%" src="IsleRoyale.html"></iframe>
   </div>
 
 
@@ -103,7 +103,7 @@
 
 
   <div class="nt-container">
-    <canvas id="nt-sheep-code" class="nt-canvas" width="470" height="500"></canvas>
+    <canvas id="nt-moose-code" class="nt-canvas" width="470" height="500"></canvas>
     <i class="fa fa-trash fa-2x trashcan"></i>
   </div>
   <br>
@@ -139,7 +139,7 @@ function buildCode() {
   var nlcode = nl.session.widgetController.code();
   var ntcode = "; --- NETTANGO BEGIN ---";
   ntcode += "\n\n" + NetTango.exportCode("nt-wolf-code", "NetLogo");
-  ntcode += "\n\n" + NetTango.exportCode("nt-sheep-code", "NetLogo");
+  ntcode += "\n\n" + NetTango.exportCode("nt-moose-code", "NetLogo");
   ntcode += "\n\n; --- NETTANGO END ---";
 
   // merge NetTango and NetLogo 
@@ -159,14 +159,14 @@ function buildCode() {
 // -------------------------------------------------------------
 document.body.onload = function() {
   NetTango.init("nt-wolf-code", wolfDefinition);
-  NetTango.init("nt-sheep-code", sheepDefinition);
+  NetTango.init("nt-moose-code", mooseDefinition);
 
   NetTango.onProgramChanged("nt-wolf-code", function(canvasId) {
     document.getElementById("recompile-overlay").style.display = "block";
     document.getElementById("netlogo-code").innerHTML = buildCode();
   });
 
-  NetTango.onProgramChanged("nt-sheep-code", function(canvasId) {
+  NetTango.onProgramChanged("nt-moose-code", function(canvasId) {
     document.getElementById("recompile-overlay").style.display = "block";
     document.getElementById("netlogo-code").innerHTML = buildCode();
   });
@@ -237,11 +237,11 @@ var wolfDefinition = {
     },
 
      {
-      "action" : "wolf meets sheep ",
+      "action" : "wolf meets moose ",
       "type" : "nlogo:procedure",
       "start" : true,
       "limit" : 1,
-      "format" : "to wolf-meets-sheep",
+      "format" : "to wolf-meets-moose",
       "blockColor" : "#b55",
       "required" : true
     },
@@ -318,9 +318,9 @@ var wolfDefinition = {
     },
 
     {
-      "action" : "\uD83D\uDC11   ask nearby sheep",
+      "action" : "ask nearby moose",
       "blockColor" : "#89a",
-      "format" : "ask sheep in-radius 3",
+      "format" : "ask moose in-radius 3",
       "clauses" : [ ]
     },
 
@@ -346,15 +346,15 @@ var wolfDefinition = {
   ]
 };
 
-var sheepDefinition = {
+var mooseDefinition = {
   "blocks" : [
 
     {
-      "action" : "\uD83D\uDC11   sheep actions ",
+      "action" : "moose actions ",
       "type" : "nlogo:procedure",
       "start" : true,
       "limit" : 1,
-      "format" : "to sheep-actions",
+      "format" : "to moose-actions",
       "blockColor" : "#b55",
       "required" : true
     },
