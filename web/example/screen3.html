@@ -1,0 +1,423 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>NetTangoizer</title>
+  <script src="https://use.fontawesome.com/fd543cd882.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">
+  <link href="../css/ntango.css" rel="stylesheet">
+  <link href="css/codefirst.css" rel="stylesheet">
+  <style>
+    body {
+      margin: 40px;
+      font-family: Poppins, sans-serif;
+      font-size: 18px;
+    }
+    .netlogo-container {
+      position: relative;
+      margin: 20px;
+    }
+    .nt-canvas {
+      background-color: #fef9f6;
+      margin: 20px 0 0 40px; 
+      border: 1px solid #aaa;
+    }
+    .overlay {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.4);
+      text-align: center;
+      display: none;
+    }
+    .nt-container {
+      display: inline-block;
+      overflow-y: scroll;
+      height: 600px;
+    }
+
+    #recompile-button {
+      margin: 150px auto;
+      width: 200px;
+      height: 55px;
+      border-radius: 8px;
+      outline: none;
+      border: none;
+      background-color: #6b9bc3;
+      font-family: Poppins, sans-serif;
+      font-size: 20px;
+      color: white;
+      text-align: center;
+    }
+
+    #recompile-button:active {
+      background-color: #9bd;
+    }
+
+    #netlogo-code {
+      margin: 40px;
+      min-height: 200px;
+      border: 1px solid #555;
+      background-color: #efefef;
+      padding: 30px;
+      font-size: 15px;
+      overflow-y: scroll;
+    }
+
+    #netlogo-code-link {
+      cursor: pointer;
+    }
+
+    .trashcan {
+      opacity: 0.8;
+      color: white;
+      position: relative;
+      right: 50px;
+      bottom: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h3>Isle Royale 3</h3>
+
+  <div class="netlogo-container">
+    <div class="overlay" id="recompile-overlay">
+      <button id="recompile-button" onclick="recompile()">Recompile</button>
+    </div>
+    <iframe id="netlogo" frameborder="0" height="430" scrolling="yes" width="100%" src="IsleRoyale.html"></iframe>
+  </div>
+
+
+  <h3>NetTango Code</h3>
+
+  <div class="nt-container">
+    <canvas id="nt-wolf-code" class="nt-canvas" width="470" height="560"></canvas>
+    <i class="fa fa-trash fa-2x trashcan"></i>
+  </div>
+
+
+  <div class="nt-container">
+    <canvas id="nt-moose-code" class="nt-canvas" width="470" height="560"></canvas>
+    <i class="fa fa-trash fa-2x trashcan"></i>
+  </div>
+  <br>
+  <br>
+
+
+  <h3 id="netlogo-code-link">NetLogo Code <i class="fa fa-caret-down"></i></h3>
+  <pre id="netlogo-code">
+  </pre>
+
+<script src="../lib/ntango.js"></script>
+
+<script type="text/javascript">
+
+// -------------------------------------------------------------
+// update NetLogo code and recompile
+// -------------------------------------------------------------
+function recompile() {
+  var nl = document.getElementById("netlogo").contentWindow;
+  nl.session.widgetController.setCode(buildCode());
+  nl.session.recompile();
+  document.getElementById("recompile-overlay").style.display = "none";
+}
+
+
+// -------------------------------------------------------------
+// merge existing NetLogo code and current NetTango code
+// -------------------------------------------------------------
+function buildCode() {
+  var nl = document.getElementById("netlogo").contentWindow;
+
+  var nlcode = nl.session.widgetController.code();
+  var ntcode = "; --- NETTANGO BEGIN ---";
+  ntcode += "\n\n" + NetTango.exportCode("nt-wolf-code", "NetLogo");
+  ntcode += "\n\n" + NetTango.exportCode("nt-moose-code", "NetLogo");
+  ntcode += "\n\n; --- NETTANGO END ---";
+
+  // merge NetTango and NetLogo 
+  var merged = nlcode;
+  if (nlcode.indexOf("; --- NETTANGO BEGIN ---") >= 0) {
+    merged = nlcode.replace(new RegExp("((?:^|\n); --- NETTANGO BEGIN ---\n)([^]*)(\n; --- NETTANGO END ---)"), "\n" + ntcode + "\n");  
+  } else {
+    merged = nlcode + "\n\n" + ntcode;
+  }
+
+  return merged;
+}
+
+
+// -------------------------------------------------------------
+// initialize NetTango workspaces
+// -------------------------------------------------------------
+document.body.onload = function() {
+  console.log("hello");
+  NetTango.init("nt-wolf-code", wolfDefinition);
+  NetTango.init("nt-moose-code", mooseDefinition);
+
+  NetTango.onProgramChanged("nt-wolf-code", function(canvasId) {
+    document.getElementById("recompile-overlay").style.display = "block";
+    document.getElementById("netlogo-code").innerHTML = buildCode();
+  });
+
+  NetTango.onProgramChanged("nt-moose-code", function(canvasId) {
+    document.getElementById("recompile-overlay").style.display = "block";
+    document.getElementById("netlogo-code").innerHTML = buildCode();
+  });
+
+
+
+// -------------------------------------------------------------
+// show / hide netlogo code
+// -------------------------------------------------------------
+  $("#netlogo-code").hide();
+  $("#netlogo-code-link").click(function () { 
+    $("#netlogo-code").toggle(); 
+    $("#netlogo-code-link i").toggleClass("fa-caret-up");
+    $("#netlogo-code-link i").toggleClass("fa-caret-down");
+  });
+
+}
+
+
+// -------------------------------------------------------------
+// NetTango block definitions
+// -------------------------------------------------------------
+var wolfDefinition = {
+  "blocks" : [
+    {
+      "action" : "\uD83D\uDC3A   wolf actions ",
+      "type" : "nlogo:procedure",
+      "start" : true,
+      "limit" : 1,
+      "format" : "to wolf-actions",
+      "blockColor" : "#b55",
+      "required" : true
+    },
+
+     {
+      "action" : "wolf meets moose ",
+      "type" : "nlogo:procedure",
+      "start" : true,
+      "limit" : 1,
+      "format" : "to wolf-meets-moose",
+      "blockColor" : "#b55",
+      "required" : true
+    },
+
+    {
+      "action" : "forward",
+      "format" : "forward {0}",
+      "params" : [
+        {
+          "type" : "range",
+          "min" : 0,
+          "max" : 3,
+          "step" : 0.1,
+          "default" : 1,
+          "name" : "steps"
+        }
+      ]
+    },
+
+    {
+      "action" : "left",
+      "format" : "left random {0}",
+      "params" : [
+        {
+          "type" : "range",
+          "min" : 0,
+          "max" : 90,
+          "step" : 1,
+          "default" : 50,
+          "random" : true,
+          "name" : "amount",
+          "unit" : "\u00B0"
+        }
+      ]
+    },
+
+    {
+      "action" : "right",
+      "format" : "right random {0}",
+      "params" : [
+        {
+          "type" : "range",
+          "min" : 0,
+          "max" : 90,
+          "step" : 1,
+          "default" : 50,
+          "random" : true,
+          "name" : "amount",
+          "unit" : "\u00B0"
+        }
+      ]
+    },
+
+    {
+      "action" : "pen down",
+      "format" : "pen-down"
+    },
+
+    {
+      "action" : "pen up",
+      "format" : "pen-up"
+    },
+
+    { 
+      "action" : "hatch", 
+      "format" : "hatch 1 [ rt random-float 360 fd 1 ]", 
+      "blockColor" : "#916da0"
+    },
+
+    { 
+      "action" : "die", 
+      "blockColor" : "#916da0",
+    },
+
+    {
+      "action" : "ask nearby moose",
+      "blockColor" : "#89a",
+      "format" : "ask moose in-radius 3",
+      "clauses" : [ ]
+    },
+
+
+    {
+      "action" : "chance",
+      "blockColor" : "#89a",
+      "format" : "if random 100 < {0}",
+      "clauses" : [ ],
+      "params" : [
+        {
+          "type" : "range",
+          "min" : 0,
+          "max" : 100,
+          "step" : 0.5,
+          "default" : 20,
+          "unit" : "%",
+          "name" : "percent"
+        }
+      ]
+    }
+  ]
+};
+
+var mooseDefinition = {
+  "blocks" : [
+
+    {
+      "action" : "moose actions ",
+      "type" : "nlogo:procedure",
+      "start" : true,
+      "limit" : 1,
+      "format" : "to moose-actions",
+      "blockColor" : "#b55",
+      "required" : true
+    },
+  
+    {
+      "action" : "forward",
+      "format" : "forward {0}",
+      "params" : [
+        {
+          "type" : "range",
+          "min" : 0,
+          "max" : 3,
+          "step" : 0.1,
+          "default" : 1,
+          "name" : "steps"
+        }
+      ]
+    },
+
+    {
+      "action" : "left",
+      "format" : "left random {0}",
+      "params" : [
+        {
+          "type" : "range",
+          "min" : 0,
+          "max" : 90,
+          "step" : 1,
+          "default" : 50,
+          "random" : true,
+          "name" : "amount",
+          "unit" : "\u00B0"
+        }
+      ]
+    },
+
+
+    {
+      "action" : "right",
+      "format" : "right random {0}",
+      "params" : [
+        {
+          "type" : "range",
+          "min" : 0,
+          "max" : 90,
+          "step" : 1,
+          "default" : 50,
+          "random" : true,
+          "name" : "amount",
+          "unit" : "\u00B0"
+        }
+      ]
+    },
+
+    {
+      "action" : "pen down",
+      "format" : "pen-down"
+    },
+
+    {
+      "action" : "pen up",
+      "format" : "pen-up"
+    },
+
+    {
+      "action" : "flee",
+      "format" : "flee"
+    },
+
+    { 
+      "action" : "hatch", 
+      "format" : "hatch 1 [ rt random-float 360 fd 1 ]", 
+      "blockColor" : "#916da0"
+    },
+
+    { 
+      "action" : "die", 
+      "blockColor" : "#916da0",
+    },
+
+    {
+      "action" : "chance",
+      "blockColor" : "#89a",
+      "format" : "if random 100 < {0}",
+      "clauses" : [
+      ],
+      "params" : [
+        {
+          "type" : "range",
+          "min" : 0,
+          "max" : 100,
+          "step" : 0.5,
+          "default" : 20,
+          "unit" : "%",
+          "name" : "percent"
+        }
+      ]
+    }
+  ]
+};
+</script>
+</body>
+</html>
