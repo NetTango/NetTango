@@ -213,12 +213,12 @@ document.body.onload = function() {
 
 
   function saveRestore() {
-    var json = JSON.parse(NetTango.save('nt-workspace'));
-    console.log(NetTango.save('nt-workspace'));
+    var json = NetTango.save('nt-workspace');
+    console.log(JSON.stringify(NetTango.save('nt-workspace')));
     var canvas = document.getElementById("nt-workspace");
     canvas.getAttributeNode("width").value = "800";
     canvas.getAttributeNode("height").value = "400";
-    NetTango.init('nt-workspace', json);
+    NetTango.restore('nt-workspace', json);
   }
   </script>
 </body>
