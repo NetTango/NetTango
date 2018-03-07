@@ -51,6 +51,23 @@ void JSInitWorkspace(String canvasId, String jsonString) {
 }
 
 
+/// Javascript hook to initialize all workspaces based on canvasID names
+void JSInitAllWorkspaces(String jsonString) {
+  var json = JSON.decode(jsonString);
+  if (json is Map) {
+    for (var key in json.keys) {
+      if (_workspaces[key] is CodeWorkspace) {
+        _workspaces[key].unload();
+      }
+      if (json[key] is Map) {
+        _workspaces[key] = new CodeWorkspace(key, json[key]);
+        _workspaces[key].draw();
+      }
+    }
+  }
+}
+
+
 /// Javascript hook to export code from a workspace
 String JSExportCode(String canvasId, String language) {
   if (_workspaces.containsKey(canvasId)) {
@@ -70,9 +87,23 @@ String JSSaveWorkspace(String canvasId) {
 }
 
 
+/// Javascript hook to export all workspaces
+String JSSaveAllWorkspaces() {
+  var json = { };
+  for (var key in _workspaces.keys) {
+    var defs = _workspaces[key].definition;
+    defs['program'] = _workspaces[key].exportParseTree();
+    json[key] = defs;
+  }
+  return JSON.encode(json);
+}
+
+
 /// Expose core API functions to Javascript 
 void main() {
   js.context['NetTango_InitWorkspace'] = JSInitWorkspace;
+  js.context['NetTango_InitAllWorkspaces'] = JSInitAllWorkspaces;
   js.context['NetTango_ExportCode'] = JSExportCode;
   js.context['NetTango_Save'] = JSSaveWorkspace;
+  js.context['NetTango_SaveAll'] = JSSaveAllWorkspaces;
 }  
