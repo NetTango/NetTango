@@ -46,7 +46,14 @@ var NetTango = {
   /// Exports the current state of the workspace as a JSON object to be 
   /// restored at a later point.
   save : function(canvasId) {
-    return NetTango_Save(canvasId);
+    return JSON.parse(NetTango_Save(canvasId));
+  },
+
+
+  /// Exports the state of all workspaces as a JSON object to be restored
+  /// at a later point.
+  saveAll : function() {
+    return JSON.parse(NetTango_SaveAll());
   },
 
 
@@ -54,6 +61,12 @@ var NetTango = {
   /// Note, for now this is just an alias of the NetTango.init function.
   restore : function(canvasId, json) {
     NetTango_InitWorkspace(canvasId, JSON.stringify(json));
+  },
+
+
+  /// Restores all workspaces from a previously saved state.
+  restoreAll : function(json) {
+    NetTango_InitAllWorkspaces(JSON.stringify(json));
   },
 
 
