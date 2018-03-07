@@ -21,7 +21,7 @@
     }
     .nt-canvas {
       background-color: #fef9f6;
-      margin: 20px 0 0 40px; 
+      margin: 20px 0 0 40px;
       border: 1px solid #aaa;
     }
     .overlay {
@@ -88,7 +88,7 @@
 
   <div class="netlogo-container">
     <div class="overlay" id="recompile-overlay">
-      <button id="recompile-button" onclick="recompile()">Recompile</button>
+      <button id="recompile-button">Recompile</button>
     </div>
     <iframe id="netlogo" frameborder="0" height="430" scrolling="yes" width="100%" src="IsleRoyale.html"></iframe>
   </div>
@@ -118,46 +118,13 @@
 
 <script type="text/javascript">
 
-// -------------------------------------------------------------
-// update NetLogo code and recompile
-// -------------------------------------------------------------
-function recompile() {
-  var nl = document.getElementById("netlogo").contentWindow;
-  nl.session.widgetController.setCode(buildCode());
-  nl.session.recompile();
-  document.getElementById("recompile-overlay").style.display = "none";
-  sendMessage();
-}
 
 
-// -------------------------------------------------------------
-// merge existing NetLogo code and current NetTango code
-// -------------------------------------------------------------
-function buildCode() {
-  var nl = document.getElementById("netlogo").contentWindow;
-
-  var nlcode = nl.session.widgetController.code();
-  var ntcode = "; --- NETTANGO BEGIN ---";
-  ntcode += "\n\n" + NetTango.exportCode("nt-wolf-code", "NetLogo");
-  ntcode += "\n\n" + NetTango.exportCode("nt-moose-code", "NetLogo");
-  ntcode += "\n\n; --- NETTANGO END ---";
-
-  // merge NetTango and NetLogo 
-  var merged = nlcode;
-  if (nlcode.indexOf("; --- NETTANGO BEGIN ---") >= 0) {
-    merged = nlcode.replace(new RegExp("((?:^|\n); --- NETTANGO BEGIN ---\n)([^]*)(\n; --- NETTANGO END ---)"), "\n" + ntcode + "\n");  
-  } else {
-    merged = nlcode + "\n\n" + ntcode;
-  }
-
-  return merged;
-}
-
-
-// -------------------------------------------------------------
-// initialize NetTango workspaces
-// -------------------------------------------------------------
 document.body.onload = function() {
+
+  //-------------------------------------------------------------
+  // initialize NetTango workspaces
+  //-------------------------------------------------------------
   NetTango.init("nt-wolf-code", wolfDefinition);
   NetTango.init("nt-moose-code", mooseDefinition);
 
@@ -172,54 +139,116 @@ document.body.onload = function() {
   });
 
 
+  //-------------------------------------------------------------
+  // update NetLogo code and recompile
+  //-------------------------------------------------------------
+  function recompile() {
+    var nl = document.getElementById("netlogo").contentWindow;
+    nl.session.widgetController.setCode(buildCode());
+    nl.session.recompile();
+    document.getElementById("recompile-overlay").style.display = "none";
+    sendMessage();
+  }
 
-// -------------------------------------------------------------
-// show / hide netlogo code
-// -------------------------------------------------------------
+
+  //-------------------------------------------------------------
+  // merge existing NetLogo code and current NetTango code
+  //-------------------------------------------------------------
+  function buildCode() {
+    var nl = document.getElementById("netlogo").contentWindow;
+
+    var nlcode = nl.session.widgetController.code();
+    var ntcode = "; --- NETTANGO BEGIN ---";
+    ntcode += "\n\n" + NetTango.exportCode("nt-wolf-code", "NetLogo");
+    ntcode += "\n\n" + NetTango.exportCode("nt-moose-code", "NetLogo");
+    ntcode += "\n\n; --- NETTANGO END ---";
+
+    // merge NetTango and NetLogo
+    var merged = nlcode;
+    if (nlcode.indexOf("; --- NETTANGO BEGIN ---") >= 0) {
+      merged = nlcode.replace(new RegExp("((?:^|\n); --- NETTANGO BEGIN ---\n)([^]*)(\n; --- NETTANGO END ---)"), "\n" + ntcode + "\n");
+    } else {
+      merged = nlcode + "\n\n" + ntcode;
+    }
+
+    return merged;
+  }
+
+ 
+  //-------------------------------------------------------------
+  // show / hide netlogo code
+  //-------------------------------------------------------------
   $("#netlogo-code").hide();
-  $("#netlogo-code-link").click(function () { 
-    $("#netlogo-code").toggle(); 
+  $("#netlogo-code-link").click(function () {
+    $("#netlogo-code").toggle();
     $("#netlogo-code-link i").toggleClass("fa-caret-up");
     $("#netlogo-code-link i").toggleClass("fa-caret-down");
   });
 
+
   //origin is the parent window
   var origin = null;
 
+  //-------------------------------------------------------------
   // A function to process messages received by the window.
+  //-------------------------------------------------------------
   function receiveMessage(e) {
     //set the origin on message receipt
     //can also filter origin here
     //the payload is in e.data
-    origin = e.origin;
-    if (typeof e.data === "string") {
+    if (origin == null && e.origin.indexOf('s3-us-west-1') >= 0) {
+      origin = e.origin;
+    }
+
+    if (e.data && e.origin.indexOf('s3-us-west-1') >= 0) {
       //verify data is valid and update the model
+      //console.log(e.data);
+      //console.log(typeof e.data);
       var data = JSON.parse(e.data);
+
+      //-----------------------------------------------------------
+      // resize canvases to their original state --
+      // NetTango will enlarge on higher pixel density displays
+      //-----------------------------------------------------------
       var canvas = document.getElementById("nt-wolf-code");
       if (canvas) {
         canvas.getAttributeNode("width").value = "470";
         canvas.getAttributeNode("height").value = "500";
       }
+      canvas = document.getElementById("nt-moose-code");
+      if (canvas) {
+        canvas.getAttributeNode("width").value = "470";
+        canvas.getAttributeNode("height").value = "500";
+      }
 
-      NetTango.restore('nt-wolf-code', data);
+      //-----------------------------------------------------------
+      // restore code
+      //-----------------------------------------------------------
+      NetTango.restoreAll(data);
+    }
+  }
+
+
+  //-------------------------------------------------------------
+  // A function to send message to the parent window
+  //-------------------------------------------------------------
+  function sendMessage() {
+    //get the current state of the model in JSON format
+    var data = NetTango.saveAll();
+    if (origin) {
+      window.parent.postMessage(JSON.stringify(data), origin);
     }
   }
 
   // Setup an event listener that calls receiveMessage() when the window
   // receives a new MessageEvent.
   window.addEventListener('message', receiveMessage);
+
+  $('button#recompile-button').on('click', function() {
+    recompile();
+  });
 }
 
-
-// A function to send message to the parent window
-function sendMessage() {
-  //get the current state of the model in JSON format
-  var data = NetTango.save('nt-wolf-code');
-  //if origin is set, send the data to the parent window
-  if (origin) {
-    window.parent.postMessage(data, origin);
-  }
-}
 
 // -------------------------------------------------------------
 // NetTango block definitions
@@ -306,14 +335,14 @@ var wolfDefinition = {
       "format" : "pen-up"
     }
 /*
-    { 
-      "action" : "hatch", 
-      "format" : "hatch 1 [ rt random-float 360 fd 1 ]", 
+    {
+      "action" : "hatch",
+      "format" : "hatch 1 [ rt random-float 360 fd 1 ]",
       "blockColor" : "#916da0"
     },
 
-    { 
-      "action" : "die", 
+    {
+      "action" : "die",
       "blockColor" : "#916da0",
     },
 
@@ -358,7 +387,7 @@ var mooseDefinition = {
       "blockColor" : "#b55",
       "required" : true
     },
-  
+
     {
       "action" : "forward",
       "format" : "forward {0}",
@@ -419,14 +448,14 @@ var mooseDefinition = {
       "format" : "pen-up"
     }
 /*
-    { 
-      "action" : "hatch", 
-      "format" : "hatch 1 [ rt random-float 360 fd 1 ]", 
+    {
+      "action" : "hatch",
+      "format" : "hatch 1 [ rt random-float 360 fd 1 ]",
       "blockColor" : "#916da0"
     },
 
-    { 
-      "action" : "die", 
+    {
+      "action" : "die",
       "blockColor" : "#916da0",
     },
 
