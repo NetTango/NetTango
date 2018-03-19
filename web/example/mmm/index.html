@@ -1,0 +1,428 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>MMM</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script src="https://use.fontawesome.com/fd543cd882.js"></script>
+  <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">
+  <link href="../../css/ntango.css" rel="stylesheet">
+  <link href="../css/codefirst.css" rel="stylesheet">
+  <style>
+    body {
+      margin: 40px;
+      font-family: Poppins, sans-serif;
+      font-size: 18px;
+    }
+    .netlogo-container {
+      position: relative;
+    }
+    .nt-canvas {
+      background-color: #fef9f6;
+      margin: 0 0 0 20px;
+      border: 1px solid #aaa;
+    }
+    .overlay {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+      background-color: rgba(0, 0, 0, 0.4);
+      text-align: center;
+      display: none;
+    }
+    .nt-container {
+      display: inline-block;
+      overflow-y: scroll;
+      height: 650px;
+    }
+
+    #recompile-button {
+      margin: 150px auto;
+      width: 200px;
+      height: 55px;
+      border-radius: 8px;
+      outline: none;
+      border: none;
+      background-color: #6b9bc3;
+      font-family: Poppins, sans-serif;
+      font-size: 20px;
+      color: white;
+      text-align: center;
+    }
+
+    #recompile-button:active {
+      background-color: #9bd;
+    }
+
+    #netlogo-code {
+      margin: 40px;
+      min-height: 200px;
+      border: 1px solid #555;
+      background-color: #efefef;
+      padding: 30px;
+      font-size: 15px;
+      overflow-y: scroll;
+    }
+
+    #netlogo-code-link {
+      cursor: pointer;
+    }
+
+    .trashcan {
+      opacity: 0.8;
+      color: white;
+      position: relative;
+      right: 50px;
+      bottom: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h3>Much Matter in Motion</h3>
+
+  <div class="netlogo-container" style="padding: 0">
+    <div class="overlay" id="recompile-overlay">
+      <button id="recompile-button">Recompile</button>
+    </div>
+    <iframe id="netlogo" frameborder="0" height="560" scrolling="yes" width="100%" src="MMM_NetTango.html"></iframe>
+  </div>
+
+  <div class="nt-container">
+    <canvas id="nt-ball-code" class="nt-canvas" width="470" height="600"></canvas>
+    <i class="fa fa-trash fa-2x trashcan"></i>
+  </div>
+
+  <br>
+  <br>
+
+
+  <h3 id="netlogo-code-link">NetLogo Code <i class="fa fa-caret-down"></i></h3>
+  <pre id="netlogo-code">
+  </pre>
+
+<script src="../../lib/ntango.js"></script>
+
+<script type="text/javascript">
+
+
+
+document.body.onload = function() {
+
+  //-------------------------------------------------------------
+  // initialize NetTango workspaces
+  //-------------------------------------------------------------
+  NetTango.init("nt-ball-code", ntDefinition);
+
+  NetTango.onProgramChanged("nt-ball-code", function(canvasId) {
+    document.getElementById("recompile-overlay").style.display = "block";
+    document.getElementById("netlogo-code").innerHTML = buildCode();
+  });
+
+
+  //-------------------------------------------------------------
+  // update NetLogo code and recompile
+  //-------------------------------------------------------------
+  function recompile() {
+    var nl = document.getElementById("netlogo").contentWindow;
+    nl.session.widgetController.setCode(buildCode());
+    nl.session.recompile();
+    //nl.procedures.setup();
+    document.getElementById("recompile-overlay").style.display = "none";
+    sendMessage();
+  }
+
+
+  //-------------------------------------------------------------
+  // merge existing NetLogo code and current NetTango code
+  //-------------------------------------------------------------
+  function buildCode() {
+    var nl = document.getElementById("netlogo").contentWindow;
+
+    var nlcode = nl.session.widgetController.code();
+    var ntcode = "; --- NETTANGO BEGIN ---";
+    ntcode += "\n\n" + NetTango.exportCode("nt-ball-code", "NetLogo");
+    ntcode += "\n\n; --- NETTANGO END ---";
+
+    // merge NetTango and NetLogo
+    var merged = nlcode;
+    if (nlcode.indexOf("; --- NETTANGO BEGIN ---") >= 0) {
+      merged = nlcode.replace(new RegExp("((?:^|\n); --- NETTANGO BEGIN ---\n)([^]*)(\n; --- NETTANGO END ---)"), "\n" + ntcode + "\n");
+    } else {
+      merged = nlcode + "\n\n" + ntcode;
+    }
+
+    return merged;
+  }
+
+ 
+  //-------------------------------------------------------------
+  // show / hide netlogo code
+  //-------------------------------------------------------------
+  $("#netlogo-code").hide();
+  $("#netlogo-code-link").click(function () {
+    $("#netlogo-code").toggle();
+    $("#netlogo-code-link i").toggleClass("fa-caret-up");
+    $("#netlogo-code-link i").toggleClass("fa-caret-down");
+  });
+
+
+  //origin is the parent window
+  var origin = null;
+
+  //-------------------------------------------------------------
+  // A function to process messages received by the window.
+  //-------------------------------------------------------------
+  function receiveMessage(e) {
+    //set the origin on message receipt
+    //can also filter origin here
+    //the payload is in e.data
+    if (origin == null && e.origin.indexOf('s3-us-west-1') >= 0) {
+      origin = e.origin;
+    }
+
+    if (e.data && e.origin.indexOf('s3-us-west-1') >= 0) {
+      //verify data is valid and update the model
+      //console.log(e.data);
+      //console.log(typeof e.data);
+      var data = JSON.parse(e.data);
+
+      //-----------------------------------------------------------
+      // resize canvases to their original state --
+      // NetTango will enlarge on higher pixel density displays
+      //-----------------------------------------------------------
+      var canvas = document.getElementById("nt-wolf-code");
+      if (canvas) {
+        canvas.getAttributeNode("width").value = "470";
+        canvas.getAttributeNode("height").value = "500";
+      }
+      canvas = document.getElementById("nt-moose-code");
+      if (canvas) {
+        canvas.getAttributeNode("width").value = "470";
+        canvas.getAttributeNode("height").value = "500";
+      }
+
+      //-----------------------------------------------------------
+      // restore code
+      //-----------------------------------------------------------
+      NetTango.restoreAll(data);
+    }
+  }
+
+
+  //-------------------------------------------------------------
+  // A function to send message to the parent window
+  //-------------------------------------------------------------
+  function sendMessage() {
+    //get the current state of the model in JSON format
+    var data = NetTango.saveAll();
+    if (origin) {
+      window.parent.postMessage(JSON.stringify(data), origin);
+    }
+  }
+
+  // Setup an event listener that calls receiveMessage() when the window
+  // receives a new MessageEvent.
+  window.addEventListener('message', receiveMessage);
+
+  $('button#recompile-button').on('click', function() {
+    recompile();
+  });
+}
+
+
+// -------------------------------------------------------------
+// NetTango block definitions
+// -------------------------------------------------------------
+var ntDefinition = {
+  "blocks" : [
+    {
+      "action" : "ball actions",
+      "type" : "nlogo:procedure",
+      "start" : true,
+      "limit" : 1,
+      "format" : "to ball-actions",
+      "blockColor" : "#b55",
+      "required" : true
+    },
+
+    {
+      "action" : "ball collision",
+      "type" : "nlogo:procedure",
+      "start" : true,
+      "limit" : 1,
+      "format" : "to bounce-ball-event",
+      "blockColor" : "#b55",
+      "required" : true
+    },
+
+    {
+      "action" : "wall collision",
+      "type" : "nlogo:procedure",
+      "start" : true,
+      "limit" : 1,
+      "format" : "to bounce-wall-event",
+      "blockColor" : "#b55",
+      "required" : true
+    },
+/*
+    {
+      "action" : "when mouse clicked",
+      "type" : "nlogo:procedure",
+      "start" : true,
+      "limit" : 1,
+      "format" : "to mouseClick",
+      "blockColor" : "#b55",
+      "required" : true
+    },
+
+    {
+      "action" : "create balls",
+      "type": "nlogo:procedure",
+      "blockColor" : "#b55",
+      "start" : true,
+      "limit" : 1,
+      "required" : true,
+      "format" : 'to mouseClick\n  create-balls {0} [\n    set speed 1\n    set size {P0}\n    setxy mouse-xcor mouse-ycor\n    forward random(8)\n    set heading {P2}\n    set color {P1}\n    set shape "circle"\n    set mass {P0}\n  ]',
+      "params" : [
+        {
+          "type" : "range",
+          "min" : 1,
+          "max" : 20,
+          "step" : 1,
+          "default" : 8,
+          "name" : "count"
+        }
+      ],
+      "properties" : [
+        {
+          "type" : "range",
+          "min" : 1,
+          "max" : 5,
+          "step" : 0.5,
+          "default" : 2,
+          "name" : "size"
+        },
+        {
+          "type" : "select",
+          "values" : [ "red", "orange", "yellow", "green", "lime", "blue", "violet", "sky", "magenta", "pink" ],
+          "default" : "red",
+          "name" : "color"
+        },
+        {
+          "type" : "select",
+          "values" : [ "random(360)", 0, 90, 180, 270 ],
+          "default" : "random",
+          "name" : "heading",
+          "unit" : "\u00B0"
+        }
+      ]
+    },
+*/
+    {
+      "action" : "forward",
+      "format" : "forward speed",
+    },
+
+    {
+      "action" : "left",
+      "format" : "left random {0}",
+      "params" : [
+        {
+          "type" : "range",
+          "min" : 0,
+          "max" : 90,
+          "step" : 1,
+          "default" : 50,
+          "random" : true,
+          "name" : "amount",
+          "unit" : "\u00B0"
+        }
+      ]
+    },
+
+
+    {
+      "action" : "right",
+      "format" : "right random {0}",
+      "params" : [
+        {
+          "type" : "range",
+          "min" : 0,
+          "max" : 90,
+          "step" : 1,
+          "default" : 50,
+          "random" : true,
+          "name" : "amount",
+          "unit" : "\u00B0"
+        }
+      ]
+    },
+
+    {
+      "action" : "bounce",
+      "format" : "bounce"
+    },
+
+    {
+      "action" : "stop",
+      "format" : "set speed 0"
+    },
+
+    {
+      "action" : "pen down",
+      "format" : "pen-down"
+    },
+
+    {
+      "action" : "pen up",
+      "format" : "pen-up"
+    }
+/*
+    {
+      "action" : "hatch",
+      "format" : "hatch 1 [ rt random-float 360 fd 1 ]",
+      "blockColor" : "#916da0"
+    },
+
+    {
+      "action" : "die",
+      "blockColor" : "#916da0",
+    },
+
+    {
+      "action" : "ask nearby moose",
+      "blockColor" : "#89a",
+      "format" : "ask moose in-radius 3",
+      "clauses" : [ ]
+    },
+
+
+    {
+      "action" : "chance",
+      "blockColor" : "#89a",
+      "format" : "if random 100 < {0}",
+      "clauses" : [ ],
+      "params" : [
+        {
+          "type" : "range",
+          "min" : 0,
+          "max" : 100,
+          "step" : 0.5,
+          "default" : 20,
+          "unit" : "%",
+          "name" : "percent"
+        }
+      ]
+    }
+    */
+  ]
+};
+
+</script>
+</body>
+</html>
