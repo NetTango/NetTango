@@ -1,18 +1,22 @@
 breed [ balls ball ]
 balls-own [ speed mass energy last-collision ]
 globals [
-  gravity-acceleration
+  is-setup?
 ]
+
 
 to setup
   clear-all
   ask patches [ set pcolor 29.8 ]
-  set gravity-acceleration 9.8
+  set is-setup? 1
   reset-ticks
+
 end
 
 
 to go
+  if (is-setup? = 0) [ setup ]
+
   ask balls
   [
     ball-actions
@@ -46,6 +50,7 @@ end
 
 
 to mouseDrag
+  if (is-setup? = 0) [ setup ]
   ask patch mouse-xcor mouse-ycor
   [
     set pcolor black
@@ -55,6 +60,7 @@ end
 
 
 to mouseClick
+  if (is-setup? = 0) [ setup ]
   create-balls ball-count
   [
     set shape  "circle"
@@ -65,7 +71,7 @@ to mouseClick
     set-ball-color
     if ball-count > 1 [ jump random-float 8 ]
     set-ball-heading
-    set speed 1
+    set speed initial-speed
     set energy (0.5 * mass * (speed ^ 2))
   ]
 end
@@ -124,11 +130,11 @@ end
 
 
 to factor-gravity  ;; turtle procedure
-  ;let vx (sin heading * speed)
-  ;let vy (cos heading * speed)
-  ;set vy (vy - gravity-acceleration * tick-advance-amount)
-  ;set speed sqrt ((vy ^ 2) + (vx ^ 2))
-  ;set heading atan vx vy
+  let vx (sin heading * speed)
+  let vy (cos heading * speed)
+  set vy (vy - gravity-acceleration * 0.0015)
+  set speed sqrt ((vy ^ 2) + (vx ^ 2))
+  set heading atan vx vy
 end
 
 
@@ -334,30 +340,13 @@ ticks
 30.0
 
 BUTTON
-92
+5
 480
-169
+82
 513
 ▶
 go
 T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-2
-480
-82
-513
-setup
-setup
-NIL
 1
 T
 OBSERVER
@@ -378,9 +367,9 @@ Powered by NetLogo
 1
 
 BUTTON
-177
+90
 480
-257
+170
 513
 ▶❙
 go
@@ -435,22 +424,86 @@ NIL
 HORIZONTAL
 
 CHOOSER
-579
-166
-753
-211
+580
+170
+754
+215
 ball-heading
 ball-heading
 "random" "up" "down" "left" "right"
 0
 
 BUTTON
-266
-480
-351
-514
-clear
+580
+330
+755
+365
+clear trace
 clear-drawing
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+SLIDER
+580
+230
+755
+263
+initial-speed
+initial-speed
+0
+8
+1.0
+0.1
+1
+NIL
+HORIZONTAL
+
+SLIDER
+580
+440
+755
+473
+gravity-acceleration
+gravity-acceleration
+0
+10
+0.0
+0.1
+1
+NIL
+HORIZONTAL
+
+BUTTON
+580
+285
+755
+320
+clear balls
+clear-turtles
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+BUTTON
+580
+375
+755
+410
+clear walls
+ask patches [ set pcolor 29.8 ]
 NIL
 1
 T
