@@ -11,6 +11,7 @@ packages
 *.js.deps
 *.js.map
 .DS_Store
+.dart_tool
 
 django/static
 django/reese/settings.py
