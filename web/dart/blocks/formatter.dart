@@ -32,7 +32,7 @@ abstract class CodeFormatter  {
     if (_formatters.containsKey(language)) {
       return _formatters[language]._format(parseTree);
     } else {
-      return JSON.encode(parseTree);
+      return jsonEncode(parseTree);
     }
   }
 

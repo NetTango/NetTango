@@ -67,15 +67,15 @@ class Expression {
 
 
   Map toJSON() {
-    var json = { "name" : name, "type" : type };
+    Map data = { "name" : name, "type" : type };
     if (hasChildren) {
-      json["children"] = [];
+      data["children"] = [];
       for (Expression child in children) {
-        json["children"].add(child.toJSON());
+        data["children"].add(child.toJSON());
       }
     }
-    if (format != null) json["format"] = format;
-    return json;
+    if (format != null) data["format"] = format;
+    return data;
   }
 
 

@@ -278,7 +278,9 @@ class CodeWorkspace extends TouchLayer {
         removeTouchable(target);
         target = target.nextChain;
       }
+      return true;
     }
+    return false;
   }
 
 
