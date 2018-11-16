@@ -4,95 +4,91 @@
   <title>NetTango Example</title>
   <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">   
   <link href="css/ntango.css" rel="stylesheet">
-  <meta charset="utf-8">
-  <!-- script src="lib/ntango.js"></script -->
 </head>
 <body>
-  <div class="nt-container" style="height: 650px;">
-    <canvas id="nt-workspace" width="800" height="400" style="background: #fef9f6;"></canvas>
+  <button id="setup-button" onclick="startup();">Press me to start...</button>
+  <div id="nt-container">
+    <canvas id="nt-workspace" width="800" height="800" style="background: #e9e5cd;"></canvas>
   </div>
-  <button onclick="saveRestore()">SAVE</button>
+  <br>
+  <pre id="code-output" style="width: 800; height: 300; overflow: scroll;">Hello there</pre>
 
-  <script type="application/dart" src="dart/ntango.dart"></script>
-  <script src="packages/browser/dart.js"></script>
+  <script src="js/jquery.3.3.1.min.js"></script>
+  <script src="dart/ntango.dart.js"></script>
   <script src="js/ntango.js"></script>
-
   <script>
 
+function startup() {
+
   var workspaceDefinition = {
-    "expressions" : [
-      { "name" : "true", "type" : "bool" },
-      { "name" : "false", "type" : "bool" },
-      { "name" : "AND", "type" : "bool", "arguments" : [ "bool", "bool"], "format" : "({0} and {1})" },
-      { "name" : "OR", "type" : "bool", "arguments" : [ "bool", "bool" ], "format" : "({0} or {1})" },
-      { "name" : "NOT", "type" : "bool", "arguments" : [ "bool"], "format" : "(not {0})" },
-      { "name" : ">", "type" : "bool", "arguments" : [ "num", "num" ] },
-      { "name" : ">=", "type" : "bool", "arguments" : [ "num", "num" ] },
-      { "name" : "<", "type" : "bool", "arguments" : [ "num", "num" ] },
-      { "name" : "<=", "type" : "bool", "arguments" : [ "num", "num" ] },
-      { "name" : "!=", "type" : "bool", "arguments" : [ "num", "num" ] },
-      { "name" : "=", "type" : "bool", "arguments" : [ "num", "num" ] },
-      { "name" : "+", "type" : "num", "arguments" : [ "num", "num"] },
-      { "name" : "-", "type" : "num", "arguments" : [ "num", "num"] },
-      { "name" : "×", "type" : "num", "arguments" : [ "num", "num"], "format" : "({0} * {1})" },
-      { "name" : "/", "type" : "num", "arguments" : [ "num", "num"] },
-      { "name" : "random", "type" : "num", "arguments" : [ "num" ], "format" : "random-float {0}" }
-    ],
-
-    "variables" : [
-      { "name" : "energy", "type" : "num" },
-      { "name" : "mouseX", "type" : "num" },
-      { "name" : "mouseY", "type" : "num" }
-    ],
-
     "blocks" : [
       {
-        "action" : "\uD83D\uDC3A   wolf actions ",
+        "action" : "particle actions",
         "type" : "nlogo:procedure",
         "start" : true,
         "limit" : 1,
-        "format" : "to wolf-actions",
-        "blockColor" : "#b55",
-        "required" : true
-      },
-
-      {
-        "action" : "wolf setup",
-        "type" : "nlogo:procedure",
-        "start" : true,
-        "limit" : 1,
-        "format" : "to wolf-setup",
+        "format" : "to particle-actions",
         "blockColor" : "#b86f4c"
       },
 
       {
-        "action" : "create wolves",
+        "action" : "setup",
+        "type" : "nlogo:procedure",
+        "start" : true,
         "limit" : 1,
-        "format" : "create-wolves {0} [ set size {P0} set color {P1} ]",
+        "format" : "to particle-setup",
+        "blockColor" : "#b86f4c"
+      },
+
+      {
+        "action" : "on mouse drag",
+        "type" : "nlogo:procedure",
+        "start" : true,
+        "limit" : 1,
+        "format" : "to mouse-drag-event",
+        "blockColor" : "#75ac97"
+      },
+
+      {
+        "action" : "on double click",
+        "type" : "nlogo:procedure",
+        "start" : true,
+        "limit" : 1,
+        "format" : "to mouse-dclick-event",
+        "blockColor" : "#75ac97"
+      },
+
+      {
+        "action" : "create particles",
+        "limit" : 1,
+        "format" : "create-particles {0} [ set size {P0} set color {P1} setxy {P2} ]",
         "params" : [
           { "type" : "range", "min" : 0, "max" : 50, "step" : 1, "default" : 20, "name" : "count" }
         ],
         "properties" : [
           { "type" : "range", "name" : "size", "min" : "0.2", "max" : "5", "step" : 0.1, "default" : 1 },
-          { "type" : "select", "name" : "color", "values" : [ "black", "brown", "red", "green", "blue", "yellow" ] },
-          { "type" : "select", "name" : "position", "values" : [ "random", "centered"] }
+          { "type" : "select", "name" : "color", "values" : [ "black", "brown", "red", "green", "blue" ]},
+          { "type" : "select", "name" : "position", "values" : [ "0 0", "mouse-xcor mouse-ycor", "random-x random-y" ]}
         ]
       },
+
     
       {
-        "action" : "\uD83D\uDC3A   forward",
-        "format" : "forward {0}",
+        "action" : "forward",
         "params" : [
           {
-            "type" : "num",
-            "name" : "steps",
-            "default" : 2
+            "type" : "range",
+            "min" : 0,
+            "max" : 3,
+            "step" : 0.1,
+            "default" : 1,
+            "name" : "steps"
           }
         ]
       },
 
       {
-        "action" : "\uD83D\uDC3A   left",
+        "action" : "left",
         "format" : "left random {0}",
         "params" : [
           {
@@ -110,7 +106,7 @@
 
 
       {
-        "action" : "\uD83D\uDC3A   right",
+        "action" : "right",
         "format" : "right random {0}",
         "params" : [
           {
@@ -126,57 +122,49 @@
         ]
       },
 
-      {
-        "action" : "\uD83D\uDC3A   change energy",
-        "format" : "set energy energy + {0}",
-        "params" : [ { "type" : "range", "min" : -20, "max" : 20, "step" : 0.5, "default" : 1, "name" : "amount" }]
-      },
+      { "action" : "bounce" },
+
+      { "action" : "stick" },
 
       { 
-        "action" : "\uD83D\uDC3A   hatch", 
-        "format" : "hatch 1", 
-        "blockColor" : "#916da0",
+        "action" : "play sound",
         "params" : [
-          { "type" : "int", "min" : 1, "name" : "child count", "default" : 1 }
+          { "type" : "select", "name" : "sound", "values" : [ "pat", "ping", "pound", "spat" ] }
         ]
       },
 
       { 
-        "action" : "die", 
-        "blockColor" : "#916da0",
+        "action" : "add wall", 
+        "format" : "ask patch mouse-xcor mouse-ycor [ set pcolor {0} display ]",
+        "params" : [
+          { "type" : "select", "name" : "color", "values" : [ "black", "brown", "red", "green", "blue" ]},
+        ]
       },
 
-      {
-        "action" : "\uD83D\uDC3A   if",
-        "format" : "if {0}",
-        "blockColor" : "#89a",
+      { 
+        "action" : "set heading", 
+        "format" : "set heading {0}",
         "params" : [
           {
-            "type" : "bool",
-            "name" : "check"
+            "type" : "range",
+            "min" : 0,
+            "max" : 360,
+            "step" : 1,
+            "default" : 90,
+            "name" : "heading",
+            "unit" : "\u00B0"
           }
-        ],
-        "clauses" : [ ]
+        ]
       },
 
       {
-        "action" : "\uD83D\uDC11   if sheep-here?",
-        "format" : "if energy < 0",
-        "blockColor" : "#89a",
-        "clauses" : [ ]
+        "action" : "if hit wall?",
+        "format" : "if collision?",
+        "clauses" : [ ],
       },
-
-      {
-        "action" : "\uD83D\uDC11   ask sheep-here",
-        "blockColor" : "#89a",
-        "format" : "ask sheep-here",
-        "clauses" : [ ]
-      },
-
 
       {
         "action" : "chance",
-        "blockColor" : "#89a",
         "format" : "ifelse random 100 < {0}",
         "clauses" : [
           {
@@ -199,27 +187,15 @@
       }
     ]
   };
-
-document.body.onload = function() {
-
+  
   NetTango.init("nt-workspace", workspaceDefinition);
 
   NetTango.onProgramChanged("nt-workspace", function(canvasId) {
     var code = NetTango.exportCode(canvasId, "NetLogo");
-    console.log(code);
+    document.getElementById("code-output").innerHTML = code;
   });
-
 }
 
-
-  function saveRestore() {
-    var json = NetTango.save('nt-workspace');
-    console.log(JSON.stringify(NetTango.save('nt-workspace')));
-    var canvas = document.getElementById("nt-workspace");
-    canvas.getAttributeNode("width").value = "800";
-    canvas.getAttributeNode("height").value = "400";
-    NetTango.restore('nt-workspace', json);
-  }
   </script>
 </body>
 </html>
