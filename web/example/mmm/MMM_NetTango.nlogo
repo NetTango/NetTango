@@ -53,8 +53,15 @@ to mouseDrag
   if (is-setup? = 0) [ setup ]
   ask patch mouse-xcor mouse-ycor
   [
-    set pcolor black
-    ask neighbors [ set pcolor black ]
+    ifelse (wall-color = "erase")
+    [
+      set pcolor 29.8
+      ask neighbors [ set pcolor 29.8 ]
+    ]
+    [
+      set pcolor black
+      ask neighbors [ set pcolor black ]
+    ]
   ]
 end
 
@@ -134,14 +141,15 @@ to factor-gravity  ;; turtle procedure
   let vy (cos heading * speed)
   set vy (vy - gravity-acceleration * 0.0015)
   set speed sqrt ((vy ^ 2) + (vx ^ 2))
-  set heading atan vx vy
+  if vx != 0 or vy != 0 [
+    set heading atan vx vy
+  ]
 end
 
 
 
 ; --- NETTANGO BEGIN ---
 to ball-actions
-  forward speed
 end
 
 to bounce-wall-event
@@ -395,14 +403,14 @@ ball-color
 
 SLIDER
 580
-74
+65
 753
-107
+98
 ball-size
 ball-size
 0.5
 5
-1.5
+1.0
 0.5
 1
 NIL
@@ -410,9 +418,9 @@ HORIZONTAL
 
 SLIDER
 580
-122
+100
 753
-155
+133
 ball-count
 ball-count
 1
@@ -425,9 +433,9 @@ HORIZONTAL
 
 CHOOSER
 580
-170
+140
 754
-215
+185
 ball-heading
 ball-heading
 "random" "up" "down" "left" "right"
@@ -435,9 +443,9 @@ ball-heading
 
 BUTTON
 580
-330
+350
 755
-365
+385
 clear trace
 clear-drawing
 NIL
@@ -452,9 +460,9 @@ NIL
 
 SLIDER
 580
-230
+190
 755
-263
+223
 initial-speed
 initial-speed
 0
@@ -482,9 +490,9 @@ HORIZONTAL
 
 BUTTON
 580
-285
+305
 755
-320
+340
 clear balls
 clear-turtles
 NIL
@@ -499,9 +507,9 @@ NIL
 
 BUTTON
 580
-375
+395
 755
-410
+430
 clear walls
 ask patches [ set pcolor 29.8 ]
 NIL
@@ -513,6 +521,16 @@ NIL
 NIL
 NIL
 1
+
+CHOOSER
+580
+240
+755
+285
+wall-color
+wall-color
+"black" "erase"
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
