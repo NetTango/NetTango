@@ -1,8 +1,8 @@
 # Getting Started with NetTango Modeling 
 
-* To create a NetTango workspace, start by downloading the [ntango.js](https://raw.githubusercontent.com/NetTango/NetTango/version_0.7/web/lib/ntango.js) library.
+* To create a NetTango workspace, start by downloading the [ntango.js](https://raw.githubusercontent.com/NetTango/NetTango/version_0.8/web/lib/ntango.js) library.
 
-* You'll also need the NetTango stylesheet: [ntango.css](https://raw.githubusercontent.com/NetTango/NetTango/version_0.7/web/css/ntango.css).
+* You'll also need the NetTango stylesheet: [ntango.css](https://raw.githubusercontent.com/NetTango/NetTango/version_0.8/web/css/ntango.css).
 
 * Then create a test HTML file in the same directory as the library file (you can copy this code):
 
