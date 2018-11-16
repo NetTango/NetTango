@@ -43,7 +43,7 @@ void JSInitWorkspace(String canvasId, String jsonString) {
   if (_workspaces[canvasId] is CodeWorkspace) {
     _workspaces[canvasId].unload();
   }
-  var json = JSON.decode(jsonString);
+  var json = jsonDecode(jsonString);
   if (json is Map) {
     _workspaces[canvasId] = new CodeWorkspace(canvasId, json);
     _workspaces[canvasId].draw();
@@ -53,7 +53,7 @@ void JSInitWorkspace(String canvasId, String jsonString) {
 
 /// Javascript hook to initialize all workspaces based on canvasID names
 void JSInitAllWorkspaces(String jsonString) {
-  var json = JSON.decode(jsonString);
+  var json = jsonDecode(jsonString);
   if (json is Map) {
     for (var key in json.keys) {
       if (_workspaces[key] is CodeWorkspace) {
@@ -82,7 +82,7 @@ String JSSaveWorkspace(String canvasId) {
   if (_workspaces.containsKey(canvasId)) {
     var defs = _workspaces[canvasId].definition;
     defs['program'] = _workspaces[canvasId].exportParseTree();
-    return JSON.encode(defs);
+    return jsonEncode(defs);
   }
 }
 
@@ -95,7 +95,7 @@ String JSSaveAllWorkspaces() {
     defs['program'] = _workspaces[key].exportParseTree();
     json[key] = defs;
   }
-  return JSON.encode(json);
+  return jsonEncode(json);
 }
 
 
