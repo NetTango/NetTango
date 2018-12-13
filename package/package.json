@@ -1,0 +1,19 @@
+{
+  "name": "nettango",
+  "version": "0.8.0",
+  "description": "A blocks-based programming library written in Dart",
+  "main": "ntango.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NetTango/NetTango.git"
+  },
+  "author": "Michael Horn",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/NetTango/NetTango/issues"
+  },
+  "homepage": "https://github.com/NetTango/NetTango#readme"
+}
