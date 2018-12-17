@@ -1,8 +1,8 @@
-<!DOCTYPE html> 
-<html> 
-<head> 
+<!DOCTYPE html>
+<html>
+<head>
   <title>NetTango Example</title>
-  <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">   
+  <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">
   <link href="css/ntango.css" rel="stylesheet">
 </head>
 <body>
@@ -13,7 +13,7 @@
   <br>
   <pre id="code-output" style="width: 800; height: 300; overflow: scroll;">Hello there</pre>
 
-  <script src="js/jquery.3.3.1.min.js"></script>
+  <!-- script src="js/jquery.3.3.1.min.js"></script -->
   <script src="dart/ntango.dart.js"></script>
   <script src="js/ntango.js"></script>
   <script>
@@ -72,7 +72,7 @@ function startup() {
         ]
       },
 
-    
+
       {
         "action" : "forward",
         "params" : [
@@ -126,23 +126,23 @@ function startup() {
 
       { "action" : "stick" },
 
-      { 
+      {
         "action" : "play sound",
         "params" : [
           { "type" : "select", "name" : "sound", "values" : [ "pat", "ping", "pound", "spat" ] }
         ]
       },
 
-      { 
-        "action" : "add wall", 
+      {
+        "action" : "add wall",
         "format" : "ask patch mouse-xcor mouse-ycor [ set pcolor {0} display ]",
         "params" : [
           { "type" : "select", "name" : "color", "values" : [ "black", "brown", "red", "green", "blue" ]},
         ]
       },
 
-      { 
-        "action" : "set heading", 
+      {
+        "action" : "set heading",
         "format" : "set heading {0}",
         "params" : [
           {
@@ -187,7 +187,7 @@ function startup() {
       }
     ]
   };
-  
+
   NetTango.init("nt-workspace", workspaceDefinition);
 
   NetTango.onProgramChanged("nt-workspace", function(canvasId) {
