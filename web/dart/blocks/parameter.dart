@@ -194,7 +194,7 @@ class Parameter implements Touchable {
     DivElement backdrop = new DivElement() .. className = "backdrop";
     String inputCode = _buildHTMLInput();
     backdrop.appendHtml("""
-      <div class="nt-param-dialog" style="left: ${touchX}; top: ${touchY};">
+      <div class="nt-param-dialog" style="top: ${touchY};">
         <div class="nt-param-table">
           <div class="nt-param-row">${inputCode}</div>
         </div>
@@ -328,7 +328,6 @@ class RangeParameter extends NumParameter {
   void _showParameterDialog(int touchX, int touchY) {
     DivElement backdrop = new DivElement() .. className = "backdrop";
     DivElement dialog = new DivElement() .. className = "nt-param-dialog";
-    dialog.style.left = "${touchX}px";
     dialog.style.top = "${touchY}px";
     DivElement table = new DivElement() .. className = "nt-param-table";
 
@@ -408,7 +407,6 @@ class SelectParameter extends Parameter {
   void _showParameterDialog(int touchX, int touchY) {
     DivElement backdrop = new DivElement() .. className = "backdrop";
     DivElement dialog = new DivElement() .. className = "nt-param-dialog small";
-    dialog.style.left = "${touchX}px";
     dialog.style.top = "${touchY}px";
     DivElement table = new DivElement() .. className = "nt-param-table";
 
@@ -471,7 +469,7 @@ class ExpressionParameter extends Parameter {
   void _showParameterDialog(int touchX, int touchY) {
     DivElement backdrop = new DivElement() .. className = "backdrop";
     backdrop.appendHtml("""
-      <div class="nt-param-dialog" style="left: ${touchX}; top: ${touchY};">
+      <div class="nt-param-dialog" style="top: ${touchY};">
         <div class="nt-param-table">
           <div class="nt-param-row">
             <div class="nt-param-label">${name}:</div>
