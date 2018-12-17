@@ -13,29 +13,29 @@ part of NetTango;
 
 
 class TouchManager {
-  
+
   /* Is the mouse currently down */
   bool mdown = false;
-  
+
   /* Element that receives touch or mouse events */
   Element parent = null;
-  
+
   /* A list of touch layers */
   List<TouchLayer> layers = new List<TouchLayer>();
-   
+
   /* Bindings from event IDs to touchable objects */
   Map<int, TouchBinding> touch_bindings = new Map<int, TouchBinding>();
-   
-  
+
+
   TouchManager();
-  
+
 /*
  * Add a touch layer to the bottom of the list (bottom layers get added after top)
  */
   void addTouchLayer(TouchLayer layer) {
     layers.add(layer);
   }
-   
+
 
 /*
  * Remove a touch layer from the master list
@@ -43,8 +43,8 @@ class TouchManager {
   void removeTouchLayer(TouchLayer layer) {
     layers.remove(layer);
   }
-   
-   
+
+
 /*
  * See which layer wants to handle this touch
  */
@@ -62,14 +62,14 @@ class TouchManager {
     }
     return null;
   }
-  
-  
+
+
 /*
  * The main class must call this method to enable mouse and touch input
- */ 
+ */
   void registerEvents(Element element) {
     parent = element;
-   
+
     //if (isFlagSet("debug")) {
       element.onMouseDown.listen((e) => _mouseDown(e));
       element.onMouseUp.listen((e) => _mouseUp(e));
@@ -81,12 +81,12 @@ class TouchManager {
     element.onTouchEnd.listen((e) => _touchUp(e));
 */
     document.onKeyDown.listen((e) => _keyDown(e));
-      
+
     // Prevent screen from dragging on ipad
     document.onTouchMove.listen((e) => e.preventDefault());
   }
 
-  
+
 /*
  * Convert mouseUp to touchUp events
  */
@@ -99,8 +99,8 @@ class TouchManager {
     touch_bindings[-1] = null;
     mdown = false;
   }
-  
-   
+
+
 /*
  * Convert mouseDown to touchDown events
  */
@@ -114,8 +114,8 @@ class TouchManager {
     }
     mdown = true;
   }
-   
-   
+
+
 /*
  * Convert mouseMove to touchDrag events
  */
@@ -133,8 +133,8 @@ class TouchManager {
       }
     }
   }
-   
-   
+
+
   void _touchDown(var tframe) {
     for (Touch touch in tframe.changedTouches) {
       Contact t = new Contact.fromTouch(touch, parent);
@@ -146,8 +146,8 @@ class TouchManager {
       }
     }
   }
-   
-   
+
+
   void _touchUp(var tframe) {
     for (Touch touch in tframe.changedTouches) {
       Contact t = new Contact.fromTouch(touch, parent);
@@ -161,8 +161,8 @@ class TouchManager {
       touch_bindings.clear();
     }
   }
-   
-   
+
+
   void _touchDrag(var tframe) {
     for (Touch touch in tframe.changedTouches) {
       Contact t = new Contact.fromTouch(touch, parent);
@@ -191,18 +191,18 @@ class TouchLayer {
 
   /* A list of touchable objects on this layer */
   List<Touchable> touchables = new List<Touchable>();
-   
+
   /* Bindings from event IDs to touchable objects */
   Map<int, Touchable> touch_bindings = new Map<int, Touchable>();
-   
+
   /* Transformation matrices */
   Matrix2D xform = new Matrix2D.identity();
   Matrix2D iform = new Matrix2D.identity();
 
   /* Last touch event timestamp */
   DateTime last_touch = new DateTime.now();
-  
-  
+
+
   void transform(num m11, num m12, num m21, num m22, num dx, num dy) {
     xform.setTransform(m11, m12, m21, m22, dx, dy);
     iform = xform.invert();
@@ -237,14 +237,14 @@ class TouchLayer {
     xform.transformContext(ctx);
   }
 
-   
+
 /*
  * Add a touchable object to the list
  */
   void addTouchable(Touchable t) {
     touchables.add(t);
   }
-   
+
 
 /**
  * Remove a touchable object from the master list
@@ -277,8 +277,8 @@ class TouchLayer {
   bool keyDown(KeyboardEvent kbd) {
     return false;
   }
-   
-   
+
+
 /*
  * Find a touchable object that intersects with the given touch event
  */
@@ -292,49 +292,49 @@ class TouchLayer {
     }
     return null;
   }
-  
-  
+
+
 /*
  * Reset the touch timer so that it's easy to see when a layer was last touched
  */
   void resetTouchTimer() {
-    last_touch = new DateTime.now();    
+    last_touch = new DateTime.now();
   }
-  
-  
+
+
 /*
  * Returns the time in seconds since the last touch event for this layer
  */
   int getTimeSinceLastTouchEvent() {
     return (new DateTime.now().difference(last_touch)).inSeconds;
   }
-  
-  
+
+
   void transformContact(Contact c) {
     iform.transformContact(c);
   }
-  
-  
+
+
   num objectToWorldX(num x, num y) {
     return xform.transformX(x, y);
   }
-  
-  
+
+
   num objectToWorldY(num x, num y) {
     return xform.transformY(x, y);
   }
-  
-  
+
+
   num objectToWorldTheta(num theta) {
     return xform.transformTheta(theta);
   }
-  
-  
+
+
   num worldToObjectX(num x, num y) {
     return iform.transformX(x, y);
   }
-  
-  
+
+
   num worldToObjectY(num x, num y) {
     return iform.transformY(x, y);
   }
@@ -346,29 +346,29 @@ class TouchLayer {
  * touchable objects.
  */
 class TouchBinding {
-  
+
   TouchLayer layer;
   Touchable touchable;
-  
+
   TouchBinding(this.layer, this.touchable);
-  
-  
+
+
   bool touchDown(Contact c) {
     layer.transformContact(c);
     touchable = touchable.touchDown(c);
     return (touchable != null);
   }
-  
+
   void touchUp(Contact c) {
     layer.transformContact(c);
     touchable.touchUp(c);
   }
-  
+
   void touchDrag(Contact c) {
     layer.transformContact(c);
     touchable.touchDrag(c);
   }
-  
+
   void touchSlide(Contact c) {
     layer.transformContact(c);
     touchable.touchSlide(c);
@@ -380,19 +380,19 @@ class TouchBinding {
  * Objects on the screen must implement this interface to receive touch events
  */
 abstract class Touchable {
-  
+
   bool containsTouch(Contact event);
-   
-  // This gets fired if a touch down lands on the touchable object. 
-  // Return the touchable object that will 'own' the touch event for the duration 
+
+  // This gets fired if a touch down lands on the touchable object.
+  // Return the touchable object that will 'own' the touch event for the duration
   // Return null to ignore the event (e.g. if disabled or if you want slide events)
   Touchable touchDown(Contact event);
-   
+
   void touchUp(Contact event);
-   
+
   // This gets fired only after a touchDown lands on the touchable object
   void touchDrag(Contact event);
-   
+
   // This gets fired when an unbound touch events slides over an object
   void touchSlide(Contact event) { }
 }
@@ -408,9 +408,9 @@ class Contact {
   bool down = false;
   bool drag = false;
   bool finger = false;
-  
+
   Contact(this.id);
-  
+
   Contact.fromMouse(MouseEvent mouse) {
     id = -1;
     touchX = mouse.offset.x.toDouble();
@@ -418,24 +418,24 @@ class Contact {
     finger = true;
   }
 
-  
+
   Contact.fromTouch(Touch touch, Element parent) {
     num left = window.pageXOffset;
     num top = window.pageYOffset;
-    
+
     if (parent != null) {
       Rectangle box = parent.getBoundingClientRect();
       left += box.left;
       top += box.top;
     }
-    
+
     id = touch.identifier;
     touchX = touch.page.x.toDouble() - left;
     touchY = touch.page.y.toDouble() - top;
     finger = true;
   }
-  
-  
+
+
   Contact.copy(Contact c) {
     id = c.id;
     tagId = c.tagId;

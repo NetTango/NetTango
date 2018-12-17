@@ -1,13 +1,13 @@
 /*
  * NetTango
  * Copyright (c) 2017 Michael S. Horn, Uri Wilensky, and Corey Brady
- * 
+ *
  * Northwestern University
  * 2120 Campus Drive
  * Evanston, IL 60613
  * http://tidal.northwestern.edu
  * http://ccl.northwestern.edu
- 
+
  * This project was funded in part by the National Science Foundation.
  * Any opinions, findings and conclusions or recommendations expressed in this
  * material are those of the author(s) and do not necessarily reflect the views
@@ -16,7 +16,7 @@
 part of NetTango;
 
 
-/// Represents a block's parameter value  
+/// Represents a block's parameter value
 class Parameter implements Touchable {
 
   /// Used to generate unique, internal parameter id numbers
@@ -40,12 +40,12 @@ class Parameter implements Touchable {
   /// name of the parameter (e.g. degrees, length)
   String name = "";
 
-  /// short unit name that will be displayed after the value (e.g. %, px, m, mm, s) 
+  /// short unit name that will be displayed after the value (e.g. %, px, m, mm, s)
   String unit = "";
 
   /// position of the parameter
   num _left = 0, _top = 0;
-  num width = 28.0; 
+  num width = 28.0;
   num height = BLOCK_HEIGHT * 0.6;
 
   /// is the mouse down on the parameter in the block
@@ -89,7 +89,7 @@ class Parameter implements Touchable {
   factory Parameter.fromJSON(Block parent, Map data) {
     switch(toStr(data["type"], "num")) {
       case "int": return new IntParameter(parent, data);
-      
+
       case "num": return new ExpressionParameter(parent, data);
 
       case "bool": return new ExpressionParameter(parent, data);
@@ -110,7 +110,7 @@ class Parameter implements Touchable {
     ctx.save();
     {
       ctx.font = block.font;
-      width += ctx.measureText(valueAsString).width;      
+      width += ctx.measureText(valueAsString).width;
     }
     ctx.restore();
   }
@@ -127,8 +127,8 @@ class Parameter implements Touchable {
     ctx.restore();
     return w;
   }
-  
-  
+
+
   void draw(CanvasRenderingContext2D ctx, num left, [ num top = 0 ]) {
     this._left = left;
     this._top = top;
@@ -141,7 +141,7 @@ class Parameter implements Touchable {
     num y = block.y + _top + BLOCK_HEIGHT / 2 - height/2;
     num w = width;
     num h = height;
-    
+
     ctx.beginPath();
     roundRect(ctx, x, y, w, h, h/2);
     ctx.fillStyle = _down ? block.blockColor : block.textColor;
@@ -162,8 +162,8 @@ class Parameter implements Touchable {
     ctx.fillText("\u25B8    $name", x, y);
     draw(ctx, left, top);
   }
-  
-  
+
+
   bool containsTouch(Contact c) {
     return (
       c.touchX >= block.x + _left &&
@@ -175,26 +175,26 @@ class Parameter implements Touchable {
 
   void touchUp(Contact c) {
     _down = false;
-    _showParameterDialog();
+    _showParameterDialog(c.touchX, c.touchY);
     block.workspace.draw();
   }
-  
+
   Touchable touchDown(Contact c) {
     _down = true;
     block.workspace.draw();
     return this;
   }
-  
+
   void touchDrag(Contact c) { }
-  
+
   void touchSlide(Contact c) { }
 
 
-  void _showParameterDialog() {
+  void _showParameterDialog(int touchX, int touchY) {
     DivElement backdrop = new DivElement() .. className = "backdrop";
     String inputCode = _buildHTMLInput();
     backdrop.appendHtml("""
-      <div class="nt-param-dialog">
+      <div class="nt-param-dialog" style="left: ${touchX}; top: ${touchY};">
         <div class="nt-param-table">
           <div class="nt-param-row">${inputCode}</div>
         </div>
@@ -208,7 +208,7 @@ class Parameter implements Touchable {
     HtmlElement label = querySelector("#nt-param-label-$id");
     InputElement input = querySelector("#nt-param-$id");
 
-    querySelectorAll(".nt-param-confirm").onClick.listen((e) { 
+    querySelectorAll(".nt-param-confirm").onClick.listen((e) {
       if (input != null) {
         value = input.value;
       }
@@ -300,7 +300,7 @@ class IntParameter extends NumParameter {
 
 
 //-------------------------------------------------------------------------
-/// Represents a range of numbers 
+/// Represents a range of numbers
 //-------------------------------------------------------------------------
 class RangeParameter extends NumParameter {
 
@@ -325,9 +325,11 @@ class RangeParameter extends NumParameter {
   }
 
 
-  void _showParameterDialog() {
+  void _showParameterDialog(int touchX, int touchY) {
     DivElement backdrop = new DivElement() .. className = "backdrop";
     DivElement dialog = new DivElement() .. className = "nt-param-dialog";
+    dialog.style.left = "${touchX}px";
+    dialog.style.top = "${touchY}px";
     DivElement table = new DivElement() .. className = "nt-param-table";
 
     table.appendHtml(
@@ -403,9 +405,11 @@ class SelectParameter extends Parameter {
   }
 
 
-  void _showParameterDialog() {
+  void _showParameterDialog(int touchX, int touchY) {
     DivElement backdrop = new DivElement() .. className = "backdrop";
     DivElement dialog = new DivElement() .. className = "nt-param-dialog small";
+    dialog.style.left = "${touchX}px";
+    dialog.style.top = "${touchY}px";
     DivElement table = new DivElement() .. className = "nt-param-table";
 
     for (var v in values) {
@@ -437,11 +441,11 @@ class SelectParameter extends Parameter {
 
 
 //-------------------------------------------------------------------------
-/// Represents an expression (boolean or number) 
+/// Represents an expression (boolean or number)
 //-------------------------------------------------------------------------
 class ExpressionParameter extends Parameter {
 
-  ExpressionBuilder builder; 
+  ExpressionBuilder builder;
 
   String get valueAsString => (builder != null) ? builder.toString() : "";
 
@@ -464,10 +468,10 @@ class ExpressionParameter extends Parameter {
   }
 
 
-  void _showParameterDialog() {
+  void _showParameterDialog(int touchX, int touchY) {
     DivElement backdrop = new DivElement() .. className = "backdrop";
     backdrop.appendHtml("""
-      <div class="nt-param-dialog">
+      <div class="nt-param-dialog" style="left: ${touchX}; top: ${touchY};">
         <div class="nt-param-table">
           <div class="nt-param-row">
             <div class="nt-param-label">${name}:</div>
@@ -483,7 +487,7 @@ class ExpressionParameter extends Parameter {
     if (container == null) return;
     container.append(backdrop);
 
-    querySelectorAll(".nt-param-confirm").onClick.listen((e) { 
+    querySelectorAll(".nt-param-confirm").onClick.listen((e) {
       var empties = querySelectorAll(".nt-expression.empty");
       if (empties.length > 0) return false;
       _value = builder.toJSON();
@@ -492,10 +496,10 @@ class ExpressionParameter extends Parameter {
       block.workspace.programChanged();
     });
 
-    querySelectorAll(".nt-param-confirm").onMouseDown.listen((e) { 
+    querySelectorAll(".nt-param-confirm").onMouseDown.listen((e) {
       querySelectorAll(".nt-expression.empty").forEach((el) => el.classes.add('warn'));
     });
-    querySelectorAll(".nt-param-confirm").onMouseUp.listen((e) { 
+    querySelectorAll(".nt-param-confirm").onMouseUp.listen((e) {
       querySelectorAll(".nt-expression.empty").forEach((el) => el.classes.remove('warn'));
     });
     querySelectorAll(".nt-param-cancel").onClick.listen((e) {

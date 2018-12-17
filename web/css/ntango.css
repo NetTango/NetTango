@@ -1,7 +1,7 @@
 /*
  * NetTango
  * Copyright (c) 2017 Michael S. Horn and Uri Wilensky
- * 
+ *
  * Northwestern University
  * 2120 Campus Drive
  * Evanston, IL 60613
@@ -44,9 +44,6 @@
 .nt-param-dialog {
   border-radius: 15px;
   background-color: white;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 15%;
   border: 2px solid rgba(0, 0, 0, 0.4);
   padding: 30px;
   max-width: 400px;
@@ -190,10 +187,10 @@ input[type=range]:-moz-focusring{
 input[type=range]::-ms-track {
     width: 220px;
     height: 5px;
-    
+
     /*remove bg colour from the track, we'll use ms-fill-lower and ms-fill-upper instead */
     background: transparent;
-    
+
     /*leave room for the larger thumb to overflow with a transparent border */
     border-color: transparent;
     border-width: 6px 0;
@@ -218,8 +215,8 @@ input[type=range]:focus::-ms-fill-upper {
 }
 
 
-/* 
- * EXPRESSION BUILDER 
+/*
+ * EXPRESSION BUILDER
  */
 .nt-expression {
   display: inline-block;
@@ -290,7 +287,7 @@ input[type=range]:focus::-ms-fill-upper {
   width: 3em;
   padding: 0 0.2em;
   height: 1.6em;
-  
+
 }
 
 .nt-pulldown-menu {
@@ -326,4 +323,3 @@ input[type=range]:focus::-ms-fill-upper {
 .nt-pulldown-menu a:hover {
   background-color: rgba(150, 200, 255, 0.2);
 }
-
