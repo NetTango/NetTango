@@ -175,7 +175,7 @@ class Parameter implements Touchable {
 
   void touchUp(Contact c) {
     _down = false;
-    _showParameterDialog(c.touchX, c.touchY);
+    _showParameterDialog(c.originalX, c.originalY);
     block.workspace.draw();
   }
 
@@ -190,11 +190,11 @@ class Parameter implements Touchable {
   void touchSlide(Contact c) { }
 
 
-  void _showParameterDialog(int touchX, int touchY) {
+  void _showParameterDialog(int x, int y) {
     DivElement backdrop = new DivElement() .. className = "backdrop";
     String inputCode = _buildHTMLInput();
     backdrop.appendHtml("""
-      <div class="nt-param-dialog" style="top: ${touchY};">
+      <div class="nt-param-dialog" style="top: ${y};">
         <div class="nt-param-table">
           <div class="nt-param-row">${inputCode}</div>
         </div>
@@ -325,10 +325,10 @@ class RangeParameter extends NumParameter {
   }
 
 
-  void _showParameterDialog(int touchX, int touchY) {
+  void _showParameterDialog(int x, int y) {
     DivElement backdrop = new DivElement() .. className = "backdrop";
     DivElement dialog = new DivElement() .. className = "nt-param-dialog";
-    dialog.style.top = "${touchY}px";
+    dialog.style.top = "${y}px";
     DivElement table = new DivElement() .. className = "nt-param-table";
 
     table.appendHtml(
@@ -404,10 +404,10 @@ class SelectParameter extends Parameter {
   }
 
 
-  void _showParameterDialog(int touchX, int touchY) {
+  void _showParameterDialog(int x, int y) {
     DivElement backdrop = new DivElement() .. className = "backdrop";
     DivElement dialog = new DivElement() .. className = "nt-param-dialog small";
-    dialog.style.top = "${touchY}px";
+    dialog.style.top = "${y}px";
     DivElement table = new DivElement() .. className = "nt-param-table";
 
     for (var v in values) {
@@ -466,10 +466,10 @@ class ExpressionParameter extends Parameter {
   }
 
 
-  void _showParameterDialog(int touchX, int touchY) {
+  void _showParameterDialog(int x, int y) {
     DivElement backdrop = new DivElement() .. className = "backdrop";
     backdrop.appendHtml("""
-      <div class="nt-param-dialog" style="top: ${touchY};">
+      <div class="nt-param-dialog" style="top: ${y};">
         <div class="nt-param-table">
           <div class="nt-param-row">
             <div class="nt-param-label">${name}:</div>

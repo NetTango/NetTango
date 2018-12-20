@@ -402,7 +402,9 @@ class Contact {
   int id;
   int tagId = -1;
   num touchX = 0;
+  num originalX = 0;
   num touchY = 0;
+  num originalY = 0;
   bool tag = false;
   bool up = false;
   bool down = false;
@@ -414,7 +416,9 @@ class Contact {
   Contact.fromMouse(MouseEvent mouse) {
     id = -1;
     touchX = mouse.offset.x.toDouble();
+    originalX = touchX;
     touchY = mouse.offset.y.toDouble();
+    originalY = touchY;
     finger = true;
   }
 
@@ -431,7 +435,9 @@ class Contact {
 
     id = touch.identifier;
     touchX = touch.page.x.toDouble() - left;
+    originalX = touchX;
     touchY = touch.page.y.toDouble() - top;
+    originalY = touchY;
     finger = true;
   }
 
@@ -440,7 +446,9 @@ class Contact {
     id = c.id;
     tagId = c.tagId;
     touchX = c.touchX;
+    originalX = c.originalX;
     touchY = c.touchY;
+    originalY = c.originalY;
     up = c.up;
     down = c.down;
     drag = c.drag;
