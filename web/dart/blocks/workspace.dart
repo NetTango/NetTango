@@ -1,13 +1,13 @@
 /*
  * NetTango
  * Copyright (c) 2017 Michael S. Horn, Uri Wilensky, and Corey Brady
- * 
+ *
  * Northwestern University
  * 2120 Campus Drive
  * Evanston, IL 60613
  * http://tidal.northwestern.edu
  * http://ccl.northwestern.edu
- 
+
  * This project was funded in part by the National Science Foundation.
  * Any opinions, findings and conclusions or recommendations expressed in this
  * material are those of the author(s) and do not necessarily reflect the views
@@ -17,8 +17,8 @@ part of NetTango;
 
 
 class CodeWorkspace extends TouchLayer {
-  
-  /// HTML Canvas ID 
+
+  /// HTML Canvas ID
   String canvasId;
 
   /// list of blocks in the workspace
@@ -26,11 +26,11 @@ class CodeWorkspace extends TouchLayer {
 
   /// save a copy of the workspace definition objetc for the save() function
   Map definition;
-  
+
   /// size of the canvas
-  int width, height;
-  
-  /// block menu 
+  num width, height;
+
+  /// block menu
   BlockMenu menu;
 
   /// global variable definitions and types
@@ -38,7 +38,7 @@ class CodeWorkspace extends TouchLayer {
 
   /// list of expressions
   List expressions = new List();
-  
+
   /* Canvas 2D drawing context */
   CanvasRenderingContext2D ctx;
 
@@ -91,7 +91,7 @@ class CodeWorkspace extends TouchLayer {
     }
 
     //--------------------------------------------------------
-    // initialize global variables 
+    // initialize global variables
     //--------------------------------------------------------
     if (definition['variables'] is List) {
       variables = definition['variables'];
@@ -129,7 +129,7 @@ class CodeWorkspace extends TouchLayer {
 /**
  * Allows workspace to dyanamically grow and shrink the canvas
  * to allow for longer programs
- */  
+ */
   void reshapeCanvas(num w, num h) {
     w = w.round();
     h = h.round();
@@ -146,7 +146,7 @@ class CodeWorkspace extends TouchLayer {
     }
   }
 
-  
+
   void tick() {
     if (animate()) draw();
     window.animationFrame.then((time) => tick());
@@ -155,13 +155,13 @@ class CodeWorkspace extends TouchLayer {
 
 /**
  * Callback when blocks of a program have changed
- */  
+ */
   void programChanged() {
     draw();
     try {
       js.context["NetTango"].callMethod("_relayCallback", [ canvasId ]);
-    } catch (e) { 
-      print("Unable to relay program changed event to Javascript"); 
+    } catch (e) {
+      print("Unable to relay program changed event to Javascript");
     }
   }
 
@@ -181,7 +181,7 @@ class CodeWorkspace extends TouchLayer {
     for (Slot slot in menu.slots) {
       if (slot.block.required) {
         if (getBlockCount(slot.block.action) == 0) {
-          json["chains"].add(slot.block.exportParseTree());          
+          json["chains"].add(slot.block.exportParseTree());
         }
       }
     }
@@ -195,8 +195,8 @@ class CodeWorkspace extends TouchLayer {
   bool backgroundTouch(Contact c) {
     return false;
   }
-  
-  
+
+
 /**
  * Add a block to the workspace
  */
@@ -210,8 +210,8 @@ class CodeWorkspace extends TouchLayer {
       addTouchable(prop);
     }
   }
-  
-  
+
+
 /**
  * Remove a block from the workspace
  */
@@ -226,8 +226,8 @@ class CodeWorkspace extends TouchLayer {
     }
     draw();
   }
-  
-  
+
+
 /**
  * Move a block to the top of the visual stack
  */
@@ -236,8 +236,8 @@ class CodeWorkspace extends TouchLayer {
     _removeBlock(block);
     _addBlock(block);
   }
-  
-  
+
+
 /**
  * How many blocks of the given type have been used in the program so far?
  */
@@ -258,8 +258,8 @@ class CodeWorkspace extends TouchLayer {
     if (hit != null) {
       target._snapBelow(hit);
       return true;
-    } 
-      
+    }
+
     hit = _findBottomConnector(target);
     if (hit != null) {
       target._snapAbove(hit);
@@ -312,7 +312,7 @@ class CodeWorkspace extends TouchLayer {
   }
 
 
-  /// return a block near the bottom connector of target (or null) 
+  /// return a block near the bottom connector of target (or null)
   Block _findBottomConnector(Block target) {
     if (target.next == null) {
       for (Block block in blocks) {
@@ -325,13 +325,13 @@ class CodeWorkspace extends TouchLayer {
               return block;
             }
           }
-        } 
+        }
       }
     }
     return null;
   }
 
-  
+
 /**
  * Animate the blocks and return true if any of the blocks changed
  */
@@ -339,7 +339,7 @@ class CodeWorkspace extends TouchLayer {
     bool refresh = false;
 
     if (menu.animate()) refresh = true;
-    
+
     num lowestY = 0.0;
     for (Block block in blocks) {
       if (block.animate()) refresh = true;
@@ -351,17 +351,17 @@ class CodeWorkspace extends TouchLayer {
         reshapeCanvas(width / SCALE, (lowestY + BLOCK_HEIGHT * 3) / SCALE);
       }
     }
-    
+
     return refresh;
   }
-  
+
 
   void draw() {
     ctx.save();
     {
       // transform into workspace coordinates
       //xform.transformContext(ctx);
-      
+
       ctx.clearRect(0, 0, width, height);
 
       List<Block> drags = new List<Block>();
@@ -395,7 +395,7 @@ class CodeWorkspace extends TouchLayer {
         block._drawLabel(ctx);
         block._drawParameters(ctx);
         block._drawProperties(ctx);
-        //if (drags.isNotEmpty) 
+        //if (drags.isNotEmpty)
         block._drawOutline(ctx);
       }
     }
@@ -484,5 +484,3 @@ class CodeWorkspace extends TouchLayer {
     }
   }
 }
-
-
