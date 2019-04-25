@@ -5580,14 +5580,14 @@ z=x.width
 y=$.$get$a_()
 if(typeof z!=="number")return z.w()
 if(typeof y!=="number")return H.e(y)
-z=H.t(z*y)
+z*=y
 this.y=z
 w=x.height
 if(typeof w!=="number")return w.w()
-w=H.t(w*y)
+w*=y
 this.z=w
-x.width=z
-x.height=w
+x.width=H.t(z)
+x.height=H.t(w)
 w=this.c
 z=[P.af]
 v=new U.c4(H.w([1,0,0,0,1,0,0,0,1],z))
@@ -5755,12 +5755,12 @@ z.width=t
 z=m.style
 t=""+n+"px"
 z.height=t
-z=H.t(o*y)
+z=o*y
 this.y=z
-y=H.t(n*y)
+y=n*y
 this.z=y
-m.width=z
-m.height=y
+m.width=H.t(z)
+m.height=H.t(y)
 this.cy=H.d(C.o.bK(m,"2d"),"$isbW")
 this.N()}}return x},
 N:function(){var z,y,x,w,v,u,t,s,r,q,p,o,n
