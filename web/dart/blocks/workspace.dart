@@ -28,7 +28,7 @@ class CodeWorkspace extends TouchLayer {
   Map definition;
 
   /// size of the canvas
-  num width, height;
+  int width, height;
 
   /// block menu
   BlockMenu menu;
@@ -64,8 +64,8 @@ class CodeWorkspace extends TouchLayer {
     //--------------------------------------------------------
     canvas.style.width = "${canvas.width}px";
     canvas.style.height = "${canvas.height}px";
-    width = canvas.width * SCALE;
-    height = canvas.height * SCALE;
+    width = (canvas.width * SCALE).floor();
+    height = (canvas.height * SCALE).floor();
     canvas.width = width;
     canvas.height = height;
     scale(1/SCALE, 1/SCALE);  // scales touch input
@@ -137,8 +137,8 @@ class CodeWorkspace extends TouchLayer {
     if (canvas != null) {
       canvas.style.width = "${w}px";
       canvas.style.height = "${h}px";
-      width = w * SCALE;
-      height = h * SCALE;
+      width = (w * SCALE).floor();
+      height = (h * SCALE).floor();
       canvas.width = width;
       canvas.height = height;
       ctx = canvas.getContext('2d');
