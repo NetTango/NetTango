@@ -1,13 +1,13 @@
 /*
  * NetTango
  * Copyright (c) 2017 Michael S. Horn, Uri Wilensky, and Corey Brady
- * 
+ *
  * Northwestern University
  * 2120 Campus Drive
  * Evanston, IL 60613
  * http://tidal.northwestern.edu
  * http://ccl.northwestern.edu
- 
+
  * This project was funded in part by the National Science Foundation.
  * Any opinions, findings and conclusions or recommendations expressed in this
  * material are those of the author(s) and do not necessarily reflect the views
@@ -15,7 +15,7 @@
  */
 part of NetTango;
 
-  
+
 /**
  * Visual programming menu bar
  */
@@ -32,8 +32,8 @@ class BlockMenu {
 
   /// gets resized automatically
   num width = BLOCK_WIDTH + BLOCK_GUTTER * 2;
-  
-  
+
+
   BlockMenu(this.workspace);
 
 
@@ -43,12 +43,12 @@ class BlockMenu {
 
   num get height => workspace.height;
 
-  
+
   void addBlock(Block block, int count) {
     slots.add(new Slot(block, workspace, count));
   }
-  
-  
+
+
   bool animate() {
     return false;
   }
@@ -76,7 +76,7 @@ class BlockMenu {
     }
   }
 
-  
+
   void draw(CanvasRenderingContext2D ctx, bool highlightTrash) {
     _resize(ctx);
     ctx.save();
@@ -87,7 +87,7 @@ class BlockMenu {
 
       num ix = x + BLOCK_GUTTER;
       num iy = y + BLOCK_HEIGHT / 2;
-      
+
       for (Slot slot in slots) {
         slot.x = ix;
         slot.y = iy;
@@ -101,31 +101,31 @@ class BlockMenu {
 
 
 class Slot implements Touchable {
-  
+
   Block block;
   num x, y;
-  
+
   CodeWorkspace workspace;
-  
+
   int count = -1;
-  
-  
+
+
   Slot(this.block, this.workspace, this.count) {
     block._inMenu = true;
     workspace.addTouchable(this);
   }
-  
-  
+
+
   bool isAvailable() {
     int free = count - workspace.getBlockCount(block.action);
     return (count < 0 || free > 0);
   }
-  
-  
+
+
   num get width => block.width;
   num get height => block.height;
-  
-  
+
+
   void draw(CanvasRenderingContext2D ctx) {
     int free = count - workspace.getBlockCount(block.action);
     ctx.save();
@@ -140,13 +140,13 @@ class Slot implements Touchable {
     }
     ctx.restore();
   }
-  
-  
+
+
   bool containsTouch(Contact c) {
     return block.containsTouch(c);
   }
-  
-  
+
+
   Touchable touchDown(Contact c) {
     if (isAvailable()) {
       Block target = block.clone();
@@ -164,11 +164,10 @@ class Slot implements Touchable {
     }
     return this;
   }
-  
+
   void touchUp(Contact c) { }
-  
+
   void touchDrag(Contact c) { }
-  
+
   void touchSlide(Contact c) { }
 }
-

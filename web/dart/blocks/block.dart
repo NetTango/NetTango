@@ -1,13 +1,13 @@
 /*
  * NetTango
  * Copyright (c) 2017 Michael S. Horn, Uri Wilensky, and Corey Brady
- * 
+ *
  * Northwestern University
  * 2120 Campus Drive
  * Evanston, IL 60613
  * http://tidal.northwestern.edu
  * http://ccl.northwestern.edu
- 
+
  * This project was funded in part by the National Science Foundation.
  * Any opinions, findings and conclusions or recommendations expressed in this
  * material are those of the author(s) and do not necessarily reflect the views
@@ -28,21 +28,21 @@ final num BLOCK_UNIT = BLOCK_PADDING;  /// unit value for saving and restoring
  * Visual programming block
  */
 class Block implements Touchable {
-  
+
   /// Used to generate unique block id numbers
   static int _BLOCK_ID = 0;
 
   /// unique internal block ID number
   int id;
-  
-  /// text displayed on the block 
+
+  /// text displayed on the block
   String action;
 
   /// language specific command type used by code formatters (e.g. nlogo:command)
   var type;
 
   /// formatting hint to help translate the parse tree into source code.
-  /// parameters can be referenced using python format syntax. e.g. 
+  /// parameters can be referenced using python format syntax. e.g.
   /// "if random 100 > {0}"
   String format;
 
@@ -51,7 +51,7 @@ class Block implements Touchable {
 
   /// next block in the chain (below)
   Block next;
-  
+
   /// previous block in the chain (above)
   Block prev;
 
@@ -89,16 +89,16 @@ class Block implements Touchable {
   /// allow connections above this block?
   bool hasTopConnector = true;
 
-  /// is the block being dragged 
+  /// is the block being dragged
   bool _dragging = false;
-  
+
   /// used for dragging the block on the screen
   num _touchX, _touchY, _lastX, _lastY;
 
   /// is the block really just a menu item?
   bool _inMenu = false;
 
-  /// was this block just dragged from the menu for the first time? 
+  /// was this block just dragged from the menu for the first time?
   bool _wasInMenu = true;
 
   /// height of the block
@@ -115,11 +115,11 @@ class Block implements Touchable {
   bool get hasProperties => properties.isNotEmpty;
 
   bool get hasNext => next != null;
-  
+
   bool get hasPrev => prev != null;
 
   num get topConnectorY => y;
-  
+
   num get bottomConnectorY => y + height;
 
   bool get dragging => _dragging ? true : hasPrev ? prev.dragging : false;
@@ -275,7 +275,7 @@ class Block implements Touchable {
 
 
 //-------------------------------------------------------------------------
-/// export this chain of blocks 
+/// export this chain of blocks
 //-------------------------------------------------------------------------
   List exportParseTree() {
     List chain = [];
@@ -325,7 +325,7 @@ class Block implements Touchable {
 
 
 //-------------------------------------------------------------------------
-/// recompute block indentation 
+/// recompute block indentation
 //-------------------------------------------------------------------------
   void _reindentChain(int indent, ControlBlock parent) {
     this.indent = indent;
@@ -383,7 +383,7 @@ class Block implements Touchable {
     }
     ctx.restore();
     return w;
-  }  
+  }
 
 
   num _getNaturalWidth(CanvasRenderingContext2D ctx) {
@@ -402,10 +402,10 @@ class Block implements Touchable {
   }
 
 
-//=================================================================  
+//=================================================================
 // WARNING: EXTREMELY UGLY DRAWING CODE BELOW THIS POINT.
 // TRIED TO MAKE IT AS NEAT AS POSSIBLE
-//=================================================================  
+//=================================================================
 
   void _drawLabel(CanvasRenderingContext2D ctx) {
     ctx.save();
@@ -486,7 +486,7 @@ class Block implements Touchable {
   void _drawProperties(CanvasRenderingContext2D ctx) {
     for (int i=0; i < properties.length; i++) {
       num top = BLOCK_HEIGHT * (i + 1);
-      properties[i].drawProperty(ctx, top);    
+      properties[i].drawProperty(ctx, top);
     }
   }
 
@@ -570,8 +570,8 @@ class Block implements Touchable {
 
     if (drawNotch) {
       ctx.lineTo(x1, y);
-      ctx.bezierCurveTo(x1, y + r/2, 
-                        x1 + r, y + r/2, 
+      ctx.bezierCurveTo(x1, y + r/2,
+                        x1 + r, y + r/2,
                         x1 + r, y);
     }
     ctx.lineTo(x + width - r, y);
@@ -588,8 +588,8 @@ class Block implements Touchable {
 
     if (drawNotch) {
       ctx.lineTo(x1 + r, y + height);
-      ctx.bezierCurveTo(x1 + r, y + height + r/2, 
-                        x1, y + height + r/2, 
+      ctx.bezierCurveTo(x1 + r, y + height + r/2,
+                        x1, y + height + r/2,
                         x1, y + height);
     }
     ctx.lineTo(x1 - r, y + height);
@@ -611,7 +611,7 @@ class Block implements Touchable {
     _touchY = c.touchY;
     _lastX = c.touchX;
     _lastY = c.touchY;
-    
+
     // remove block from program
     if (hasPrev) {
       prev.next = null;
@@ -626,7 +626,7 @@ class Block implements Touchable {
     return this;
   }
 
-  
+
   void touchUp(Contact c) {
     _dragging = false;
     _inMenu = false;
@@ -646,6 +646,6 @@ class Block implements Touchable {
     _touchY = c.touchY;
   }
 
-  void touchSlide(Contact c) { 
-  }  
+  void touchSlide(Contact c) {
+  }
 }
