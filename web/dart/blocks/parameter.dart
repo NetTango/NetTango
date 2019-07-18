@@ -19,10 +19,7 @@ part of NetTango;
 /// Represents a block's parameter value
 class Parameter implements Touchable {
 
-  /// Used to generate unique, internal parameter id numbers
-  static int _PARAM_ID = 0;
-
-  /// unique internal parameter id
+  /// parameter id - unique per block
   int id;
 
   /// parent block
@@ -61,7 +58,16 @@ class Parameter implements Touchable {
 
 
   Parameter(this.block, Map data) {
-    id = Parameter._PARAM_ID++;
+    if (data.containsKey("id")) {
+      id = data["id"];
+      if (id >= this.block.nextParamId) {
+        this.block.nextParamId = id + 1;
+      }
+    } else {
+      id = this.block.nextParamId++;
+    };
+    data["id"] = id;
+
     type = toStr(data["type"], "num");
     name = toStr(data["name"], "");
     unit = toStr(data["unit"], "");
@@ -77,6 +83,7 @@ class Parameter implements Touchable {
 
   Map toJSON() {
     return {
+      "id" : id,
       "type" : type,
       "name" : name,
       "unit" : unit,

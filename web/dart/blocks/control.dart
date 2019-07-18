@@ -1,13 +1,13 @@
 /*
  * NetTango
  * Copyright (c) 2017 Michael S. Horn, Uri Wilensky, and Corey Brady
- * 
+ *
  * Northwestern University
  * 2120 Campus Drive
  * Evanston, IL 60613
  * http://tidal.northwestern.edu
  * http://ccl.northwestern.edu
- 
+
  * This project was funded in part by the National Science Foundation.
  * Any opinions, findings and conclusions or recommendations expressed in this
  * material are those of the author(s) and do not necessarily reflect the views
@@ -21,15 +21,15 @@ abstract class ControlBlock extends Block {
 
   ClauseBlock nextClause = null;
 
-  ControlBlock(CodeWorkspace workspace, String action) : super(workspace, action);
+  ControlBlock(CodeWorkspace workspace, int id, String action) : super(workspace, id, action);
 
   Block get nextChain {
     if (hasNext) {
       return next;
     }
     else if (nextClause != null) {
-      return nextClause;      
-    } 
+      return nextClause;
+    }
     else if (parent != null) {
       return parent.nextClause;
     }
@@ -66,7 +66,7 @@ abstract class ControlBlock extends Block {
 class ClauseBlock extends ControlBlock {
 
   BeginBlock begin;
-  
+
   int get indentAbove => 1;
 
   int get indentBelow => 1;
@@ -74,19 +74,19 @@ class ClauseBlock extends ControlBlock {
   bool get isStartOfChain => false;
 
 
-  ClauseBlock(CodeWorkspace workspace, String action) : super(workspace, action) {
+  ClauseBlock(CodeWorkspace workspace, int id, String action) : super(workspace, id, action) {
     hasTopConnector = false;
   }
 
   Block clone() {
-    ClauseBlock other = new ClauseBlock(workspace, action);
+    ClauseBlock other = new ClauseBlock(workspace, id, action);
     _copyTo(other);
     return other;
   }
 
 
 //-------------------------------------------------------------------------
-/// export this chain of blocks 
+/// export this chain of blocks
 //-------------------------------------------------------------------------
   void _exportParseTree(List chain) {
     Map json = toJSON();
@@ -113,8 +113,8 @@ class EndBlock extends ClauseBlock {
   int get indentBelow => 0;
 
 
-  EndBlock(CodeWorkspace workspace, String action) : 
-    super(workspace, action) {
+  EndBlock(CodeWorkspace workspace, int id, String action) :
+    super(workspace, id, action) {
     this._height = BLOCK_HEIGHT / 2;
     format = "";
   }
@@ -123,7 +123,7 @@ class EndBlock extends ClauseBlock {
     this.indent = indent;
     this.parent = parent;
     if (hasNext) next._reindentChain(indent + indentBelow, parent);
-  }  
+  }
 
   void _exportParseTree(List chain) {
     chain.add(toJSON());
@@ -147,8 +147,8 @@ class BeginBlock extends ControlBlock {
   int get indentBelow => 1;
 
 
-  BeginBlock(CodeWorkspace workspace, String action) : super(workspace, action) {
-    end = new EndBlock(workspace, "end-$action");
+  BeginBlock(CodeWorkspace workspace, int id, String action) : super(workspace, id, action) {
+    end = new EndBlock(workspace, null, "end-$action");
     end.begin = this;
     clauses.add(end);
     nextClause = end;
@@ -156,7 +156,7 @@ class BeginBlock extends ControlBlock {
 
 
   Block clone() {
-    BeginBlock other = new BeginBlock(workspace, action);
+    BeginBlock other = new BeginBlock(workspace, id, action);
     _copyTo(other);
 
     for (ClauseBlock clause in clauses) {
@@ -173,7 +173,7 @@ class BeginBlock extends ControlBlock {
 
 
 //-------------------------------------------------------------------------
-/// export this chain of blocks 
+/// export this chain of blocks
 //-------------------------------------------------------------------------
   void _exportParseTree(List chain) {
     Map json = toJSON();
@@ -189,7 +189,7 @@ class BeginBlock extends ControlBlock {
 
 
 //-------------------------------------------------------------------------
-/// recompute block indentation 
+/// recompute block indentation
 //-------------------------------------------------------------------------
   void _reindentChain(int indent, ControlBlock parent) {
     this.indent = indent;
@@ -282,5 +282,3 @@ class BeginBlock extends ControlBlock {
     ctx.closePath();
   }
 }
-
-

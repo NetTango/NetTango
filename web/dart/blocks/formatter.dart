@@ -1,13 +1,13 @@
 /*
  * NetTango
  * Copyright (c) 2017 Michael S. Horn, Uri Wilensky, and Corey Brady
- * 
+ *
  * Northwestern University
  * 2120 Campus Drive
  * Evanston, IL 60613
  * http://tidal.northwestern.edu
  * http://ccl.northwestern.edu
- 
+
  * This project was funded in part by the National Science Foundation.
  * Any opinions, findings and conclusions or recommendations expressed in this
  * material are those of the author(s) and do not necessarily reflect the views
@@ -36,7 +36,7 @@ abstract class CodeFormatter  {
     }
   }
 
-  
+
   /// convert parse tree output from workspace into source code of a target output language
   String _format(var parseTree);
 
@@ -51,19 +51,19 @@ abstract class CodeFormatter  {
     String fmt = block["format"];
     var params = block["params"];
     var props = block["properties"];
-    int pcount = (params is List) ? params.length : 0;
-    int rcount = (props is List) ? props.length : 0;
+    int pcount = (params is Map) ? params.length : 0;
+    int rcount = (props is Map) ? props.length : 0;
 
     if (fmt is! String) {
       fmt = "${block['action']}";
-      for (int i=0; i<pcount; i++) fmt += " {$i}";
-      for (int i=0; i<rcount; i++) fmt += " {P$i}";
+      for (int i = 0; i < pcount; i++) fmt += " {$i}";
+      for (int i = 0; i < rcount; i++) fmt += " {P$i}";
     }
-    for (int i=0; i<pcount; i++) {
-      fmt = fmt.replaceAll("{$i}", _formatParameter(params[i]));
+    for (int i = 0; i < pcount; i++) {
+      fmt = fmt.replaceAll("{$i}", _formatParameter(params[params.keys[i]]));
     }
-    for (int i=0; i<rcount; i++) {
-      fmt = fmt.replaceAll("{P$i}", _formatParameter(props[i]));
+    for (int i=0; i < rcount; i++) {
+      fmt = fmt.replaceAll("{P$i}", _formatParameter(props[props.keys[i]]));
     }
 
     _formatOutput(out, indent, fmt);

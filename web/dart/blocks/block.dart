@@ -29,10 +29,7 @@ final num BLOCK_UNIT = BLOCK_PADDING;  /// unit value for saving and restoring
  */
 class Block implements Touchable {
 
-  /// Used to generate unique block id numbers
-  static int _BLOCK_ID = 0;
-
-  /// unique internal block ID number
+  /// unique block ID number per workspace
   int id;
 
   /// text displayed on the block
@@ -62,11 +59,13 @@ class Block implements Touchable {
   ControlBlock parent;
 
   /// parameters for this block (optional)
-  List<Parameter> params = new List<Parameter>();
+  Map<int, Parameter> params = new Map<int, Parameter>();
 
   /// properties for this block (optional)
   /// properties are just named paramters that get listed vertically
-  List<Parameter> properties = new List<Parameter>();
+  Map<int, Parameter> properties = new Map<int, Parameter>();
+
+  int nextParamId = 0;
 
   /// CSS color of the block
   String blockColor = '#6b9bc3'; //'#d2584a';
@@ -131,8 +130,8 @@ class Block implements Touchable {
   bool get isStartOfChain => !hasPrev;
 
 
-  Block(this.workspace, this.action) {
-    id = Block._BLOCK_ID++;
+  Block(this.workspace, this.id, this.action) {
+    this.id = this.id == null ? this.workspace.nextBlockId++ : this.id;
     width = BLOCK_WIDTH;
     _height = BLOCK_HEIGHT;
   }
@@ -143,19 +142,22 @@ class Block implements Touchable {
 
     Block block;
     String action = toStr(json["action"]);  // required
+    int id = json["id"];
 
     //----------------------------------------------------------
     // block types
     //----------------------------------------------------------
     if (json["clauses"] is List) {
-      block = new BeginBlock(workspace, action);
+      block = new BeginBlock(workspace, id, action);
     }
     else if (json["type"] == "clause") {
-      block = new ClauseBlock(workspace, action);
+      block = new ClauseBlock(workspace, id, action);
     }
     else {
-      block = new Block(workspace, action);
+      block = new Block(workspace, id, action);
     }
+
+    json["id"] = block.id;
 
     //----------------------------------------------------------
     // block properties
@@ -176,7 +178,9 @@ class Block implements Touchable {
     if (json["params"] is List) {
       for (var p in json["params"]) {
         Parameter param = new Parameter.fromJSON(block, p);
-        if (param != null) block.params.add(param);
+        if (param != null) {
+          block.params[param.id] = param;
+        }
       }
     }
 
@@ -187,7 +191,9 @@ class Block implements Touchable {
     if (json["properties"] is List) {
       for (var p in json["properties"]) {
         Parameter prop = new Parameter.fromJSON(block, p);
-        if (prop != null) block.properties.add(prop);
+        if (prop != null) {
+          block.properties[prop.id] = prop;
+        }
       }
     }
     block._height = (1 + block.properties.length) * BLOCK_HEIGHT;
@@ -212,13 +218,12 @@ class Block implements Touchable {
       (block as BeginBlock).end.format = toStr(json["end"]["format"], null);
     }
 
-
     return block;
   }
 
 
   Block clone() {
-    Block other = new Block(workspace, action);
+    Block other = new Block(workspace, id, action);
     _copyTo(other);
     return other;
   }
@@ -236,11 +241,13 @@ class Block implements Touchable {
     other.width = width;
     other._height = _height;
     other.hasTopConnector = hasTopConnector;
-    for (Parameter param in params) {
-      other.params.add(param.clone(other));
+    for (Parameter param in params.values) {
+      Parameter otherParam = param.clone(other);
+      other.params[otherParam.id] = otherParam;
     }
-    for (Parameter prop in properties) {
-      other.properties.add(prop.clone(other));
+    for (Parameter prop in properties.values) {
+      Parameter otherProp = prop.clone(other);
+      other.properties[otherProp.id] = otherProp;
     }
   }
 
@@ -260,13 +267,13 @@ class Block implements Touchable {
     data["y"] = y / BLOCK_UNIT;
     if (params.isNotEmpty) {
       data["params"] = [];
-      for (Parameter param in params) {
+      for (Parameter param in params.values) {
         data["params"].add(param.toJSON());
       }
     }
     if (properties.isNotEmpty) {
       data["properties"] = [];
-      for (Parameter prop in properties) {
+      for (Parameter prop in properties.values) {
         data["properties"].add(prop.toJSON());
       }
     }
@@ -299,7 +306,7 @@ class Block implements Touchable {
     // resize all of the parameters
     num pwidth = 0;
     if (!_inMenu && hasParams) {
-      for (Parameter param in params) {
+      for (Parameter param in params.values) {
         param._resize(ctx);
         pwidth += param.width + BLOCK_PADDING;
       }
@@ -308,7 +315,7 @@ class Block implements Touchable {
     // resize the properties
     num rwidth = 0;
     if (!_inMenu && hasProperties) {
-      for (Parameter prop in properties) {
+      for (Parameter prop in properties.values) {
         rwidth = max(rwidth, prop._resizeProperty(ctx));
       }
     }
@@ -476,17 +483,19 @@ class Block implements Touchable {
 
   void _drawParameters(CanvasRenderingContext2D ctx) {
     num left = width;
-    for (int i=params.length - 1; i >= 0; i--) {
-      left -= (BLOCK_PADDING + params[i].width);
-      params[i].draw(ctx, left);
+    List<int> keys = params.keys.toList();
+    for (int i = keys.length - 1; i >= 0; i--) {
+      left -= (BLOCK_PADDING + params[keys[i]].width);
+      params[keys[i]].draw(ctx, left);
     }
   }
 
 
   void _drawProperties(CanvasRenderingContext2D ctx) {
-    for (int i=0; i < properties.length; i++) {
+    List<int> keys = properties.keys.toList();
+    for (int i = 0; i < keys.length; i++) {
       num top = BLOCK_HEIGHT * (i + 1);
-      properties[i].drawProperty(ctx, top);
+      properties[keys[i]].drawProperty(ctx, top);
     }
   }
 

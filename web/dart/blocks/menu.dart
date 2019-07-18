@@ -58,16 +58,15 @@ class BlockMenu {
     return (!block._inMenu && !block._wasInMenu && block.x + block.width * 0.75 >= x);
   }
 
-
-  Block getBlockByAction(String action) {
-    for (Slot slot in slots) {
-      if (slot.block.action == action) {
-        return slot.block;
-      }
+  Block getBlockById(int id) {
+    var matches = slots.where( (s) {
+      return s.block.id == id;
+    });
+    if (matches.length == 1) {
+      return matches.first.block;
     }
     return null;
   }
-
 
   void _resize(CanvasRenderingContext2D ctx) {
     width = BLOCK_WIDTH * 1.5;
@@ -117,7 +116,7 @@ class Slot implements Touchable {
 
 
   bool isAvailable() {
-    int free = count - workspace.getBlockCount(block.action);
+    int free = count - workspace.getBlockCount(block.id);
     return (count < 0 || free > 0);
   }
 
@@ -127,7 +126,7 @@ class Slot implements Touchable {
 
 
   void draw(CanvasRenderingContext2D ctx) {
-    int free = count - workspace.getBlockCount(block.action);
+    int free = count - workspace.getBlockCount(block.id);
     ctx.save();
     {
       if (!isAvailable()) ctx.globalAlpha = 0.3;
@@ -150,6 +149,7 @@ class Slot implements Touchable {
   Touchable touchDown(Contact c) {
     if (isAvailable()) {
       Block target = block.clone();
+      target.id = block.id;
       target.x = block.x - 5;
       target.y = block.y - 5;
       target._wasInMenu = true;

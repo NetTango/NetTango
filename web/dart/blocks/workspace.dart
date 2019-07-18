@@ -18,11 +18,15 @@ part of NetTango;
 
 class CodeWorkspace extends TouchLayer {
 
+  int version = VersionManager.VERSION;
+
   /// HTML Canvas ID
   String canvasId;
 
   /// list of blocks in the workspace
   List<Block> blocks = new List<Block>();
+
+  int nextBlockId = 0;
 
   /// save a copy of the workspace definition objetc for the save() function
   Map definition;
@@ -50,6 +54,10 @@ class CodeWorkspace extends TouchLayer {
  * Construct a code workspace from a JSON object
  */
   CodeWorkspace(this.canvasId, this.definition) {
+
+    if (this.definition["version"] != VersionManager.VERSION) {
+      throw "The supported NetTango version is ${VersionManager.VERSION}, but the given definition version was ${this.definition["version"]}.";
+    }
 
     //--------------------------------------------------------
     // load canvas
@@ -180,7 +188,7 @@ class CodeWorkspace extends TouchLayer {
     }
     for (Slot slot in menu.slots) {
       if (slot.block.required) {
-        if (getBlockCount(slot.block.action) == 0) {
+        if (getBlockCount(slot.block.id) == 0) {
           json["chains"].add(slot.block.exportParseTree());
         }
       }
@@ -203,10 +211,10 @@ class CodeWorkspace extends TouchLayer {
   void _addBlock(Block block) {
     blocks.add(block);
     addTouchable(block);
-    for (Parameter param in block.params) {
+    for (Parameter param in block.params.values) {
       addTouchable(param);
     }
-    for (Parameter prop in block.properties) {
+    for (Parameter prop in block.properties.values) {
       addTouchable(prop);
     }
   }
@@ -218,10 +226,10 @@ class CodeWorkspace extends TouchLayer {
   void _removeBlock(Block block) {
     blocks.remove(block);
     removeTouchable(block);
-    for (Parameter param in block.params) {
+    for (Parameter param in block.params.values) {
       removeTouchable(param);
     }
-    for (Parameter prop in block.properties) {
+    for (Parameter prop in block.properties.values) {
       removeTouchable(prop);
     }
     draw();
@@ -241,12 +249,8 @@ class CodeWorkspace extends TouchLayer {
 /**
  * How many blocks of the given type have been used in the program so far?
  */
-  int getBlockCount(String action) {
-    int count = 0;
-    for (Block block in blocks) {
-      if (block.action == action) count++;
-    }
-    return count;
+  int getBlockCount(int id) {
+    return blocks.where( (b) => b.id == id ).length;
   }
 
 
@@ -419,43 +423,48 @@ class CodeWorkspace extends TouchLayer {
 
   /// restore a block from a previously saved program state
   void _restoreBlock(Map json) {
-    Block proto = menu.getBlockByAction(json['action']);
-    if (proto != null) {
-      Block block = proto.clone();
-      if (json['x'] is num && json['y'] is num) {
-        block.x = json['x'] * BLOCK_UNIT;
-        block.y = json['y'] * BLOCK_UNIT;
+    Block proto = menu.getBlockById(json["id"]);
+    if (proto == null) {
+      print("No prototype block found for id: ${json["id"]}");
+      print(menu.slots.map( (s) { return s.block.id; }));
+      return;
+    }
+
+    Block block = proto.clone();
+
+    if (json['x'] is num && json['y'] is num) {
+      block.x = json['x'] * BLOCK_UNIT;
+      block.y = json['y'] * BLOCK_UNIT;
+    }
+    _addBlock(block);
+    if (block is BeginBlock) {
+      for (ClauseBlock clause in block.clauses) {
+        _addBlock(clause);
       }
-      _addBlock(block);
-      if (block is BeginBlock) {
-        for (ClauseBlock clause in block.clauses) {
-          _addBlock(clause);
-        }
+    }
+
+    _snapTogether(block);
+
+    for (Block block in blocks) {
+      if (!block.hasPrev && block is! ClauseBlock) {
+        block._reindentChain(0, null);
+        block._repositionChain();
+        block._resizeChain(ctx, BLOCK_WIDTH);
       }
+    }
 
-      _snapTogether(block);
+    _restoreParams(block, json['params'], json['properties']);
 
-      for (Block block in blocks) {
-        if (!block.hasPrev && block is! ClauseBlock) {
-          block._reindentChain(0, null);
-          block._repositionChain();
-          block._resizeChain(ctx, BLOCK_WIDTH);
-        }
+    if (json['children'] is List) {
+      for (var child in json['children']) {
+        if (child is Map) _restoreBlock(child);
       }
+    }
 
-      _restoreParams(block, json['params'], json['properties']);
-
-      if (json['children'] is List) {
-        for (var child in json['children']) {
-          if (child is Map) _restoreBlock(child);
-        }
-      }
-
-      if (json['clauses'] is List) {
-        for (var clause in json['clauses']) {
-          if (clause is Map && clause['children'] is List) {
-            for (var child in clause['children']) _restoreBlock(child);
-          }
+    if (json['clauses'] is List) {
+      for (var clause in json['clauses']) {
+        if (clause is Map && clause['children'] is List) {
+          for (var child in clause['children']) _restoreBlock(child);
         }
       }
     }
@@ -464,22 +473,18 @@ class CodeWorkspace extends TouchLayer {
 
   /// restore parameters for a block from a previously saved program
   void _restoreParams(Block block, List params, List properties) {
-    int index = 0;
     if (params is List) {
       for (var param in params) {
-        if (param is Map && param.containsKey('value')) {
-          block.params[index].value = param['value'];
+        if (param is Map && param.containsKey('id') && param.containsKey('value') && block.params.containsKey(param['id'])) {
+          block.params[param['id']].value = param['value'];
         }
-        index++;
       }
     }
-    index = 0;
     if (properties is List) {
       for (var prop in properties) {
-        if (prop is Map && prop.containsKey('value')) {
-          block.properties[index].value = prop['value'];
+        if (prop is Map && prop.containsKey('id') && prop.containsKey('value') && block.properties.containsKey(prop['id'])) {
+          block.properties[prop['id']].value = prop['value'];
         }
-        index++;
       }
     }
   }
