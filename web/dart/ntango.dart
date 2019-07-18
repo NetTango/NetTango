@@ -1,13 +1,13 @@
 /*
  * NetTango
  * Copyright (c) 2017 Michael S. Horn, Uri Wilensky, and Corey Brady
- * 
+ *
  * Northwestern University
  * 2120 Campus Drive
  * Evanston, IL 60613
  * http://tidal.northwestern.edu
  * http://ccl.northwestern.edu
- 
+
  * This project was funded in part by the National Science Foundation.
  * Any opinions, findings and conclusions or recommendations expressed in this
  * material are those of the author(s) and do not necessarily reflect the views
@@ -32,11 +32,18 @@ part 'blocks/control.dart';
 part 'blocks/formatter.dart';
 part 'blocks/menu.dart';
 part 'blocks/parameter.dart';
+part 'blocks/version-manager.dart';
 part 'blocks/workspace.dart';
 
 
 var _workspaces = { };
 
+
+void _init(String canvasId, Map json) {
+  VersionManager.updateWorkspace(json);
+  _workspaces[canvasId] = new CodeWorkspace(canvasId, json);
+  _workspaces[canvasId].draw();
+}
 
 /// Javascript hook to initialize a workspace
 void JSInitWorkspace(String canvasId, String jsonString) {
@@ -45,11 +52,9 @@ void JSInitWorkspace(String canvasId, String jsonString) {
   }
   var json = jsonDecode(jsonString);
   if (json is Map) {
-    _workspaces[canvasId] = new CodeWorkspace(canvasId, json);
-    _workspaces[canvasId].draw();
+    _init(canvasId, json);
   }
 }
-
 
 /// Javascript hook to initialize all workspaces based on canvasID names
 void JSInitAllWorkspaces(String jsonString) {
@@ -60,8 +65,7 @@ void JSInitAllWorkspaces(String jsonString) {
         _workspaces[key].unload();
       }
       if (json[key] is Map) {
-        _workspaces[key] = new CodeWorkspace(key, json[key]);
-        _workspaces[key].draw();
+        _init(key, json[key]);
       }
     }
   }
@@ -99,11 +103,11 @@ String JSSaveAllWorkspaces() {
 }
 
 
-/// Expose core API functions to Javascript 
+/// Expose core API functions to Javascript
 void main() {
   js.context['NetTango_InitWorkspace'] = JSInitWorkspace;
   js.context['NetTango_InitAllWorkspaces'] = JSInitAllWorkspaces;
   js.context['NetTango_ExportCode'] = JSExportCode;
   js.context['NetTango_Save'] = JSSaveWorkspace;
   js.context['NetTango_SaveAll'] = JSSaveAllWorkspaces;
-}  
+}
