@@ -206,7 +206,7 @@ class Block implements Touchable {
       for (var c in json["clauses"]) {
         c["type"] = "clause";
         ClauseBlock clause = new Block.fromJSON(workspace, c) as ClauseBlock;
-        (block as BeginBlock)._addClause(clause);
+        block._addClause(clause);
       }
     }
 
@@ -215,7 +215,7 @@ class Block implements Touchable {
     // add formatting for end block
     //----------------------------------------------------------
     if (block is BeginBlock && json["end"] != null) {
-      (block as BeginBlock).end.format = toStr(json["end"]["format"], null);
+      block.end.format = toStr(json["end"]["format"], null);
     }
 
     return block;
