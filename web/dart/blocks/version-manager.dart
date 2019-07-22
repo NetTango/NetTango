@@ -20,15 +20,12 @@ class VersionManager {
   static int addIdsToParamsAndProps(int attributeId, Map<String, Object> b) {
     if (b.containsKey("params") && b["params"] is List) {
       attributeId = addIdsToAttributes(attributeId, b["params"]);
-    } else {
-      print("No params! ${b["params"].runtimeType}");
     }
 
     if (b.containsKey("properties") && b["properties"] is List) {
       attributeId = addIdsToAttributes(attributeId, b["properties"]);
-    } else {
-      print("No props! ${b["properties"].runtimeType}");
     }
+
     return attributeId;
   }
 
@@ -59,7 +56,6 @@ class VersionManager {
 
       blockIdToAttributeIdOffset[id] = attributeId;
 
-      print("Adding IDs to params and props for $b");
       attributeId = addIdsToParamsAndProps(attributeId, b);
     }
 
@@ -69,7 +65,6 @@ class VersionManager {
 
     Map program = json["program"];
     if (!program.containsKey("chains") || program["chains"] is! List) {
-      print("No chains!");
       return;
     }
 
@@ -85,19 +80,13 @@ class VersionManager {
     Map<int, int> blockIdToAttributeIdOffset,
     Map b
   ) {
-    print("Adding IDs to a block: $b");
-
     if (b.containsKey("action")) {
       String action = b["action"];
       if (actionToId.containsKey(action)) {
         int id = actionToId[action];
         b["id"] = id;
         addIdsToParamsAndProps(blockIdToAttributeIdOffset[id], b);
-      } else {
-        print("Found a chain block with no action: $action");
       }
-    } else {
-      print("huh?");
     }
 
 
