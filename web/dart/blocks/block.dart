@@ -131,7 +131,12 @@ class Block implements Touchable {
 
 
   Block(this.workspace, this.id, this.action) {
-    this.id = this.id == null ? this.workspace.nextBlockId++ : this.id;
+    if (this.id == null) {
+      this.id = this.workspace.nextBlockId;
+      this.workspace.nextBlockId++;
+    } else if (this.id >= this.workspace.nextBlockId) {
+      this.workspace.nextBlockId = this.id + 1;
+    }
     width = BLOCK_WIDTH;
     _height = BLOCK_HEIGHT;
   }
