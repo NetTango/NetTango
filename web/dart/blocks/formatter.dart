@@ -51,8 +51,8 @@ abstract class CodeFormatter  {
     String fmt = block["format"];
     var params = block["params"];
     var props = block["properties"];
-    int pcount = (params is Map) ? params.length : 0;
-    int rcount = (props is Map) ? props.length : 0;
+    int pcount = (params is List) ? params.length : 0;
+    int rcount = (props is List) ? props.length : 0;
 
     if (fmt is! String) {
       fmt = "${block['action']}";
@@ -60,10 +60,10 @@ abstract class CodeFormatter  {
       for (int i = 0; i < rcount; i++) fmt += " {P$i}";
     }
     for (int i = 0; i < pcount; i++) {
-      fmt = fmt.replaceAll("{$i}", _formatParameter(params[params.keys[i]]));
+      fmt = fmt.replaceAll("{$i}", _formatParameter(params[i]));
     }
     for (int i=0; i < rcount; i++) {
-      fmt = fmt.replaceAll("{P$i}", _formatParameter(props[props.keys[i]]));
+      fmt = fmt.replaceAll("{P$i}", _formatParameter(props[i]));
     }
 
     _formatOutput(out, indent, fmt);
