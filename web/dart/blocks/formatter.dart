@@ -137,7 +137,15 @@ class PlainFormatter extends CodeFormatter {
   }
 }
 
-
+int compareChainsByAction(a, b) {
+  if (a is! List || a.length == 0 || a[0]["action"] == null) {
+    return -1;
+  }
+  if (b is! List || b.length == 0 || b[0]["action"] == null) {
+    return 1;
+  }
+  return a[0]["action"].compareTo(b[0]["action"]);
+}
 
 class NetLogoFormatter extends CodeFormatter {
 
@@ -146,7 +154,12 @@ class NetLogoFormatter extends CodeFormatter {
 
   String _format(var parseTree) {
     StringBuffer out = new StringBuffer();
-    for (var chain in parseTree["chains"]) {
+    if (parseTree["chains"] is! List || parseTree["chains"].length == 0) {
+      return out.toString();
+    }
+    List chains = parseTree["chains"];
+    chains.sort(compareChainsByAction);
+    for (var chain in chains) {
       if (chain.length > 0 && chain[0]["type"] == "nlogo:procedure") {
         var block = chain.removeAt(0);
         _formatBlock(out, block, 0);
