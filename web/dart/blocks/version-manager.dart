@@ -1,7 +1,7 @@
 part of NetTango;
 
 class VersionManager {
-  static final VERSION = 1;
+  static final VERSION = 2;
 
   static void updateWorkspace(Map<String, Object> json) {
     int version = json.containsKey("version") ? json["version"] : 0;
@@ -12,6 +12,10 @@ class VersionManager {
 
     if (version < 1) {
       updateVersion1(json);
+    }
+
+    if (version < 2) {
+      updateVersion2(json);
     }
 
     json["version"] = VERSION;
@@ -80,6 +84,7 @@ class VersionManager {
     Map<int, int> blockIdToAttributeIdOffset,
     Map b
   ) {
+
     if (b.containsKey("action")) {
       String action = b["action"];
       if (actionToId.containsKey(action)) {
@@ -88,7 +93,6 @@ class VersionManager {
         addIdsToParamsAndProps(blockIdToAttributeIdOffset[id], b);
       }
     }
-
 
     if (b.containsKey("children") && b["children"] is List) {
       for (var child in b["children"]) {
@@ -109,4 +113,70 @@ class VersionManager {
     }
   }
 
+  static void addDisplayToSelectAttribute(Map attribute) {
+    if (!attribute.containsKey("values") || attribute["values"] is! List) {
+      return;
+    }
+    attribute["values"] = attribute["values"].map( (v) { return { "display": v, "actual": v }; } ).toList();
+  }
+
+  static void addDisplayToSelectAttributes(List attributes) {
+    for (Map<String, Object> a in attributes.where( (f) => f.containsKey("type") && f["type"] == "select" )) {
+      addDisplayToSelectAttribute(a);
+    }
+  }
+
+  static void addSelectDisplayToBlock(Map b) {
+    if (b.containsKey("params") && b["params"] is List) {
+      addDisplayToSelectAttributes(b["params"]);
+    }
+
+    if (b.containsKey("properties") && b["properties"] is List) {
+      addDisplayToSelectAttributes(b["properties"]);
+    }
+
+    if (b.containsKey("children") && b["children"] is List) {
+      for (var child in b["children"]) {
+        if (child is Map) {
+          addSelectDisplayToBlock(child);
+        }
+      }
+    }
+
+    if (b.containsKey("clauses") && b["clauses"] is List) {
+      for (var clause in b["clauses"]) {
+        if (clause is Map && clause.containsKey("children") && clause["children"] is List) {
+          for (var child in clause['children']) {
+            addSelectDisplayToBlock(child);
+          }
+        }
+      }
+    }
+
+  }
+
+  static void updateVersion2(Map json) {
+    if (!json.containsKey("blocks") || json["blocks"] is! List) {
+      return;
+    }
+
+    for (Map<String, Object> b in json["blocks"]) {
+      addSelectDisplayToBlock(b);
+    }
+
+    if (!json.containsKey("program") || json["program"] is! Map) {
+      return;
+    }
+
+    Map program = json["program"];
+    if (!program.containsKey("chains") || program["chains"] is! List) {
+      return;
+    }
+
+    for (List bs in program["chains"]) {
+      for(Map b in bs) {
+        addSelectDisplayToBlock(b);
+      }
+    }
+  }
 }

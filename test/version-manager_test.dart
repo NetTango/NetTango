@@ -1,3 +1,5 @@
+@TestOn("browser")
+
 import "package:test/test.dart";
 
 //import "dart:convert";
@@ -141,6 +143,41 @@ void main() {
         "action": "wolf actions",
         "params": [ { "id": 0, "type": "num", "default": 5 } ],
         "properties": [ { "id": 1, "type": "num", "default": 4 } ]
+      } ] ] }
+    };
+
+    VersionManager.updateWorkspace(model);
+    expect(model, equals(expected));
+  });
+
+  test("Version2 - select parameter converts to objects", () {
+    Map<String, Object> action = {
+      "id": 0,
+      "action": "wolf actions",
+      "params": [ { "type": "select", "default": "apples", "values": [ "apples", "oranges" ] } ]
+    };
+    Map<String, Object> chain = {
+      "id": 0,
+      "action": "wolf actions",
+      "params": [ { "type": "select", "default": "apples", "values": [ "apples", "oranges" ] } ]
+    };
+    Map<String, Object> model = {
+      "version": 1,
+      "blocks": [ action ],
+      "program": { "chains": [ [ chain ] ] }
+    };
+
+    Map<String, Object> expected = {
+      "version": VersionManager.VERSION,
+      "blocks": [ {
+        "id": 0,
+        "action": "wolf actions",
+        "params": [ { "type": "select", "default": "apples", "values": [ { "display": "apples", "actual": "apples" }, { "display": "oranges", "actual": "oranges" } ] } ]
+      } ],
+      "program": { "chains": [ [ {
+        "id": 0,
+        "action": "wolf actions",
+        "params": [ { "type": "select", "default": "apples", "values": [ { "display": "apples", "actual": "apples"  }, { "display": "oranges", "actual": "oranges" } ] } ]
       } ] ] }
     };
 

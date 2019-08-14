@@ -394,7 +394,7 @@ class SelectParameter extends Parameter {
   SelectParameter(Block block, Map data) : super(block, data) {
     if (data["values"] is List && data["values"].length > 0) {
       values = data["values"];
-      _value = values[0];
+      _value = values[0]["actual"];
     }
   }
 
@@ -419,10 +419,10 @@ class SelectParameter extends Parameter {
 
     for (var v in values) {
       DivElement row = new DivElement() .. className = "nt-param-row";
-      DivElement opt = new DivElement() .. className = "nt-select-option" .. innerHtml = v;
-      if (v == value) opt.classes.add("selected");
+      DivElement opt = new DivElement() .. className = "nt-select-option" .. innerHtml = v["display"];
+      if (v["actual"] == value) { opt.classes.add("selected"); }
       opt.onClick.listen((e) {
-        value = v;
+        value = v["actual"];
         backdrop.remove();
         block.workspace.draw();
         block.workspace.programChanged();
