@@ -162,7 +162,7 @@ const NETLOGO_MODEL_1 = {
   }
 };
 
-Object copyJson(Object json) {
+dynamic copyJson(dynamic json) {
   return jsonDecode(jsonEncode(json));
 }
 
@@ -248,7 +248,7 @@ void main() {
     JSInitWorkspace("nt-canvas", json);
     var result = jsonDecode(JSSaveWorkspace("nt-canvas"));
     var expected = {
-      "version": 1,
+      "version": VersionManager.VERSION,
       "blocks": [
         {
           "id": 23,
@@ -310,6 +310,7 @@ void main() {
     var json = jsonEncode(model);
     JSInitWorkspace("nt-canvas", json);
     var result = jsonDecode(JSSaveWorkspace("nt-canvas"));
+    model["version"] = VersionManager.VERSION;
     expect(result, equals(model));
 
     var codeResult = JSExportCode("nt-canvas", "NetLogo");
