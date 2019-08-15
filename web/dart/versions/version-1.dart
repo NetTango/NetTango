@@ -29,13 +29,10 @@ class Version1 {
   }
 
   static int addIdsToParamsAndProps(int attributeId, Map<String, Object> b) {
-    if (b.containsKey("params") && b["params"] is List) {
-      attributeId = addIdsToAttributes(attributeId, b["params"]);
-    }
-
-    if (b.containsKey("properties") && b["properties"] is List) {
-      attributeId = addIdsToAttributes(attributeId, b["properties"]);
-    }
+    Function(List) attributesHandler = (attributes) {
+      attributeId = addIdsToAttributes(attributeId, attributes);
+    };
+    VersionUtils.updateBlockAttributes(b, attributesHandler);
 
     return attributeId;
   }

@@ -51,4 +51,14 @@ class VersionUtils {
 
   }
 
+  static void updateBlockAttributes(Map b, Function(List) attributesHandler) {
+    if (b.containsKey("params") && b["params"] is List) {
+      attributesHandler(b["params"]);
+    }
+
+    if (b.containsKey("properties") && b["properties"] is List) {
+      attributesHandler(b["properties"]);
+    }
+  }
+
 }

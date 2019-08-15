@@ -7,13 +7,7 @@ class Version2 {
   }
 
   static void updateBlockSelectAttributes(Map b) {
-    if (b.containsKey("params") && b["params"] is List) {
-      objectifySelectAttributes(b["params"]);
-    }
-
-    if (b.containsKey("properties") && b["properties"] is List) {
-      objectifySelectAttributes(b["properties"]);
-    }
+    VersionUtils.updateBlockAttributes(b, objectifySelectAttributes);
   }
 
   static void objectifySelectAttribute(Map attribute) {
