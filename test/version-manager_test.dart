@@ -172,12 +172,12 @@ void main() {
       "blocks": [ {
         "id": 0,
         "action": "wolf actions",
-        "params": [ { "type": "select", "default": "apples", "values": [ { "display": "apples", "actual": "apples" }, { "display": "oranges", "actual": "oranges" } ] } ]
+        "params": [ { "type": "select", "default": "apples", "values": [ { "actual": "apples" }, { "actual": "oranges" } ] } ]
       } ],
       "program": { "chains": [ [ {
         "id": 0,
         "action": "wolf actions",
-        "params": [ { "type": "select", "default": "apples", "values": [ { "display": "apples", "actual": "apples"  }, { "display": "oranges", "actual": "oranges" } ] } ]
+        "params": [ { "type": "select", "default": "apples", "values": [ { "actual": "apples" }, { "actual": "oranges" } ] } ]
       } ] ] }
     };
 

@@ -113,26 +113,26 @@ class VersionManager {
     }
   }
 
-  static void addDisplayToSelectAttribute(Map attribute) {
+  static void objectifySelectAttribute(Map attribute) {
     if (!attribute.containsKey("values") || attribute["values"] is! List) {
       return;
     }
-    attribute["values"] = attribute["values"].map( (v) { return { "display": v, "actual": v }; } ).toList();
+    attribute["values"] = attribute["values"].map( (v) { return { "actual": v }; } ).toList();
   }
 
-  static void addDisplayToSelectAttributes(List attributes) {
+  static void objectifySelectAttributes(List attributes) {
     for (Map<String, Object> a in attributes.where( (f) => f.containsKey("type") && f["type"] == "select" )) {
-      addDisplayToSelectAttribute(a);
+      objectifySelectAttribute(a);
     }
   }
 
   static void addSelectDisplayToBlock(Map b) {
     if (b.containsKey("params") && b["params"] is List) {
-      addDisplayToSelectAttributes(b["params"]);
+      objectifySelectAttributes(b["params"]);
     }
 
     if (b.containsKey("properties") && b["properties"] is List) {
-      addDisplayToSelectAttributes(b["properties"]);
+      objectifySelectAttributes(b["properties"]);
     }
 
     if (b.containsKey("children") && b["children"] is List) {

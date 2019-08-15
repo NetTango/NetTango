@@ -410,6 +410,9 @@ class SelectParameter extends Parameter {
     return json;
   }
 
+  dynamic _chooseDisplayValue(dynamic v) {
+    return v.containsKey("display") && v["display"] != "" ? v["display"] : v["actual"];
+  }
 
   void _showParameterDialog(int x, int y) {
     DivElement backdrop = new DivElement() .. className = "backdrop";
@@ -419,7 +422,8 @@ class SelectParameter extends Parameter {
 
     for (var v in values) {
       DivElement row = new DivElement() .. className = "nt-param-row";
-      DivElement opt = new DivElement() .. className = "nt-select-option" .. innerHtml = v["display"];
+      final display = _chooseDisplayValue(v);
+      DivElement opt = new DivElement() .. className = "nt-select-option" .. innerHtml = display;
       if (v["actual"] == value) { opt.classes.add("selected"); }
       opt.onClick.listen((e) {
         value = v["actual"];
