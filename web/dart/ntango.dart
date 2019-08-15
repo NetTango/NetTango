@@ -21,6 +21,8 @@ import 'dart:convert';
 import 'dart:web_audio';
 import 'dart:js' as js;
 
+part 'versions/version-1.dart';
+part 'versions/version-2.dart';
 part 'versions/version-manager.dart';
 
 part 'utils/matrix.dart';
