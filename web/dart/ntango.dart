@@ -21,6 +21,8 @@ import 'dart:convert';
 import 'dart:web_audio';
 import 'dart:js' as js;
 
+part 'versions/version-manager.dart';
+
 part 'utils/matrix.dart';
 //part 'utils/sounds.dart';
 part 'utils/touch.dart';
@@ -32,7 +34,6 @@ part 'blocks/control.dart';
 part 'blocks/formatter.dart';
 part 'blocks/menu.dart';
 part 'blocks/parameter.dart';
-part 'blocks/version-manager.dart';
 part 'blocks/workspace.dart';
 
 
