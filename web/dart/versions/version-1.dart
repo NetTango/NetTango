@@ -7,12 +7,8 @@ class Version1 {
     Map<int, int> blockIdToAttributeIdOffset = new Map<int, int>();
     int attributeId = 0;
 
-    if (!json.containsKey("blocks") || !(json["blocks"] is List)) {
-      return;
-    }
-
-    for (Map<String, Object> b in json["blocks"]) {
-      if (!b.containsKey("action")) { continue; }
+    Function(Map) blockDefinitionHandler = (b) {
+      if (!b.containsKey("action")) { return; }
 
       int id = actionToId.length;
       b["id"] = id;
@@ -22,25 +18,17 @@ class Version1 {
       blockIdToAttributeIdOffset[id] = attributeId;
 
       attributeId = addIdsToParamsAndProps(attributeId, b);
-    }
+    };
 
-    if (!json.containsKey("program") || !(json["program"] is Map)) {
-      return;
-    }
+    Function(Map) blockInstanceHandler = (b) {
+      addIdToBlock(actionToId, blockIdToAttributeIdOffset, b);
+    };
 
-    Map program = json["program"];
-    if (!program.containsKey("chains") || program["chains"] is! List) {
-      return;
-    }
+    VersionUtils.updateBlocks(json, blockDefinitionHandler, blockInstanceHandler);
 
-    for (List bs in program["chains"]) {
-      for(Map b in bs) {
-        addIdToBlock(actionToId, blockIdToAttributeIdOffset, b);
-      }
-    }
   }
 
-    static int addIdsToParamsAndProps(int attributeId, Map<String, Object> b) {
+  static int addIdsToParamsAndProps(int attributeId, Map<String, Object> b) {
     if (b.containsKey("params") && b["params"] is List) {
       attributeId = addIdsToAttributes(attributeId, b["params"]);
     }
@@ -60,37 +48,14 @@ class Version1 {
     return attributeId;
   }
 
-  static void addIdToBlock(
-    Map<String, int> actionToId,
-    Map<int, int> blockIdToAttributeIdOffset,
-    Map b
-  ) {
+  static void addIdToBlock(Map<String, int> actionToId, Map<int, int> blockIdToAttributeIdOffset, Map b) {
+    if (!b.containsKey("action")) { return; }
 
-    if (b.containsKey("action")) {
-      String action = b["action"];
-      if (actionToId.containsKey(action)) {
-        int id = actionToId[action];
-        b["id"] = id;
-        addIdsToParamsAndProps(blockIdToAttributeIdOffset[id], b);
-      }
-    }
-
-    if (b.containsKey("children") && b["children"] is List) {
-      for (var child in b["children"]) {
-        if (child is Map) {
-          addIdToBlock(actionToId, blockIdToAttributeIdOffset, child);
-        }
-      }
-    }
-
-    if (b.containsKey("clauses") && b["clauses"] is List) {
-      for (var clause in b["clauses"]) {
-        if (clause is Map && clause.containsKey("children") && clause["children"] is List) {
-          for (var child in clause['children']) {
-            addIdToBlock(actionToId, blockIdToAttributeIdOffset, child);
-          }
-        }
-      }
+    String action = b["action"];
+    if (actionToId.containsKey(action)) {
+      int id = actionToId[action];
+      b["id"] = id;
+      addIdsToParamsAndProps(blockIdToAttributeIdOffset[id], b);
     }
   }
 
