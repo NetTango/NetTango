@@ -387,13 +387,15 @@ class SelectParameter extends Parameter {
 
   /// list of possible values for select type
   var values = [ ];
+  var _display;
 
-  String get valueAsString => "${_value.toString()}$unit \u25BE";
+  String get valueAsString => "${_display.toString()}$unit \u25BE";
 
 
   SelectParameter(Block block, Map data) : super(block, data) {
     if (data["values"] is List && data["values"].length > 0) {
       values = data["values"];
+      _display = _chooseDisplayValue(values[0]);
       _value = values[0]["actual"];
     }
   }
@@ -426,6 +428,7 @@ class SelectParameter extends Parameter {
       DivElement opt = new DivElement() .. className = "nt-select-option" .. innerHtml = display;
       if (v["actual"] == value) { opt.classes.add("selected"); }
       opt.onClick.listen((e) {
+        _display = _chooseDisplayValue(v);
         value = v["actual"];
         backdrop.remove();
         block.workspace.draw();
