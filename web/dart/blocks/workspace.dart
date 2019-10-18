@@ -27,6 +27,7 @@ class CodeWorkspace extends TouchLayer {
   List<Block> blocks = new List<Block>();
 
   int nextBlockId = 0;
+  int nextBlockInstanceId = 0;
 
   /// save a copy of the workspace definition objetc for the save() function
   Map definition;

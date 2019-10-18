@@ -32,6 +32,9 @@ class Block implements Touchable {
   /// unique block ID number per workspace
   int id;
 
+  /// unqiue block ID number per instance in a program chain
+  int instanceId;
+
   /// text displayed on the block
   String action;
 
@@ -137,6 +140,8 @@ class Block implements Touchable {
     } else if (this.id >= this.workspace.nextBlockId) {
       this.workspace.nextBlockId = this.id + 1;
     }
+    this.instanceId = this.workspace.nextBlockInstanceId;
+    this.workspace.nextBlockInstanceId++;
     width = BLOCK_WIDTH;
     _height = BLOCK_HEIGHT;
   }
@@ -263,6 +268,7 @@ class Block implements Touchable {
   Map toJSON() {
     var data = { };
     data["id"] = id;
+    data["instanceId"] = instanceId;
     data["action"] = action;
     data["type"] = type;
     data["format"] = format;

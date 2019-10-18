@@ -69,6 +69,7 @@ const NETLOGO_MODEL_1 = {
       [
         {
           "id": 23,
+          "instanceId": 3,
           "action": "wolf actions",
           "type": "nlogo:procedure",
           "format": "to wolf-actions",
@@ -79,6 +80,7 @@ const NETLOGO_MODEL_1 = {
         },
         {
           "id": 24,
+          "instanceId": 4,
           "action": "forward",
           "type": "nlogo:command",
           "format": "forward ({0} + {P0})",
@@ -115,6 +117,7 @@ const NETLOGO_MODEL_1 = {
       [
         {
           "id": 25,
+          "instanceId": 5,
           "action": "sheep actions",
           "type": "nlogo:procedure",
           "format": "to sheep-actions",
@@ -125,6 +128,7 @@ const NETLOGO_MODEL_1 = {
         },
         {
           "id": 24,
+          "instanceId": 6,
           "action": "forward",
           "type": "nlogo:command",
           "format": "forward ({0} + {P0})",
@@ -278,6 +282,7 @@ void main() {
           [
             {
               "id": 23,
+              "instanceId": 2,
               "action": "wolf actions",
               "type": "nlogo:procedure",
               "format": "to wolf-actions",
@@ -288,6 +293,7 @@ void main() {
             },
             {
               "id": 24,
+              "instanceId": 3,
               "action": "forward",
               "type": "nlogo:command",
               "format": "forward 10",
@@ -346,6 +352,7 @@ void main() {
       } ],
       "program": { "chains": [ [ {
         "id": 0,
+        "instanceId": 1,
         "action": "sheep actions",
         "type": "",
         "format": null,
