@@ -165,10 +165,10 @@ class CodeWorkspace extends TouchLayer {
 /**
  * Callback when blocks of a program have changed
  */
-  void programChanged() {
+  void programChanged(ProgramChangedEvent event) {
     draw();
     try {
-      js.context["NetTango"].callMethod("_relayCallback", [ canvasId ]);
+      js.context["NetTango"].callMethod("_relayCallback", [ canvasId, event.toJS() ]);
     } catch (e) {
       print("Unable to relay program changed event to Javascript");
     }

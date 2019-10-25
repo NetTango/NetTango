@@ -22,15 +22,14 @@ abstract class CodeFormatter  {
 
   static Map<String, CodeFormatter> _formatters = null;
 
-
-  static String formatCode(String language, var parseTree) {
+  static String formatCode(String language, String canvasId, var parseTree) {
     if (_formatters == null) {
       _formatters = new Map<String, CodeFormatter>();
       _formatters["NetLogo"] = new NetLogoFormatter();
       _formatters["plain"] = new PlainFormatter();
     }
     if (_formatters.containsKey(language)) {
-      return _formatters[language]._format(parseTree);
+      return _formatters[language]._format(canvasId, parseTree);
     } else {
       return jsonEncode(parseTree);
     }
@@ -38,7 +37,7 @@ abstract class CodeFormatter  {
 
 
   /// convert parse tree output from workspace into source code of a target output language
-  String _format(var parseTree);
+  String _format(String canvasId, var parseTree);
 
 
   void _formatOutput(StringBuffer out, int indent, String post) {
@@ -47,7 +46,7 @@ abstract class CodeFormatter  {
   }
 
 
-  void _formatBlock(StringBuffer out, var block, int indent) {
+  void _formatBlock(StringBuffer out, String canvasId, var block, int indent) {
     String fmt = block["format"];
     var params = block["params"];
     var props = block["properties"];
@@ -60,15 +59,18 @@ abstract class CodeFormatter  {
       for (int i = 0; i < rcount; i++) fmt += " {P$i}";
     }
     for (int i = 0; i < pcount; i++) {
-      fmt = fmt.replaceAll("{$i}", _formatParameter(params[i]));
+      fmt = _replaceParameter(fmt, "{$i}", canvasId, block, params[i]);
     }
     for (int i=0; i < rcount; i++) {
-      fmt = fmt.replaceAll("{P$i}", _formatParameter(props[i]));
+      fmt = _replaceParameter(fmt, "{P$i}", canvasId, block, props[i]);
     }
 
     _formatOutput(out, indent, fmt);
   }
 
+  String _replaceParameter(String code, String placeholder, String canvasId, var block, var parameter) {
+    return code.replaceAll(placeholder, _formatParameter(parameter));
+  }
 
   String _formatParameter(var param) {
     if (param["value"] is Map) {
@@ -108,10 +110,10 @@ abstract class CodeFormatter  {
 
 class PlainFormatter extends CodeFormatter {
 
-  String _format(var parseTree) {
+  String _format(String canvasId, var parseTree) {
     StringBuffer out = new StringBuffer();
     for (var chain in parseTree["chains"]) {
-      _formatChain(out, chain, 0);
+      _formatChain(out, canvasId, chain, 0);
       out.writeln();
     }
 
@@ -119,17 +121,16 @@ class PlainFormatter extends CodeFormatter {
   }
 
 
-  void _formatChain(StringBuffer out, var chain, int indent) {
+  void _formatChain(StringBuffer out, String canvasId, var chain, int indent) {
     for (var block in chain) {
-      _formatBlock(out, block, indent);
       if (block["children"] is List) {
-        _formatChain(out, block["children"], indent+1);
+        _formatChain(out, canvasId, block["children"], indent+1);
       }
       if (block["clauses"] is List) {
         for (var clause in block["clauses"]) {
-          _formatBlock(out, clause, indent);
+          _formatBlock(out, canvasId, clause, indent);
           if (clause["children"] is List) {
-            _formatChain(out, clause["children"], indent+1);
+            _formatChain(out, canvasId, clause["children"], indent+1);
           }
         }
       }
@@ -149,10 +150,7 @@ int compareChainsByAction(a, b) {
 
 class NetLogoFormatter extends CodeFormatter {
 
-  NetLogoFormatter();
-
-
-  String _format(var parseTree) {
+  String _format(String canvasId, var parseTree) {
     StringBuffer out = new StringBuffer();
     if (parseTree["chains"] is! List || parseTree["chains"].length == 0) {
       return out.toString();
@@ -162,8 +160,8 @@ class NetLogoFormatter extends CodeFormatter {
     for (var chain in chains) {
       if (chain.length > 0 && chain[0]["type"] == "nlogo:procedure") {
         var block = chain.removeAt(0);
-        _formatBlock(out, block, 0);
-        _formatChain(out, chain, 1);
+        _formatBlock(out, canvasId, block, 0);
+        _formatChain(out, canvasId, chain, 1);
         out.writeln("end");
         out.writeln();
       }
@@ -172,24 +170,30 @@ class NetLogoFormatter extends CodeFormatter {
   }
 
 
-  void _formatChain(StringBuffer out, var chain, int indent) {
+  void _formatChain(StringBuffer out, String canvasId, var chain, int indent) {
     for (var block in chain) {
-      _formatBlock(out, block, indent);
+      _formatBlock(out, canvasId, block, indent);
       if (block["children"] is List) {
         _formatOutput(out, indent, "[");
-        _formatChain(out, block["children"], indent+1);
+        _formatChain(out, canvasId, block["children"], indent+1);
         _formatOutput(out, indent, "]");
       }
       if (block["clauses"] is List) {
         for (var clause in block["clauses"]) {
-          _formatBlock(out, clause, indent);
+          _formatBlock(out, canvasId, clause, indent);
           if (clause["children"] is List) {
             _formatOutput(out, indent, "[");
-            _formatChain(out, clause["children"], indent+1);
+            _formatChain(out, canvasId, clause["children"], indent+1);
             _formatOutput(out, indent, "]");
           }
         }
       }
     }
   }
+
+  String _replaceParameter(String code, String placeholder, String canvasId, var block, var parameter) {
+    String parameterReplacement = "(nt:get \"__${canvasId}_${block["id"]}_${block["instanceId"]}_${parameter["id"]}\")";
+    return code.replaceAll(placeholder, parameterReplacement);
+  }
+
 }

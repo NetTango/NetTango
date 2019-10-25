@@ -69,9 +69,9 @@ var NetTango = {
   },
 
 
-  _relayCallback : function(canvasId) {
+  _relayCallback : function(canvasId, event) {
     if (canvasId in NetTango._callbacks) {
-      NetTango._callbacks[canvasId](canvasId);
+      NetTango._callbacks[canvasId](canvasId, event);
     }
   },
 

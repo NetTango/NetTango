@@ -37,6 +37,7 @@ part 'blocks/control.dart';
 part 'blocks/formatter.dart';
 part 'blocks/menu.dart';
 part 'blocks/parameter.dart';
+part 'blocks/program-changed-event.dart';
 part 'blocks/workspace.dart';
 
 
@@ -79,7 +80,7 @@ void JSInitAllWorkspaces(String jsonString) {
 /// Javascript hook to export code from a workspace
 String JSExportCode(String canvasId, String language) {
   if (_workspaces.containsKey(canvasId)) {
-    return CodeFormatter.formatCode(language, _workspaces[canvasId].exportParseTree());
+    return CodeFormatter.formatCode(language, canvasId, _workspaces[canvasId].exportParseTree());
   }
   return null;
 }

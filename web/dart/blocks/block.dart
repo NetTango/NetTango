@@ -657,7 +657,7 @@ class Block implements Touchable {
     else if (workspace._snapTogether(this)) {
       //Sounds.playSound("click");
     }
-    workspace.programChanged();
+    workspace.programChanged(new BlockChangedEvent(this.id, this.instanceId));
   }
 
 

@@ -221,7 +221,7 @@ class Parameter implements Touchable {
       }
       backdrop.remove();
       block.workspace.draw();
-      block.workspace.programChanged();
+      block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.value));
     });
 
     querySelectorAll(".nt-param-cancel").onClick.listen((e) => backdrop.remove());
@@ -368,7 +368,7 @@ class RangeParameter extends NumParameter {
         value = input.value;
         backdrop.remove();
         block.workspace.draw();
-        block.workspace.programChanged();
+        block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.value));
         e.stopPropagation();
       });
       input.onInput.listen((e) { label.innerHtml = input.value; });
@@ -432,7 +432,7 @@ class SelectParameter extends Parameter {
         value = v["actual"];
         backdrop.remove();
         block.workspace.draw();
-        block.workspace.programChanged();
+        block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.value));
         e.stopPropagation();
       });
       row.append(opt);
@@ -505,7 +505,7 @@ class ExpressionParameter extends Parameter {
       _value = builder.toJSON();
       backdrop.remove();
       block.workspace.draw();
-      block.workspace.programChanged();
+      block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.value));
     });
 
     querySelectorAll(".nt-param-confirm").onMouseDown.listen((e) {

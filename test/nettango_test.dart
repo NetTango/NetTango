@@ -320,7 +320,7 @@ void main() {
     expect(result, equals(model));
 
     var codeResult = JSExportCode("nt-canvas", "NetLogo");
-    expect(codeResult, equals("to sheep-actions\n  forward (2 + 3)\nend\n\nto wolf-actions\n  forward (1 + 2)\nend\n\n"));
+    expect(codeResult, equals("to sheep-actions\n  forward (__nt-canvas_24_6_3 + __nt-canvas_24_6_4)\nend\n\nto wolf-actions\n  forward (__nt-canvas_24_4_3 + __nt-canvas_24_4_4)\nend\n\n"));
   });
 
   test("Unversioned model gets IDs added for version 1", () {
