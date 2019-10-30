@@ -78,9 +78,16 @@ void JSInitAllWorkspaces(String jsonString) {
 
 
 /// Javascript hook to export code from a workspace
-String JSExportCode(String canvasId, String language) {
+String JSExportCode(String canvasId, String language, js.JsFunction formatter) {
+  String formatAttribute(canvasId, blockId, instanceId, attributeId, value) {
+    if (formatter == null) {
+      return value.toString();
+    } else {
+      return formatter.apply([canvasId, blockId, instanceId, attributeId, value]);
+    }
+  }
   if (_workspaces.containsKey(canvasId)) {
-    return CodeFormatter.formatCode(language, canvasId, _workspaces[canvasId].exportParseTree());
+    return CodeFormatter.formatCode(language, canvasId, _workspaces[canvasId].exportParseTree(), formatAttribute);
   }
   return null;
 }

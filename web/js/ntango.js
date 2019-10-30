@@ -37,8 +37,8 @@ var NetTango = {
 
   /// Exports the code for a workspace in a given target language.
   /// The only language supported now is "NetLogo".
-  exportCode : function(canvasId, language) {
-    return NetTango_ExportCode(canvasId, language);
+  exportCode : function(canvasId, language, formatAttribute) {
+    return NetTango_ExportCode(canvasId, language, formatAttribute);
   },
 
 
