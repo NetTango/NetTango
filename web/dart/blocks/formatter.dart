@@ -72,14 +72,14 @@ abstract class CodeFormatter  {
 
   String _formatParameter(var param) {
     if (param["value"] is Map) {
-      return _formatExpression(param["value"]);
+      return formatExpression(param["value"]);
     } else {
       return toStr(param["value"]);
     }
   }
 
 
-  String _formatExpression(var expression) {
+  static String formatExpression(var expression) {
     var c = expression["children"];
     if (c == null || c is! List) c = [];
 
@@ -88,15 +88,15 @@ abstract class CodeFormatter  {
     if (expression["format"] is String) {
       String fmt = expression["format"];
       for (int i=0; i<c.length; i++) {
-        fmt = fmt.replaceAll("{$i}", _formatExpression(c[i]));
+        fmt = fmt.replaceAll("{$i}", formatExpression(c[i]));
       }
       return fmt;
     }
     else if (c.length == 1) {
-      return "($name ${_formatExpression(c[0])})";
+      return "($name ${formatExpression(c[0])})";
     }
     else if (c.length == 2) {
-      return "(${_formatExpression(c[0])} $name ${_formatExpression(c[1])})";
+      return "(${formatExpression(c[0])} $name ${formatExpression(c[1])})";
     }
     else {
       return name;
@@ -190,7 +190,8 @@ class NetLogoFormatter extends CodeFormatter {
   }
 
   String _replaceParameter(Function formatAttribute, String code, String placeholder, String canvasId, var block, var parameter) {
-    String replacement = formatAttribute(canvasId, block["id"], block["instanceId"], parameter["id"], parameter["value"]);
+    var valToPass = parameter["expressionValue"] == null ? parameter["value"] : parameter["expressionValue"];
+    String replacement = formatAttribute(canvasId, block["id"], block["instanceId"], parameter["id"], valToPass);
     return code.replaceAll(placeholder, replacement);
   }
 

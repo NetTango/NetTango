@@ -474,6 +474,13 @@ class ExpressionParameter extends Parameter {
     builder.fromJSON(value);
   }
 
+  Map toJSON() {
+    Map json = super.toJSON();
+    if (json["value"] is Map) {
+      json["expressionValue"] = CodeFormatter.formatExpression(json["value"]);
+    }
+    return json;
+  }
 
   Parameter clone(Block parent) {
     return new ExpressionParameter(parent, toJSON());
@@ -505,7 +512,8 @@ class ExpressionParameter extends Parameter {
       _value = builder.toJSON();
       backdrop.remove();
       block.workspace.draw();
-      block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.value));
+      var val = CodeFormatter.formatExpression(_value);
+      block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, val));
     });
 
     querySelectorAll(".nt-param-confirm").onMouseDown.listen((e) {
