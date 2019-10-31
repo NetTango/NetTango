@@ -1,13 +1,13 @@
 /*
  * NetTango
  * Copyright (c) 2017 Michael S. Horn, Uri Wilensky, and Corey Brady
- * 
+ *
  * Northwestern University
  * 2120 Campus Drive
  * Evanston, IL 60613
  * http://tidal.northwestern.edu
  * http://ccl.northwestern.edu
- 
+
  * This project was funded in part by the National Science Foundation.
  * Any opinions, findings and conclusions or recommendations expressed in this
  * material are those of the author(s) and do not necessarily reflect the views
@@ -16,7 +16,7 @@
 part of NetTango;
 
 
-/// TODO 
+/// TODO
 ///   limit length of inline expressions on blocks.
 class Expression {
 
@@ -52,14 +52,14 @@ class Expression {
       out.write("$name ");
       children[0].displayString(out);
       if (!isRoot) out.write(")");
-    } 
+    }
     else if (isBinary) {
       if (!isRoot) out.write("(");
       children[0].displayString(out);
       out.write(" $name ");
       children[1].displayString(out);
       if (!isRoot) out.write(")");
-    } 
+    }
     else if (name != null) {
       out.write("$name");
     }
@@ -132,8 +132,8 @@ class Expression {
       .. classes.add("editable")
       .. classes.add("$type");
 
-    div.onClick.listen((e) { 
-      openPulldown(div); 
+    div.onClick.listen((e) {
+      openPulldown(div);
       e.stopPropagation();
     });
     electricBrace(div, parent);
@@ -163,8 +163,8 @@ class Expression {
       .. className = "nt-number-input"
       .. value = name
       .. step = "1";
-    input.onChange.listen((e) { 
-      name = input.value; 
+    input.onChange.listen((e) {
+      name = input.value;
       if (name == "") {
         name = "0";
         input.value = "0";
@@ -196,14 +196,14 @@ class Expression {
       appendOperator(div);
       children[0].renderHtml(div);
       appendParen(div, false);
-    } 
+    }
     else if (isBinary) {
       appendParen(div, true);
       children[0].renderHtml(div);
       appendOperator(div);
       children[1].renderHtml(div);
       appendParen(div, false);
-    } 
+    }
     else {
       div.appendHtml("<div class='nt-expression-text $type'>$name</div>");
     }
@@ -219,7 +219,7 @@ class Expression {
 
 
  //-------------------------------------------------------------
- // Creates an expression pulldown menu 
+ // Creates an expression pulldown menu
  //-------------------------------------------------------------
   void openPulldown(Element expander) {
     querySelectorAll('.nt-pulldown-menu').forEach((el) => el.remove());
@@ -234,7 +234,7 @@ class Expression {
 
     // ---------------  clear button ---------------------
     hmenu.appendHtml("<hr>");
-    AnchorElement link = new AnchorElement(href : "#") 
+    AnchorElement link = new AnchorElement(href : "#")
       .. innerHtml = "Clear"
       .. className = "clear";
     hmenu.append(link);
@@ -242,11 +242,12 @@ class Expression {
       hmenu.remove();
       name = null;
       children.clear();
+      format = null;
       builder.renderHtml();
       e.stopPropagation();
       e.preventDefault();
     });
-      
+
     expander.append(hmenu);
   }
 
@@ -254,7 +255,7 @@ class Expression {
   void _addMenuItems(DivElement hmenu, List items) {
     for (var item in items) {
       if (item['type'] == type) {
-        AnchorElement link = new AnchorElement(href : "#") 
+        AnchorElement link = new AnchorElement(href : "#")
           .. innerHtml = "${item['name']}";
         hmenu.append(link);
         link.onClick.listen((e) {
@@ -326,5 +327,3 @@ class ExpressionBuilder {
     }
   }
 }
-
-
