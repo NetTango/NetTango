@@ -39,8 +39,11 @@ abstract class CodeFormatter  {
   String _format(String canvasId, var parseTree, Function formatAttribute);
 
   void _formatOutput(StringBuffer out, int indent, String post) {
-    for (int i=0; i<indent; i++) out.write(_indent);
-    out.writeln(post);
+    String fullIndent = "";
+    for (int i = 0; i < indent; i++) { fullIndent = fullIndent + _indent; }
+    out.write(fullIndent);
+    String indentedPost = post.replaceAll("\n", "\n" + fullIndent);
+    out.writeln(indentedPost);
   }
 
 
