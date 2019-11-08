@@ -82,6 +82,9 @@ class Expression {
   void fromJSON(Map json) {
     name = toStr(json['name']);
     type = toStr(json['type'], "num");
+    if (json['format'] != null) {
+      format = json['format'];
+    }
     children.clear();
     if (json['children'] is List) {
       for (var c in json['children']) {
