@@ -307,19 +307,24 @@ void main() {
       }
     };
     expect(result, equals(expected));
-    var codeResult = JSExportCode("nt-canvas", "NetLogo");
+    var codeResult = JSExportCode("nt-canvas", "NetLogo", null);
     expect(codeResult, equals("to wolf-actions\n  forward 10\nend\n\n"));
   });
 
   test("NetLogo code exports in proper order with params", () {
+    final testCanavsID = "nt-canvas";
     final model = copyJson(NETLOGO_MODEL_1);
     var json = jsonEncode(model);
-    JSInitWorkspace("nt-canvas", json);
-    var result = jsonDecode(JSSaveWorkspace("nt-canvas"));
+    JSInitWorkspace(testCanavsID, json);
+    var result = jsonDecode(JSSaveWorkspace(testCanavsID));
     model["version"] = VersionManager.VERSION;
     expect(result, equals(model));
 
-    var codeResult = JSExportCode("nt-canvas", "NetLogo");
+    String formatAttribute(canvasId, blockId, instanceId, attributeId, value) {
+      return "__${canvasId}_${blockId}_${instanceId}_${attributeId}";
+    };
+    var codeResult = CodeFormatter.formatCode("NetLogo", testCanavsID, GetWorkspace(testCanavsID).exportParseTree(), formatAttribute);
+
     expect(codeResult, equals("to sheep-actions\n  forward (__nt-canvas_24_6_3 + __nt-canvas_24_6_4)\nend\n\nto wolf-actions\n  forward (__nt-canvas_24_4_3 + __nt-canvas_24_4_4)\nend\n\n"));
   });
 

@@ -43,6 +43,9 @@ part 'blocks/workspace.dart';
 
 var _workspaces = { };
 
+CodeWorkspace GetWorkspace(String canvasId) {
+  return _workspaces[canvasId];
+}
 
 void _init(String canvasId, Map json) {
   VersionManager.updateWorkspace(json);
