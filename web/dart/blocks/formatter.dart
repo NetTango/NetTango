@@ -60,20 +60,20 @@ abstract class CodeFormatter  {
       for (int i = 0; i < rcount; i++) fmt += " {P$i}";
     }
     for (int i = 0; i < pcount; i++) {
-      fmt = _replaceParameter(formatAttribute, fmt, "{$i}", canvasId, block, params[i]);
+      fmt = _replaceAttribute(formatAttribute, fmt, "{$i}", canvasId, block, params[i]);
     }
     for (int i=0; i < rcount; i++) {
-      fmt = _replaceParameter(formatAttribute, fmt, "{P$i}", canvasId, block, props[i]);
+      fmt = _replaceAttribute(formatAttribute, fmt, "{P$i}", canvasId, block, props[i]);
     }
 
     _formatOutput(out, indent, fmt);
   }
 
-  String _replaceParameter(Function formatAttribute, String code, String placeholder, String canvasId, var block, var parameter) {
-    return code.replaceAll(placeholder, _formatParameter(parameter));
+  String _replaceAttribute(Function formatAttribute, String code, String placeholder, String canvasId, var block, var parameter) {
+    return code.replaceAll(placeholder, _formatAttribute(parameter));
   }
 
-  String _formatParameter(var param) {
+  String _formatAttribute(var param) {
     if (param["value"] is Map) {
       return formatExpression(param["value"]);
     } else {
@@ -192,9 +192,9 @@ class NetLogoFormatter extends CodeFormatter {
     }
   }
 
-  String _replaceParameter(Function formatAttribute, String code, String placeholder, String canvasId, var block, var parameter) {
-    var valToPass = parameter["expressionValue"] == null ? parameter["value"] : parameter["expressionValue"];
-    String replacement = formatAttribute(canvasId, block["id"], block["instanceId"], parameter["id"], valToPass);
+  String _replaceAttribute(Function formatAttribute, String code, String placeholder, String canvasId, var block, var attribute) {
+    var valToPass = attribute["expressionValue"] == null ? attribute["value"] : attribute["expressionValue"];
+    String replacement = formatAttribute(canvasId, block["id"], block["instanceId"], attribute["id"], valToPass);
     return code.replaceAll(placeholder, replacement);
   }
 
