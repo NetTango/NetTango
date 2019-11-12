@@ -372,7 +372,31 @@ void main() {
     expect(result, equals(expected));
   });
 
-    test("Version 1 gets IDs added for new block", () {
+  test("Bad data throws descriptive exception", () {
+
+    Map<String, Object> model = {
+      "version": VersionManager.VERSION,
+      "blocks": [ {
+          "id": 0,
+          "action": "sheep actions",
+          "params": [ { "id": 0, "type": "num", "default": 10 } ],
+          "properties": [ { "id": 1, "type": "num", "default": 9 } ]
+        },
+        {
+          "id": 0,
+          "action": "wolf actions",
+          "params": [ { "id": 0, "type": "num", "default": 10 } ],
+          "properties": [ { "id": 1, "type": "num", "default": 9 } ]
+        }
+      ],
+      "program": { "chains": [ [] ] }
+    };
+
+    expect(() => JSInitWorkspace("nt-canvas", jsonEncode(model)), throwsA(TypeMatcher<FormatException>()));
+
+  });
+
+  test("Version 1 gets IDs added for new block", () {
     Map<String, Object> action = {
       "action": "sheep actions",
       "params": [ { "type": "num", "default": 10 } ],

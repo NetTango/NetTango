@@ -49,7 +49,11 @@ CodeWorkspace GetWorkspace(String canvasId) {
 
 void _init(String canvasId, Map json) {
   VersionManager.updateWorkspace(json);
-  _workspaces[canvasId] = new CodeWorkspace(canvasId, json);
+  try {
+    _workspaces[canvasId] = new CodeWorkspace(canvasId, json);
+  } on FormatException catch (e) {
+    throw new FormatException("There was an error initializing the workspace with the given NetTango model JSON.", e );
+  }
   _workspaces[canvasId].draw();
 }
 

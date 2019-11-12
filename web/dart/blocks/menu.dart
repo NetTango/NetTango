@@ -45,6 +45,18 @@ class BlockMenu {
 
 
   void addBlock(Block block, int count) {
+    var matches = slots.where( (s) {
+      return s.block.id == block.id;
+    });
+    if (matches.length == 1) {
+      final match = matches.first.block;
+      throw new FormatException(
+"""Cannot add a block with the same ID as an existing block
+  Adding: (${block.id}: ${block.action})
+  Existing: (${match.id}: ${match.action})"""
+      );
+    }
+
     slots.add(new Slot(block, workspace, count));
   }
 
