@@ -477,14 +477,24 @@ class CodeWorkspace extends TouchLayer {
     if (params is List) {
       for (var param in params) {
         if (param is Map && param.containsKey('id') && param.containsKey('value') && block.params.containsKey(param['id'])) {
-          block.params[param['id']].value = param['value'];
+          final blockParam = block.params[param['id']];
+          if (param["value"] is Map && ![ "bool", "num" ].contains(blockParam.type)) {
+            blockParam.value = blockParam.defaultValue;
+          } else {
+            blockParam.value = param['value'];
+          }
         }
       }
     }
     if (properties is List) {
       for (var prop in properties) {
         if (prop is Map && prop.containsKey('id') && prop.containsKey('value') && block.properties.containsKey(prop['id'])) {
-          block.properties[prop['id']].value = prop['value'];
+          final blockProp = block.properties[prop['id']];
+          if (prop["value"] is Map && ![ "bool", "num" ].contains(blockProp.type)) {
+            blockProp.value = blockProp.defaultValue;
+          } else {
+            blockProp.value = prop['value'];
+          }
         }
       }
     }
