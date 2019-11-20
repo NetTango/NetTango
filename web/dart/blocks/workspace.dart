@@ -95,13 +95,19 @@ class CodeWorkspace extends TouchLayer {
       // pre-check block IDs for our next one, as they may be out of order
       // and we'll need to set any that aren't set (new blocks) while processing
       for (var b in definition['blocks']) {
-        int id = b["id"];
+        int id = b['id'];
         if (id != null && id > nextBlockId) {
           nextBlockId = id + 1;
         }
       }
       for (var b in definition['blocks']) {
         Block block = new Block.fromJSON(this, b);
+        if (menu.getBlockById(block.id) != null) {
+          // duplicate block ID - wipe the ID and re-generate a new block with a new ID
+          block.id = null;
+          block = block.clone();
+          b['id'] = block.id;
+        }
         int limit = toInt(b['limit'], -1);
         menu.addBlock(block, limit);
       }
