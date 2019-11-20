@@ -1,6 +1,6 @@
 {
   "name": "nettango",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "description": "A blocks-based programming library written in Dart",
   "main": "ntango.js",
   "scripts": {
