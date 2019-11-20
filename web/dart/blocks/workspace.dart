@@ -92,6 +92,14 @@ class CodeWorkspace extends TouchLayer {
     //--------------------------------------------------------
     menu = new BlockMenu(this);
     if (definition['blocks'] is List) {
+      // pre-check block IDs for our next one, as they may be out of order
+      // and we'll need to set any that aren't set (new blocks) while processing
+      for (var b in definition['blocks']) {
+        int id = b["id"];
+        if (id != null && id > nextBlockId) {
+          nextBlockId = id + 1;
+        }
+      }
       for (var b in definition['blocks']) {
         Block block = new Block.fromJSON(this, b);
         int limit = toInt(b['limit'], -1);
