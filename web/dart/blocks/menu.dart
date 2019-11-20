@@ -43,13 +43,9 @@ class BlockMenu {
 
   num get height => workspace.height;
 
-
   void addBlock(Block block, int count) {
-    var matches = slots.where( (s) {
-      return s.block.id == block.id;
-    });
-    if (matches.length == 1) {
-      final match = matches.first.block;
+    Block match = getBlockById(block.id);
+    if (match != null) {
       throw new FormatException(
 """Cannot add a block with the same ID as an existing block
   Adding: (${block.id}: ${block.action})
