@@ -44,13 +44,6 @@ class CodeWorkspace extends TouchLayer {
   /// list of expressions
   List expressions = new List();
 
-  /* Canvas 2D drawing context */
-  CanvasRenderingContext2D ctx;
-
-  /* Touch event manager */
-  TouchManager tmanager = new TouchManager();
-
-
 /**
  * Construct a code workspace from a JSON object
  */
@@ -59,33 +52,6 @@ class CodeWorkspace extends TouchLayer {
     if (this.definition["version"] != VersionManager.VERSION) {
       throw "The supported NetTango version is ${VersionManager.VERSION}, but the given definition version was ${this.definition["version"]}.";
     }
-
-    //--------------------------------------------------------
-    // load canvas
-    //--------------------------------------------------------
-    CanvasElement canvas = querySelector("#$canvasId");
-    if (canvas == null) throw "No canvas element with ID $canvasId found.";
-    ctx = canvas.getContext('2d');
-
-
-    //--------------------------------------------------------
-    // rescale according to devicePixelRatio
-    //--------------------------------------------------------
-    canvas.style.width = "${canvas.width}px";
-    canvas.style.height = "${canvas.height}px";
-    width = (canvas.width * SCALE).floor();
-    height = (canvas.height * SCALE).floor();
-    canvas.width = width;
-    canvas.height = height;
-    scale(1/SCALE, 1/SCALE);  // scales touch input
-
-
-    //--------------------------------------------------------
-    // initialize touch manager
-    //--------------------------------------------------------
-    tmanager.registerEvents(canvas);
-    tmanager.addTouchLayer(this);
-
 
     //--------------------------------------------------------
     // initialize block menu
@@ -134,10 +100,8 @@ class CodeWorkspace extends TouchLayer {
       _restoreProgram(definition['program']);
     }
 
-    draw();
     tick();
   }
-
 
 /**
  * Detaches this workspace object from the canvas
@@ -145,49 +109,22 @@ class CodeWorkspace extends TouchLayer {
   void unload() {
     clearTouchables();
     blocks.clear();
-    tmanager.removeTouchLayer(this);
   }
-
-
-/**
- * Allows workspace to dyanamically grow and shrink the canvas
- * to allow for longer programs
- */
-  void reshapeCanvas(num w, num h) {
-    w = w.round();
-    h = h.round();
-    CanvasElement canvas = querySelector("#$canvasId");
-    if (canvas != null) {
-      canvas.style.width = "${w}px";
-      canvas.style.height = "${h}px";
-      width = (w * SCALE).floor();
-      height = (h * SCALE).floor();
-      canvas.width = width;
-      canvas.height = height;
-      ctx = canvas.getContext('2d');
-      draw();
-    }
-  }
-
 
   void tick() {
-    if (animate()) draw();
     window.animationFrame.then((time) => tick());
   }
-
 
 /**
  * Callback when blocks of a program have changed
  */
   void programChanged(ProgramChangedEvent event) {
-    draw();
     try {
       js.context["NetTango"].callMethod("_relayCallback", [ canvasId, event.toJS() ]);
     } catch (e) {
       print("Unable to relay program changed event to Javascript");
     }
   }
-
 
 /**
  * Returns a JSON object representing the program's parse tree
@@ -247,7 +184,6 @@ class CodeWorkspace extends TouchLayer {
     for (Parameter prop in block.properties.values) {
       removeTouchable(prop);
     }
-    draw();
   }
 
 
@@ -367,60 +303,12 @@ class CodeWorkspace extends TouchLayer {
 
     if (lowestY > height) {
       if (!refresh) {
-        reshapeCanvas(width / SCALE, (lowestY + BLOCK_HEIGHT * 3) / SCALE);
+
       }
     }
 
     return refresh;
   }
-
-
-  void draw() {
-    ctx.save();
-    {
-      // transform into workspace coordinates
-      //xform.transformContext(ctx);
-
-      ctx.clearRect(0, 0, width, height);
-
-      List<Block> drags = new List<Block>();
-
-      bool overMenu = false;
-
-      for (Block block in blocks) {
-        if (!block.hasPrev && block is! ClauseBlock) {
-          block._reindentChain(0, null);
-          block._repositionChain();
-          block._resizeChain(ctx, BLOCK_WIDTH);
-        }
-        if (block._dragging) drags.add(block);
-        if (menu.isOverMenu(block)) overMenu = true;
-      }
-
-      menu.draw(ctx, overMenu);
-
-      for (Block block in blocks) {
-        if (block._dragging) {
-          Block target = _findTopConnector(block);
-          if (target != null) {
-            target._drawBottomConnector(ctx);
-          } else {
-            target = _findBottomConnector(block);
-            if (target != null) target._drawTopConnector(ctx);
-          }
-        }
-
-        block._drawBlock(ctx);
-        block._drawLabel(ctx);
-        block._drawParameters(ctx);
-        block._drawProperties(ctx);
-        //if (drags.isNotEmpty)
-        block._drawOutline(ctx);
-      }
-    }
-    ctx.restore();
-  }
-
 
   /// restore a constructed program from a previously saved state
   void _restoreProgram(Map json) {
@@ -464,7 +352,6 @@ class CodeWorkspace extends TouchLayer {
       if (!block.hasPrev && block is! ClauseBlock) {
         block._reindentChain(0, null);
         block._repositionChain();
-        block._resizeChain(ctx, BLOCK_WIDTH);
       }
     }
 

@@ -183,12 +183,10 @@ class Parameter implements Touchable {
   void touchUp(Contact c) {
     _down = false;
     _showParameterDialog(c.originalX, c.originalY);
-    block.workspace.draw();
   }
 
   Touchable touchDown(Contact c) {
     _down = true;
-    block.workspace.draw();
     return this;
   }
 
@@ -220,7 +218,6 @@ class Parameter implements Touchable {
         value = input.value;
       }
       backdrop.remove();
-      block.workspace.draw();
       block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.value));
     });
 
@@ -367,7 +364,6 @@ class RangeParameter extends NumParameter {
       input.onChange.listen((e) {
         value = input.value;
         backdrop.remove();
-        block.workspace.draw();
         block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.value));
         e.stopPropagation();
       });
@@ -431,7 +427,6 @@ class SelectParameter extends Parameter {
         _display = _chooseDisplayValue(v);
         value = v["actual"];
         backdrop.remove();
-        block.workspace.draw();
         block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.value));
         e.stopPropagation();
       });
@@ -511,7 +506,6 @@ class ExpressionParameter extends Parameter {
       if (empties.length > 0) return false;
       _value = builder.toJSON();
       backdrop.remove();
-      block.workspace.draw();
       var val = CodeFormatter.formatExpression(_value);
       block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, val));
     });

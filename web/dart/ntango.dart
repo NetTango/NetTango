@@ -54,7 +54,6 @@ void _init(String canvasId, Map json) {
   } on FormatException catch (e) {
     throw new FormatException("There was an error initializing the workspace with the given NetTango model JSON.", e );
   }
-  _workspaces[canvasId].draw();
 }
 
 /// Javascript hook to initialize a workspace
