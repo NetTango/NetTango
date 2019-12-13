@@ -320,8 +320,8 @@ void main() {
     model["version"] = VersionManager.VERSION;
     expect(result, equals(model));
 
-    String formatAttribute(canvasId, blockId, instanceId, attributeId, value) {
-      return "__${canvasId}_${blockId}_${instanceId}_${attributeId}";
+    String formatAttribute(containerId, blockId, instanceId, attributeId, value) {
+      return "__${containerId}_${blockId}_${instanceId}_${attributeId}";
     };
     var codeResult = CodeFormatter.formatCode("NetLogo", testCanavsID, GetWorkspace(testCanavsID).exportParseTree(), formatAttribute);
 

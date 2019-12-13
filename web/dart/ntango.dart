@@ -43,31 +43,31 @@ part 'blocks/workspace.dart';
 
 var _workspaces = { };
 
-CodeWorkspace GetWorkspace(String canvasId) {
-  return _workspaces[canvasId];
+CodeWorkspace GetWorkspace(String containerId) {
+  return _workspaces[containerId];
 }
 
-void _init(String canvasId, Map json) {
+void _init(String containerId, Map json) {
   VersionManager.updateWorkspace(json);
   try {
-    _workspaces[canvasId] = new CodeWorkspace(canvasId, json);
+    _workspaces[containerId] = new CodeWorkspace(containerId, json);
   } on FormatException catch (e) {
     throw new FormatException("There was an error initializing the workspace with the given NetTango model JSON.", e );
   }
 }
 
 /// Javascript hook to initialize a workspace
-void JSInitWorkspace(String canvasId, String jsonString) {
-  if (_workspaces[canvasId] is CodeWorkspace) {
-    _workspaces[canvasId].unload();
+void JSInitWorkspace(String containerId, String jsonString) {
+  if (_workspaces[containerId] is CodeWorkspace) {
+    _workspaces[containerId].unload();
   }
   var json = jsonDecode(jsonString);
   if (json is Map) {
-    _init(canvasId, json);
+    _init(containerId, json);
   }
 }
 
-/// Javascript hook to initialize all workspaces based on canvasID names
+/// Javascript hook to initialize all workspaces based on containerId names
 void JSInitAllWorkspaces(String jsonString) {
   var json = jsonDecode(jsonString);
   if (json is Map) {
@@ -84,26 +84,26 @@ void JSInitAllWorkspaces(String jsonString) {
 
 
 /// Javascript hook to export code from a workspace
-String JSExportCode(String canvasId, String language, js.JsFunction formatter) {
-  String formatAttribute(canvasId, blockId, instanceId, attributeId, value) {
+String JSExportCode(String containerId, String language, js.JsFunction formatter) {
+  String formatAttribute(containerId, blockId, instanceId, attributeId, value) {
     if (formatter == null) {
       return value.toString();
     } else {
-      return formatter.apply([canvasId, blockId, instanceId, attributeId, value]);
+      return formatter.apply([containerId, blockId, instanceId, attributeId, value]);
     }
   }
-  if (_workspaces.containsKey(canvasId)) {
-    return CodeFormatter.formatCode(language, canvasId, _workspaces[canvasId].exportParseTree(), formatAttribute);
+  if (_workspaces.containsKey(containerId)) {
+    return CodeFormatter.formatCode(language, containerId, _workspaces[containerId].exportParseTree(), formatAttribute);
   }
   return null;
 }
 
 
 /// Javascript hook to export the entire state of a workspace
-String JSSaveWorkspace(String canvasId) {
-  if (_workspaces.containsKey(canvasId)) {
-    var defs = _workspaces[canvasId].definition;
-    defs['program'] = _workspaces[canvasId].exportParseTree();
+String JSSaveWorkspace(String containerId) {
+  if (_workspaces.containsKey(containerId)) {
+    var defs = _workspaces[containerId].definition;
+    defs['program'] = _workspaces[containerId].exportParseTree();
     return jsonEncode(defs);
   }
 }

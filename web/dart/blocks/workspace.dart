@@ -21,7 +21,7 @@ class CodeWorkspace extends TouchLayer {
   int version = VersionManager.VERSION;
 
   /// HTML Canvas ID
-  String canvasId;
+  String containerId;
 
   /// list of blocks in the workspace
   List<Block> blocks = new List<Block>();
@@ -47,11 +47,15 @@ class CodeWorkspace extends TouchLayer {
 /**
  * Construct a code workspace from a JSON object
  */
-  CodeWorkspace(this.canvasId, this.definition) {
+  CodeWorkspace(this.containerId, this.definition) {
 
     if (this.definition["version"] != VersionManager.VERSION) {
       throw "The supported NetTango version is ${VersionManager.VERSION}, but the given definition version was ${this.definition["version"]}.";
     }
+
+    DivElement container = querySelector("#${containerId}");
+    if (container == null) throw "No container element with ID $containerId found.";
+    container.innerText = "NetTango";
 
     //--------------------------------------------------------
     // initialize block menu
@@ -120,7 +124,7 @@ class CodeWorkspace extends TouchLayer {
  */
   void programChanged(ProgramChangedEvent event) {
     try {
-      js.context["NetTango"].callMethod("_relayCallback", [ canvasId, event.toJS() ]);
+      js.context["NetTango"].callMethod("_relayCallback", [ containerId, event.toJS() ]);
     } catch (e) {
       print("Unable to relay program changed event to Javascript");
     }

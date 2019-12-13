@@ -206,7 +206,7 @@ class Parameter implements Touchable {
         <button class="nt-param-confirm">OK</button>
         <button class="nt-param-cancel">Cancel</button>
       </div>""");
-    HtmlElement container = querySelector("#${block.workspace.canvasId}").parent;
+    HtmlElement container = querySelector("#${block.workspace.containerId}").parent;
     if (container == null) return;
     container.append(backdrop);
 
@@ -355,7 +355,7 @@ class RangeParameter extends NumParameter {
     dialog.onClick.listen((e) { e.stopPropagation(); });
     backdrop.append(dialog);
     backdrop.onClick.listen((e) { backdrop.remove(); });
-    HtmlElement container = querySelector("#${block.workspace.canvasId}").parent;
+    HtmlElement container = querySelector("#${block.workspace.containerId}").parent;
     if (container != null) container.append(backdrop);
 
     HtmlElement label = querySelector("#nt-param-label-$id");
@@ -438,7 +438,7 @@ class SelectParameter extends Parameter {
     backdrop.append(dialog);
     backdrop.onClick.listen((e) { backdrop.remove(); });
 
-    HtmlElement container = querySelector("#${block.workspace.canvasId}").parent;
+    HtmlElement container = querySelector("#${block.workspace.containerId}").parent;
     if (container != null) container.append(backdrop);
 
     backdrop.classes.add("show");
@@ -497,7 +497,7 @@ class ExpressionParameter extends Parameter {
         <button class="nt-param-confirm">OK</button>
         <button class="nt-param-cancel">Cancel</button>
       </div>""");
-    HtmlElement container = querySelector("#${block.workspace.canvasId}").parent;
+    HtmlElement container = querySelector("#${block.workspace.containerId}").parent;
     if (container == null) return;
     container.append(backdrop);
 
