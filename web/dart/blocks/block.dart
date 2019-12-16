@@ -419,6 +419,11 @@ class Block implements Touchable {
     return _dragging;
   }
 
+  void draw(DivElement container) {
+    DivElement blockNode = new DivElement();
+    blockNode.innerText = action;
+    container.append(blockNode);
+  }
 
 //=================================================================
 // WARNING: EXTREMELY UGLY DRAWING CODE BELOW THIS POINT.

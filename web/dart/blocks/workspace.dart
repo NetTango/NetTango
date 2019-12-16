@@ -22,6 +22,7 @@ class CodeWorkspace extends TouchLayer {
 
   /// HTML Canvas ID
   String containerId;
+  DivElement container;
 
   /// list of blocks in the workspace
   List<Block> blocks = new List<Block>();
@@ -53,9 +54,9 @@ class CodeWorkspace extends TouchLayer {
       throw "The supported NetTango version is ${VersionManager.VERSION}, but the given definition version was ${this.definition["version"]}.";
     }
 
-    DivElement container = querySelector("#${containerId}");
+    container = querySelector("#${containerId}");
     if (container == null) throw "No container element with ID $containerId found.";
-    container.innerText = "NetTango";
+    container.setInnerHtml("");
 
     //--------------------------------------------------------
     // initialize block menu
@@ -104,7 +105,7 @@ class CodeWorkspace extends TouchLayer {
       _restoreProgram(definition['program']);
     }
 
-    tick();
+    draw();
   }
 
 /**
@@ -113,10 +114,6 @@ class CodeWorkspace extends TouchLayer {
   void unload() {
     clearTouchables();
     blocks.clear();
-  }
-
-  void tick() {
-    window.animationFrame.then((time) => tick());
   }
 
 /**
@@ -312,6 +309,15 @@ class CodeWorkspace extends TouchLayer {
     }
 
     return refresh;
+  }
+
+  void draw() {
+    DivElement spaceDiv = new DivElement() .. id = "${containerId}-space";
+    container.append(spaceDiv);
+    for (Block block in blocks) {
+      block.draw(spaceDiv);
+    }
+    menu.draw(container);
   }
 
   /// restore a constructed program from a previously saved state

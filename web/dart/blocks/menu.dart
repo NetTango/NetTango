@@ -76,33 +76,12 @@ class BlockMenu {
     return null;
   }
 
-  void _resize(CanvasRenderingContext2D ctx) {
-    width = BLOCK_WIDTH * 1.5;
+  void draw(DivElement container) {
+    DivElement menuDiv = new DivElement() .. id = "${workspace.containerId}-menu";
+    container.append(menuDiv);
     for (Slot slot in slots) {
-      width = max(width, slot.block._getNaturalWidth(ctx) + BLOCK_GUTTER * 2);
+      slot.draw(menuDiv);
     }
-  }
-
-
-  void draw(CanvasRenderingContext2D ctx, bool highlightTrash) {
-    _resize(ctx);
-    ctx.save();
-    {
-      ctx.fillStyle = color;
-      ctx.fillRect(x, y, width, height);
-      if (highlightTrash) ctx.fillRect(x, y, width, height);
-
-      num ix = x + BLOCK_GUTTER;
-      num iy = y + BLOCK_HEIGHT / 2;
-
-      for (Slot slot in slots) {
-        slot.x = ix;
-        slot.y = iy;
-        slot.draw(ctx);
-        iy += BLOCK_HEIGHT * 1.5;
-      }
-    }
-    ctx.restore();
   }
 }
 
@@ -128,31 +107,18 @@ class Slot implements Touchable {
     return (count < 0 || free > 0);
   }
 
-
   num get width => block.width;
   num get height => block.height;
 
-
-  void draw(CanvasRenderingContext2D ctx) {
-    int free = count - workspace.getBlockCount(block.id);
-    ctx.save();
-    {
-      if (!isAvailable()) ctx.globalAlpha = 0.3;
-      block.x = x;
-      block.y = y;
-      block._resizeChain(ctx, BLOCK_WIDTH);
-      block._drawBlock(ctx);
-      block._drawLabel(ctx);
-      block._drawOutline(ctx);
-    }
-    ctx.restore();
+  void draw(DivElement container) {
+    DivElement blockNode = new DivElement();
+    blockNode.innerText = block.action;
+    container.append(blockNode);
   }
-
 
   bool containsTouch(Contact c) {
     return block.containsTouch(c);
   }
-
 
   Touchable touchDown(Contact c) {
     if (isAvailable()) {
