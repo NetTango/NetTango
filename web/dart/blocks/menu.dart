@@ -96,7 +96,6 @@ class Slot implements Touchable {
     workspace.addTouchable(this);
   }
 
-
   bool isAvailable() {
     int free = count - workspace.getBlockCount(block.id);
     return (count < 0 || free > 0);

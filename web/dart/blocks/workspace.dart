@@ -318,8 +318,21 @@ class CodeWorkspace extends TouchLayer {
     DivElement spaceDiv = new DivElement() .. id = "${containerId}-space";
     spaceDiv.classes.add("nt-workspace");
     container.append(spaceDiv);
-    for (Block block in blocks) {
-      block.draw(spaceDiv);
+    if (blocks.isEmpty) {
+      return;
+    }
+
+    DivElement chainDiv = new DivElement();
+    chainDiv.classes.add("nt-chain");
+    spaceDiv.append(chainDiv);
+
+    Block current = blocks[0];
+    while (current != null) {
+      if (current is! ClauseBlock) {
+        current = current.draw(chainDiv);
+      } else {
+        current = current.next;
+      }
     }
     menu.draw(container);
   }

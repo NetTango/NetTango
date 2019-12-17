@@ -419,11 +419,34 @@ class Block implements Touchable {
     return _dragging;
   }
 
-  void draw(DivElement container) {
+  Block draw(DivElement container) {
     DivElement blockNode = new DivElement();
     blockNode.classes.add("nt-block");
-    blockNode.innerText = action;
+    if (!hasPrev) {
+      blockNode.classes.add("start-block");
+    }
     container.append(blockNode);
+
+    DivElement actionNode = new DivElement();
+    actionNode.classes.add("nt-block-action");
+    actionNode.innerText = action;
+    blockNode.append(actionNode);
+
+    Block child = next;
+    while (child != null && indent < child.indent ) {
+      blockNode.classes.add("clause-block");
+      if (child is! ClauseBlock) {
+        child = child.draw(blockNode);
+      } else {
+        child = child.next;
+      }
+    }
+
+    if (child == null && indent == 0) {
+      blockNode.classes.add("end-block");
+    }
+
+    return child;
   }
 
 //=================================================================
