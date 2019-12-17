@@ -33,9 +33,7 @@ class BlockMenu {
   /// gets resized automatically
   num width = BLOCK_WIDTH + BLOCK_GUTTER * 2;
 
-
   BlockMenu(this.workspace);
-
 
   num get x => workspace.width - width;
 
@@ -56,11 +54,9 @@ class BlockMenu {
     slots.add(new Slot(block, workspace, count));
   }
 
-
   bool animate() {
     return false;
   }
-
 
   bool isOverMenu(Block block) {
     return (!block._inMenu && !block._wasInMenu && block.x + block.width * 0.75 >= x);
@@ -78,13 +74,13 @@ class BlockMenu {
 
   void draw(DivElement container) {
     DivElement menuDiv = new DivElement() .. id = "${workspace.containerId}-menu";
+    menuDiv.classes.add("nt-menu");
     container.append(menuDiv);
     for (Slot slot in slots) {
       slot.draw(menuDiv);
     }
   }
 }
-
 
 class Slot implements Touchable {
 
@@ -94,7 +90,6 @@ class Slot implements Touchable {
   CodeWorkspace workspace;
 
   int count = -1;
-
 
   Slot(this.block, this.workspace, this.count) {
     block._inMenu = true;
@@ -113,6 +108,7 @@ class Slot implements Touchable {
   void draw(DivElement container) {
     DivElement blockNode = new DivElement();
     blockNode.innerText = block.action;
+    blockNode.classes.add("nt-menu-slot");
     container.append(blockNode);
   }
 

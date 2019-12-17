@@ -17,11 +17,49 @@
 /* Workspace container <div> */
 .nt-container {
   font-family: Poppins, sans-serif;
-  font-size: 18px;
-  position: relative;
-  display: inline-block;
+  font-size: 14px;
   margin: 0;
-  overflow-y: scroll;
+  display: flex;
+  min-width: 10em;
+}
+
+.nt-workspace {
+  width: 70%;
+}
+
+.nt-menu {
+  width: 40%;
+  max-width: 12em;
+  background: #eee;
+  padding: 0.2em;
+}
+
+.nt-block {
+  border: 1px solid #000;
+  font-size: 14px;
+  padding: 0.2em 1em;
+  width: fit-content;
+  min-width: 10em;
+  height: 2em;
+  line-height: 2em;
+  background: white;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.nt-menu-slot {
+  border: 1px solid #000;
+  border-radius: 10px;
+  font-size: 14px;
+  padding: 0.2em 0.5em;
+  width: fit-content;
+  height: 2em;
+  min-width: 4em;
+  margin: 0.3em;
+  line-height: 2em;
+  background: white;
+  user-select: none;
+  white-space: nowrap;
 }
 
 /* Backdrop for the parameter popup menu */

@@ -57,6 +57,9 @@ class CodeWorkspace extends TouchLayer {
     container = querySelector("#${containerId}");
     if (container == null) throw "No container element with ID $containerId found.";
     container.setInnerHtml("");
+    if (!container.classes.contains("nt-container")) {
+      container.classes.add("nt-container");
+    }
 
     //--------------------------------------------------------
     // initialize block menu
@@ -313,6 +316,7 @@ class CodeWorkspace extends TouchLayer {
 
   void draw() {
     DivElement spaceDiv = new DivElement() .. id = "${containerId}-space";
+    spaceDiv.classes.add("nt-workspace");
     container.append(spaceDiv);
     for (Block block in blocks) {
       block.draw(spaceDiv);

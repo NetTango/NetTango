@@ -421,6 +421,7 @@ class Block implements Touchable {
 
   void draw(DivElement container) {
     DivElement blockNode = new DivElement();
+    blockNode.classes.add("nt-block");
     blockNode.innerText = action;
     container.append(blockNode);
   }
