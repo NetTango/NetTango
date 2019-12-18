@@ -318,11 +318,12 @@ class CodeWorkspace extends TouchLayer {
     DivElement spaceDiv = new DivElement() .. id = "${containerId}-space";
     spaceDiv.classes.add("nt-workspace");
     container.append(spaceDiv);
+
     if (blocks.isEmpty) {
       return;
     }
 
-    Iterable<Block> starters = blocks.where( (b) => b.prev == null );
+    Iterable<Block> starters = blocks.where( (b) => b is! EndBlock && b.prev == null );
 
     for (Block starter in starters) {
       DivElement chainDiv = new DivElement();
