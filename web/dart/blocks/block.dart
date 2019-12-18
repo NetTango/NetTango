@@ -132,7 +132,6 @@ class Block implements Touchable {
 
   bool get isStartOfChain => !hasPrev;
 
-
   Block(this.workspace, this.id, this.action) {
     if (this.id == null) {
       this.id = this.workspace.nextBlockId;
@@ -422,15 +421,23 @@ class Block implements Touchable {
   Block draw(DivElement container) {
     DivElement blockNode = new DivElement();
     blockNode.classes.add("nt-block");
-    if (!hasPrev) {
-      blockNode.classes.add("start-block");
-    }
     container.append(blockNode);
+
+    DivElement headerNode = new DivElement();
+    headerNode.classes.add("nt-block-header");
+    blockNode.append(headerNode);
 
     DivElement actionNode = new DivElement();
     actionNode.classes.add("nt-block-action");
     actionNode.innerText = action;
-    blockNode.append(actionNode);
+    headerNode.append(actionNode);
+
+    for (Parameter attribute in params.values) {
+      attribute.drawParameter(headerNode);
+    }
+    for (Parameter attribute in properties.values) {
+      attribute.drawProperty(blockNode);
+    }
 
     Block child = next;
     while (child != null && indent < child.indent ) {
@@ -440,10 +447,6 @@ class Block implements Touchable {
       } else {
         child = child.next;
       }
-    }
-
-    if (child == null && indent == 0) {
-      blockNode.classes.add("end-block");
     }
 
     return child;
@@ -492,7 +495,6 @@ class Block implements Touchable {
     ctx.restore();
   }
 
-
   void _drawTopConnector(CanvasRenderingContext2D ctx) {
     ctx.save();
     {
@@ -506,7 +508,6 @@ class Block implements Touchable {
     ctx.restore();
   }
 
-
   void _drawBottomConnector(CanvasRenderingContext2D ctx) {
     ctx.save();
     {
@@ -519,26 +520,6 @@ class Block implements Touchable {
     }
     ctx.restore();
   }
-
-
-  void _drawParameters(CanvasRenderingContext2D ctx) {
-    num left = width;
-    List<int> keys = params.keys.toList();
-    for (int i = keys.length - 1; i >= 0; i--) {
-      left -= (BLOCK_PADDING + params[keys[i]].width);
-      params[keys[i]].draw(ctx, left);
-    }
-  }
-
-
-  void _drawProperties(CanvasRenderingContext2D ctx) {
-    List<int> keys = properties.keys.toList();
-    for (int i = 0; i < keys.length; i++) {
-      num top = BLOCK_HEIGHT * (i + 1);
-      properties[keys[i]].drawProperty(ctx, top);
-    }
-  }
-
 
   void _outlineBlock(CanvasRenderingContext2D ctx) {
     ctx.beginPath();

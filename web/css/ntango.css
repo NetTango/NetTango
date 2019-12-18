@@ -69,6 +69,39 @@
   background: white;
   user-select: none;
   white-space: nowrap;
+  height: fit-content;
+}
+
+.nt-block-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+}
+
+.nt-block-action {
+  flex: auto;
+}
+
+.nt-property {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+}
+
+.nt-property-name {
+  flex: auto;
+}
+
+.nt-attribute-value {
+  background: #eee;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 0 0.5em;
+  line-height: 1.5em;
+  height: 1.5em;
+  margin-right: 0.5em;
 }
 
 .nt-block.clause-block {

@@ -48,7 +48,6 @@ class Parameter implements Touchable {
   /// is the mouse down on the parameter in the block
   bool _down = false;
 
-
   /// subclasses override this property definition
   dynamic get value => toStr(_value, "");
 
@@ -111,7 +110,6 @@ class Parameter implements Touchable {
     }
   }
 
-
   void _resize(CanvasRenderingContext2D ctx) {
     width = BLOCK_PADDING * 2;
     ctx.save();
@@ -121,7 +119,6 @@ class Parameter implements Touchable {
     }
     ctx.restore();
   }
-
 
   num _resizeProperty(CanvasRenderingContext2D ctx) {
     _resize(ctx);
@@ -135,41 +132,25 @@ class Parameter implements Touchable {
     return w;
   }
 
-
-  void draw(CanvasRenderingContext2D ctx, num left, [ num top = 0 ]) {
-    this._left = left;
-    this._top = top;
-
-    ctx.font = block.font;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-
-    num x = block.x + _left;
-    num y = block.y + _top + BLOCK_HEIGHT / 2 - height/2;
-    num w = width;
-    num h = height;
-
-    ctx.beginPath();
-    roundRect(ctx, x, y, w, h, h/2);
-    ctx.fillStyle = _down ? block.blockColor : block.textColor;
-    ctx.fill();
-    ctx.fillStyle = _down ? block.textColor : block.blockColor;
-    ctx.fillText(valueAsString, x + w/2, y + h*.55);
+  // parameters are meant to display inline with just a value
+  void drawParameter(DivElement container) {
+    DivElement paramDiv = new DivElement();
+    paramDiv.innerText = valueAsString;
+    paramDiv.classes.add("nt-attribute-value");
+    container.append(paramDiv);
   }
 
-
-  void drawProperty(CanvasRenderingContext2D ctx, num top) {
-    num left = block.width - (BLOCK_PADDING + width);
-    num y = block.y + top + BLOCK_HEIGHT / 2;
-    num x = block.x + BLOCK_INDENT;
-    ctx.fillStyle = block.textColor;
-    ctx.font = block.font;
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'middle';
-    ctx.fillText("\u25B8    $name", x, y);
-    draw(ctx, left, top);
+  // properties display stand-alone with an identifier
+  void drawProperty(DivElement container) {
+    DivElement propDiv = new DivElement();
+    propDiv.classes.add("nt-property");
+    DivElement propName = new DivElement();
+    propName.classes.add("nt-property-name");
+    propName.innerText = "\u25B8 $name";
+    propDiv.append(propName);
+    drawParameter(propDiv);
+    container.append(propDiv);
   }
-
 
   bool containsTouch(Contact c) {
     return (
@@ -178,7 +159,6 @@ class Parameter implements Touchable {
       c.touchX <= block.x + _left + width &&
       c.touchY <= block.y + _top + BLOCK_HEIGHT);
   }
-
 
   void touchUp(Contact c) {
     _down = false;
