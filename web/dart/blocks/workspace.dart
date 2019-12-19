@@ -28,11 +28,8 @@ class CodeWorkspace {
   int nextBlockId = 0;
   int nextBlockInstanceId = 0;
 
-  /// save a copy of the workspace definition objetc for the save() function
+  /// save a copy of the workspace definition object for the save() function
   Map definition;
-
-  /// size of the canvas
-  int width, height;
 
   /// block menu
   BlockMenu menu;

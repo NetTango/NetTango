@@ -15,9 +15,8 @@
  */
 part of NetTango;
 
-
 /// Represents a block's parameter value
-class Parameter implements Touchable {
+class Parameter {
 
   /// parameter id - unique per block
   int id;
@@ -40,21 +39,12 @@ class Parameter implements Touchable {
   /// short unit name that will be displayed after the value (e.g. %, px, m, mm, s)
   String unit = "";
 
-  /// position of the parameter
-  num _left = 0, _top = 0;
-  num width = 28.0;
-  num height = BLOCK_HEIGHT * 0.6;
-
-  /// is the mouse down on the parameter in the block
-  bool _down = false;
-
   /// subclasses override this property definition
   dynamic get value => toStr(_value, "");
 
   set value(var v) => _value = toStr(v, "");
 
   String get valueAsString => "${_value.toString()}$unit";
-
 
   Parameter(this.block, Map data) {
     if (data.containsKey("id")) {
@@ -130,29 +120,6 @@ class Parameter implements Touchable {
     return propDiv;
   }
 
-  bool containsTouch(Contact c) {
-    return (
-      c.touchX >= block.x + _left &&
-      c.touchY >= block.y + _top &&
-      c.touchX <= block.x + _left + width &&
-      c.touchY <= block.y + _top + BLOCK_HEIGHT);
-  }
-
-  void touchUp(Contact c) {
-    _down = false;
-    _showParameterDialog(c.originalX, c.originalY);
-  }
-
-  Touchable touchDown(Contact c) {
-    _down = true;
-    return this;
-  }
-
-  void touchDrag(Contact c) { }
-
-  void touchSlide(Contact c) { }
-
-
   void _showParameterDialog(int x, int y) {
     DivElement backdrop = new DivElement() .. className = "backdrop";
     String inputCode = _buildHTMLInput();
@@ -192,7 +159,6 @@ class Parameter implements Touchable {
     }
   }
 
-
   String _buildHTMLInput() {
     return """
       <input class="nt-param-input" id="nt-param-${id}" type="text" value="${valueAsString}">
@@ -200,7 +166,6 @@ class Parameter implements Touchable {
     """;
   }
 }
-
 
 //-------------------------------------------------------------------------
 /// Represents a number parameter

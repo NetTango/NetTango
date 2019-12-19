@@ -1,20 +1,25 @@
 /*
  * NetTango
  * Copyright (c) 2016 Michael S. Horn, Uri Wilensky, and Corey Brady
- * 
+ *
  * Northwestern University
  * 2120 Campus Drive
  * Evanston, IL 60613
  * http://tidal.northwestern.edu
  * http://ccl.northwestern.edu
- 
+
  * This project was funded in part by the National Science Foundation.
  * Any opinions, findings and conclusions or recommendations expressed in this
  * material are those of the author(s) and do not necessarily reflect the views
  * of the National Science Foundation (NSF).
  */
-part of NetTango;
 
+// At the moment this file isn't used by NetTango, so removed from the library and added
+// the improrts to avoid extra errors by tooling.  -Jeremy B 2019-12
+
+//part of NetTango;
+import 'dart:web_audio';
+import 'dart:html';
 
 class Sounds {
 
@@ -32,7 +37,7 @@ class Sounds {
         try {
           audio.decodeAudioData(request.response).then((AudioBuffer buffer) {
             if (buffer != null) sounds[name] = buffer;
-          });      
+          });
         } catch (x) { ; }
       });
       request.onError.listen((e) => print("BufferLoader: XHR error"));

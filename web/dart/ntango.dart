@@ -18,7 +18,6 @@ library NetTango;
 import 'dart:math';
 import 'dart:html';
 import 'dart:convert';
-import 'dart:web_audio';
 import 'dart:js' as js;
 
 part 'versions/version-utils.dart';
@@ -27,9 +26,7 @@ part 'versions/version-2.dart';
 part 'versions/version-3.dart';
 part 'versions/version-manager.dart';
 
-part 'utils/matrix.dart';
 //part 'utils/sounds.dart';
-part 'utils/touch.dart';
 part 'utils/utils.dart';
 
 part 'blocks/block.dart';
@@ -40,7 +37,6 @@ part 'blocks/parameter.dart';
 part 'blocks/program-changed-event.dart';
 part 'blocks/chain.dart';
 part 'blocks/workspace.dart';
-
 
 var _workspaces = { };
 

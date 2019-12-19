@@ -15,7 +15,6 @@
  */
 part of NetTango;
 
-
 /**
  * Visual programming menu bar
  */
@@ -30,16 +29,7 @@ class BlockMenu {
   /// Menu background color
   String color = "rgba(0,0,0, 0.2)";
 
-  /// gets resized automatically
-  num width = BLOCK_WIDTH + BLOCK_GUTTER * 2;
-
   BlockMenu(this.workspace);
-
-  num get x => workspace.width - width;
-
-  num get y => 0;
-
-  num get height => workspace.height;
 
   void addBlock(Block block, int count) {
     Block match = getBlockById(block.id);
@@ -52,14 +42,6 @@ class BlockMenu {
     }
 
     slots.add(new Slot(block, workspace, count));
-  }
-
-  bool animate() {
-    return false;
-  }
-
-  bool isOverMenu(Block block) {
-    return (!block._inMenu && !block._wasInMenu && block.x + block.width * 0.75 >= x);
   }
 
   Block getBlockById(int id) {
@@ -91,17 +73,12 @@ class Slot {
 
   int count = -1;
 
-  Slot(this.block, this.workspace, this.count) {
-    block._inMenu = true;
-  }
+  Slot(this.block, this.workspace, this.count);
 
   bool isAvailable() {
     int free = count - workspace.getBlockCount(block.id);
     return (count < 0 || free > 0);
   }
-
-  num get width => block.width;
-  num get height => block.height;
 
   void draw(DivElement container) {
     DivElement blockNode = new DivElement();

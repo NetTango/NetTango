@@ -16,13 +16,6 @@
 part of NetTango;
 
 final num SCALE = window.devicePixelRatio;
-final num BLOCK_WIDTH = 80.0 * SCALE; // 58
-final num BLOCK_HEIGHT = 34.0 * SCALE; //50.0;
-final num BLOCK_PADDING = 10.0 * SCALE;
-final num BLOCK_INDENT = 25.0 * SCALE;  /// left side connector area for blocks
-final num BLOCK_GUTTER = 10.0 * SCALE;
-final num BLOCK_UNIT = BLOCK_PADDING;  /// unit value for saving and restoring
-
 
 /**
  * Visual programming block
@@ -47,7 +40,7 @@ class Block {
   String format;
 
   /// block dimensions and position
-  num x = 0.0, y = 0.0, width = 0.0, _height = 0.0;
+  num x = 0.0, y = 0.0;
 
   /// parameters for this block (optional)
   Map<int, Parameter> params = new Map<int, Parameter>();
@@ -79,22 +72,9 @@ class Block {
   /// link back to the main workspace
   CodeWorkspace workspace;
 
-  /// is the block really just a menu item?
-  bool _inMenu = false;
-
-  /// was this block just dragged from the menu for the first time?
-  bool _wasInMenu = true;
-
-  /// height of the block
-  num get height => _inMenu ? BLOCK_HEIGHT : _height;
-
   bool get hasParams => params.isNotEmpty;
 
   bool get hasProperties => properties.isNotEmpty;
-
-  num get topConnectorY => y;
-
-  num get bottomConnectorY => y + height;
 
   Block(this.workspace, this.id, this.action) {
     if (this.id == null) {
@@ -105,8 +85,6 @@ class Block {
     }
     this.instanceId = this.workspace.nextBlockInstanceId;
     this.workspace.nextBlockInstanceId++;
-    width = BLOCK_WIDTH;
-    _height = BLOCK_HEIGHT;
   }
 
   /// create a block from a JSON definition
@@ -161,7 +139,6 @@ class Block {
         }
       }
     }
-    block._height = (1 + block.properties.length) * BLOCK_HEIGHT;
 
     return block;
   }
@@ -181,8 +158,6 @@ class Block {
     other.borderColor = borderColor;
     other.font = font;
     other.required = required;
-    other.width = width;
-    other._height = _height;
     for (Parameter param in params.values) {
       Parameter otherParam = param.clone(other);
       other.params[otherParam.id] = otherParam;
