@@ -72,17 +72,17 @@ class BlockMenu {
     return null;
   }
 
-  void draw(DivElement container) {
+  DivElement draw() {
     DivElement menuDiv = new DivElement() .. id = "${workspace.containerId}-menu";
     menuDiv.classes.add("nt-menu");
-    container.append(menuDiv);
     for (Slot slot in slots) {
       slot.draw(menuDiv);
     }
+    return menuDiv;
   }
 }
 
-class Slot implements Touchable {
+class Slot {
 
   Block block;
   num x, y;
@@ -93,7 +93,6 @@ class Slot implements Touchable {
 
   Slot(this.block, this.workspace, this.count) {
     block._inMenu = true;
-    workspace.addTouchable(this);
   }
 
   bool isAvailable() {
@@ -111,32 +110,4 @@ class Slot implements Touchable {
     container.append(blockNode);
   }
 
-  bool containsTouch(Contact c) {
-    return block.containsTouch(c);
-  }
-
-  Touchable touchDown(Contact c) {
-    if (isAvailable()) {
-      Block target = block.clone();
-      target.id = block.id;
-      target.x = block.x - 5;
-      target.y = block.y - 5;
-      target._wasInMenu = true;
-      workspace._addBlock(target);
-      if (target is BeginBlock) {
-        for (ClauseBlock clause in target.clauses) {
-          workspace._addBlock(clause);
-        }
-      }
-
-      return target.touchDown(c);
-    }
-    return this;
-  }
-
-  void touchUp(Contact c) { }
-
-  void touchDrag(Contact c) { }
-
-  void touchSlide(Contact c) { }
 }

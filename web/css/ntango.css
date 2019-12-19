@@ -20,7 +20,9 @@
   font-size: 14px;
   margin: 0;
   display: flex;
+  position: relative;
   min-width: 10em;
+  min-height: 800px;
 }
 
 .nt-workspace {
@@ -35,12 +37,17 @@
 }
 
 .nt-chain {
-  margin: 1em;
+  margin: 0;
   width: fit-content;
   height: fit-content;
+  position: absolute;
 }
 
-.nt-block.clause-block > .nt-block:nth-child(2) {
+.nt-clause {
+  margin-bottom: 0.6em;
+}
+
+.nt-clause > .nt-block:first-child {
   border-top: 1px solid #000;
 }
 

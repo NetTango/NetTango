@@ -110,46 +110,24 @@ class Parameter implements Touchable {
     }
   }
 
-  void _resize(CanvasRenderingContext2D ctx) {
-    width = BLOCK_PADDING * 2;
-    ctx.save();
-    {
-      ctx.font = block.font;
-      width += ctx.measureText(valueAsString).width;
-    }
-    ctx.restore();
-  }
-
-  num _resizeProperty(CanvasRenderingContext2D ctx) {
-    _resize(ctx);
-    num w = width;
-    ctx.save();
-    {
-      ctx.font = block.font;
-      w += BLOCK_INDENT + ctx.measureText("\u25B8    $name").width + BLOCK_PADDING * 2;
-    }
-    ctx.restore();
-    return w;
-  }
-
   // parameters are meant to display inline with just a value
-  void drawParameter(DivElement container) {
+  DivElement drawParameter() {
     DivElement paramDiv = new DivElement();
     paramDiv.innerText = valueAsString;
     paramDiv.classes.add("nt-attribute-value");
-    container.append(paramDiv);
+    return paramDiv;
   }
 
   // properties display stand-alone with an identifier
-  void drawProperty(DivElement container) {
+  DivElement drawProperty() {
     DivElement propDiv = new DivElement();
     propDiv.classes.add("nt-property");
     DivElement propName = new DivElement();
     propName.classes.add("nt-property-name");
     propName.innerText = "\u25B8 $name";
     propDiv.append(propName);
-    drawParameter(propDiv);
-    container.append(propDiv);
+    propDiv.append(drawParameter());
+    return propDiv;
   }
 
   bool containsTouch(Contact c) {

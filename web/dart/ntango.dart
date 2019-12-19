@@ -24,6 +24,7 @@ import 'dart:js' as js;
 part 'versions/version-utils.dart';
 part 'versions/version-1.dart';
 part 'versions/version-2.dart';
+part 'versions/version-3.dart';
 part 'versions/version-manager.dart';
 
 part 'utils/matrix.dart';
@@ -33,11 +34,11 @@ part 'utils/utils.dart';
 
 part 'blocks/block.dart';
 part 'blocks/expression.dart';
-part 'blocks/control.dart';
 part 'blocks/formatter.dart';
 part 'blocks/menu.dart';
 part 'blocks/parameter.dart';
 part 'blocks/program-changed-event.dart';
+part 'blocks/chain.dart';
 part 'blocks/workspace.dart';
 
 

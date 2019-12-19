@@ -15,8 +15,7 @@
  */
 part of NetTango;
 
-
-class CodeWorkspace extends TouchLayer {
+class CodeWorkspace {
 
   int version = VersionManager.VERSION;
 
@@ -24,8 +23,7 @@ class CodeWorkspace extends TouchLayer {
   String containerId;
   DivElement container;
 
-  /// list of blocks in the workspace
-  List<Block> blocks = new List<Block>();
+  List<Chain> chains = new List<Chain>();
 
   int nextBlockId = 0;
   int nextBlockInstanceId = 0;
@@ -115,8 +113,7 @@ class CodeWorkspace extends TouchLayer {
  * Detaches this workspace object from the canvas
  */
   void unload() {
-    clearTouchables();
-    blocks.clear();
+    chains.clear();
   }
 
 /**
@@ -135,183 +132,24 @@ class CodeWorkspace extends TouchLayer {
  */
   Map exportParseTree() {
     Map json = {
-      "chains" : [ ]
+      "chains": []
     };
-    for (Block block in blocks) {
-      if (block.isStartOfChain) {
-        json["chains"].add(block.exportParseTree());
-      }
+    for (Chain chain in chains) {
+      json["chains"].add(chain.exportParseTree());
     }
+
     for (Slot slot in menu.slots) {
       if (slot.block.required) {
         if (getBlockCount(slot.block.id) == 0) {
-          json["chains"].add(slot.block.exportParseTree());
+          json["chains"].add(slot.block.toJSON());
         }
       }
     }
     return json;
   }
 
-
-/**
- * On a background touch, close all open parameter menus
- */
-  bool backgroundTouch(Contact c) {
-    return false;
-  }
-
-
-/**
- * Add a block to the workspace
- */
-  void _addBlock(Block block) {
-    blocks.add(block);
-    addTouchable(block);
-    for (Parameter param in block.params.values) {
-      addTouchable(param);
-    }
-    for (Parameter prop in block.properties.values) {
-      addTouchable(prop);
-    }
-  }
-
-
-/**
- * Remove a block from the workspace
- */
-  void _removeBlock(Block block) {
-    blocks.remove(block);
-    removeTouchable(block);
-    for (Parameter param in block.params.values) {
-      removeTouchable(param);
-    }
-    for (Parameter prop in block.properties.values) {
-      removeTouchable(prop);
-    }
-  }
-
-
-/**
- * Move a block to the top of the visual stack
- */
-  void _moveToTop(Block block) {
-    //List<Block> sorted = blocks.sublist(0) ..sort((a, b) => (b.y - a.y));
-    _removeBlock(block);
-    _addBlock(block);
-  }
-
-
-/**
- * How many blocks of the given type have been used in the program so far?
- */
   int getBlockCount(int id) {
-    return blocks.where( (b) => b.id == id ).length;
-  }
-
-
-/**
- * Snap a block onto an existing program
- */
-  bool _snapTogether(Block target) {
-    Block hit = _findTopConnector(target);
-    if (hit != null) {
-      target._snapBelow(hit);
-      return true;
-    }
-
-    hit = _findBottomConnector(target);
-    if (hit != null) {
-      target._snapAbove(hit);
-      return true;
-    }
-
-    return false;
-  }
-
-
-  /// throw chain into the trash
-  bool _trashChain(Block target) {
-    if (menu.isOverMenu(target)) {
-      while (target != null) {
-        blocks.remove(target);
-        removeTouchable(target);
-        target = target.nextChain;
-      }
-      return true;
-    }
-    return false;
-  }
-
-
-  /// return a block near the top connector of target (or null)
-  Block _findTopConnector(Block target) {
-
-    if (target.prev == null && target.hasTopConnector) {
-      for (Block block in blocks) {
-        if (block != target) {
-
-          // do the blocks overlap horizontally at all?
-          if (target.x < block.x + block.width && target.x + target.width > block.x) {
-
-            num by0 = block.y;
-            num by1 = block.y + block.height;
-            num by2 = by1 + BLOCK_PADDING;
-
-            if (block.hasNext && target.topConnectorY < by1 && target.topConnectorY > by0) {
-              return block;
-            }
-            else if (!block.hasNext && target.topConnectorY > by0 && target.topConnectorY < by2) {
-              return block;
-            }
-          }
-        }
-      }
-    }
-    return null;
-  }
-
-
-  /// return a block near the bottom connector of target (or null)
-  Block _findBottomConnector(Block target) {
-    if (target.next == null) {
-      for (Block block in blocks) {
-        if (block != target && block.prev == null && block.hasTopConnector) {
-
-          // do the blocks overlap horizontally at all?
-          if (target.x < block.x + block.width && target.x + target.width > block.x) {
-
-            if ((block.topConnectorY - target.bottomConnectorY).abs() < 20) {
-              return block;
-            }
-          }
-        }
-      }
-    }
-    return null;
-  }
-
-
-/**
- * Animate the blocks and return true if any of the blocks changed
- */
-  bool animate() {
-    bool refresh = false;
-
-    if (menu.animate()) refresh = true;
-
-    num lowestY = 0.0;
-    for (Block block in blocks) {
-      if (block.animate()) refresh = true;
-      lowestY = max(block.bottomConnectorY, lowestY);
-    }
-
-    if (lowestY > height) {
-      if (!refresh) {
-
-      }
-    }
-
-    return refresh;
+    return chains.map( (c) => c.getBlockCount(id) ).reduce( (a, b) => a + b );
   }
 
   void draw() {
@@ -319,27 +157,30 @@ class CodeWorkspace extends TouchLayer {
     spaceDiv.classes.add("nt-workspace");
     container.append(spaceDiv);
 
-    if (blocks.isEmpty) {
+    if (chains.isEmpty) {
       return;
     }
 
-    Iterable<Block> starters = blocks.where( (b) => b is! EndBlock && b.prev == null );
+    for (Chain chain in chains) {
+      if ( chain.blocks.isEmpty ) {
+        // TODO: Throw an error?
+        print("Chain with no blocks in workspace?");
+        continue;
+      }
 
-    for (Block starter in starters) {
+      Block starter = chain.blocks[0];
       DivElement chainDiv = new DivElement();
       chainDiv.classes.add("nt-chain");
+      chainDiv.style.left = "${starter.x.round()}px";
+      chainDiv.style.top = "${starter.y.round()}px";
       spaceDiv.append(chainDiv);
 
-      Block current = starter;
-      while (current != null) {
-        if (current is! ClauseBlock) {
-          current = current.draw(chainDiv);
-        } else {
-          current = current.next;
-        }
+      for (Block block in chain.blocks) {
+        chainDiv.append(block.draw());
       }
     }
-    menu.draw(container);
+
+    container.append(menu.draw());
   }
 
   /// restore a constructed program from a previously saved state
@@ -347,63 +188,64 @@ class CodeWorkspace extends TouchLayer {
     if (json['chains'] is List) {
       for (var chain in json['chains']) {
         if (chain is List) {
-          for (var b in chain) {
-            if (b is Map) _restoreBlock(b);
-          }
+          _restoreChain(chain);
         }
       }
     }
   }
 
+  void _restoreChain(List chainJson) {
+    Chain chain = new Chain();
+    chains.add(chain);
+    for (var b in chainJson) {
+      if (b is Map) {
+        chain.blocks.add(_restoreBlock(b));
+      }
+    }
+  }
 
   /// restore a block from a previously saved program state
-  void _restoreBlock(Map json) {
+  Block _restoreBlock(Map json) {
     Block proto = menu.getBlockById(json["id"]);
     if (proto == null) {
       print("No prototype block found for id: ${json["id"]}");
       print(menu.slots.map( (s) { return s.block.id; }));
-      return;
+      return null;
     }
 
     Block block = proto.clone();
 
     if (json['x'] is num && json['y'] is num) {
-      block.x = json['x'] * BLOCK_UNIT;
-      block.y = json['y'] * BLOCK_UNIT;
-    }
-    _addBlock(block);
-    if (block is BeginBlock) {
-      for (ClauseBlock clause in block.clauses) {
-        _addBlock(clause);
-      }
-    }
-
-    _snapTogether(block);
-
-    for (Block block in blocks) {
-      if (!block.hasPrev && block is! ClauseBlock) {
-        block._reindentChain(0, null);
-        block._repositionChain();
-      }
+      block.x = json['x'];
+      block.y = json['y'];
     }
 
     _restoreParams(block, json['params'], json['properties']);
 
     if (json['children'] is List) {
-      for (var child in json['children']) {
-        if (child is Map) _restoreBlock(child);
+      for (var childJson in json['children']) {
+        if (childJson is Map) {
+          Block child = _restoreBlock(childJson);
+          block.children.add(child);
+        }
       }
     }
 
     if (json['clauses'] is List) {
-      for (var clause in json['clauses']) {
-        if (clause is Map && clause['children'] is List) {
-          for (var child in clause['children']) _restoreBlock(child);
+      for (var clauseJson in json['clauses']) {
+        if (clauseJson is Map && clauseJson['children'] is List) {
+          Chain clause = new Chain();
+          block.clauses.add(clause);
+          for (var childJson in clauseJson['children']) {
+            Block child = _restoreBlock(childJson);
+            clause.blocks.add(child);
+          }
         }
       }
     }
-  }
 
+    return block;
+  }
 
   /// restore parameters for a block from a previously saved program
   void _restoreParams(Block block, List params, List properties) {

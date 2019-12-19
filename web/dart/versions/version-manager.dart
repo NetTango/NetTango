@@ -1,7 +1,7 @@
 part of NetTango;
 
 class VersionManager {
-  static final VERSION = 2;
+  static final VERSION = 3;
 
   static void updateWorkspace(Map<String, Object> json) {
     int version = json.containsKey("version") ? json["version"] : 0;
@@ -16,6 +16,10 @@ class VersionManager {
 
     if (version < 2) {
       Version2.update(json);
+    }
+
+    if (version < 3) {
+      Version3.update(json);
     }
 
     json["version"] = VERSION;

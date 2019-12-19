@@ -181,7 +181,6 @@ class NetLogoFormatter extends CodeFormatter {
       }
       if (block["clauses"] is List) {
         for (var clause in block["clauses"]) {
-          _formatBlock(formatAttribute, out, containerId, clause, indent);
           if (clause["children"] is List) {
             _formatOutput(out, indent, "[");
             _formatChain(formatAttribute, out, containerId, clause["children"], indent+1);
