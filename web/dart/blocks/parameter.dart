@@ -64,11 +64,9 @@ class Parameter {
     value = defaultValue;
   }
 
-
   Parameter clone(Block parent) {
     return new Parameter.fromJSON(parent, toJSON());
   }
-
 
   Map toJSON() {
     return {
@@ -80,7 +78,6 @@ class Parameter {
       "default" : defaultValue
     };
   }
-
 
   factory Parameter.fromJSON(Block parent, Map data) {
     switch(toStr(data["type"], "num")) {
@@ -105,6 +102,11 @@ class Parameter {
     DivElement paramDiv = new DivElement();
     paramDiv.innerText = valueAsString;
     paramDiv.classes.add("nt-attribute-value");
+    final updateValue = () { paramDiv.innerText = valueAsString; };
+    paramDiv.onClick.listen( (event) {
+      final rect = block.workspace.container.getBoundingClientRect();
+      _showParameterDialog(event.page.x - rect.left.floor(), event.page.y - rect.top.floor(), updateValue);
+    });
     return paramDiv;
   }
 
@@ -120,7 +122,7 @@ class Parameter {
     return propDiv;
   }
 
-  void _showParameterDialog(int x, int y) {
+  void _showParameterDialog(int x, int y, Function acceptCallback) {
     DivElement backdrop = new DivElement() .. className = "backdrop";
     String inputCode = _buildHTMLInput();
     backdrop.appendHtml("""
@@ -143,6 +145,7 @@ class Parameter {
         value = input.value;
       }
       backdrop.remove();
+      acceptCallback();
       block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.value));
     });
 
@@ -178,12 +181,10 @@ class NumParameter extends Parameter {
   /// step interval for selections (for numbers and range)
   num stepSize = 1;
 
-
   NumParameter(Block block, Map data) : super(block, data) {
     random = toBool(data["random"], false);
     stepSize = toNum(data["step"], stepSize);
   }
-
 
   Map toJSON() {
     Map json = super.toJSON();
@@ -191,7 +192,6 @@ class NumParameter extends Parameter {
     json["step"] = stepSize;
     return json;
   }
-
 
   dynamic get value => toNum(_value, 0.0);
   set value(var v) => _value = toNum(v, 0.0);
@@ -243,7 +243,6 @@ class RangeParameter extends NumParameter {
     maxValue = toNum(data["max"], maxValue);
   }
 
-
   Map toJSON() {
     Map json = super.toJSON();
     json["min"] = minValue;
@@ -251,8 +250,7 @@ class RangeParameter extends NumParameter {
     return json;
   }
 
-
-  void _showParameterDialog(int x, int y) {
+  void _showParameterDialog(int x, int y, Function acceptCallback) {
     DivElement backdrop = new DivElement() .. className = "backdrop";
     DivElement dialog = new DivElement() .. className = "nt-param-dialog";
     dialog.style.top = "${y}px";
@@ -287,17 +285,16 @@ class RangeParameter extends NumParameter {
       input.onChange.listen((e) {
         value = input.value;
         backdrop.remove();
+        acceptCallback();
         block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.value));
         e.stopPropagation();
       });
       input.onInput.listen((e) { label.innerHtml = input.value; });
     }
 
-
     backdrop.classes.add("show");
   }
 }
-
 
 //-------------------------------------------------------------------------
 /// Represents a value selected from a list of options
@@ -310,7 +307,6 @@ class SelectParameter extends Parameter {
 
   String get valueAsString => "${_display.toString()}$unit \u25BE";
 
-
   SelectParameter(Block block, Map data) : super(block, data) {
     if (data["values"] is List && data["values"].length > 0) {
       values = data["values"];
@@ -319,11 +315,9 @@ class SelectParameter extends Parameter {
     }
   }
 
-
   Parameter clone(Block parent) {
     return new SelectParameter(parent, toJSON());
   }
-
 
   Map toJSON() {
     Map json = super.toJSON();
@@ -335,7 +329,7 @@ class SelectParameter extends Parameter {
     return v.containsKey("display") && v["display"] != "" ? v["display"] : v["actual"];
   }
 
-  void _showParameterDialog(int x, int y) {
+  void _showParameterDialog(int x, int y, Function acceptCallback) {
     DivElement backdrop = new DivElement() .. className = "backdrop";
     DivElement dialog = new DivElement() .. className = "nt-param-dialog small";
     dialog.style.top = "${y}px";
@@ -350,6 +344,7 @@ class SelectParameter extends Parameter {
         _display = _chooseDisplayValue(v);
         value = v["actual"];
         backdrop.remove();
+        acceptCallback();
         block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.value));
         e.stopPropagation();
       });
@@ -369,7 +364,6 @@ class SelectParameter extends Parameter {
 }
 
 
-
 //-------------------------------------------------------------------------
 /// Represents an expression (boolean or number)
 //-------------------------------------------------------------------------
@@ -385,7 +379,6 @@ class ExpressionParameter extends Parameter {
     _value = v;
     if (builder != null) builder.fromJSON(v);
   }
-
 
   ExpressionParameter(Block block, Map data) : super(block, data) {
     builder = new ExpressionBuilder(block.workspace, data['type']);
@@ -404,8 +397,7 @@ class ExpressionParameter extends Parameter {
     return new ExpressionParameter(parent, toJSON());
   }
 
-
-  void _showParameterDialog(int x, int y) {
+  void _showParameterDialog(int x, int y, Function acceptCallback) {
     DivElement backdrop = new DivElement() .. className = "backdrop";
     backdrop.appendHtml("""
       <div class="nt-param-dialog" style="top: ${y};">
@@ -429,6 +421,7 @@ class ExpressionParameter extends Parameter {
       if (empties.length > 0) return false;
       _value = builder.toJSON();
       backdrop.remove();
+      acceptCallback();
       var val = CodeFormatter.formatExpression(_value);
       block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, val));
     });
