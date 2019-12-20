@@ -40,6 +40,8 @@ class CodeWorkspace {
   /// list of expressions
   List expressions = new List();
 
+  int height, width;
+
 /**
  * Construct a code workspace from a JSON object
  */
@@ -52,9 +54,12 @@ class CodeWorkspace {
     container = querySelector("#${containerId}");
     if (container == null) throw "No container element with ID $containerId found.";
     container.setInnerHtml("");
-    if (!container.classes.contains("nt-container")) {
-      container.classes.add("nt-container");
-    }
+    container.classes.add("nt-container");
+
+    height = definition["height"] is int ? definition["height"] : 600;
+    width  = definition["width"]  is int ? definition["width"]  : 450;
+    container.style.minHeight = "${height}px";
+    container.style.minWidth  = "${width}px";
 
     //--------------------------------------------------------
     // initialize block menu
@@ -175,9 +180,22 @@ class CodeWorkspace {
       for (Block block in chain.blocks) {
         chainDiv.append(block.draw());
       }
+
+      updateHeightForChild(chainDiv);
     }
 
-    container.append(menu.draw());
+    final menuDiv = menu.draw();
+    updateHeightForChild(menuDiv);
+    container.append(menuDiv);
+  }
+
+  void updateHeightForChild(DivElement div) {
+    final childHeight = (div.getBoundingClientRect().bottom - container.getBoundingClientRect().top).ceil();
+    if (childHeight > height) {
+      height = childHeight + 1;
+      definition["height"] = height;
+      container.style.minHeight = "${height}px";
+    }
   }
 
   /// restore a constructed program from a previously saved state
