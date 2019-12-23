@@ -55,6 +55,9 @@ class CodeWorkspace {
     if (container == null) throw "No container element with ID $containerId found.";
     container.setInnerHtml("");
     container.classes.add("nt-container");
+    if (container.parent != null) {
+      container.parent.style.position = "relative";
+    }
 
     height = definition["height"] is int ? definition["height"] : 600;
     width  = definition["width"]  is int ? definition["width"]  : 450;
