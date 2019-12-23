@@ -175,10 +175,14 @@ class CodeWorkspace {
       chainDiv.classes.add("nt-chain");
       chainDiv.style.left = "${starter.x.round()}px";
       chainDiv.style.top = "${starter.y.round()}px";
+      chainDiv.draggable = true;
+      chainDiv.append(starter.draw());
       spaceDiv.append(chainDiv);
 
-      for (Block block in chain.blocks) {
-        chainDiv.append(block.draw());
+      for (Block block in chain.blocks.skip(1)) {
+        final blockDiv = block.draw();
+        blockDiv.draggable = true;
+        chainDiv.append(blockDiv);
       }
 
       updateHeightForChild(chainDiv);

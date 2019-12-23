@@ -264,7 +264,9 @@ class Block {
     DivElement clauseNode = new DivElement();
     clauseNode.classes.add("nt-clause");
     for (Block block in blocks) {
-      clauseNode.append(block.draw());
+      final blockDiv = block.draw();
+      blockDiv.draggable = true;
+      clauseNode.append(blockDiv);
     }
     return clauseNode;
   }

@@ -84,6 +84,7 @@ class Slot {
     DivElement blockNode = new DivElement();
     blockNode.innerText = block.action;
     blockNode.classes.add("nt-menu-slot");
+    blockNode.draggable = true;
     container.append(blockNode);
   }
 
