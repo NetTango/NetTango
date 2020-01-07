@@ -164,6 +164,7 @@ class CodeWorkspace {
 
     Element drag = new DivElement();
     drag.classes.add("nt-block-drag");
+    drag.classes.add("nt-chain");
     spaceDiv.append(drag);
 
     if (chains.isEmpty) {
@@ -184,11 +185,15 @@ class CodeWorkspace {
       chainDiv.style.top = "${starter.y.round()}px";
       spaceDiv.append(chainDiv);
 
+      // TODO: This should really be something like "starter"
+      // to mark blocks that can start code chains on their own
+      if (chain.blocks.length > 0 && chain.blocks[0].required) {
+        chainDiv.classes.add("nt-chain-starter");
+      }
+
       for (int i = 0; i < chain.blocks.length; i++) {
         Block block = chain.blocks.elementAt(i);
-        final blockDiv = block.draw(drag);
-        final siblings = chain.blocks.skip(i + 1);
-        Block.enableBlockDragging(blockDiv, drag, siblings);
+        final blockDiv = block.draw(drag, chain.blocks.skip(i + 1));
         chainDiv.append(blockDiv);
       }
 

@@ -229,7 +229,7 @@ class Block {
     this.y = y;
   }
 
-  DivElement draw(DivElement drag) {
+  DivElement draw(DivElement drag, Iterable<Block> siblings) {
     DivElement blockNode = new DivElement();
     blockNode.classes.add("nt-block");
     _blockNode = blockNode;
@@ -260,6 +260,10 @@ class Block {
       }
     }
 
+    blockNode.draggable = true;
+    blockNode.onDragStart.listen( (e) => startDrag(e, drag, siblings));
+    blockNode.onDragEnd.listen( (e) => endDrag(e, drag, siblings));
+
     return blockNode;
   }
 
@@ -268,21 +272,13 @@ class Block {
     clauseNode.classes.add("nt-clause");
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks[i];
-      final blockDiv = block.draw(drag);
-      final siblings = blocks.skip(i + 1);
-      enableBlockDragging(blockDiv, drag, siblings);
+      final blockDiv = block.draw(drag, blocks.skip(i + 1));
       clauseNode.append(blockDiv);
     }
     return clauseNode;
   }
 
-  static void enableBlockDragging(DivElement div, DivElement drag, Iterable<Block> siblings) {
-    div.draggable = true;
-    div.onDragStart.listen( (e) => startDrag(e, drag, siblings));
-    div.onDragEnd.listen( (e) => endDrag(e, drag, siblings));
-  }
-
-  static void startDrag(MouseEvent event, DivElement drag, Iterable<Block> siblings) {
+  void startDrag(MouseEvent event, DivElement drag, Iterable<Block> siblings) {
     Element target = event.target;
     // if the class is already set, we're already draggin'
     if (target.classes.contains("nt-block-drag-target")) {
@@ -291,6 +287,9 @@ class Block {
     Element dragClone = target.clone(true);
     target.classes.add("nt-block-drag-target");
 
+    if (required) {
+      drag.classes.add("nt-chain-starter");
+    }
     drag.setInnerHtml("");
     drag.append(dragClone);
     for(Block sibling in siblings) {
@@ -304,6 +303,7 @@ class Block {
   static void endDrag(MouseEvent event, DivElement drag, Iterable<Block> siblings) {
     Element target = event.target;
     target.classes.remove("nt-block-drag-target");
+    drag.classes.remove("nt-chain-starter");
     for(Block sibling in siblings) {
       sibling._blockNode.classes.remove("nt-block-drag-target");
     }
