@@ -76,6 +76,8 @@ class Block {
 
   bool get hasProperties => properties.isNotEmpty;
 
+  DivElement _blockNode;
+
   Block(this.workspace, this.id, this.action) {
     if (this.id == null) {
       this.id = this.workspace.nextBlockId;
@@ -227,9 +229,10 @@ class Block {
     this.y = y;
   }
 
-  DivElement draw() {
+  DivElement draw(DivElement drag) {
     DivElement blockNode = new DivElement();
     blockNode.classes.add("nt-block");
+    _blockNode = blockNode;
 
     DivElement headerNode = new DivElement();
     headerNode.classes.add("nt-block-header");
@@ -248,27 +251,62 @@ class Block {
     }
 
     if (children.isNotEmpty) {
-      blockNode.append(drawClause(children));
+      blockNode.append(drawClause(children, drag));
     }
 
     if (clauses.isNotEmpty) {
       for (Chain clause in clauses) {
-        blockNode.append(drawClause(clause.blocks));
+        blockNode.append(drawClause(clause.blocks, drag));
       }
     }
 
     return blockNode;
   }
 
-  static DivElement drawClause(List<Block> blocks) {
+  static DivElement drawClause(List<Block> blocks, DivElement drag) {
     DivElement clauseNode = new DivElement();
     clauseNode.classes.add("nt-clause");
-    for (Block block in blocks) {
-      final blockDiv = block.draw();
-      blockDiv.draggable = true;
+    for (int i = 0; i < blocks.length; i++) {
+      Block block = blocks[i];
+      final blockDiv = block.draw(drag);
+      final siblings = blocks.skip(i + 1);
+      enableBlockDragging(blockDiv, drag, siblings);
       clauseNode.append(blockDiv);
     }
     return clauseNode;
+  }
+
+  static void enableBlockDragging(DivElement div, DivElement drag, Iterable<Block> siblings) {
+    div.draggable = true;
+    div.onDragStart.listen( (e) => startDrag(e, drag, siblings));
+    div.onDragEnd.listen( (e) => endDrag(e, drag, siblings));
+  }
+
+  static void startDrag(MouseEvent event, DivElement drag, Iterable<Block> siblings) {
+    Element target = event.target;
+    // if the class is already set, we're already draggin'
+    if (target.classes.contains("nt-block-drag-target")) {
+      return;
+    }
+    Element dragClone = target.clone(true);
+    target.classes.add("nt-block-drag-target");
+
+    drag.setInnerHtml("");
+    drag.append(dragClone);
+    for(Block sibling in siblings) {
+      drag.append(sibling._blockNode.clone(true));
+      sibling._blockNode.classes.add("nt-block-drag-target");
+    }
+
+    event.dataTransfer.setDragImage(drag, 0, 0);
+  }
+
+  static void endDrag(MouseEvent event, DivElement drag, Iterable<Block> siblings) {
+    Element target = event.target;
+    target.classes.remove("nt-block-drag-target");
+    for(Block sibling in siblings) {
+      sibling._blockNode.classes.remove("nt-block-drag-target");
+    }
   }
 
 }

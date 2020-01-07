@@ -88,6 +88,17 @@
   flex: auto;
 }
 
+.nt-block-drag {
+  z-index: -1;
+  left: 0px;
+  top: 0px;
+  position: absolute;
+}
+
+.nt-block-drag-target {
+  opacity: 0.25;
+}
+
 .nt-property {
   display: flex;
   flex-direction: row;

@@ -162,6 +162,10 @@ class CodeWorkspace {
     spaceDiv.classes.add("nt-workspace");
     container.append(spaceDiv);
 
+    Element drag = new DivElement();
+    drag.classes.add("nt-block-drag");
+    spaceDiv.append(drag);
+
     if (chains.isEmpty) {
       return;
     }
@@ -178,13 +182,13 @@ class CodeWorkspace {
       chainDiv.classes.add("nt-chain");
       chainDiv.style.left = "${starter.x.round()}px";
       chainDiv.style.top = "${starter.y.round()}px";
-      chainDiv.draggable = true;
-      chainDiv.append(starter.draw());
       spaceDiv.append(chainDiv);
 
-      for (Block block in chain.blocks.skip(1)) {
-        final blockDiv = block.draw();
-        blockDiv.draggable = true;
+      for (int i = 0; i < chain.blocks.length; i++) {
+        Block block = chain.blocks.elementAt(i);
+        final blockDiv = block.draw(drag);
+        final siblings = chain.blocks.skip(i + 1);
+        Block.enableBlockDragging(blockDiv, drag, siblings);
         chainDiv.append(blockDiv);
       }
 
