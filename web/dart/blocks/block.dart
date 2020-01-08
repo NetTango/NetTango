@@ -77,6 +77,8 @@ class Block {
   bool get hasProperties => properties.isNotEmpty;
 
   DivElement _blockDiv;
+  DivElement _childrenDiv;
+  List<DivElement> _clauseDivs = new List<DivElement>();
 
   Block(this.workspace, this.id, this.action) {
     if (this.id == null) {
@@ -266,13 +268,16 @@ class Block {
     }
 
     if (children.isNotEmpty) {
-      blockNode.append(drawClause(children, drag, dragSheet, chainIndex, "block-children", null));
+      _childrenDiv = drawClause(children, drag, dragSheet, chainIndex, "block-children", instanceId, null);
+      blockNode.append(_childrenDiv);
     }
 
     if (clauses.isNotEmpty) {
       for (int i = 0; i < clauses.length; i++) {
         Chain clause = clauses[i];
-        blockNode.append(drawClause(clause.blocks, drag, dragSheet, chainIndex, "block-clause", i));
+        DivElement clauseDiv = drawClause(clause.blocks, drag, dragSheet, chainIndex, "block-clause", instanceId, i);
+        _clauseDivs.add(clauseDiv);
+        blockNode.append(clauseDiv);
       }
     }
 
@@ -285,7 +290,7 @@ class Block {
     return blockNode;
   }
 
-  static DivElement drawClause(List<Block> blocks, DivElement drag, CssStyleSheet dragSheet, int chainIndex, String parentType, int clauseIndex) {
+  static DivElement drawClause(List<Block> blocks, DivElement drag, CssStyleSheet dragSheet, int chainIndex, String parentType, int instanceId, int clauseIndex) {
     DivElement clauseNode = new DivElement();
     clauseNode.classes.add("nt-clause");
     for (int i = 0; i < blocks.length; i++) {
@@ -294,6 +299,7 @@ class Block {
         "type": "existing-block-instance",
         "workspace-chain-index": chainIndex,
         "parent-type": parentType,
+        "parent-instance-id": instanceId,
         "block-index": i
       };
       if (clauseIndex != null) {
@@ -368,6 +374,24 @@ class Block {
 
   void leaveDrag(MouseEvent event) {
     _blockDiv.classes.remove("nt-drag-over");
+  }
+
+  void removeChildBlock(int blockIndex) {
+    children = children.take(blockIndex).toList();
+    _childrenDiv.innerHtml = "";
+    for (Block block in children) {
+      _childrenDiv.append(block._blockDiv);
+    }
+  }
+
+  void removeClauseBlock(int clauseIndex, int blockIndex) {
+    Chain clause = clauses[clauseIndex];
+    DivElement clauseDiv = _clauseDivs[clauseIndex];
+    clause.blocks = clause.blocks.take(blockIndex).toList();
+    clauseDiv.innerHtml = "";
+    for (Block block in clause.blocks) {
+      clauseDiv.append(block._blockDiv);
+    }
   }
 
 }

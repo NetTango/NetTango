@@ -97,6 +97,26 @@ class BlockMenu {
         int blockIndex = blockData["block-index"];
         workspace.chains[chainIndex].remove(blockIndex);
         break;
+
+      case "block-children":
+        int chainIndex = blockData["workspace-chain-index"];
+        int parentInstanceId = blockData["parent-instance-id"];
+        int blockIndex = blockData["block-index"];
+        workspace.chains[chainIndex].getBlockInstance(parentInstanceId).removeChildBlock(blockIndex);
+        break;
+
+      case "block-clause":
+        int chainIndex = blockData["workspace-chain-index"];
+        int parentInstanceId = blockData["parent-instance-id"];
+        int clauseIndex = blockData["clause-index"];
+        int blockIndex = blockData["block-index"];
+        workspace.chains[chainIndex].getBlockInstance(parentInstanceId).removeClauseBlock(clauseIndex, blockIndex);
+        break;
+
+      case "default":
+        print("Unknown block removal type: ${blockData["parent-type"]}");
+        break;
+
     }
 
     print(blockData);
