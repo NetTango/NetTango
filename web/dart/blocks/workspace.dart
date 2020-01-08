@@ -162,21 +162,22 @@ class CodeWorkspace {
     spaceDiv.classes.add("nt-workspace");
     container.append(spaceDiv);
 
+    StyleElement dragStyleElement = new StyleElement();
+    container.append(dragStyleElement);
+    CssStyleSheet dragSheet = dragStyleElement.sheet;
+
     Element drag = new DivElement();
     drag.classes.add("nt-block-drag");
     drag.classes.add("nt-chain");
     spaceDiv.append(drag);
 
-    StyleElement dragStyleElement = new StyleElement();
-    spaceDiv.append(dragStyleElement);
-    CssStyleSheet dragSheet = dragStyleElement.sheet;
-
     if (chains.isEmpty) {
       return;
     }
 
-    for (Chain chain in chains) {
-      DivElement chainDiv = chain.draw(drag, dragSheet);
+    for (int i = 0; i < chains.length; i++) {
+      Chain chain = chains[i];
+      DivElement chainDiv = chain.draw(drag, dragSheet, i);
       spaceDiv.append(chainDiv);
       updateHeightForChild(chainDiv);
     }

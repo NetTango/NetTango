@@ -33,6 +33,14 @@ class Chain {
     return blocks.map( (b) => b.getBlockCount(id) ).reduce( (a, b) => a + b );
   }
 
+  Block getBlockInstance(int instanceId) {
+    for (Block child in blocks) {
+      final block = child.getBlockInstance(instanceId);
+      if (block != null) { return block; }
+    }
+    return null;
+  }
+
   Map toJSON() {
     var data = { };
     data["children"] = [];
@@ -42,7 +50,7 @@ class Chain {
     return data;
   }
 
-  DivElement draw(Element drag, CssStyleSheet dragSheet) {
+  DivElement draw(Element drag, CssStyleSheet dragSheet, int chainIndex) {
     DivElement chainDiv = new DivElement();
     chainDiv.classes.add("nt-chain");
     _chainDiv = chainDiv;
@@ -64,11 +72,29 @@ class Chain {
 
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks.elementAt(i);
-      final blockDiv = block.draw(drag, dragSheet, blocks.skip(i + 1));
+      Map dragData = {
+        "type": "existing-block-instance",
+        "parent-type": "workspace-chain",
+        "workspace-chain-index": chainIndex,
+        "block-index": i
+      };
+      final blockDiv = block.draw(drag, dragSheet, chainIndex, dragData, blocks.skip(i + 1));
       chainDiv.append(blockDiv);
     }
 
     return chainDiv;
+  }
+
+  void remove(int blockIndex) {
+    // TODO: This only works because we remove all sibling blocks after
+    // the removed block.  If we ever want to remove 1 block in the
+    // middle of the chain, we'll need to better handle generating the
+    // `dragData` block index values.  -Jeremy B, Jan 2020
+    blocks = blocks.take(blockIndex).toList();
+    _chainDiv.innerHtml = "";
+    for (Block block in blocks) {
+      _chainDiv.append(block._blockDiv);
+    }
   }
 
   static Chain fromJSON(CodeWorkspace workspace, Map json) {

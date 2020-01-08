@@ -29,6 +29,8 @@ class BlockMenu {
   /// Menu background color
   String color = "rgba(0,0,0, 0.2)";
 
+  DivElement _menuDiv;
+
   BlockMenu(this.workspace);
 
   void addBlock(Block block, int count) {
@@ -57,10 +59,48 @@ class BlockMenu {
   DivElement draw(CssStyleSheet dragSheet) {
     DivElement menuDiv = new DivElement() .. id = "${workspace.containerId}-menu";
     menuDiv.classes.add("nt-menu");
+    _menuDiv = menuDiv;
     for (Slot slot in slots) {
       slot.draw(menuDiv, dragSheet);
     }
+
+    menuDiv.onDragEnter.listen( (e) => enterDrag(e) );
+    menuDiv.onDragLeave.listen( (e) => leaveDrag(e) );
+    menuDiv.onDragOver.listen( (e) => e.preventDefault() );
+    menuDiv.onDrop.listen( drop );
+
     return menuDiv;
+  }
+
+  bool enterDrag(MouseEvent event) {
+    if (!event.dataTransfer.types.contains(workspace.containerId)) {
+      return true;
+    }
+    event.stopPropagation();
+    event.dataTransfer.dropEffect = "move";
+    _menuDiv.classes.add("nt-menu-drag-over");
+    return false;
+  }
+
+  void leaveDrag(MouseEvent event) {
+    _menuDiv.classes.remove("nt-menu-drag-over");
+  }
+
+  void drop(MouseEvent event) {
+    event.stopPropagation();
+    event.preventDefault();
+    final blockData = jsonDecode(event.dataTransfer.getData("text/json"));
+
+    switch (blockData["parent-type"]) {
+      case "workspace-chain":
+        int chainIndex = blockData["workspace-chain-index"];
+        int blockIndex = blockData["block-index"];
+        workspace.chains[chainIndex].remove(blockIndex);
+        break;
+    }
+
+    print(blockData);
+    _menuDiv.classes.remove("nt-menu-drag-over");
   }
 }
 

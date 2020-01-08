@@ -34,6 +34,11 @@
   padding: 0.2em;
 }
 
+.nt-menu-drag-over {
+  opacity: 0.25;
+  background: #555;
+}
+
 .nt-chain {
   margin: 0;
   width: fit-content;
