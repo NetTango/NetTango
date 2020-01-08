@@ -54,11 +54,11 @@ class BlockMenu {
     return null;
   }
 
-  DivElement draw() {
+  DivElement draw(CssStyleSheet dragSheet) {
     DivElement menuDiv = new DivElement() .. id = "${workspace.containerId}-menu";
     menuDiv.classes.add("nt-menu");
     for (Slot slot in slots) {
-      slot.draw(menuDiv);
+      slot.draw(menuDiv, dragSheet);
     }
     return menuDiv;
   }
@@ -80,12 +80,26 @@ class Slot {
     return (count < 0 || free > 0);
   }
 
-  void draw(DivElement container) {
+  void draw(DivElement container, CssStyleSheet dragSheet) {
     DivElement blockNode = new DivElement();
     blockNode.innerText = block.action;
     blockNode.classes.add("nt-menu-slot");
     blockNode.draggable = true;
+    blockNode.onDragStart.listen( (e) => startDrag(e, block.workspace.containerId, dragSheet) );
+    blockNode.onDragEnd.listen( (e) => endDrag(e, dragSheet) );
     container.append(blockNode);
   }
 
+  void startDrag(MouseEvent event, String workspaceId, CssStyleSheet dragSheet) {
+    event.dataTransfer.setData(workspaceId, workspaceId);
+
+    dragSheet.insertRule(".nt-block-header { pointer-events: none; }", 0);
+    dragSheet.insertRule(".nt-property { pointer-events: none; }", 0);
+  }
+
+  void endDrag(MouseEvent event, CssStyleSheet dragSheet) {
+    while (dragSheet.rules.length > 0) {
+      dragSheet.deleteRule(0);
+    }
+  }
 }

@@ -229,7 +229,7 @@ class Block {
     this.y = y;
   }
 
-  DivElement draw(DivElement drag, Iterable<Block> siblings) {
+  DivElement draw(DivElement drag, CssStyleSheet dragSheet, Iterable<Block> siblings) {
     DivElement blockNode = new DivElement();
     blockNode.classes.add("nt-block");
     _blockNode = blockNode;
@@ -251,39 +251,50 @@ class Block {
     }
 
     if (children.isNotEmpty) {
-      blockNode.append(drawClause(children, drag));
+      blockNode.append(drawClause(children, drag, dragSheet));
     }
 
     if (clauses.isNotEmpty) {
       for (Chain clause in clauses) {
-        blockNode.append(drawClause(clause.blocks, drag));
+        blockNode.append(drawClause(clause.blocks, drag, dragSheet));
       }
     }
 
     blockNode.draggable = true;
-    blockNode.onDragStart.listen( (e) => startDrag(e, drag, siblings));
-    blockNode.onDragEnd.listen( (e) => endDrag(e, drag, siblings));
+    blockNode.onDragStart.listen( (e) => startDrag(e, workspace.containerId, drag, dragSheet, siblings) );
+    blockNode.onDragEnd.listen( (e) => endDrag(e, drag, dragSheet, siblings) );
+    blockNode.onDragEnter.listen( (e) => enterDrag(e, workspace.containerId) );
+    blockNode.onDragLeave.listen( (e) => leaveDrag(e) );
 
     return blockNode;
   }
 
-  static DivElement drawClause(List<Block> blocks, DivElement drag) {
+  static DivElement drawClause(List<Block> blocks, DivElement drag, CssStyleSheet dragSheet) {
     DivElement clauseNode = new DivElement();
     clauseNode.classes.add("nt-clause");
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks[i];
-      final blockDiv = block.draw(drag, blocks.skip(i + 1));
+      final blockDiv = block.draw(drag, dragSheet, blocks.skip(i + 1));
       clauseNode.append(blockDiv);
     }
     return clauseNode;
   }
 
-  void startDrag(MouseEvent event, DivElement drag, Iterable<Block> siblings) {
+  void startDrag(MouseEvent event, String workspaceId, DivElement drag, CssStyleSheet dragSheet, Iterable<Block> siblings) {
     Element target = event.target;
     // if the class is already set, we're already draggin'
     if (target.classes.contains("nt-block-drag-target")) {
       return;
     }
+
+    event.dataTransfer.setData(workspaceId, workspaceId);
+
+    // HTML drag events fire internally to the div, so we
+    // disable pointer events for any "inner" block elements
+    // while we drag.  -Jeremy B, Feb 2020
+    dragSheet.insertRule(".nt-block-header { pointer-events: none; }", 0);
+    dragSheet.insertRule(".nt-property { pointer-events: none; }", 1);
+
     Element dragClone = target.clone(true);
     target.classes.add("nt-block-drag-target");
 
@@ -294,19 +305,40 @@ class Block {
     drag.append(dragClone);
     for(Block sibling in siblings) {
       drag.append(sibling._blockNode.clone(true));
-      sibling._blockNode.classes.add("nt-block-drag-target");
+      sibling._blockNode.classes.add("nt-block-drag-sibling");
     }
 
     event.dataTransfer.setDragImage(drag, 0, 0);
   }
 
-  static void endDrag(MouseEvent event, DivElement drag, Iterable<Block> siblings) {
+  void endDrag(MouseEvent event, DivElement drag, CssStyleSheet dragSheet, Iterable<Block> siblings) {
+    while (dragSheet.rules.length > 0) {
+      dragSheet.deleteRule(0);
+    }
+
     Element target = event.target;
     target.classes.remove("nt-block-drag-target");
     drag.classes.remove("nt-chain-starter");
     for(Block sibling in siblings) {
-      sibling._blockNode.classes.remove("nt-block-drag-target");
+      sibling._blockNode.classes.remove("nt-block-drag-sibling");
     }
+  }
+
+  bool enterDrag(MouseEvent event, String workspaceId) {
+    Element target = event.target;
+    if (target.classes.contains("nt-block-drag-target")) {
+      return true;
+    }
+    if (!event.dataTransfer.types.contains(workspaceId)) {
+      return true;
+    }
+    event.stopPropagation();
+    _blockNode.classes.add("nt-drag-over");
+    return false;
+  }
+
+  void leaveDrag(MouseEvent event) {
+    _blockNode.classes.remove("nt-drag-over");
   }
 
 }

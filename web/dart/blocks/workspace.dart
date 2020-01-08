@@ -167,6 +167,10 @@ class CodeWorkspace {
     drag.classes.add("nt-chain");
     spaceDiv.append(drag);
 
+    StyleElement dragStyleElement = new StyleElement();
+    spaceDiv.append(dragStyleElement);
+    CssStyleSheet dragSheet = dragStyleElement.sheet;
+
     if (chains.isEmpty) {
       return;
     }
@@ -193,14 +197,14 @@ class CodeWorkspace {
 
       for (int i = 0; i < chain.blocks.length; i++) {
         Block block = chain.blocks.elementAt(i);
-        final blockDiv = block.draw(drag, chain.blocks.skip(i + 1));
+        final blockDiv = block.draw(drag, dragSheet, chain.blocks.skip(i + 1));
         chainDiv.append(blockDiv);
       }
 
       updateHeightForChild(chainDiv);
     }
 
-    final menuDiv = menu.draw();
+    final menuDiv = menu.draw(dragSheet);
     updateHeightForChild(menuDiv);
     container.append(menuDiv);
   }

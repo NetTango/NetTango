@@ -102,6 +102,15 @@
   opacity: 0.25;
 }
 
+.nt-block-drag-sibling {
+  opacity: 0.25;
+  pointer-events: none;
+}
+
+.nt-drag-over {
+  border-bottom: 3px solid cyan;
+}
+
 .nt-property {
   display: flex;
   flex-direction: row;
