@@ -293,6 +293,9 @@ class Block {
   static DivElement drawClause(List<Block> blocks, DivElement drag, CssStyleSheet dragSheet, int chainIndex, String parentType, int instanceId, int clauseIndex) {
     DivElement clauseNode = new DivElement();
     clauseNode.classes.add("nt-clause");
+    if (blocks.isEmpty) {
+      clauseNode.classes.add("nt-clause-empty");
+    }
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks[i];
       Map dragData = {
@@ -379,6 +382,9 @@ class Block {
   void removeChildBlock(int blockIndex) {
     children = children.take(blockIndex).toList();
     _childrenDiv.innerHtml = "";
+    if (children.isEmpty) {
+      _childrenDiv.classes.add("nt-clause-empty");
+    }
     for (Block block in children) {
       _childrenDiv.append(block._blockDiv);
     }
@@ -389,6 +395,9 @@ class Block {
     DivElement clauseDiv = _clauseDivs[clauseIndex];
     clause.blocks = clause.blocks.take(blockIndex).toList();
     clauseDiv.innerHtml = "";
+    if (clause.blocks.isEmpty) {
+      clauseDiv.classes.add("nt-clause-empty");
+    }
     for (Block block in clause.blocks) {
       clauseDiv.append(block._blockDiv);
     }
