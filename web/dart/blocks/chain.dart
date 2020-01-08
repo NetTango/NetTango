@@ -19,6 +19,8 @@ class Chain {
 
   List<Block> blocks = new List<Block>();
 
+  DivElement _chainDiv;
+
   List exportParseTree() {
     List tree = [];
     for (Block block in blocks) {
@@ -38,6 +40,35 @@ class Chain {
       data["children"].add(block.toJSON());
     }
     return data;
+  }
+
+  DivElement draw(Element drag, CssStyleSheet dragSheet) {
+    DivElement chainDiv = new DivElement();
+    chainDiv.classes.add("nt-chain");
+    _chainDiv = chainDiv;
+
+    if (blocks.isEmpty) {
+      print("Chain with no blocks in workspace?");
+      return chainDiv;
+    }
+
+    Block first = blocks[0];
+    chainDiv.style.left = "${first.x.round()}px";
+    chainDiv.style.top = "${first.y.round()}px";
+
+    // TODO: This should really be something like `first.starter`
+    // to mark blocks that can start code chains on their own
+    if (first.required) {
+      chainDiv.classes.add("nt-chain-starter");
+    }
+
+    for (int i = 0; i < blocks.length; i++) {
+      Block block = blocks.elementAt(i);
+      final blockDiv = block.draw(drag, dragSheet, blocks.skip(i + 1));
+      chainDiv.append(blockDiv);
+    }
+
+    return chainDiv;
   }
 
   static Chain fromJSON(CodeWorkspace workspace, Map json) {

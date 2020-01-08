@@ -176,31 +176,8 @@ class CodeWorkspace {
     }
 
     for (Chain chain in chains) {
-      if ( chain.blocks.isEmpty ) {
-        // TODO: Throw an error?
-        print("Chain with no blocks in workspace?");
-        continue;
-      }
-
-      Block starter = chain.blocks[0];
-      DivElement chainDiv = new DivElement();
-      chainDiv.classes.add("nt-chain");
-      chainDiv.style.left = "${starter.x.round()}px";
-      chainDiv.style.top = "${starter.y.round()}px";
+      DivElement chainDiv = chain.draw(drag, dragSheet);
       spaceDiv.append(chainDiv);
-
-      // TODO: This should really be something like "starter"
-      // to mark blocks that can start code chains on their own
-      if (chain.blocks.length > 0 && chain.blocks[0].required) {
-        chainDiv.classes.add("nt-chain-starter");
-      }
-
-      for (int i = 0; i < chain.blocks.length; i++) {
-        Block block = chain.blocks.elementAt(i);
-        final blockDiv = block.draw(drag, dragSheet, chain.blocks.skip(i + 1));
-        chainDiv.append(blockDiv);
-      }
-
       updateHeightForChild(chainDiv);
     }
 
