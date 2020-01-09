@@ -40,7 +40,7 @@ class CodeWorkspace {
   /// list of expressions
   List expressions = new List();
 
-  int height, width;
+  int height, width, currentHeight;
 
 /**
  * Construct a code workspace from a JSON object
@@ -63,6 +63,7 @@ class CodeWorkspace {
     width  = definition["width"]  is int ? definition["width"]  : 450;
     container.style.minHeight = "${height}px";
     container.style.minWidth  = "${width}px";
+    currentHeight = height;
 
     //--------------------------------------------------------
     // initialize block menu
@@ -181,12 +182,12 @@ class CodeWorkspace {
       Chain chain = chains[i];
       DivElement chainDiv = chain.draw(drag, dragSheet, i);
       spaceDiv.append(chainDiv);
-      updateHeightForChild(chainDiv);
     }
 
     final menuDiv = menu.draw(dragSheet);
-    updateHeightForChild(menuDiv);
     container.append(menuDiv);
+
+    updateWorkspaceHeight();
   }
 
   void drop(MouseEvent event) {
@@ -205,7 +206,7 @@ class CodeWorkspace {
             first.x = event.offset.x;
             first.y = event.offset.y;
             chain.updatePosition();
-            updateHeightForChild(chain._chainDiv);
+            updateWorkspaceHeight();
           }
         }
         break;
@@ -218,13 +219,18 @@ class CodeWorkspace {
 
   }
 
-  void updateHeightForChild(DivElement div) {
-    final childHeight = (div.getBoundingClientRect().bottom - container.getBoundingClientRect().top).ceil();
-    if (childHeight > height) {
-      height = childHeight + 1;
-      definition["height"] = height;
-      container.style.minHeight = "${height}px";
+  void updateWorkspaceHeight() {
+    int maxHeight = height; // start with the minimum height from the model
+    final containerRect = container.getBoundingClientRect();
+    for (Chain chain in chains) {
+      final rect = chain._chainDiv.getBoundingClientRect();
+      final childHeight = (rect.bottom - containerRect.top).ceil();
+      if (childHeight > maxHeight) {
+        maxHeight = childHeight;
+      }
     }
+    currentHeight = maxHeight + 1;
+    container.style.minHeight = "${currentHeight}px";
   }
 
   /// restore a constructed program from a previously saved state
