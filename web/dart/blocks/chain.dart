@@ -87,15 +87,27 @@ class Chain {
     _chainDiv.style.top = "${first.y.round()}px";
   }
 
-  Iterable<Block> remove(int chainIndex, int blockIndex) {
-    final removedBlocks = blocks.skip(blockIndex);
-    blocks = blocks.take(blockIndex).toList();
+  void redrawBlocks(int chainIndex) {
     _chainDiv.innerHtml = "";
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks[i];
       block._dragData.resetWorkspaceChain(chainIndex, i, blocks.skip(i + 1));
       _chainDiv.append(block._blockDiv);
     }
+  }
+
+  void resetDragData(int chainIndex) {
+    for (int i = 0; i < blocks.length; i++) {
+      Block block = blocks[i];
+      block._dragData.resetWorkspaceChain(chainIndex, i, blocks.skip(i + 1));
+      _chainDiv.append(block._blockDiv);
+    }
+  }
+
+  Iterable<Block> remove(int chainIndex, int blockIndex) {
+    final removedBlocks = blocks.skip(blockIndex);
+    blocks = blocks.take(blockIndex).toList();
+    redrawBlocks(chainIndex);
     return removedBlocks;
   }
 
@@ -109,6 +121,11 @@ class Chain {
       block._dragData.resetWorkspaceChain(chainIndex, i, blocks.skip(i + 1));
       block.resetOwnedBlocksDragData();
     }
+  }
+
+  void insert(int chainIndex, int blockIndex, Iterable<Block> newBlocks) {
+    blocks.insertAll(blockIndex, newBlocks);
+    redrawBlocks(chainIndex);
   }
 
   static Chain fromJSON(CodeWorkspace workspace, Map json) {

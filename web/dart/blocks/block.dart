@@ -288,6 +288,7 @@ class Block {
     blockNode.onDragStart.listen( (e) => startDrag(e, workspace.containerId, drag, dragSheet) );
     blockNode.onDragEnd.listen( (e) => endDrag(e, drag, dragSheet) );
     blockNode.onDragEnter.listen( (e) => enterDrag(e, workspace.containerId) );
+    blockNode.onDragOver.listen( (e) => e.preventDefault() );
     blockNode.onDragLeave.listen( leaveDrag );
     blockNode.onDrop.listen( drop );
 
@@ -379,21 +380,66 @@ class Block {
     event.preventDefault();
     event.stopPropagation();
     _blockDiv.classes.remove("nt-drag-over");
+    Element target = event.target;
+    if (target.classes.contains("nt-block-drag-target") || target.classes.contains("nt-block-drag-sibling")) {
+      return false;
+    }
+    if (_blockDiv.classes.contains("nt-block-drag-target") || _blockDiv.classes.contains("nt-block-drag-sibling")) {
+      return false;
+    }
+
+    final json = jsonDecode(event.dataTransfer.getData("text/json"));
+    final blockData = BlockDragData.fromJSON(json);
+    final newBlocks = workspace.removeBlocksFromSource(blockData);
+    switch (_dragData.parentType) {
+      case "workspace-chain":
+        workspace.chains[_dragData.chainIndex].insert(_dragData.chainIndex, _dragData.blockIndex + 1, newBlocks);
+        break;
+
+      case "block-children":
+        final parentBlock = workspace.chains[_dragData.chainIndex].getBlockInstance(_dragData.parentInstanceId);
+        parentBlock.addChildBlocks(_dragData.blockIndex + 1, newBlocks);
+        break;
+
+      case "block-clause":
+        final parentBlock = workspace.chains[_dragData.chainIndex].getBlockInstance(_dragData.parentInstanceId);
+        parentBlock.addClauseBlocks(_dragData.clauseIndex, _dragData.blockIndex + 1, newBlocks);
+        break;
+    }
+    // TODO: We need to refresh the workspace height, too, hmmm.
+
     return false;
+  }
+
+  void addChildBlocks(int blockIndex, Iterable<Block> newBlocks) {
+    children.insertAll(blockIndex, newBlocks);
+    redrawBlocks(_childrenDiv, children);
+  }
+
+  void addClauseBlocks(int clauseIndex, int blockIndex, Iterable<Block> newBlocks) {
+    Chain clause = clauses[clauseIndex];
+    clause.blocks.insertAll(blockIndex, newBlocks);
+    DivElement clauseDiv = _clauseDivs[clauseIndex];
+    redrawBlocks(clauseDiv, clause.blocks, clauseIndex: clauseIndex);
+  }
+
+  void redrawBlocks(DivElement div, List<Block> blocks, {int clauseIndex = null}) {
+    div.innerHtml = "";
+    if (blocks.isEmpty) {
+      div.classes.add("nt-clause-empty");
+    }
+    for (int i = 0; i < blocks.length; i++) {
+      Block block = blocks[i];
+      block._dragData.resetBlockOwned(_dragData.chainIndex, i, instanceId, blocks.skip(i + 1), clauseIndex: clauseIndex);
+      block.resetOwnedBlocksDragData();
+      div.append(block._blockDiv);
+    }
   }
 
   Iterable<Block> removeChildBlock(int blockIndex) {
     final removed = children.skip(blockIndex);
     children = children.take(blockIndex).toList();
-    _childrenDiv.innerHtml = "";
-    if (children.isEmpty) {
-      _childrenDiv.classes.add("nt-clause-empty");
-    }
-    for (int i = 0; i < children.length; i++) {
-      Block block = children[i];
-      block._dragData.resetBlockOwned(_dragData.chainIndex, i, instanceId, children.skip(i + 1));
-      _childrenDiv.append(block._blockDiv);
-    }
+    redrawBlocks(_childrenDiv, children);
     return removed;
   }
 
@@ -402,15 +448,7 @@ class Block {
     final removed = clause.blocks.skip(blockIndex);
     DivElement clauseDiv = _clauseDivs[clauseIndex];
     clause.blocks = clause.blocks.take(blockIndex).toList();
-    clauseDiv.innerHtml = "";
-    if (clause.blocks.isEmpty) {
-      clauseDiv.classes.add("nt-clause-empty");
-    }
-    for (int i = 0; i < clause.blocks.length; i++) {
-      Block block = clause.blocks[i];
-      block._dragData.resetBlockOwned(_dragData.chainIndex, i, instanceId, children.skip(i + 1), clauseIndex: clauseIndex);
-      clauseDiv.append(block._blockDiv);
-    }
+    redrawBlocks(clauseDiv, clause.blocks, clauseIndex: clauseIndex);
     return removed;
   }
 

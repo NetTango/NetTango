@@ -92,28 +92,7 @@ class BlockMenu {
     final json = jsonDecode(event.dataTransfer.getData("text/json"));
     final blockData = BlockDragData.fromJSON(json);
 
-    switch (blockData.parentType) {
-      case "workspace-chain":
-        workspace.chains[blockData.chainIndex].remove(blockData.chainIndex, blockData.blockIndex);
-        break;
-
-      case "block-children":
-        workspace.chains[blockData.chainIndex]
-          .getBlockInstance(blockData.parentInstanceId)
-          .removeChildBlock(blockData.blockIndex);
-        break;
-
-      case "block-clause":
-        workspace.chains[blockData.chainIndex]
-          .getBlockInstance(blockData.parentInstanceId)
-          .removeClauseBlock(blockData.clauseIndex, blockData.blockIndex);
-        break;
-
-      case "default":
-        print("Unknown block removal type: ${json["parent-type"]}");
-        break;
-
-    }
+    workspace.removeBlocksFromSource(blockData);
 
     _menuDiv.classes.remove("nt-menu-drag-over");
   }

@@ -242,6 +242,50 @@ class CodeWorkspace {
     repositionChain(newChain, x, y);
   }
 
+  Iterable<Block> removeChain(int chainIndex) {
+    Chain oldChain = chains[chainIndex];
+    final blocks = oldChain.blocks;
+    chains.removeAt(chainIndex);
+    for (int i = 0; i < chains.length; i++) {
+      Chain chain = chains[i];
+      chain.resetDragData(i);
+      chain.updatePosition();
+    }
+    updateWorkspaceHeight();
+    return blocks;
+  }
+
+  Iterable<Block> removeBlocksFromSource(BlockDragData blockData) {
+    switch (blockData.parentType) {
+
+      case "workspace-chain":
+        if (blockData.blockIndex == 0) {
+          return removeChain(blockData.chainIndex);
+        } else {
+          return chains[blockData.chainIndex].remove(blockData.chainIndex, blockData.blockIndex);
+        }
+        break;
+
+      case "block-children":
+        return chains[blockData.chainIndex]
+          .getBlockInstance(blockData.parentInstanceId)
+          .removeChildBlock(blockData.blockIndex);
+
+      case "block-clause":
+        return chains[blockData.chainIndex]
+          .getBlockInstance(blockData.parentInstanceId)
+          .removeClauseBlock(blockData.clauseIndex, blockData.blockIndex);
+
+      case "default":
+        throw new Exception("Unknown block removal type: ${blockData.parentType}");
+        break;
+
+    }
+
+    // just to satisfy the compiler, this code is unreachable
+    return [];
+  }
+
   void repositionChain(Chain chain, int x, int y) {
     if (!chain.blocks.isEmpty) {
       Block first = chain.blocks[0];
