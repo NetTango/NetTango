@@ -97,6 +97,17 @@ class Chain {
     }
   }
 
+  void add(int chainIndex, Iterable<Block> newBlocks) {
+    for (Block block in newBlocks) {
+      _chainDiv.append(block._blockDiv);
+      blocks.add(block);
+    }
+    for (int i = 0; i < blocks.length; i++) {
+      Block block = blocks[i];
+      block._dragData.resetWorkspaceChain(chainIndex, i, blocks.skip(i + 1));
+    }
+  }
+
   static Chain fromJSON(CodeWorkspace workspace, Map json) {
     Chain chain = new Chain();
     if (json["children"] is List) {

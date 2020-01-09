@@ -21,7 +21,8 @@ class CodeWorkspace {
 
   /// HTML Canvas ID
   String containerId;
-  DivElement container;
+  DivElement container, spaceDiv, drag;
+  CssStyleSheet dragSheet;
 
   List<Chain> chains = new List<Chain>();
 
@@ -159,7 +160,7 @@ class CodeWorkspace {
   }
 
   void draw() {
-    DivElement spaceDiv = new DivElement() .. id = "${containerId}-space";
+    spaceDiv = new DivElement() .. id = "${containerId}-space";
     spaceDiv.classes.add("nt-workspace");
     spaceDiv.onDragOver.listen( (e) => e.preventDefault() );
     spaceDiv.onDrop.listen( drop );
@@ -167,9 +168,9 @@ class CodeWorkspace {
 
     StyleElement dragStyleElement = new StyleElement();
     container.append(dragStyleElement);
-    CssStyleSheet dragSheet = dragStyleElement.sheet;
+    dragSheet = dragStyleElement.sheet;
 
-    Element drag = new DivElement();
+    drag = new DivElement();
     drag.classes.add("nt-block-drag");
     drag.classes.add("nt-chain");
     spaceDiv.append(drag);
@@ -201,13 +202,31 @@ class CodeWorkspace {
         if (blockData.blockIndex == 0) {
           // just move if we're dragging a whole chain
           Chain chain = chains[blockData.chainIndex];
-          if (chain.blocks.length > 0) {
+          if (!chain.blocks.isEmpty) {
             Block first = chain.blocks[0];
             first.x = event.offset.x;
             first.y = event.offset.y;
             chain.updatePosition();
             updateWorkspaceHeight();
           }
+        } else {
+          // this is a split, remove the block and siblings and make a new chain
+          int newChainIndex = chains.length;
+          Chain oldChain = chains[blockData.chainIndex];
+          final newBlocks = oldChain.blocks.skip(blockData.blockIndex);
+          oldChain.remove(blockData.chainIndex, blockData.blockIndex);
+          Chain newChain = new Chain();
+          DivElement chainDiv = newChain.draw(drag, dragSheet, newChainIndex);
+          spaceDiv.append(chainDiv);
+          newChain.add(newChainIndex, newBlocks);
+          if (!newBlocks.isEmpty) {
+            Block first = newBlocks.elementAt(0);
+            first.x = event.offset.x;
+            first.y = event.offset.y;
+            newChain.updatePosition();
+            updateWorkspaceHeight();
+          }
+          chains.add(newChain);
         }
         break;
 
