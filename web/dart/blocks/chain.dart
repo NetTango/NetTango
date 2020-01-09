@@ -72,27 +72,20 @@ class Chain {
 
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks.elementAt(i);
-      Map dragData = {
-        "type": "existing-block-instance",
-        "parent-type": "workspace-chain",
-        "workspace-chain-index": chainIndex,
-        "block-index": i
-      };
-      final blockDiv = block.draw(drag, dragSheet, chainIndex, dragData, blocks.skip(i + 1));
+      final dragData = BlockDragData.workspaceChain(chainIndex, i, blocks.skip(i + 1));
+      final blockDiv = block.draw(drag, dragSheet, dragData);
       chainDiv.append(blockDiv);
     }
 
     return chainDiv;
   }
 
-  void remove(int blockIndex) {
-    // TODO: This only works because we remove all sibling blocks after
-    // the removed block.  If we ever want to remove 1 block in the
-    // middle of the chain, we'll need to better handle generating the
-    // `dragData` block index values.  -Jeremy B, Jan 2020
+  void remove(int chainIndex, int blockIndex) {
     blocks = blocks.take(blockIndex).toList();
     _chainDiv.innerHtml = "";
-    for (Block block in blocks) {
+    for (int i = 0; i < blocks.length; i++) {
+      Block block = blocks[i];
+      block._dragData.resetWorkspaceChain(chainIndex, i, blocks.skip(i + 1));
       _chainDiv.append(block._blockDiv);
     }
   }

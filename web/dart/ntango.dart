@@ -29,6 +29,7 @@ part 'versions/version-manager.dart';
 //part 'utils/sounds.dart';
 part 'utils/utils.dart';
 
+part 'blocks/block-drag-data.dart';
 part 'blocks/block.dart';
 part 'blocks/expression.dart';
 part 'blocks/formatter.dart';

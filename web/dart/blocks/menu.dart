@@ -89,32 +89,28 @@ class BlockMenu {
   void drop(MouseEvent event) {
     event.stopPropagation();
     event.preventDefault();
-    final blockData = jsonDecode(event.dataTransfer.getData("text/json"));
+    final json = jsonDecode(event.dataTransfer.getData("text/json"));
+    final blockData = BlockDragData.fromJSON(json);
 
-    switch (blockData["parent-type"]) {
+    switch (blockData.parentType) {
       case "workspace-chain":
-        int chainIndex = blockData["workspace-chain-index"];
-        int blockIndex = blockData["block-index"];
-        workspace.chains[chainIndex].remove(blockIndex);
+        workspace.chains[blockData.chainIndex].remove(blockData.chainIndex, blockData.blockIndex);
         break;
 
       case "block-children":
-        int chainIndex = blockData["workspace-chain-index"];
-        int parentInstanceId = blockData["parent-instance-id"];
-        int blockIndex = blockData["block-index"];
-        workspace.chains[chainIndex].getBlockInstance(parentInstanceId).removeChildBlock(blockIndex);
+        workspace.chains[blockData.chainIndex]
+          .getBlockInstance(blockData.parentInstanceId)
+          .removeChildBlock(blockData.chainIndex, blockData.blockIndex, blockData.parentInstanceId);
         break;
 
       case "block-clause":
-        int chainIndex = blockData["workspace-chain-index"];
-        int parentInstanceId = blockData["parent-instance-id"];
-        int clauseIndex = blockData["clause-index"];
-        int blockIndex = blockData["block-index"];
-        workspace.chains[chainIndex].getBlockInstance(parentInstanceId).removeClauseBlock(clauseIndex, blockIndex);
+        workspace.chains[blockData.chainIndex]
+          .getBlockInstance(blockData.parentInstanceId)
+          .removeClauseBlock(blockData.chainIndex, blockData.blockIndex, blockData.parentInstanceId, blockData.clauseIndex);
         break;
 
       case "default":
-        print("Unknown block removal type: ${blockData["parent-type"]}");
+        print("Unknown block removal type: ${json["parent-type"]}");
         break;
 
     }
