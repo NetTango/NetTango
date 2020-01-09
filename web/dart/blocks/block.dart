@@ -382,7 +382,8 @@ class Block {
     return false;
   }
 
-  void removeChildBlock(int chainIndex, int blockIndex, int parentInstanceId) {
+  Iterable<Block> removeChildBlock(int blockIndex) {
+    final removed = children.skip(blockIndex);
     children = children.take(blockIndex).toList();
     _childrenDiv.innerHtml = "";
     if (children.isEmpty) {
@@ -390,12 +391,14 @@ class Block {
     }
     for (int i = 0; i < children.length; i++) {
       Block block = children[i];
-      block._dragData.resetBlockOwned(chainIndex, i, parentInstanceId, children.skip(i + 1));
+      block._dragData.resetBlockOwned(_dragData.chainIndex, i, instanceId, children.skip(i + 1));
       _childrenDiv.append(block._blockDiv);
     }
+    return removed;
   }
 
-  void removeClauseBlock(int chainIndex, int blockIndex, int parentInstanceId, int clauseIndex) {
+  Iterable<Block> removeClauseBlock(int clauseIndex, int blockIndex) {
+    final removed = children.skip(blockIndex);
     Chain clause = clauses[clauseIndex];
     DivElement clauseDiv = _clauseDivs[clauseIndex];
     clause.blocks = clause.blocks.take(blockIndex).toList();
@@ -405,8 +408,24 @@ class Block {
     }
     for (int i = 0; i < clause.blocks.length; i++) {
       Block block = clause.blocks[i];
-      block._dragData.resetBlockOwned(chainIndex, i, parentInstanceId, children.skip(i + 1), clauseIndex: clauseIndex);
+      block._dragData.resetBlockOwned(_dragData.chainIndex, i, instanceId, children.skip(i + 1), clauseIndex: clauseIndex);
       clauseDiv.append(block._blockDiv);
+    }
+    return removed;
+  }
+
+  void resetOwnedBlocksDragData() {
+    for (int i = 0; i < children.length; i++) {
+      Block block = children[i];
+      block._dragData.resetBlockOwned(_dragData.chainIndex, i, instanceId, children.skip(i + 1));
+      _childrenDiv.append(block._blockDiv);
+    }
+    for (int clauseIndex = 0; clauseIndex < clauses.length; clauseIndex++) {
+      Chain clause = clauses[clauseIndex];
+      for (int i = 0; i < clause.blocks.length; i++) {
+        Block block = clause.blocks[i];
+        block._dragData.resetBlockOwned(_dragData.chainIndex, i, instanceId, clause.blocks.skip(i + 1), clauseIndex: clauseIndex);
+      }
     }
   }
 

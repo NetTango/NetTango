@@ -202,32 +202,19 @@ class CodeWorkspace {
         if (blockData.blockIndex == 0) {
           // just move if we're dragging a whole chain
           Chain chain = chains[blockData.chainIndex];
-          if (!chain.blocks.isEmpty) {
-            Block first = chain.blocks[0];
-            first.x = event.offset.x;
-            first.y = event.offset.y;
-            chain.updatePosition();
-            updateWorkspaceHeight();
-          }
+          repositionChain(chain, event.offset.x, event.offset.y);
         } else {
           // this is a split, remove the block and siblings and make a new chain
-          int newChainIndex = chains.length;
-          Chain oldChain = chains[blockData.chainIndex];
-          final newBlocks = oldChain.blocks.skip(blockData.blockIndex);
-          oldChain.remove(blockData.chainIndex, blockData.blockIndex);
-          Chain newChain = new Chain();
-          DivElement chainDiv = newChain.draw(drag, dragSheet, newChainIndex);
-          spaceDiv.append(chainDiv);
-          newChain.add(newChainIndex, newBlocks);
-          if (!newBlocks.isEmpty) {
-            Block first = newBlocks.elementAt(0);
-            first.x = event.offset.x;
-            first.y = event.offset.y;
-            newChain.updatePosition();
-            updateWorkspaceHeight();
-          }
-          chains.add(newChain);
+          final newBlocks = chains[blockData.chainIndex].remove(blockData.chainIndex, blockData.blockIndex);
+          createChain(newBlocks, event.offset.x, event.offset.y);
         }
+        break;
+
+      case "block-children":
+        final newBlocks = chains[blockData.chainIndex]
+          .getBlockInstance(blockData.parentInstanceId)
+          .removeChildBlock(blockData.blockIndex);
+        createChain(newBlocks, event.offset.x, event.offset.y);
         break;
 
       case "default":
@@ -236,6 +223,26 @@ class CodeWorkspace {
 
     }
 
+  }
+
+  void createChain(Iterable<Block> newBlocks, int x, int y) {
+    Chain newChain = new Chain();
+    int newChainIndex = chains.length;
+    chains.add(newChain);
+    DivElement chainDiv = newChain.draw(drag, dragSheet, newChainIndex);
+    spaceDiv.append(chainDiv);
+    newChain.add(newChainIndex, newBlocks);
+    repositionChain(newChain, x, y);
+  }
+
+  void repositionChain(Chain chain, int x, int y) {
+    if (!chain.blocks.isEmpty) {
+      Block first = chain.blocks[0];
+      first.x = x;
+      first.y = y;
+      chain.updatePosition();
+      updateWorkspaceHeight();
+    }
   }
 
   void updateWorkspaceHeight() {

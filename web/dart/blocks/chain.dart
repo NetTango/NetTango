@@ -87,7 +87,8 @@ class Chain {
     _chainDiv.style.top = "${first.y.round()}px";
   }
 
-  void remove(int chainIndex, int blockIndex) {
+  Iterable<Block> remove(int chainIndex, int blockIndex) {
+    final removedBlocks = blocks.skip(blockIndex);
     blocks = blocks.take(blockIndex).toList();
     _chainDiv.innerHtml = "";
     for (int i = 0; i < blocks.length; i++) {
@@ -95,6 +96,7 @@ class Chain {
       block._dragData.resetWorkspaceChain(chainIndex, i, blocks.skip(i + 1));
       _chainDiv.append(block._blockDiv);
     }
+    return removedBlocks;
   }
 
   void add(int chainIndex, Iterable<Block> newBlocks) {
@@ -105,6 +107,7 @@ class Chain {
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks[i];
       block._dragData.resetWorkspaceChain(chainIndex, i, blocks.skip(i + 1));
+      block.resetOwnedBlocksDragData();
     }
   }
 

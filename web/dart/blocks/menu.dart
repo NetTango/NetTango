@@ -100,13 +100,13 @@ class BlockMenu {
       case "block-children":
         workspace.chains[blockData.chainIndex]
           .getBlockInstance(blockData.parentInstanceId)
-          .removeChildBlock(blockData.chainIndex, blockData.blockIndex, blockData.parentInstanceId);
+          .removeChildBlock(blockData.blockIndex);
         break;
 
       case "block-clause":
         workspace.chains[blockData.chainIndex]
           .getBlockInstance(blockData.parentInstanceId)
-          .removeClauseBlock(blockData.chainIndex, blockData.blockIndex, blockData.parentInstanceId, blockData.clauseIndex);
+          .removeClauseBlock(blockData.clauseIndex, blockData.blockIndex);
         break;
 
       case "default":
