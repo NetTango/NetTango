@@ -217,6 +217,13 @@ class CodeWorkspace {
         createChain(newBlocks, event.offset.x, event.offset.y);
         break;
 
+      case "block-clause":
+        final newBlocks = chains[blockData.chainIndex]
+          .getBlockInstance(blockData.parentInstanceId)
+          .removeClauseBlock(blockData.clauseIndex, blockData.blockIndex);
+        createChain(newBlocks, event.offset.x, event.offset.y);
+        break;
+
       case "default":
         print("Unknown block removal type: ${json["parent-type"]}");
         break;

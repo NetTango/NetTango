@@ -398,8 +398,8 @@ class Block {
   }
 
   Iterable<Block> removeClauseBlock(int clauseIndex, int blockIndex) {
-    final removed = children.skip(blockIndex);
     Chain clause = clauses[clauseIndex];
+    final removed = clause.blocks.skip(blockIndex);
     DivElement clauseDiv = _clauseDivs[clauseIndex];
     clause.blocks = clause.blocks.take(blockIndex).toList();
     clauseDiv.innerHtml = "";
