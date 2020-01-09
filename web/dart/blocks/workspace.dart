@@ -160,6 +160,8 @@ class CodeWorkspace {
   void draw() {
     DivElement spaceDiv = new DivElement() .. id = "${containerId}-space";
     spaceDiv.classes.add("nt-workspace");
+    spaceDiv.onDragOver.listen( (e) => e.preventDefault() );
+    spaceDiv.onDrop.listen( drop );
     container.append(spaceDiv);
 
     StyleElement dragStyleElement = new StyleElement();
@@ -185,6 +187,35 @@ class CodeWorkspace {
     final menuDiv = menu.draw(dragSheet);
     updateHeightForChild(menuDiv);
     container.append(menuDiv);
+  }
+
+  void drop(MouseEvent event) {
+    event.stopPropagation();
+    event.preventDefault();
+    final json = jsonDecode(event.dataTransfer.getData("text/json"));
+    final blockData = BlockDragData.fromJSON(json);
+
+    switch (blockData.parentType) {
+      case "workspace-chain":
+        if (blockData.blockIndex == 0) {
+          // just move if we're dragging a whole chain
+          Chain chain = chains[blockData.chainIndex];
+          if (chain.blocks.length > 0) {
+            Block first = chain.blocks[0];
+            first.x = event.offset.x;
+            first.y = event.offset.y;
+            chain.updatePosition();
+            updateHeightForChild(chain._chainDiv);
+          }
+        }
+        break;
+
+      case "default":
+        print("Unknown block removal type: ${json["parent-type"]}");
+        break;
+
+    }
+
   }
 
   void updateHeightForChild(DivElement div) {

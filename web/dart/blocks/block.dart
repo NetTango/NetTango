@@ -288,7 +288,8 @@ class Block {
     blockNode.onDragStart.listen( (e) => startDrag(e, workspace.containerId, drag, dragSheet) );
     blockNode.onDragEnd.listen( (e) => endDrag(e, drag, dragSheet) );
     blockNode.onDragEnter.listen( (e) => enterDrag(e, workspace.containerId) );
-    blockNode.onDragLeave.listen( (e) => leaveDrag(e) );
+    blockNode.onDragLeave.listen( leaveDrag );
+    blockNode.onDrop.listen( drop );
 
     return blockNode;
   }
@@ -372,6 +373,13 @@ class Block {
 
   void leaveDrag(MouseEvent event) {
     _blockDiv.classes.remove("nt-drag-over");
+  }
+
+  bool drop(MouseEvent event) {
+    event.preventDefault();
+    event.stopPropagation();
+    _blockDiv.classes.remove("nt-drag-over");
+    return false;
   }
 
   void removeChildBlock(int chainIndex, int blockIndex, int parentInstanceId) {

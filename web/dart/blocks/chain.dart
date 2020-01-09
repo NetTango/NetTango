@@ -60,13 +60,11 @@ class Chain {
       return chainDiv;
     }
 
-    Block first = blocks[0];
-    chainDiv.style.left = "${first.x.round()}px";
-    chainDiv.style.top = "${first.y.round()}px";
+    updatePosition();
 
     // TODO: This should really be something like `first.starter`
     // to mark blocks that can start code chains on their own
-    if (first.required) {
+    if (blocks[0].required) {
       chainDiv.classes.add("nt-chain-starter");
     }
 
@@ -78,6 +76,15 @@ class Chain {
     }
 
     return chainDiv;
+  }
+
+  void updatePosition() {
+    if (blocks.isEmpty) {
+      return;
+    }
+    Block first = blocks[0];
+    _chainDiv.style.left = "${first.x.round()}px";
+    _chainDiv.style.top = "${first.y.round()}px";
   }
 
   void remove(int chainIndex, int blockIndex) {

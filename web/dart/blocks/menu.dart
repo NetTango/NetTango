@@ -115,7 +115,6 @@ class BlockMenu {
 
     }
 
-    print(blockData);
     _menuDiv.classes.remove("nt-menu-drag-over");
   }
 }
