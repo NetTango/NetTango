@@ -290,9 +290,9 @@ class Block {
     }
 
     blockNode.draggable = true;
-    blockNode.onDragStart.listen( (e) => startDrag(e, workspace.containerId, drag, dragSheet) );
+    blockNode.onDragStart.listen( (e) => startDrag(e, drag, dragSheet) );
     blockNode.onDragEnd.listen( (e) => endDrag(e, drag, dragSheet) );
-    blockNode.onDragEnter.listen( (e) => enterDrag(e, workspace.containerId) );
+    blockNode.onDragEnter.listen( (e) => enterDrag(e) );
     blockNode.onDragOver.listen( (e) => e.preventDefault() );
     blockNode.onDragLeave.listen( leaveDrag );
     blockNode.onDrop.listen( drop );
@@ -329,6 +329,9 @@ class Block {
     if (!clauseDiv.classes.contains("nt-clause-empty")) {
       return true;
     }
+    if (event.dataTransfer.types.contains("starter")) {
+      return true;
+    }
     event.stopPropagation();
     clauseDiv.classes.add("nt-drag-over");
     return false;
@@ -341,6 +344,9 @@ class Block {
     if (!clauseDiv.classes.contains("nt-clause-empty")) {
       return true;
     }
+    if (event.dataTransfer.types.contains("starter")) {
+      return true;
+    }
     event.stopPropagation();
     clauseDiv.classes.remove("nt-drag-over");
     return false;
@@ -348,6 +354,9 @@ class Block {
 
   bool dropClause(MouseEvent event, DivElement clauseDiv, int clauseIndex) {
     if (!clauseDiv.classes.contains("nt-clause-empty")) {
+      return true;
+    }
+    if (event.dataTransfer.types.contains("starter")) {
       return true;
     }
     event.preventDefault();
@@ -369,14 +378,14 @@ class Block {
     return false;
   }
 
-  void startDrag(MouseEvent event, String workspaceId, DivElement drag, CssStyleSheet dragSheet) {
+  void startDrag(MouseEvent event, DivElement drag, CssStyleSheet dragSheet) {
     Element target = event.target;
     // if the class is already set, we're already draggin'
     if (target.classes.contains("nt-block-drag-target")) {
       return;
     }
 
-    event.dataTransfer.setData(workspaceId, workspaceId);
+    event.dataTransfer.setData(workspace.containerId, workspace.containerId);
     String blockString = jsonEncode(this._dragData.toJSON());
     event.dataTransfer.setData("text/json", blockString);
     event.dataTransfer.effectAllowed = "move";
@@ -393,6 +402,7 @@ class Block {
 
     if (required) {
       drag.classes.add("nt-chain-starter");
+      event.dataTransfer.setData("starter", "starter");
     }
     drag.setInnerHtml("");
     drag.append(dragClone);
@@ -417,12 +427,12 @@ class Block {
     }
   }
 
-  bool enterDrag(MouseEvent event, String workspaceId) {
+  bool enterDrag(MouseEvent event) {
     Element target = event.target;
     if (target.classes.contains("nt-block-drag-target")) {
       return true;
     }
-    if (!event.dataTransfer.types.contains(workspaceId)) {
+    if (!event.dataTransfer.types.contains(workspace.containerId) || event.dataTransfer.types.contains("starter")) {
       return true;
     }
     event.stopPropagation();
@@ -443,6 +453,9 @@ class Block {
       return false;
     }
     if (_blockDiv.classes.contains("nt-block-drag-target") || _blockDiv.classes.contains("nt-block-drag-sibling")) {
+      return false;
+    }
+    if (!event.dataTransfer.types.contains(workspace.containerId) || event.dataTransfer.types.contains("starter")) {
       return false;
     }
 

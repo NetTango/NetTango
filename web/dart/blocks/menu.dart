@@ -166,6 +166,7 @@ class Slot {
     blockDiv.style.pointerEvents = "none";
     if (_newBlockInstance.required) {
       drag.classes.add("nt-chain-starter");
+      event.dataTransfer.setData("starter", "starter");
     }
     drag.setInnerHtml("");
     drag.append(blockDiv);
