@@ -393,30 +393,30 @@ class Block {
     final newBlocks = workspace.removeBlocksFromSource(blockData);
     switch (_dragData.parentType) {
       case "workspace-chain":
-        workspace.chains[_dragData.chainIndex].insert(_dragData.chainIndex, _dragData.blockIndex + 1, newBlocks);
+        workspace.chains[_dragData.chainIndex].insertBlocks(_dragData.chainIndex, _dragData.blockIndex + 1, newBlocks);
         break;
 
       case "block-children":
         final parentBlock = workspace.chains[_dragData.chainIndex].getBlockInstance(_dragData.parentInstanceId);
-        parentBlock.addChildBlocks(_dragData.blockIndex + 1, newBlocks);
+        parentBlock.insertChildBlocks(_dragData.blockIndex + 1, newBlocks);
         break;
 
       case "block-clause":
         final parentBlock = workspace.chains[_dragData.chainIndex].getBlockInstance(_dragData.parentInstanceId);
-        parentBlock.addClauseBlocks(_dragData.clauseIndex, _dragData.blockIndex + 1, newBlocks);
+        parentBlock.insertClauseBlocks(_dragData.clauseIndex, _dragData.blockIndex + 1, newBlocks);
         break;
     }
-    // TODO: We need to refresh the workspace height, too, hmmm.
+    workspace.updateWorkspaceHeight();
 
     return false;
   }
 
-  void addChildBlocks(int blockIndex, Iterable<Block> newBlocks) {
+  void insertChildBlocks(int blockIndex, Iterable<Block> newBlocks) {
     children.insertAll(blockIndex, newBlocks);
     redrawBlocks(_childrenDiv, children);
   }
 
-  void addClauseBlocks(int clauseIndex, int blockIndex, Iterable<Block> newBlocks) {
+  void insertClauseBlocks(int clauseIndex, int blockIndex, Iterable<Block> newBlocks) {
     Chain clause = clauses[clauseIndex];
     clause.blocks.insertAll(blockIndex, newBlocks);
     DivElement clauseDiv = _clauseDivs[clauseIndex];
@@ -436,14 +436,14 @@ class Block {
     }
   }
 
-  Iterable<Block> removeChildBlock(int blockIndex) {
+  Iterable<Block> removeChildBlocks(int blockIndex) {
     final removed = children.skip(blockIndex);
     children = children.take(blockIndex).toList();
     redrawBlocks(_childrenDiv, children);
     return removed;
   }
 
-  Iterable<Block> removeClauseBlock(int clauseIndex, int blockIndex) {
+  Iterable<Block> removeClauseBlocks(int clauseIndex, int blockIndex) {
     Chain clause = clauses[clauseIndex];
     final removed = clause.blocks.skip(blockIndex);
     DivElement clauseDiv = _clauseDivs[clauseIndex];

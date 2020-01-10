@@ -197,39 +197,15 @@ class CodeWorkspace {
     final json = jsonDecode(event.dataTransfer.getData("text/json"));
     final blockData = BlockDragData.fromJSON(json);
 
-    switch (blockData.parentType) {
-      case "workspace-chain":
-        if (blockData.blockIndex == 0) {
-          // just move if we're dragging a whole chain
-          Chain chain = chains[blockData.chainIndex];
-          repositionChain(chain, event.offset.x, event.offset.y);
-        } else {
-          // this is a split, remove the block and siblings and make a new chain
-          final newBlocks = chains[blockData.chainIndex].remove(blockData.chainIndex, blockData.blockIndex);
-          createChain(newBlocks, event.offset.x, event.offset.y);
-        }
-        break;
-
-      case "block-children":
-        final newBlocks = chains[blockData.chainIndex]
-          .getBlockInstance(blockData.parentInstanceId)
-          .removeChildBlock(blockData.blockIndex);
-        createChain(newBlocks, event.offset.x, event.offset.y);
-        break;
-
-      case "block-clause":
-        final newBlocks = chains[blockData.chainIndex]
-          .getBlockInstance(blockData.parentInstanceId)
-          .removeClauseBlock(blockData.clauseIndex, blockData.blockIndex);
-        createChain(newBlocks, event.offset.x, event.offset.y);
-        break;
-
-      case "default":
-        print("Unknown block removal type: ${json["parent-type"]}");
-        break;
-
+    if (blockData.parentType == "workspace-chain" && blockData.blockIndex == 0) {
+      // just move if we're dragging a whole chain
+      Chain chain = chains[blockData.chainIndex];
+      repositionChain(chain, event.offset.x, event.offset.y);
+      return;
     }
 
+    final newBlocks = removeBlocksFromSource(blockData);
+    createChain(newBlocks, event.offset.x, event.offset.y);
   }
 
   void createChain(Iterable<Block> newBlocks, int x, int y) {
@@ -238,7 +214,7 @@ class CodeWorkspace {
     chains.add(newChain);
     DivElement chainDiv = newChain.draw(drag, dragSheet, newChainIndex);
     spaceDiv.append(chainDiv);
-    newChain.add(newChainIndex, newBlocks);
+    newChain.addBlocks(newChainIndex, newBlocks);
     repositionChain(newChain, x, y);
   }
 
@@ -262,19 +238,19 @@ class CodeWorkspace {
         if (blockData.blockIndex == 0) {
           return removeChain(blockData.chainIndex);
         } else {
-          return chains[blockData.chainIndex].remove(blockData.chainIndex, blockData.blockIndex);
+          return chains[blockData.chainIndex].removeBlocks(blockData.chainIndex, blockData.blockIndex);
         }
         break;
 
       case "block-children":
         return chains[blockData.chainIndex]
           .getBlockInstance(blockData.parentInstanceId)
-          .removeChildBlock(blockData.blockIndex);
+          .removeChildBlocks(blockData.blockIndex);
 
       case "block-clause":
         return chains[blockData.chainIndex]
           .getBlockInstance(blockData.parentInstanceId)
-          .removeClauseBlock(blockData.clauseIndex, blockData.blockIndex);
+          .removeClauseBlocks(blockData.clauseIndex, blockData.blockIndex);
 
       case "default":
         throw new Exception("Unknown block removal type: ${blockData.parentType}");

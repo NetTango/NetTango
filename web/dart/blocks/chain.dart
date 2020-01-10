@@ -92,6 +92,7 @@ class Chain {
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks[i];
       block._dragData.resetWorkspaceChain(chainIndex, i, blocks.skip(i + 1));
+      block.resetOwnedBlocksDragData();
       _chainDiv.append(block._blockDiv);
     }
   }
@@ -100,30 +101,22 @@ class Chain {
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks[i];
       block._dragData.resetWorkspaceChain(chainIndex, i, blocks.skip(i + 1));
-      _chainDiv.append(block._blockDiv);
+      block.resetOwnedBlocksDragData();
     }
   }
 
-  Iterable<Block> remove(int chainIndex, int blockIndex) {
+  Iterable<Block> removeBlocks(int chainIndex, int blockIndex) {
     final removedBlocks = blocks.skip(blockIndex);
     blocks = blocks.take(blockIndex).toList();
     redrawBlocks(chainIndex);
     return removedBlocks;
   }
 
-  void add(int chainIndex, Iterable<Block> newBlocks) {
-    for (Block block in newBlocks) {
-      _chainDiv.append(block._blockDiv);
-      blocks.add(block);
-    }
-    for (int i = 0; i < blocks.length; i++) {
-      Block block = blocks[i];
-      block._dragData.resetWorkspaceChain(chainIndex, i, blocks.skip(i + 1));
-      block.resetOwnedBlocksDragData();
-    }
+  void addBlocks(int chainIndex, Iterable<Block> newBlocks) {
+    insertBlocks(chainIndex, blocks.length, newBlocks);
   }
 
-  void insert(int chainIndex, int blockIndex, Iterable<Block> newBlocks) {
+  void insertBlocks(int chainIndex, int blockIndex, Iterable<Block> newBlocks) {
     blocks.insertAll(blockIndex, newBlocks);
     redrawBlocks(chainIndex);
   }
