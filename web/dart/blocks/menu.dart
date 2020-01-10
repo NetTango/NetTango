@@ -93,8 +93,10 @@ class BlockMenu {
     final json = jsonDecode(event.dataTransfer.getData("text/json"));
     final blockData = BlockDragData.fromJSON(json);
 
-    workspace.removeBlocksFromSource(blockData);
+    final oldBlocks = workspace.removeBlocksFromSource(blockData);
 
+    Block changedBlock = oldBlocks.elementAt(0);
+    workspace.programChanged(new BlockChangedEvent(changedBlock));
     _menuDiv.classes.remove("nt-menu-drag-over");
   }
 }

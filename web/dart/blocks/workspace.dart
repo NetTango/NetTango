@@ -200,12 +200,16 @@ class CodeWorkspace {
     if (blockData.parentType == "workspace-chain" && blockData.blockIndex == 0) {
       // just move if we're dragging a whole chain
       Chain chain = chains[blockData.chainIndex];
+      Block changedBlock = chain.blocks[0];
+      programChanged(new BlockChangedEvent(changedBlock));
       repositionChain(chain, event.offset.x, event.offset.y);
       return;
     }
 
     final newBlocks = removeBlocksFromSource(blockData);
     createChain(newBlocks, event.offset.x, event.offset.y);
+    Block changedBlock = newBlocks.elementAt(0);
+    programChanged(new BlockChangedEvent(changedBlock));
   }
 
   void createChain(Iterable<Block> newBlocks, int x, int y) {

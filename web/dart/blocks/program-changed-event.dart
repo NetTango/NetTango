@@ -21,10 +21,13 @@ abstract class ProgramChangedEvent {
 
 class BlockChangedEvent extends ProgramChangedEvent {
   final String type = "block-changed";
-  final int blockId;
-  final int instanceId;
+  int blockId;
+  int instanceId;
 
-  BlockChangedEvent(int this.blockId, int this.instanceId);
+  BlockChangedEvent(Block block) {
+    this.blockId = block.id;
+    this.instanceId = block.instanceId;
+  }
 
   dynamic toJS() {
     return js.JsObject.jsify({

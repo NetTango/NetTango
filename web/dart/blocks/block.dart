@@ -465,6 +465,8 @@ class Block {
         break;
     }
     workspace.updateWorkspaceHeight();
+    Block changedBlock = newBlocks.elementAt(0);
+    workspace.programChanged(new BlockChangedEvent(changedBlock));
 
     return false;
   }
