@@ -185,7 +185,7 @@ class CodeWorkspace {
       spaceDiv.append(chainDiv);
     }
 
-    final menuDiv = menu.draw(dragSheet);
+    final menuDiv = menu.draw(drag, dragSheet);
     container.append(menuDiv);
 
     updateWorkspaceHeight();
@@ -234,6 +234,14 @@ class CodeWorkspace {
 
   Iterable<Block> removeBlocksFromSource(BlockDragData blockData) {
     switch (blockData.parentType) {
+
+      case "new-block":
+        final slot = menu.slots[blockData.slotIndex];
+        slot._slotDiv.classes.remove("nt-block-drag-target");
+        final instance = slot._newBlockInstance;
+        instance._blockDiv.style.pointerEvents = "";
+
+        return [instance];
 
       case "workspace-chain":
         if (blockData.blockIndex == 0) {

@@ -56,12 +56,13 @@ class BlockMenu {
     return null;
   }
 
-  DivElement draw(CssStyleSheet dragSheet) {
+  DivElement draw(DivElement drag, CssStyleSheet dragSheet) {
     DivElement menuDiv = new DivElement() .. id = "${workspace.containerId}-menu";
     menuDiv.classes.add("nt-menu");
     _menuDiv = menuDiv;
-    for (Slot slot in slots) {
-      slot.draw(menuDiv, dragSheet);
+    for (int i = 0; i < slots.length; i++) {
+      Slot slot = slots[i];
+      menuDiv.append(slot.draw(drag, dragSheet, i));
     }
 
     menuDiv.onDragEnter.listen( (e) => enterDrag(e) );
@@ -107,6 +108,10 @@ class Slot {
 
   int count = -1;
 
+  int _slotIndex;
+  Block _newBlockInstance;
+  DivElement _slotDiv;
+
   Slot(this.block, this.workspace, this.count);
 
   bool isAvailable() {
@@ -114,26 +119,57 @@ class Slot {
     return (count < 0 || free > 0);
   }
 
-  void draw(DivElement container, CssStyleSheet dragSheet) {
-    DivElement blockNode = new DivElement();
-    blockNode.innerText = block.action;
-    blockNode.classes.add("nt-menu-slot");
-    blockNode.draggable = true;
-    blockNode.onDragStart.listen( (e) => startDrag(e, block.workspace.containerId, dragSheet) );
-    blockNode.onDragEnd.listen( (e) => endDrag(e, dragSheet) );
-    container.append(blockNode);
+  DivElement draw(DivElement drag, CssStyleSheet dragSheet, int slotIndex) {
+    _slotIndex = slotIndex;
+    _slotDiv = new DivElement();
+    _slotDiv.innerText = block.action;
+    _slotDiv.classes.add("nt-menu-slot");
+    _slotDiv.draggable = true;
+    _slotDiv.onDragStart.listen( (e) => startDrag(e, block.workspace.containerId, drag, dragSheet) );
+    _slotDiv.onDragEnd.listen( (e) => endDrag(e, drag, dragSheet) );
+    return _slotDiv;
   }
 
-  void startDrag(MouseEvent event, String workspaceId, CssStyleSheet dragSheet) {
+  void startDrag(MouseEvent event, String workspaceId, DivElement drag, CssStyleSheet dragSheet) {
+    Element target = event.target;
+    // if the class is already set, we're already draggin'
+    if (target.classes.contains("nt-block-drag-target")) {
+      return;
+    }
+
     event.dataTransfer.setData(workspaceId, workspaceId);
 
-    dragSheet.insertRule(".nt-block-header { pointer-events: none; }", 0);
-    dragSheet.insertRule(".nt-property { pointer-events: none; }", 0);
+    _slotDiv.style.pointerEvents = "auto";
+    dragSheet.insertRule(".nt-menu-slot { pointer-events: none; }", 0);
+    dragSheet.insertRule(".nt-block-header { pointer-events: none; }", 1);
+    dragSheet.insertRule(".nt-property { pointer-events: none; }", 2);
+
+    target.classes.add("nt-block-drag-target");
+
+    _newBlockInstance = block.clone();
+    BlockDragData dragData = BlockDragData.newBlock(_slotIndex);
+    String dataString = jsonEncode(dragData.toJSON());
+    event.dataTransfer.setData("text/json", dataString);
+    final blockDiv = _newBlockInstance.draw(drag, dragSheet, dragData);
+    blockDiv.style.pointerEvents = "none";
+    if (_newBlockInstance.required) {
+      drag.classes.add("nt-chain-starter");
+    }
+    drag.setInnerHtml("");
+    drag.append(blockDiv);
+
+    event.dataTransfer.setDragImage(drag, 0, 0);
   }
 
-  void endDrag(MouseEvent event, CssStyleSheet dragSheet) {
+  void endDrag(MouseEvent event, DivElement drag, CssStyleSheet dragSheet) {
     while (dragSheet.rules.length > 0) {
       dragSheet.deleteRule(0);
     }
+
+    Element target = event.target;
+    target.classes.remove("nt-block-drag-target");
+    drag.classes.remove("nt-chain-starter");
+    _slotDiv.style.pointerEvents = "";
+    _newBlockInstance = null;
   }
 }

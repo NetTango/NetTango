@@ -16,40 +16,40 @@
 part of NetTango;
 
 class BlockDragData {
-  String type;
   int chainIndex;
   String parentType;
   int parentInstanceId;
   int clauseIndex;
   int blockIndex;
+  int slotIndex;
   Iterable<Block> siblings;
 
   Map toJSON() {
     Map dragData = {
-       "type": type,
        "parent-type": parentType,
        "workspace-chain-index": chainIndex
     };
     setIfNotNull(dragData, "parent-instance-id", parentInstanceId);
     setIfNotNull(dragData, "clause-index", clauseIndex);
     setIfNotNull(dragData, "block-index", blockIndex);
+    setIfNotNull(dragData, "slot-index", slotIndex);
     return dragData;
   }
 
   static BlockDragData fromJSON(Map json) {
-    String type          = json["type"];
     String parentType    = json["parent-type"];
     int chainIndex       = json["workspace-chain-index"];
     int blockIndex       = json["block-index"];
     int parentInstanceId = json["parent-instance-id"];
     int clauseIndex      = json["clause-index"];
+    int slotIndex        = json["slot-index"];
     return new BlockDragData() ..
-      type             = type ..
       chainIndex       = chainIndex ..
       parentType       = parentType ..
       parentInstanceId = parentInstanceId ..
       clauseIndex      = clauseIndex ..
       blockIndex       = blockIndex ..
+      slotIndex        = slotIndex ..
       siblings         = new List<Block>();
   }
 
@@ -60,17 +60,23 @@ class BlockDragData {
   }
 
   void reset() {
-    type             = null;
     chainIndex       = null;
     parentType       = null;
     parentInstanceId = null;
     clauseIndex      = null;
     blockIndex       = null;
+    slotIndex        = null;
+  }
+
+  static BlockDragData newBlock(int slotIndex) {
+    BlockDragData dragData = new BlockDragData();
+    dragData.parentType = "new-block";
+    dragData.slotIndex = slotIndex;
+    return dragData;
   }
 
   void resetWorkspaceChain(int chainIndex, int blockIndex, Iterable<Block> siblings) {
     reset();
-    this.type       = "existing-block-instance";
     this.chainIndex = chainIndex;
     this.parentType = "workspace-chain";
     this.blockIndex = blockIndex;
@@ -84,7 +90,6 @@ class BlockDragData {
 
   void resetBlockOwned(int chainIndex, int blockIndex, int parentInstanceId, Iterable<Block> siblings, {int clauseIndex = null}) {
     reset();
-    this.type             = "existing-block-instance";
     this.chainIndex       = chainIndex;
     this.parentType       = (clauseIndex == null) ? "block-children": "block-clause";
     this.parentInstanceId = parentInstanceId;
