@@ -271,14 +271,14 @@ class Block {
     }
 
     if (children.isNotEmpty) {
-      _childrenDiv = drawClause(children, drag, dragSheet, dragData.chainIndex, instanceId, null);
+      _childrenDiv = drawClause(children, drag, dragSheet);
       blockNode.append(_childrenDiv);
     }
 
     if (clauses.isNotEmpty) {
       for (int i = 0; i < clauses.length; i++) {
         Chain clause = clauses[i];
-        DivElement clauseDiv = drawClause(clause.blocks, drag, dragSheet, dragData.chainIndex, instanceId, i);
+        DivElement clauseDiv = drawClause(clause.blocks, drag, dragSheet, clauseIndex: i);
         _clauseDivs.add(clauseDiv);
         blockNode.append(clauseDiv);
       }
@@ -295,20 +295,73 @@ class Block {
     return blockNode;
   }
 
-  static DivElement drawClause(List<Block> blocks, DivElement drag, CssStyleSheet dragSheet, int chainIndex, int instanceId, int clauseIndex) {
-    DivElement clauseNode = new DivElement();
-    clauseNode.classes.add("nt-clause");
+  DivElement drawClause(List<Block> blocks, DivElement drag, CssStyleSheet dragSheet, {int clauseIndex = null}) {
+    DivElement clauseDiv = new DivElement();
+    clauseDiv.classes.add("nt-clause");
     if (blocks.isEmpty) {
-      clauseNode.classes.add("nt-clause-empty");
+      clauseDiv.classes.add("nt-clause-empty");
+      setupEmptyDragListeners(clauseDiv, clauseIndex);
+      return clauseDiv;
     }
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks[i];
       final siblings = blocks.skip(i + 1);
-      final dragData = BlockDragData.blockOwned(chainIndex, i, instanceId, siblings, clauseIndex: clauseIndex);
+      final dragData = BlockDragData.blockOwned(_dragData.chainIndex, i, instanceId, siblings, clauseIndex: clauseIndex);
       final blockDiv = block.draw(drag, dragSheet, dragData);
-      clauseNode.append(blockDiv);
+      clauseDiv.append(blockDiv);
     }
-    return clauseNode;
+    return clauseDiv;
+  }
+
+  void setupEmptyDragListeners(DivElement clauseDiv, int clauseIndex) {
+    clauseDiv.onDragEnter.listen( (e) => enterClauseDrag(e, clauseDiv) );
+    clauseDiv.onDragLeave.listen( (e) => leaveClauseDrag(e, clauseDiv) );
+    clauseDiv.onDragOver.listen( (e) => e.preventDefault() );
+    clauseDiv.onDrop.listen( (e) => dropClause(e, clauseDiv, clauseIndex) );
+  }
+
+  bool enterClauseDrag(MouseEvent event, DivElement clauseDiv) {
+    if (!clauseDiv.classes.contains("nt-clause-empty")) {
+      return true;
+    }
+    event.stopPropagation();
+    clauseDiv.classes.add("nt-drag-over");
+    return false;
+  }
+
+  bool leaveClauseDrag(MouseEvent event, DivElement clauseDiv) {
+    // why do this instead of removing the event listener when not empty?
+    // you have to store the subscription somewhere to `cancel()` it with
+    // dart, and that's more state than I want to track at the moment.
+    if (!clauseDiv.classes.contains("nt-clause-empty")) {
+      return true;
+    }
+    event.stopPropagation();
+    clauseDiv.classes.remove("nt-drag-over");
+    return false;
+  }
+
+  bool dropClause(MouseEvent event, DivElement clauseDiv, int clauseIndex) {
+    if (!clauseDiv.classes.contains("nt-clause-empty")) {
+      return true;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    clauseDiv.classes.remove("nt-drag-over");
+    clauseDiv.classes.remove("nt-clause-empty");
+
+    final json = jsonDecode(event.dataTransfer.getData("text/json"));
+    final blockData = BlockDragData.fromJSON(json);
+    final newBlocks = workspace.removeBlocksFromSource(blockData);
+
+    if (clauseIndex == null) {
+      insertChildBlocks(0, newBlocks);
+    } else {
+      insertClauseBlocks(clauseIndex, 0, newBlocks);
+    }
+    workspace.updateWorkspaceHeight();
+
+    return false;
   }
 
   void startDrag(MouseEvent event, String workspaceId, DivElement drag, CssStyleSheet dragSheet) {
@@ -427,6 +480,7 @@ class Block {
     div.innerHtml = "";
     if (blocks.isEmpty) {
       div.classes.add("nt-clause-empty");
+      setupEmptyDragListeners(div, clauseIndex);
     }
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks[i];
