@@ -51,8 +51,8 @@ class Block {
 
   int nextParamId = 0;
 
-  List<Block> children = new List<Block>();
-  List<Chain> clauses = new List<Chain>();
+  List<Block> children = null;
+  List<Chain> clauses = null;
 
   /// CSS color of the block
   String blockColor = '#6b9bc3'; //'#d2584a';
@@ -104,6 +104,7 @@ class Block {
     // block types
     //----------------------------------------------------------
     if (json["clauses"] is List) {
+      block.clauses = new List<Chain>();
       for (var clause in json["clauses"]) {
         Chain chain = Chain.fromJSON(workspace, clause);
         block.clauses.add(chain);
@@ -187,13 +188,13 @@ class Block {
     data["required"] = required;
     data["x"] = x;
     data["y"] = y;
-    if (children.isNotEmpty) {
+    if (children != null) {
       data["children"] = [];
       for (Block child in children) {
         data["children"].add(child.toJSON());
       }
     }
-    if (clauses.isNotEmpty) {
+    if (clauses != null) {
       data["clauses"] = [];
       for (Chain clause in clauses) {
         data["clauses"].add(clause.toJSON());
@@ -217,10 +218,10 @@ class Block {
   int getBlockCount(int id) {
     int count = 0;
     if (this.id == id) { count++; }
-    if (this.children.isNotEmpty) {
+    if (this.children != null && children.isNotEmpty) {
       count = count + this.children.map( (child) => child.getBlockCount(id) ).reduce( (a, b) => a + b );
     }
-    if (this.clauses.isNotEmpty) {
+    if (this.clauses != null && clauses.isNotEmpty) {
       count = count + this.clauses.map( (clause) => clause.getBlockCount(id) ).reduce( (a, b) => a + b );
     }
     return count;
@@ -230,13 +231,17 @@ class Block {
     if (this.instanceId == instanceId) {
       return this;
     }
-    for (Block child in children) {
-      final block = child.getBlockInstance(instanceId);
-      if (block != null) { return block; }
+    if (children != null) {
+      for (Block child in children) {
+        final block = child.getBlockInstance(instanceId);
+        if (block != null) { return block; }
+      }
     }
-    for (Chain clause in clauses) {
-      final block = clause.getBlockInstance(instanceId);
-      if (block != null) { return block; }
+    if (clauses != null) {
+      for (Chain clause in clauses) {
+        final block = clause.getBlockInstance(instanceId);
+        if (block != null) { return block; }
+      }
     }
     return null;
   }
@@ -270,12 +275,12 @@ class Block {
       blockNode.append(attribute.drawProperty());
     }
 
-    if (children.isNotEmpty) {
+    if (children != null) {
       _childrenDiv = drawClause(children, drag, dragSheet);
       blockNode.append(_childrenDiv);
     }
 
-    if (clauses.isNotEmpty) {
+    if (clauses != null) {
       for (int i = 0; i < clauses.length; i++) {
         Chain clause = clauses[i];
         DivElement clauseDiv = drawClause(clause.blocks, drag, dragSheet, clauseIndex: i);
@@ -507,16 +512,20 @@ class Block {
   }
 
   void resetOwnedBlocksDragData() {
-    for (int i = 0; i < children.length; i++) {
-      Block block = children[i];
-      block._dragData.resetBlockOwned(_dragData.chainIndex, i, instanceId, children.skip(i + 1));
-      _childrenDiv.append(block._blockDiv);
+    if (children != null) {
+      for (int i = 0; i < children.length; i++) {
+        Block block = children[i];
+        block._dragData.resetBlockOwned(_dragData.chainIndex, i, instanceId, children.skip(i + 1));
+        _childrenDiv.append(block._blockDiv);
+      }
     }
-    for (int clauseIndex = 0; clauseIndex < clauses.length; clauseIndex++) {
-      Chain clause = clauses[clauseIndex];
-      for (int i = 0; i < clause.blocks.length; i++) {
-        Block block = clause.blocks[i];
-        block._dragData.resetBlockOwned(_dragData.chainIndex, i, instanceId, clause.blocks.skip(i + 1), clauseIndex: clauseIndex);
+    if (clauses != null) {
+      for (int clauseIndex = 0; clauseIndex < clauses.length; clauseIndex++) {
+        Chain clause = clauses[clauseIndex];
+        for (int i = 0; i < clause.blocks.length; i++) {
+          Block block = clause.blocks[i];
+          block._dragData.resetBlockOwned(_dragData.chainIndex, i, instanceId, clause.blocks.skip(i + 1), clauseIndex: clauseIndex);
+        }
       }
     }
   }

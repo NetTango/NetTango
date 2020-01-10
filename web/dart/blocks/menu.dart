@@ -147,6 +147,16 @@ class Slot {
     target.classes.add("nt-block-drag-target");
 
     _newBlockInstance = block.clone();
+    if (block.clauses != null) {
+      _newBlockInstance.children = new List<Block>();
+      if (block.clauses.length > 0) {
+        _newBlockInstance.clauses = new List<Chain>();
+        for (int i = 0; i < block.clauses.length; i++) {
+          _newBlockInstance.clauses.add(new Chain());
+        }
+      }
+    }
+
     BlockDragData dragData = BlockDragData.newBlock(_slotIndex);
     String dataString = jsonEncode(dragData.toJSON());
     event.dataTransfer.setData("text/json", dataString);

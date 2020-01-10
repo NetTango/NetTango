@@ -335,6 +335,7 @@ class CodeWorkspace {
     _restoreParams(block, json['params'], json['properties']);
 
     if (json['children'] is List) {
+      block.children = new List<Block>();
       for (var childJson in json['children']) {
         if (childJson is Map) {
           Block child = _restoreBlock(childJson);
@@ -344,6 +345,7 @@ class CodeWorkspace {
     }
 
     if (json['clauses'] is List) {
+      block.clauses = new List<Chain>();
       for (var clauseJson in json['clauses']) {
         if (clauseJson is Map && clauseJson['children'] is List) {
           Chain clause = new Chain();
