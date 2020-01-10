@@ -222,6 +222,7 @@ class CodeWorkspace {
     Chain oldChain = chains[chainIndex];
     final blocks = oldChain.blocks;
     chains.removeAt(chainIndex);
+    oldChain._chainDiv.remove();
     for (int i = 0; i < chains.length; i++) {
       Chain chain = chains[i];
       chain.resetDragData(i);
