@@ -60,6 +60,10 @@
   min-height: 1.6em;
 }
 
+.nt-block-clause-header-drag-over {
+  border-top: 3px solid cyan !important;
+}
+
 .nt-clause > .nt-block:first-child {
   border-top: 1px solid #000;
 }
@@ -92,6 +96,13 @@
 }
 
 .nt-block-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  align-content: center;
+}
+
+.nt-block-clause-header {
   display: flex;
   flex-direction: row;
   align-items: center;

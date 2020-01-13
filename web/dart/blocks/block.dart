@@ -260,7 +260,16 @@ class Block {
     _blockDiv = blockNode;
 
     DivElement headerNode = new DivElement();
-    headerNode.classes.add("nt-block-header");
+    // TODO: If `children` changes (empties), update these classes
+    if (children == null || children.isEmpty) {
+      headerNode.classes.add("nt-block-header");
+    } else {
+      headerNode.classes.add("nt-block-clause-header");
+      headerNode.onDragEnter.listen( enterClauseHeaderDrag );
+      headerNode.onDragOver.listen( (e) => e.preventDefault() );
+      headerNode.onDragLeave.listen( leaveClauseHeaderDrag );
+      headerNode.onDrop.listen( dropClauseHeader );
+    }
     blockNode.append(headerNode);
 
     DivElement actionNode = new DivElement();
@@ -323,6 +332,64 @@ class Block {
     clauseDiv.onDragLeave.listen( (e) => leaveClauseDrag(e, clauseDiv) );
     clauseDiv.onDragOver.listen( (e) => e.preventDefault() );
     clauseDiv.onDrop.listen( (e) => dropClause(e, clauseDiv, clauseIndex) );
+  }
+
+  bool enterClauseHeaderDrag(MouseEvent event) {
+    Element target = event.target;
+    if (target.classes.contains("nt-block-drag-target") || _blockDiv.classes.contains("nt-block-drag-target") ) {
+      return true;
+    }
+    if (!event.dataTransfer.types.contains(workspace.containerId) || event.dataTransfer.types.contains("starter")) {
+      return true;
+    }
+    event.stopPropagation();
+    children[0]._blockDiv.classes.add("nt-block-clause-header-drag-over");
+    return false;
+  }
+
+  void leaveClauseHeaderDrag(MouseEvent event) {
+    children[0]._blockDiv.classes.remove("nt-block-clause-header-drag-over");
+  }
+
+  bool dropClauseHeader(MouseEvent event) {
+    event.preventDefault();
+    event.stopPropagation();
+    children[0]._blockDiv.classes.remove("nt-block-clause-header-drag-over");
+    Element target = event.target;
+    if (target.classes.contains("nt-block-drag-target") || target.classes.contains("nt-block-drag-sibling")) {
+      return false;
+    }
+    if (_blockDiv.classes.contains("nt-block-drag-target") || _blockDiv.classes.contains("nt-block-drag-sibling")) {
+      return false;
+    }
+    if (!event.dataTransfer.types.contains(workspace.containerId) || event.dataTransfer.types.contains("starter")) {
+      return false;
+    }
+
+    final json = jsonDecode(event.dataTransfer.getData("text/json"));
+    final blockData = BlockDragData.fromJSON(json);
+    final newBlocks = workspace.removeBlocksFromSource(blockData);
+    final data = children[0]._dragData;
+    switch (data.parentType) {
+      case "workspace-chain":
+        throw new Exception("Should not have a workspace chain block as a children clause.");
+        break;
+
+      case "block-children":
+        final parentBlock = workspace.chains[data.chainIndex].getBlockInstance(data.parentInstanceId);
+        parentBlock.insertChildBlocks(0, newBlocks);
+        break;
+
+      case "block-clause":
+        final parentBlock = workspace.chains[data.chainIndex].getBlockInstance(data.parentInstanceId);
+        parentBlock.insertClauseBlocks(data.clauseIndex, 0, newBlocks);
+        break;
+    }
+    workspace.updateWorkspaceHeight();
+    Block changedBlock = newBlocks.elementAt(0);
+    workspace.programChanged(new BlockChangedEvent(changedBlock));
+
+    return false;
   }
 
   bool enterClauseDrag(MouseEvent event, DivElement clauseDiv) {
@@ -396,6 +463,8 @@ class Block {
     dragSheet.insertRule(".nt-menu-slot { pointer-events: none; }", 0);
     dragSheet.insertRule(".nt-block-header { pointer-events: none; }", 1);
     dragSheet.insertRule(".nt-property { pointer-events: none; }", 2);
+    dragSheet.insertRule(".nt-block-action { pointer-events: none; }", 3);
+    dragSheet.insertRule(".nt-attribute-value { pointer-events: none; }", 4);
 
     Element dragClone = target.clone(true);
     target.classes.add("nt-block-drag-target");

@@ -145,6 +145,8 @@ class Slot {
     dragSheet.insertRule(".nt-menu-slot { pointer-events: none; }", 0);
     dragSheet.insertRule(".nt-block-header { pointer-events: none; }", 1);
     dragSheet.insertRule(".nt-property { pointer-events: none; }", 2);
+    dragSheet.insertRule(".nt-block-action { pointer-events: none; }", 3);
+    dragSheet.insertRule(".nt-attribute-value { pointer-events: none; }", 4);
 
     target.classes.add("nt-block-drag-target");
 
