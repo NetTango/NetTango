@@ -22,7 +22,6 @@ class CodeWorkspace {
   /// HTML Canvas ID
   String containerId;
   DivElement container, spaceDiv, drag;
-  CssStyleSheet dragSheet;
 
   List<Chain> chains = new List<Chain>();
 
@@ -165,13 +164,13 @@ class CodeWorkspace {
   void draw() {
     spaceDiv = new DivElement() .. id = "${containerId}-space";
     spaceDiv.classes.add("nt-workspace");
+    spaceDiv.onDragEnter.listen( (e) => clearDragOver() );
     spaceDiv.onDragOver.listen( (e) => e.preventDefault() );
     spaceDiv.onDrop.listen( drop );
     container.append(spaceDiv);
 
     StyleElement dragStyleElement = new StyleElement();
     container.append(dragStyleElement);
-    dragSheet = dragStyleElement.sheet;
 
     drag = new DivElement();
     drag.classes.add("nt-block-drag");
@@ -184,11 +183,11 @@ class CodeWorkspace {
 
     for (int i = 0; i < chains.length; i++) {
       Chain chain = chains[i];
-      DivElement chainDiv = chain.draw(drag, dragSheet, i);
+      DivElement chainDiv = chain.draw(drag, i);
       spaceDiv.append(chainDiv);
     }
 
-    final menuDiv = menu.draw(drag, dragSheet);
+    final menuDiv = menu.draw(drag);
     container.append(menuDiv);
 
     updateWorkspaceForChanges();
@@ -197,6 +196,7 @@ class CodeWorkspace {
   bool drop(MouseEvent event) {
     event.stopPropagation();
     event.preventDefault();
+    clearDragOver();
 
     if (!event.dataTransfer.types.contains(containerId)) {
       return false;
@@ -226,7 +226,7 @@ class CodeWorkspace {
     Chain newChain = new Chain();
     int newChainIndex = chains.length;
     chains.add(newChain);
-    DivElement chainDiv = newChain.draw(drag, dragSheet, newChainIndex);
+    DivElement chainDiv = newChain.draw(drag, newChainIndex);
     spaceDiv.append(chainDiv);
     newChain.addBlocks(newBlocks);
     repositionChain(newChain, x, y);
@@ -251,7 +251,7 @@ class CodeWorkspace {
 
       case "new-block":
         final slot = menu.slots[blockData.slotIndex];
-        slot._slotDiv.classes.remove("nt-block-drag-target");
+        slot._slotDiv.classes.remove("nt-block-dragging");
         final instance = slot._newBlockInstance;
         instance._blockDiv.style.pointerEvents = "";
 
@@ -292,6 +292,13 @@ class CodeWorkspace {
       first.y = y;
       chain.updatePosition();
       updateWorkspaceForChanges();
+    }
+  }
+
+  void clearDragOver() {
+    menu.clearDragOver();
+    for (Chain chain in chains) {
+      chain.clearDragOver();
     }
   }
 

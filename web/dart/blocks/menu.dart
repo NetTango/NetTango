@@ -56,17 +56,17 @@ class BlockMenu {
     return null;
   }
 
-  DivElement draw(DivElement drag, CssStyleSheet dragSheet) {
+  DivElement draw(DivElement drag) {
     DivElement menuDiv = new DivElement() .. id = "${workspace.containerId}-menu";
     menuDiv.classes.add("nt-menu");
     _menuDiv = menuDiv;
     for (int i = 0; i < slots.length; i++) {
       Slot slot = slots[i];
-      menuDiv.append(slot.draw(drag, dragSheet, i));
+      menuDiv.append(slot.draw(drag, i));
     }
 
     menuDiv.onDragEnter.listen( (e) => enterDrag(e) );
-    menuDiv.onDragLeave.listen( (e) => leaveDrag(e) );
+    // menuDiv.onDragLeave.listen( (e) => leaveDrag(e) );
     menuDiv.onDragOver.listen( (e) => e.preventDefault() );
     menuDiv.onDrop.listen( drop );
 
@@ -79,23 +79,25 @@ class BlockMenu {
     }
   }
 
-  bool enterDrag(MouseEvent event) {
-    if (!event.dataTransfer.types.contains(workspace.containerId)) {
-      return true;
-    }
-    event.stopPropagation();
-    event.dataTransfer.dropEffect = "move";
-    _menuDiv.classes.add("nt-menu-drag-over");
-    return false;
+  void clearDragOver() {
+    _menuDiv.classes.remove("nt-menu-drag-over");
   }
 
-  void leaveDrag(MouseEvent event) {
-    _menuDiv.classes.remove("nt-menu-drag-over");
+  bool enterDrag(MouseEvent event) {
+    event.stopPropagation();
+    workspace.clearDragOver();
+
+    if (!event.dataTransfer.types.contains(workspace.containerId)) {
+      return false;
+    }
+    _menuDiv.classes.add("nt-menu-drag-over");
+    return false;
   }
 
   bool drop(MouseEvent event) {
     event.stopPropagation();
     event.preventDefault();
+    workspace.clearDragOver();
 
     if (!event.dataTransfer.types.contains(workspace.containerId)) {
       return false;
@@ -108,7 +110,6 @@ class BlockMenu {
 
     Block changedBlock = oldBlocks.elementAt(0);
     workspace.programChanged(new BlockChangedEvent(changedBlock));
-    _menuDiv.classes.remove("nt-menu-drag-over");
 
     return false;
   }
@@ -126,6 +127,7 @@ class Slot {
   int _slotIndex;
   Block _newBlockInstance;
   DivElement _slotDiv;
+  bool isDragging = false;
 
   Slot(this.block, this.workspace, this.limit);
 
@@ -134,14 +136,14 @@ class Slot {
     return (limit <= 0 || free > 0);
   }
 
-  DivElement draw(DivElement drag, CssStyleSheet dragSheet, int slotIndex) {
+  DivElement draw(DivElement drag, int slotIndex) {
     _slotIndex = slotIndex;
     _slotDiv = new DivElement();
     _slotDiv.innerText = block.action;
     _slotDiv.classes.add("nt-menu-slot");
     _slotDiv.draggable = true;
-    _slotDiv.onDragStart.listen( (e) => startDrag(e, block.workspace.containerId, drag, dragSheet) );
-    _slotDiv.onDragEnd.listen( (e) => endDrag(e, drag, dragSheet) );
+    _slotDiv.onDragStart.listen( (e) => startDrag(e, drag) );
+    _slotDiv.onDragEnd.listen( (e) => endDrag(e, drag) );
     updateForLimit();
     return _slotDiv;
   }
@@ -154,23 +156,14 @@ class Slot {
     }
   }
 
-  void startDrag(MouseEvent event, String workspaceId, DivElement drag, CssStyleSheet dragSheet) {
-    Element target = event.target;
-    // if the class is already set, we're already draggin'
-    if (target.classes.contains("nt-block-drag-target")) {
+  void startDrag(MouseEvent event, DivElement drag) {
+    if (isDragging) {
       return;
     }
 
-    event.dataTransfer.setData(workspaceId, workspaceId);
+    event.dataTransfer.setData(block.workspace.containerId, block.workspace.containerId);
 
-    _slotDiv.style.pointerEvents = "auto";
-    dragSheet.insertRule(".nt-menu-slot { pointer-events: none; }", 0);
-    dragSheet.insertRule(".nt-block-header { pointer-events: none; }", 1);
-    dragSheet.insertRule(".nt-property { pointer-events: none; }", 2);
-    dragSheet.insertRule(".nt-block-action { pointer-events: none; }", 3);
-    dragSheet.insertRule(".nt-attribute-value { pointer-events: none; }", 4);
-
-    target.classes.add("nt-block-drag-target");
+    _slotDiv.classes.add("nt-block-dragging");
 
     _newBlockInstance = block.clone();
     if (block.clauses != null) {
@@ -186,7 +179,7 @@ class Slot {
     BlockDragData dragData = BlockDragData.newBlock(_slotIndex);
     String dataString = jsonEncode(dragData.toJSON());
     event.dataTransfer.setData("text/json", dataString);
-    final blockDiv = _newBlockInstance.draw(drag, dragSheet, dragData);
+    final blockDiv = _newBlockInstance.draw(drag, dragData);
     blockDiv.style.pointerEvents = "none";
     if (_newBlockInstance.required) {
       drag.classes.add("nt-chain-starter");
@@ -197,18 +190,17 @@ class Slot {
     drag.setInnerHtml("");
     drag.append(blockDiv);
 
+    isDragging = true;
     event.dataTransfer.setDragImage(drag, 0, 0);
   }
 
-  void endDrag(MouseEvent event, DivElement drag, CssStyleSheet dragSheet) {
-    while (dragSheet.rules.length > 0) {
-      dragSheet.deleteRule(0);
-    }
+  void endDrag(MouseEvent event, DivElement drag) {
+    workspace.clearDragOver();
 
-    Element target = event.target;
-    target.classes.remove("nt-block-drag-target");
+    _slotDiv.classes.remove("nt-block-dragging");
     drag.classes.remove("nt-chain-starter");
-    _slotDiv.style.pointerEvents = "";
+
+    isDragging = false;
     _newBlockInstance = null;
   }
 }

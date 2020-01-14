@@ -78,6 +78,7 @@ class Block {
 
   BlockDragData _dragData;
   DivElement _blockDiv;
+  bool isDragging = false;
 
   Block(this.workspace, this.id, this.action) {
     if (this.id == null) {
@@ -249,7 +250,7 @@ class Block {
     this.y = y;
   }
 
-  DivElement draw(DivElement drag, CssStyleSheet dragSheet, BlockDragData dragData) {
+  DivElement draw(DivElement drag, BlockDragData dragData) {
     this._dragData = dragData;
 
     DivElement blockNode = new DivElement();
@@ -281,7 +282,7 @@ class Block {
     }
 
     if (children != null) {
-      DivElement childrenDiv = children.draw(drag, dragSheet, headerNode);
+      DivElement childrenDiv = children.draw(drag, headerNode);
       blockNode.append(childrenDiv);
     }
 
@@ -291,45 +292,75 @@ class Block {
         clauseDivider.classes.add("nt-clause-divider");
         blockNode.append(clauseDivider);
         Clause clause = clauses[i];
-        DivElement clauseDiv = clause.draw(drag, dragSheet, clauseDivider);
+        DivElement clauseDiv = clause.draw(drag, clauseDivider);
         blockNode.append(clauseDiv);
       }
     }
 
     blockNode.draggable = true;
-    blockNode.onDragStart.listen( (e) => startDrag(e, drag, dragSheet) );
-    blockNode.onDragEnd.listen( (e) => endDrag(e, drag, dragSheet) );
+    blockNode.onDragStart.listen( (e) => startDrag(e, drag) );
+    blockNode.onDragEnd.listen( (e) => endDrag(e, drag) );
     blockNode.onDragEnter.listen( enterDrag );
     blockNode.onDragOver.listen( (e) => e.preventDefault() );
-    blockNode.onDragLeave.listen( leaveDrag );
+    // blockNode.onDragLeave.listen( leaveDrag );
     blockNode.onDrop.listen( drop );
 
     return blockNode;
   }
 
-  void startDrag(MouseEvent event, DivElement drag, CssStyleSheet dragSheet) {
-    Element target = event.target;
-    // if the class is already set, we're already draggin'
-    if (target.classes.contains("nt-block-drag-target")) {
-      return;
+  void clearDragOver() {
+    _blockDiv.classes.remove("nt-drag-over");
+    _blockDiv.classes.remove("nt-block-clause-drag-over");
+    if (children != null) {
+      children.clearDragOver();
+    }
+    if (clauses != null) {
+      for (Clause clause in clauses) {
+        clause.clearDragOver();
+      }
+    }
+  }
+
+  void setDragging(bool dragging) {
+    isDragging = dragging;
+    if (children != null) {
+      children.setDragging(dragging);
+    }
+    if (clauses != null) {
+      for (Clause clause in clauses) {
+        clause.setDragging(dragging);
+      }
+    }
+    for (Block sibling in _dragData.siblings) {
+      sibling.setDragging(dragging);
+    }
+  }
+
+  void setDraggingClasses() {
+    if (isDragging) {
+      _blockDiv.classes.add("nt-block-dragging");
+      for (Block sibling in _dragData.siblings) {
+        sibling._blockDiv.classes.add("nt-block-dragging");
+      }
+    } else {
+      _blockDiv.classes.remove("nt-block-dragging");
+      for (Block sibling in _dragData.siblings) {
+        sibling._blockDiv.classes.remove("nt-block-dragging");
+      }
+    }
+  }
+
+  bool startDrag(MouseEvent event, DivElement drag) {
+    event.stopPropagation();
+    if (isDragging) {
+      return false;
     }
 
     event.dataTransfer.setData(workspace.containerId, workspace.containerId);
     String blockString = jsonEncode(this._dragData.toJSON());
     event.dataTransfer.setData("text/json", blockString);
-    event.dataTransfer.effectAllowed = "move";
 
-    // HTML drag events fire internally to the div, so we
-    // disable pointer events for any "inner" block elements
-    // while we drag.  -Jeremy B, Jan 2020
-    dragSheet.insertRule(".nt-menu-slot { pointer-events: none; }", 0);
-    dragSheet.insertRule(".nt-block-header { pointer-events: none; }", 1);
-    dragSheet.insertRule(".nt-property { pointer-events: none; }", 2);
-    dragSheet.insertRule(".nt-block-action { pointer-events: none; }", 3);
-    dragSheet.insertRule(".nt-attribute-value { pointer-events: none; }", 4);
-
-    Element dragClone = target.clone(true);
-    target.classes.add("nt-block-drag-target");
+    Element dragClone = _blockDiv.clone(true);
 
     if (required) {
       drag.classes.add("nt-chain-starter");
@@ -337,53 +368,45 @@ class Block {
     }
     drag.setInnerHtml("");
     drag.append(dragClone);
-    for(Block sibling in this._dragData.siblings) {
+    for (Block sibling in this._dragData.siblings) {
       drag.append(sibling._blockDiv.clone(true));
-      sibling._blockDiv.classes.add("nt-block-drag-sibling");
     }
 
+    setDragging(true);
+    setDraggingClasses();
     event.dataTransfer.setDragImage(drag, 0, 0);
   }
 
-  void endDrag(MouseEvent event, DivElement drag, CssStyleSheet dragSheet) {
-    while (dragSheet.rules.length > 0) {
-      dragSheet.deleteRule(0);
-    }
+  void endDrag(MouseEvent event, DivElement drag) {
+    workspace.clearDragOver();
 
-    Element target = event.target;
-    target.classes.remove("nt-block-drag-target");
+    setDragging(false);
+    setDraggingClasses();
     drag.classes.remove("nt-chain-starter");
-    for(Block sibling in this._dragData.siblings) {
-      sibling._blockDiv.classes.remove("nt-block-drag-sibling");
-    }
   }
 
   bool enterDrag(MouseEvent event) {
-    Element target = event.target;
-    if (target.classes.contains("nt-block-drag-target")) {
-      return true;
+    event.stopPropagation();
+    workspace.clearDragOver();
+
+    if (isDragging) {
+      return false;
     }
     if (!event.dataTransfer.types.contains(workspace.containerId) || event.dataTransfer.types.contains("starter")) {
       return true;
     }
-    event.stopPropagation();
-    _blockDiv.classes.add("nt-drag-over");
-    return false;
-  }
 
-  void leaveDrag(MouseEvent event) {
-    _blockDiv.classes.remove("nt-drag-over");
+    _blockDiv.classes.add("nt-drag-over");
+
+    return false;
   }
 
   bool drop(MouseEvent event) {
     event.preventDefault();
     event.stopPropagation();
-    _blockDiv.classes.remove("nt-drag-over");
-    Element target = event.target;
-    if (target.classes.contains("nt-block-drag-target") || target.classes.contains("nt-block-drag-sibling")) {
-      return false;
-    }
-    if (_blockDiv.classes.contains("nt-block-drag-target") || _blockDiv.classes.contains("nt-block-drag-sibling")) {
+    workspace.clearDragOver();
+
+    if (isDragging) {
       return false;
     }
     if (!event.dataTransfer.types.contains(workspace.containerId) || event.dataTransfer.types.contains("starter")) {

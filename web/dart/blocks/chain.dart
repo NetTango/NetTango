@@ -19,7 +19,7 @@ class Chain extends BlockCollection {
 
   int chainIndex;
 
-  DivElement draw(Element drag, CssStyleSheet dragSheet, int newChainIndex) {
+  DivElement draw(Element drag, int newChainIndex) {
     this.chainIndex = newChainIndex;
 
     _div = new DivElement();
@@ -40,7 +40,7 @@ class Chain extends BlockCollection {
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks.elementAt(i);
       final dragData = BlockDragData.workspaceChain(chainIndex, i, blocks.skip(i + 1));
-      final blockDiv = block.draw(drag, dragSheet, dragData);
+      final blockDiv = block.draw(drag, dragData);
       _div.append(blockDiv);
     }
 
@@ -62,6 +62,12 @@ class Chain extends BlockCollection {
       Block block = blocks[i];
       block._dragData.resetWorkspaceChain(chainIndex, i, blocks.skip(i + 1));
       block.resetOwnedBlocksDragData();
+    }
+  }
+
+  void clearDragOver() {
+    for (Block block in blocks) {
+      block.clearDragOver();
     }
   }
 

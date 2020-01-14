@@ -20,6 +20,8 @@ class Clause extends BlockCollection {
   final Block owner;
   final int clauseIndex;
 
+  bool isDragging = false;
+
   Clause(this.owner, {this.clauseIndex = null}) {}
 
   static Clause fromJSON(CodeWorkspace workspace, Block owner, Map json, int clauseIndex) {
@@ -30,7 +32,7 @@ class Clause extends BlockCollection {
     return clause;
   }
 
-  DivElement draw(Element drag, CssStyleSheet dragSheet, DivElement headerDiv) {
+  DivElement draw(Element drag, DivElement headerDiv) {
     _div = new DivElement();
     _div.classes.add("nt-clause");
 
@@ -45,7 +47,7 @@ class Clause extends BlockCollection {
       Block block = blocks[i];
       final siblings = blocks.skip(i + 1);
       final dragData = BlockDragData.blockOwned(owner._dragData.chainIndex, i, owner.instanceId, siblings, clauseIndex: clauseIndex);
-      final blockDiv = block.draw(drag, dragSheet, dragData);
+      final blockDiv = block.draw(drag, dragData);
       _div.append(blockDiv);
     }
     return _div;
@@ -77,55 +79,57 @@ class Clause extends BlockCollection {
   void setupClauseHeaderLiseners(DivElement headerNode) {
     headerNode.onDragEnter.listen( enterClauseHeaderDrag );
     headerNode.onDragOver.listen( (e) => e.preventDefault() );
-    headerNode.onDragLeave.listen( leaveClauseHeaderDrag );
+    // headerNode.onDragLeave.listen( leaveClauseHeaderDrag );
     headerNode.onDrop.listen( dropClauseHeader );
   }
 
   void setupEmptyClauseListeners() {
     _div.onDragEnter.listen( enterClauseDrag );
-    _div.onDragLeave.listen( leaveClauseDrag );
+    // _div.onDragLeave.listen( leaveClauseDrag );
     _div.onDragOver.listen( (e) => e.preventDefault() );
     _div.onDrop.listen( dropClause );
   }
 
-  bool enterClauseHeaderDrag(MouseEvent event) {
-    Element target = event.target;
-    if (target.classes.contains("nt-block-drag-target") || owner._blockDiv.classes.contains("nt-block-drag-target") ) {
-      return true;
+  void setDragging(bool dragging) {
+    isDragging = dragging;
+    for (Block block in blocks) {
+      block.setDragging(dragging);
     }
-    if (!event.dataTransfer.types.contains(owner.workspace.containerId) || event.dataTransfer.types.contains("starter")) {
-      return true;
-    }
-    event.stopPropagation();
-    if (blocks.isEmpty) {
-      _div.classes.add("nt-block-clause-header-drag-over");
-    } else {
-      blocks[0]._blockDiv.classes.add("nt-block-clause-header-drag-over");
-    }
-    return false;
   }
 
-  void leaveClauseHeaderDrag(MouseEvent event) {
-    if (blocks.isEmpty) {
-      _div.classes.remove("nt-block-clause-header-drag-over");
-    } else {
-      blocks[0]._blockDiv.classes.remove("nt-block-clause-header-drag-over");
+  void clearDragOver() {
+    _div.classes.remove("nt-block-clause-drag-over");
+    for (Block block in blocks) {
+      block.clearDragOver();
     }
+  }
+
+  bool enterClauseHeaderDrag(MouseEvent event) {
+    event.stopPropagation();
+    owner.workspace.clearDragOver();
+
+    if (isDragging) {
+      return false;
+    }
+    if (!event.dataTransfer.types.contains(owner.workspace.containerId) || event.dataTransfer.types.contains("starter")) {
+      return false;
+    }
+
+    if (blocks.isEmpty) {
+      _div.classes.add("nt-block-clause-drag-over");
+    } else {
+      blocks[0]._blockDiv.classes.add("nt-block-clause-drag-over");
+    }
+
+    return false;
   }
 
   bool dropClauseHeader(MouseEvent event) {
     event.preventDefault();
     event.stopPropagation();
-    if (blocks.isEmpty) {
-      _div.classes.remove("nt-block-clause-header-drag-over");
-    } else {
-      blocks[0]._blockDiv.classes.remove("nt-block-clause-header-drag-over");
-    }
-    Element target = event.target;
-    if (target.classes.contains("nt-block-drag-target") || target.classes.contains("nt-block-drag-sibling")) {
-      return false;
-    }
-    if (owner._blockDiv.classes.contains("nt-block-drag-target") || owner._blockDiv.classes.contains("nt-block-drag-sibling")) {
+    owner.workspace.clearDragOver();
+
+    if (isDragging) {
       return false;
     }
     if (!event.dataTransfer.types.contains(owner.workspace.containerId) || event.dataTransfer.types.contains("starter")) {
@@ -147,57 +151,45 @@ class Clause extends BlockCollection {
   }
 
   bool enterClauseDrag(MouseEvent event) {
-    if (!_div.classes.contains("nt-clause-empty")) {
-      return true;
-    }
-    if (event.dataTransfer.types.contains("starter")) {
-      return true;
-    }
-    if (!event.dataTransfer.types.contains(owner.workspace.containerId)) {
-      return true;
-    }
     event.stopPropagation();
-    _div.classes.add("nt-drag-over");
-    return false;
-  }
+    owner.workspace.clearDragOver();
 
-  bool leaveClauseDrag(MouseEvent event) {
-    // why do this instead of removing the event listener when not empty?
-    // you have to store the subscription somewhere to `cancel()` it with
-    // dart, and that's more state than I want to track at the moment.
-    if (!_div.classes.contains("nt-clause-empty")) {
-      return true;
+    if (blocks.isNotEmpty) {
+      return false;
     }
-    if (event.dataTransfer.types.contains("starter")) {
-      return true;
+    if (isDragging) {
+      return false;
     }
-    event.stopPropagation();
-    _div.classes.remove("nt-drag-over");
+    if (!event.dataTransfer.types.contains(owner.workspace.containerId) || event.dataTransfer.types.contains("starter")) {
+      return false;
+    }
+
+    _div.classes.add("nt-block-clause-drag-over");
+
     return false;
   }
 
   bool dropClause(MouseEvent event) {
-    if (!_div.classes.contains("nt-clause-empty")) {
-      return false;
-    }
-    if (event.dataTransfer.types.contains("starter")) {
-      return false;
-    }
     event.preventDefault();
     event.stopPropagation();
+    owner.workspace.clearDragOver();
 
-    if (!event.dataTransfer.types.contains(owner.workspace.containerId)) {
+    if (blocks.isNotEmpty) {
       return false;
     }
-
-    _div.classes.remove("nt-drag-over");
-    _div.classes.remove("nt-clause-empty");
+    if (isDragging) {
+      return false;
+    }
+    if (!event.dataTransfer.types.contains(owner.workspace.containerId) || event.dataTransfer.types.contains("starter")) {
+      return false;
+    }
 
     final json = jsonDecode(event.dataTransfer.getData("text/json"));
     final blockData = BlockDragData.fromJSON(json);
     final newBlocks = owner.workspace.removeBlocksFromSource(blockData);
 
     insertBlocks(0, newBlocks);
+    _div.classes.remove("nt-clause-empty");
 
     owner.workspace.updateWorkspaceForChanges();
     Block changedBlock = newBlocks.elementAt(0);

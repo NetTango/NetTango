@@ -56,7 +56,7 @@
   min-height: 1.6em;
 }
 
-.nt-block-clause-header-drag-over {
+.nt-block-clause-drag-over {
   border-top: 3px solid cyan !important;
 }
 
@@ -124,13 +124,8 @@
   position: absolute;
 }
 
-.nt-block-drag-target {
+.nt-block-dragging {
   opacity: 0.25;
-}
-
-.nt-block-drag-sibling {
-  opacity: 0.25;
-  pointer-events: none;
 }
 
 .nt-drag-over {
