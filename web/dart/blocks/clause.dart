@@ -139,7 +139,7 @@ class Clause extends BlockCollection {
     insertBlocks(0, newBlocks);
     _div.classes.remove("nt-clause-empty");
 
-    owner.workspace.updateWorkspaceHeight();
+    owner.workspace.updateWorkspaceForChanges();
     Block changedBlock = newBlocks.elementAt(0);
     owner.workspace.programChanged(new BlockChangedEvent(changedBlock));
 
@@ -191,7 +191,7 @@ class Clause extends BlockCollection {
 
     insertBlocks(0, newBlocks);
 
-    owner.workspace.updateWorkspaceHeight();
+    owner.workspace.updateWorkspaceForChanges();
     Block changedBlock = newBlocks.elementAt(0);
     owner.workspace.programChanged(new BlockChangedEvent(changedBlock));
 

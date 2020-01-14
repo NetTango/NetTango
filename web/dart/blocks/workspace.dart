@@ -156,6 +156,9 @@ class CodeWorkspace {
   }
 
   int getBlockCount(int id) {
+    if (chains.isEmpty) {
+      return 0;
+    }
     return chains.map( (c) => c.getBlockCount(id) ).reduce( (a, b) => a + b );
   }
 
@@ -188,7 +191,7 @@ class CodeWorkspace {
     final menuDiv = menu.draw(drag, dragSheet);
     container.append(menuDiv);
 
-    updateWorkspaceHeight();
+    updateWorkspaceForChanges();
   }
 
   void drop(MouseEvent event) {
@@ -232,7 +235,7 @@ class CodeWorkspace {
       chain.resetDragData(i);
       chain.updatePosition();
     }
-    updateWorkspaceHeight();
+    updateWorkspaceForChanges();
     return blocks;
   }
 
@@ -281,8 +284,13 @@ class CodeWorkspace {
       first.x = x;
       first.y = y;
       chain.updatePosition();
-      updateWorkspaceHeight();
+      updateWorkspaceForChanges();
     }
+  }
+
+  void updateWorkspaceForChanges() {
+    updateWorkspaceHeight();
+    menu.updateLimits();
   }
 
   void updateWorkspaceHeight() {

@@ -183,6 +183,11 @@
   white-space: nowrap;
 }
 
+.nt-menu-slot-at-limit {
+  pointer-events: none;
+  opacity: 0.25;
+}
+
 /* Backdrop for the parameter popup menu */
 .backdrop {
   visibility: hidden;

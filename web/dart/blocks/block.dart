@@ -408,7 +408,7 @@ class Block {
         parentBlock.clauses[_dragData.clauseIndex].insertBlocks(_dragData.blockIndex + 1, newBlocks);
         break;
     }
-    workspace.updateWorkspaceHeight();
+    workspace.updateWorkspaceForChanges();
     Block changedBlock = newBlocks.elementAt(0);
     workspace.programChanged(new BlockChangedEvent(changedBlock));
 

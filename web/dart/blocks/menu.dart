@@ -73,6 +73,12 @@ class BlockMenu {
     return menuDiv;
   }
 
+  void updateLimits() {
+    for (Slot slot in slots) {
+      slot.updateForLimit();
+    }
+  }
+
   bool enterDrag(MouseEvent event) {
     if (!event.dataTransfer.types.contains(workspace.containerId)) {
       return true;
@@ -129,7 +135,16 @@ class Slot {
     _slotDiv.draggable = true;
     _slotDiv.onDragStart.listen( (e) => startDrag(e, block.workspace.containerId, drag, dragSheet) );
     _slotDiv.onDragEnd.listen( (e) => endDrag(e, drag, dragSheet) );
+    updateForLimit();
     return _slotDiv;
+  }
+
+  void updateForLimit() {
+    if (isAvailable()) {
+      _slotDiv.classes.remove("nt-menu-slot-at-limit");
+    } else {
+      _slotDiv.classes.add("nt-menu-slot-at-limit");
+    }
   }
 
   void startDrag(MouseEvent event, String workspaceId, DivElement drag, CssStyleSheet dragSheet) {
