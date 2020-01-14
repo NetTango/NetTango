@@ -93,9 +93,14 @@ class BlockMenu {
     _menuDiv.classes.remove("nt-menu-drag-over");
   }
 
-  void drop(MouseEvent event) {
+  bool drop(MouseEvent event) {
     event.stopPropagation();
     event.preventDefault();
+
+    if (!event.dataTransfer.types.contains(workspace.containerId)) {
+      return false;
+    }
+
     final json = jsonDecode(event.dataTransfer.getData("text/json"));
     final blockData = BlockDragData.fromJSON(json);
 
@@ -104,6 +109,8 @@ class BlockMenu {
     Block changedBlock = oldBlocks.elementAt(0);
     workspace.programChanged(new BlockChangedEvent(changedBlock));
     _menuDiv.classes.remove("nt-menu-drag-over");
+
+    return false;
   }
 }
 

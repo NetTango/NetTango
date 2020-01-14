@@ -194,9 +194,14 @@ class CodeWorkspace {
     updateWorkspaceForChanges();
   }
 
-  void drop(MouseEvent event) {
+  bool drop(MouseEvent event) {
     event.stopPropagation();
     event.preventDefault();
+
+    if (!event.dataTransfer.types.contains(containerId)) {
+      return false;
+    }
+
     final json = jsonDecode(event.dataTransfer.getData("text/json"));
     final blockData = BlockDragData.fromJSON(json);
 
@@ -206,13 +211,15 @@ class CodeWorkspace {
       Block changedBlock = chain.blocks[0];
       programChanged(new BlockChangedEvent(changedBlock));
       repositionChain(chain, event.offset.x, event.offset.y);
-      return;
+      return false;
     }
 
     final newBlocks = removeBlocksFromSource(blockData);
     createChain(newBlocks, event.offset.x, event.offset.y);
     Block changedBlock = newBlocks.elementAt(0);
     programChanged(new BlockChangedEvent(changedBlock));
+
+    return false;
   }
 
   void createChain(Iterable<Block> newBlocks, int x, int y) {

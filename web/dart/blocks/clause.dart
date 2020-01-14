@@ -153,6 +153,9 @@ class Clause extends BlockCollection {
     if (event.dataTransfer.types.contains("starter")) {
       return true;
     }
+    if (!event.dataTransfer.types.contains(owner.workspace.containerId)) {
+      return true;
+    }
     event.stopPropagation();
     _div.classes.add("nt-drag-over");
     return false;
@@ -175,13 +178,18 @@ class Clause extends BlockCollection {
 
   bool dropClause(MouseEvent event) {
     if (!_div.classes.contains("nt-clause-empty")) {
-      return true;
+      return false;
     }
     if (event.dataTransfer.types.contains("starter")) {
-      return true;
+      return false;
     }
     event.preventDefault();
     event.stopPropagation();
+
+    if (!event.dataTransfer.types.contains(owner.workspace.containerId)) {
+      return false;
+    }
+
     _div.classes.remove("nt-drag-over");
     _div.classes.remove("nt-clause-empty");
 
