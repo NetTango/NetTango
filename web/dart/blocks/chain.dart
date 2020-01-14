@@ -26,7 +26,6 @@ class Chain extends BlockCollection {
     _div.classes.add("nt-chain");
 
     if (blocks.isEmpty) {
-      print("Chain with no blocks in workspace?");
       return _div;
     }
 
