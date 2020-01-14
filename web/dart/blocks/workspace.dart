@@ -218,7 +218,7 @@ class CodeWorkspace {
     chains.add(newChain);
     DivElement chainDiv = newChain.draw(drag, dragSheet, newChainIndex);
     spaceDiv.append(chainDiv);
-    newChain.addBlocks(newChainIndex, newBlocks);
+    newChain.addBlocks(newBlocks);
     repositionChain(newChain, x, y);
   }
 
@@ -226,7 +226,7 @@ class CodeWorkspace {
     Chain oldChain = chains[chainIndex];
     final blocks = oldChain.blocks;
     chains.removeAt(chainIndex);
-    oldChain._chainDiv.remove();
+    oldChain._div.remove();
     for (int i = 0; i < chains.length; i++) {
       Chain chain = chains[i];
       chain.resetDragData(i);
@@ -251,19 +251,19 @@ class CodeWorkspace {
         if (blockData.blockIndex == 0) {
           return removeChain(blockData.chainIndex);
         } else {
-          return chains[blockData.chainIndex].removeBlocks(blockData.chainIndex, blockData.blockIndex);
+          return chains[blockData.chainIndex].removeBlocks(blockData.blockIndex);
         }
         break;
 
       case "block-children":
         return chains[blockData.chainIndex]
           .getBlockInstance(blockData.parentInstanceId)
-          .removeChildBlocks(blockData.blockIndex);
+          .children.removeBlocks(blockData.blockIndex);
 
       case "block-clause":
         return chains[blockData.chainIndex]
           .getBlockInstance(blockData.parentInstanceId)
-          .removeClauseBlocks(blockData.clauseIndex, blockData.blockIndex);
+          .clauses[blockData.clauseIndex].removeBlocks(blockData.blockIndex);
 
       case "default":
         throw new Exception("Unknown block removal type: ${blockData.parentType}");
@@ -289,7 +289,7 @@ class CodeWorkspace {
     int maxHeight = height; // start with the minimum height from the model
     final containerRect = container.getBoundingClientRect();
     for (Chain chain in chains) {
-      final rect = chain._chainDiv.getBoundingClientRect();
+      final rect = chain._div.getBoundingClientRect();
       final childHeight = (rect.bottom - containerRect.top).ceil();
       if (childHeight > maxHeight) {
         maxHeight = childHeight;
@@ -339,25 +339,27 @@ class CodeWorkspace {
     _restoreParams(block, json['params'], json['properties']);
 
     if (json['children'] is List) {
-      block.children = new List<Block>();
+      block.children = new Clause(block);
       for (var childJson in json['children']) {
         if (childJson is Map) {
           Block child = _restoreBlock(childJson);
-          block.children.add(child);
+          block.children.blocks.add(child);
         }
       }
     }
 
     if (json['clauses'] is List) {
-      block.clauses = new List<Chain>();
+      block.clauses = new List<Clause>();
+      int clauseIndex = 0;
       for (var clauseJson in json['clauses']) {
         if (clauseJson is Map && clauseJson['children'] is List) {
-          Chain clause = new Chain();
+          Clause clause = new Clause(block, clauseIndex: clauseIndex);
           block.clauses.add(clause);
           for (var childJson in clauseJson['children']) {
             Block child = _restoreBlock(childJson);
             clause.blocks.add(child);
           }
+          clauseIndex++;
         }
       }
     }

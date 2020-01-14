@@ -15,49 +15,19 @@
  */
 part of NetTango;
 
-class Chain {
+class Chain extends BlockCollection {
 
-  List<Block> blocks = new List<Block>();
+  int chainIndex;
 
-  DivElement _chainDiv;
+  DivElement draw(Element drag, CssStyleSheet dragSheet, int newChainIndex) {
+    this.chainIndex = newChainIndex;
 
-  List exportParseTree() {
-    List tree = [];
-    for (Block block in blocks) {
-      tree.add(block.toJSON());
-    }
-    return tree;
-  }
-
-  int getBlockCount(int id) {
-    return blocks.map( (b) => b.getBlockCount(id) ).reduce( (a, b) => a + b );
-  }
-
-  Block getBlockInstance(int instanceId) {
-    for (Block child in blocks) {
-      final block = child.getBlockInstance(instanceId);
-      if (block != null) { return block; }
-    }
-    return null;
-  }
-
-  Map toJSON() {
-    var data = { };
-    data["children"] = [];
-    for (Block block in blocks) {
-      data["children"].add(block.toJSON());
-    }
-    return data;
-  }
-
-  DivElement draw(Element drag, CssStyleSheet dragSheet, int chainIndex) {
-    DivElement chainDiv = new DivElement();
-    chainDiv.classes.add("nt-chain");
-    _chainDiv = chainDiv;
+    _div = new DivElement();
+    _div.classes.add("nt-chain");
 
     if (blocks.isEmpty) {
       print("Chain with no blocks in workspace?");
-      return chainDiv;
+      return _div;
     }
 
     updatePosition();
@@ -65,17 +35,17 @@ class Chain {
     // TODO: This should really be something like `first.starter`
     // to mark blocks that can start code chains on their own
     if (blocks[0].required) {
-      chainDiv.classes.add("nt-chain-starter");
+      _div.classes.add("nt-chain-starter");
     }
 
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks.elementAt(i);
       final dragData = BlockDragData.workspaceChain(chainIndex, i, blocks.skip(i + 1));
       final blockDiv = block.draw(drag, dragSheet, dragData);
-      chainDiv.append(blockDiv);
+      _div.append(blockDiv);
     }
 
-    return chainDiv;
+    return _div;
   }
 
   void updatePosition() {
@@ -83,21 +53,12 @@ class Chain {
       return;
     }
     Block first = blocks[0];
-    _chainDiv.style.left = "${first.x.round()}px";
-    _chainDiv.style.top = "${first.y.round()}px";
+    _div.style.left = "${first.x.round()}px";
+    _div.style.top = "${first.y.round()}px";
   }
 
-  void redrawBlocks(int chainIndex) {
-    _chainDiv.innerHtml = "";
-    for (int i = 0; i < blocks.length; i++) {
-      Block block = blocks[i];
-      block._dragData.resetWorkspaceChain(chainIndex, i, blocks.skip(i + 1));
-      block.resetOwnedBlocksDragData();
-      _chainDiv.append(block._blockDiv);
-    }
-  }
-
-  void resetDragData(int chainIndex) {
+  void resetDragData(int newChainIndex) {
+    this.chainIndex = newChainIndex;
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks[i];
       block._dragData.resetWorkspaceChain(chainIndex, i, blocks.skip(i + 1));
@@ -105,31 +66,37 @@ class Chain {
     }
   }
 
-  Iterable<Block> removeBlocks(int chainIndex, int blockIndex) {
+  void redrawBlocks() {
+    _div.innerHtml = "";
+    for (int i = 0; i < blocks.length; i++) {
+      Block block = blocks[i];
+      block._dragData.resetWorkspaceChain(chainIndex, i, blocks.skip(i + 1));
+      block.resetOwnedBlocksDragData();
+      _div.append(block._blockDiv);
+    }
+  }
+
+  Iterable<Block> removeBlocks(int blockIndex) {
     final removedBlocks = blocks.skip(blockIndex);
     blocks = blocks.take(blockIndex).toList();
-    redrawBlocks(chainIndex);
+    redrawBlocks();
     return removedBlocks;
   }
 
-  void addBlocks(int chainIndex, Iterable<Block> newBlocks) {
-    insertBlocks(chainIndex, blocks.length, newBlocks);
+  void addBlocks(Iterable<Block> newBlocks) {
+    insertBlocks(blocks.length, newBlocks);
   }
 
-  void insertBlocks(int chainIndex, int blockIndex, Iterable<Block> newBlocks) {
+  void insertBlocks(int blockIndex, Iterable<Block> newBlocks) {
     blocks.insertAll(blockIndex, newBlocks);
-    redrawBlocks(chainIndex);
+    redrawBlocks();
   }
 
   static Chain fromJSON(CodeWorkspace workspace, Map json) {
     Chain chain = new Chain();
     if (json["children"] is List) {
-      for (var blockJson in json["children"]) {
-        Block block = Block.fromJSON(workspace, blockJson);
-        chain.blocks.add(block);
-      }
+      chain.blocks = BlockCollection.fromJSON(workspace, json["children"]);
     }
     return chain;
   }
-
 }

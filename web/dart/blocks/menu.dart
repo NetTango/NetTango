@@ -108,17 +108,17 @@ class Slot {
 
   CodeWorkspace workspace;
 
-  int count = -1;
+  int limit = -1;
 
   int _slotIndex;
   Block _newBlockInstance;
   DivElement _slotDiv;
 
-  Slot(this.block, this.workspace, this.count);
+  Slot(this.block, this.workspace, this.limit);
 
   bool isAvailable() {
-    int free = count - workspace.getBlockCount(block.id);
-    return (count < 0 || free > 0);
+    int free = limit - workspace.getBlockCount(block.id);
+    return (limit <= 0 || free > 0);
   }
 
   DivElement draw(DivElement drag, CssStyleSheet dragSheet, int slotIndex) {
@@ -152,11 +152,11 @@ class Slot {
 
     _newBlockInstance = block.clone();
     if (block.clauses != null) {
-      _newBlockInstance.children = new List<Block>();
+      _newBlockInstance.children = new Clause(_newBlockInstance);
       if (block.clauses.length > 0) {
-        _newBlockInstance.clauses = new List<Chain>();
+        _newBlockInstance.clauses = new List<Clause>();
         for (int i = 0; i < block.clauses.length; i++) {
-          _newBlockInstance.clauses.add(new Chain());
+          _newBlockInstance.clauses.add(new Clause(_newBlockInstance, clauseIndex: i));
         }
       }
     }

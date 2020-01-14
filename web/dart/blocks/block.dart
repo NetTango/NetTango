@@ -51,8 +51,8 @@ class Block {
 
   int nextParamId = 0;
 
-  List<Block> children = null;
-  List<Chain> clauses = null;
+  Clause children = null;
+  List<Clause> clauses = null;
 
   /// CSS color of the block
   String blockColor = '#6b9bc3'; //'#d2584a';
@@ -78,8 +78,6 @@ class Block {
 
   BlockDragData _dragData;
   DivElement _blockDiv;
-  DivElement _childrenDiv;
-  List<DivElement> _clauseDivs = new List<DivElement>();
 
   Block(this.workspace, this.id, this.action) {
     if (this.id == null) {
@@ -104,9 +102,10 @@ class Block {
     // block types
     //----------------------------------------------------------
     if (json["clauses"] is List) {
-      block.clauses = new List<Chain>();
-      for (var clause in json["clauses"]) {
-        Chain chain = Chain.fromJSON(workspace, clause);
+      block.clauses = new List<Clause>();
+      for (int i = 0; i < json["clauses"].length; i++) {
+        final clauseJson = json["clauses"][i];
+        Clause chain = Clause.fromJSON(workspace, block, clauseJson, i);
         block.clauses.add(chain);
       }
     }
@@ -190,13 +189,13 @@ class Block {
     data["y"] = y;
     if (children != null) {
       data["children"] = [];
-      for (Block child in children) {
+      for (Block child in children.blocks) {
         data["children"].add(child.toJSON());
       }
     }
     if (clauses != null) {
       data["clauses"] = [];
-      for (Chain clause in clauses) {
+      for (Clause clause in clauses) {
         data["clauses"].add(clause.toJSON());
       }
     }
@@ -218,10 +217,10 @@ class Block {
   int getBlockCount(int id) {
     int count = 0;
     if (this.id == id) { count++; }
-    if (this.children != null && children.isNotEmpty) {
-      count = count + this.children.map( (child) => child.getBlockCount(id) ).reduce( (a, b) => a + b );
+    if (this.children != null) {
+      count = count + children.getBlockCount(id);
     }
-    if (this.clauses != null && clauses.isNotEmpty) {
+    if (this.clauses != null) {
       count = count + this.clauses.map( (clause) => clause.getBlockCount(id) ).reduce( (a, b) => a + b );
     }
     return count;
@@ -232,13 +231,11 @@ class Block {
       return this;
     }
     if (children != null) {
-      for (Block child in children) {
-        final block = child.getBlockInstance(instanceId);
-        if (block != null) { return block; }
-      }
+      final block = children.getBlockInstance(instanceId);
+      if (block != null) { return block; }
     }
     if (clauses != null) {
-      for (Chain clause in clauses) {
+      for (Clause clause in clauses) {
         final block = clause.getBlockInstance(instanceId);
         if (block != null) { return block; }
       }
@@ -257,18 +254,17 @@ class Block {
 
     DivElement blockNode = new DivElement();
     blockNode.classes.add("nt-block");
+    if (children != null || clauses != null) {
+      blockNode.classes.add("nt-block-with-clauses");
+    }
     _blockDiv = blockNode;
 
     DivElement headerNode = new DivElement();
     // TODO: If `children` changes (empties), update these classes
-    if (children == null || children.isEmpty) {
+    if (children == null) {
       headerNode.classes.add("nt-block-header");
     } else {
       headerNode.classes.add("nt-block-clause-header");
-      headerNode.onDragEnter.listen( enterClauseHeaderDrag );
-      headerNode.onDragOver.listen( (e) => e.preventDefault() );
-      headerNode.onDragLeave.listen( leaveClauseHeaderDrag );
-      headerNode.onDrop.listen( dropClauseHeader );
     }
     blockNode.append(headerNode);
 
@@ -285,15 +281,17 @@ class Block {
     }
 
     if (children != null) {
-      _childrenDiv = drawClause(children, drag, dragSheet);
-      blockNode.append(_childrenDiv);
+      DivElement childrenDiv = children.draw(drag, dragSheet, headerNode);
+      blockNode.append(childrenDiv);
     }
 
     if (clauses != null) {
       for (int i = 0; i < clauses.length; i++) {
-        Chain clause = clauses[i];
-        DivElement clauseDiv = drawClause(clause.blocks, drag, dragSheet, clauseIndex: i);
-        _clauseDivs.add(clauseDiv);
+        DivElement clauseDivider = new DivElement();
+        clauseDivider.classes.add("nt-clause-divider");
+        blockNode.append(clauseDivider);
+        Clause clause = clauses[i];
+        DivElement clauseDiv = clause.draw(drag, dragSheet, clauseDivider);
         blockNode.append(clauseDiv);
       }
     }
@@ -301,148 +299,12 @@ class Block {
     blockNode.draggable = true;
     blockNode.onDragStart.listen( (e) => startDrag(e, drag, dragSheet) );
     blockNode.onDragEnd.listen( (e) => endDrag(e, drag, dragSheet) );
-    blockNode.onDragEnter.listen( (e) => enterDrag(e) );
+    blockNode.onDragEnter.listen( enterDrag );
     blockNode.onDragOver.listen( (e) => e.preventDefault() );
     blockNode.onDragLeave.listen( leaveDrag );
     blockNode.onDrop.listen( drop );
 
     return blockNode;
-  }
-
-  DivElement drawClause(List<Block> blocks, DivElement drag, CssStyleSheet dragSheet, {int clauseIndex = null}) {
-    DivElement clauseDiv = new DivElement();
-    clauseDiv.classes.add("nt-clause");
-    if (blocks.isEmpty) {
-      clauseDiv.classes.add("nt-clause-empty");
-      setupEmptyDragListeners(clauseDiv, clauseIndex);
-      return clauseDiv;
-    }
-    for (int i = 0; i < blocks.length; i++) {
-      Block block = blocks[i];
-      final siblings = blocks.skip(i + 1);
-      final dragData = BlockDragData.blockOwned(_dragData.chainIndex, i, instanceId, siblings, clauseIndex: clauseIndex);
-      final blockDiv = block.draw(drag, dragSheet, dragData);
-      clauseDiv.append(blockDiv);
-    }
-    return clauseDiv;
-  }
-
-  void setupEmptyDragListeners(DivElement clauseDiv, int clauseIndex) {
-    clauseDiv.onDragEnter.listen( (e) => enterClauseDrag(e, clauseDiv) );
-    clauseDiv.onDragLeave.listen( (e) => leaveClauseDrag(e, clauseDiv) );
-    clauseDiv.onDragOver.listen( (e) => e.preventDefault() );
-    clauseDiv.onDrop.listen( (e) => dropClause(e, clauseDiv, clauseIndex) );
-  }
-
-  bool enterClauseHeaderDrag(MouseEvent event) {
-    Element target = event.target;
-    if (target.classes.contains("nt-block-drag-target") || _blockDiv.classes.contains("nt-block-drag-target") ) {
-      return true;
-    }
-    if (!event.dataTransfer.types.contains(workspace.containerId) || event.dataTransfer.types.contains("starter")) {
-      return true;
-    }
-    event.stopPropagation();
-    children[0]._blockDiv.classes.add("nt-block-clause-header-drag-over");
-    return false;
-  }
-
-  void leaveClauseHeaderDrag(MouseEvent event) {
-    children[0]._blockDiv.classes.remove("nt-block-clause-header-drag-over");
-  }
-
-  bool dropClauseHeader(MouseEvent event) {
-    event.preventDefault();
-    event.stopPropagation();
-    children[0]._blockDiv.classes.remove("nt-block-clause-header-drag-over");
-    Element target = event.target;
-    if (target.classes.contains("nt-block-drag-target") || target.classes.contains("nt-block-drag-sibling")) {
-      return false;
-    }
-    if (_blockDiv.classes.contains("nt-block-drag-target") || _blockDiv.classes.contains("nt-block-drag-sibling")) {
-      return false;
-    }
-    if (!event.dataTransfer.types.contains(workspace.containerId) || event.dataTransfer.types.contains("starter")) {
-      return false;
-    }
-
-    final json = jsonDecode(event.dataTransfer.getData("text/json"));
-    final blockData = BlockDragData.fromJSON(json);
-    final newBlocks = workspace.removeBlocksFromSource(blockData);
-    final data = children[0]._dragData;
-    switch (data.parentType) {
-      case "workspace-chain":
-        throw new Exception("Should not have a workspace chain block as a children clause.");
-        break;
-
-      case "block-children":
-        final parentBlock = workspace.chains[data.chainIndex].getBlockInstance(data.parentInstanceId);
-        parentBlock.insertChildBlocks(0, newBlocks);
-        break;
-
-      case "block-clause":
-        final parentBlock = workspace.chains[data.chainIndex].getBlockInstance(data.parentInstanceId);
-        parentBlock.insertClauseBlocks(data.clauseIndex, 0, newBlocks);
-        break;
-    }
-    workspace.updateWorkspaceHeight();
-    Block changedBlock = newBlocks.elementAt(0);
-    workspace.programChanged(new BlockChangedEvent(changedBlock));
-
-    return false;
-  }
-
-  bool enterClauseDrag(MouseEvent event, DivElement clauseDiv) {
-    if (!clauseDiv.classes.contains("nt-clause-empty")) {
-      return true;
-    }
-    if (event.dataTransfer.types.contains("starter")) {
-      return true;
-    }
-    event.stopPropagation();
-    clauseDiv.classes.add("nt-drag-over");
-    return false;
-  }
-
-  bool leaveClauseDrag(MouseEvent event, DivElement clauseDiv) {
-    // why do this instead of removing the event listener when not empty?
-    // you have to store the subscription somewhere to `cancel()` it with
-    // dart, and that's more state than I want to track at the moment.
-    if (!clauseDiv.classes.contains("nt-clause-empty")) {
-      return true;
-    }
-    if (event.dataTransfer.types.contains("starter")) {
-      return true;
-    }
-    event.stopPropagation();
-    clauseDiv.classes.remove("nt-drag-over");
-    return false;
-  }
-
-  bool dropClause(MouseEvent event, DivElement clauseDiv, int clauseIndex) {
-    if (!clauseDiv.classes.contains("nt-clause-empty")) {
-      return true;
-    }
-    if (event.dataTransfer.types.contains("starter")) {
-      return true;
-    }
-    event.preventDefault();
-    event.stopPropagation();
-    clauseDiv.classes.remove("nt-drag-over");
-    clauseDiv.classes.remove("nt-clause-empty");
-
-    final json = jsonDecode(event.dataTransfer.getData("text/json"));
-    final blockData = BlockDragData.fromJSON(json);
-    final newBlocks = workspace.removeBlocksFromSource(blockData);
-
-    if (clauseIndex == null) {
-      insertChildBlocks(0, newBlocks);
-    } else {
-      insertClauseBlocks(clauseIndex, 0, newBlocks);
-    }
-    workspace.updateWorkspaceHeight();
-
-    return false;
   }
 
   void startDrag(MouseEvent event, DivElement drag, CssStyleSheet dragSheet) {
@@ -533,17 +395,17 @@ class Block {
     final newBlocks = workspace.removeBlocksFromSource(blockData);
     switch (_dragData.parentType) {
       case "workspace-chain":
-        workspace.chains[_dragData.chainIndex].insertBlocks(_dragData.chainIndex, _dragData.blockIndex + 1, newBlocks);
+        workspace.chains[_dragData.chainIndex].insertBlocks(_dragData.blockIndex + 1, newBlocks);
         break;
 
       case "block-children":
         final parentBlock = workspace.chains[_dragData.chainIndex].getBlockInstance(_dragData.parentInstanceId);
-        parentBlock.insertChildBlocks(_dragData.blockIndex + 1, newBlocks);
+        parentBlock.children.insertBlocks(_dragData.blockIndex + 1, newBlocks);
         break;
 
       case "block-clause":
         final parentBlock = workspace.chains[_dragData.chainIndex].getBlockInstance(_dragData.parentInstanceId);
-        parentBlock.insertClauseBlocks(_dragData.clauseIndex, _dragData.blockIndex + 1, newBlocks);
+        parentBlock.clauses[_dragData.clauseIndex].insertBlocks(_dragData.blockIndex + 1, newBlocks);
         break;
     }
     workspace.updateWorkspaceHeight();
@@ -553,63 +415,14 @@ class Block {
     return false;
   }
 
-  void insertChildBlocks(int blockIndex, Iterable<Block> newBlocks) {
-    children.insertAll(blockIndex, newBlocks);
-    redrawBlocks(_childrenDiv, children);
-  }
-
-  void insertClauseBlocks(int clauseIndex, int blockIndex, Iterable<Block> newBlocks) {
-    Chain clause = clauses[clauseIndex];
-    clause.blocks.insertAll(blockIndex, newBlocks);
-    DivElement clauseDiv = _clauseDivs[clauseIndex];
-    redrawBlocks(clauseDiv, clause.blocks, clauseIndex: clauseIndex);
-  }
-
-  void redrawBlocks(DivElement div, List<Block> blocks, {int clauseIndex = null}) {
-    div.innerHtml = "";
-    if (blocks.isEmpty) {
-      div.classes.add("nt-clause-empty");
-      setupEmptyDragListeners(div, clauseIndex);
-    }
-    for (int i = 0; i < blocks.length; i++) {
-      Block block = blocks[i];
-      block._dragData.resetBlockOwned(_dragData.chainIndex, i, instanceId, blocks.skip(i + 1), clauseIndex: clauseIndex);
-      block.resetOwnedBlocksDragData();
-      div.append(block._blockDiv);
-    }
-  }
-
-  Iterable<Block> removeChildBlocks(int blockIndex) {
-    final removed = children.skip(blockIndex);
-    children = children.take(blockIndex).toList();
-    redrawBlocks(_childrenDiv, children);
-    return removed;
-  }
-
-  Iterable<Block> removeClauseBlocks(int clauseIndex, int blockIndex) {
-    Chain clause = clauses[clauseIndex];
-    final removed = clause.blocks.skip(blockIndex);
-    DivElement clauseDiv = _clauseDivs[clauseIndex];
-    clause.blocks = clause.blocks.take(blockIndex).toList();
-    redrawBlocks(clauseDiv, clause.blocks, clauseIndex: clauseIndex);
-    return removed;
-  }
-
   void resetOwnedBlocksDragData() {
     if (children != null) {
-      for (int i = 0; i < children.length; i++) {
-        Block block = children[i];
-        block._dragData.resetBlockOwned(_dragData.chainIndex, i, instanceId, children.skip(i + 1));
-        _childrenDiv.append(block._blockDiv);
-      }
+      children.resetOwned();
     }
     if (clauses != null) {
       for (int clauseIndex = 0; clauseIndex < clauses.length; clauseIndex++) {
-        Chain clause = clauses[clauseIndex];
-        for (int i = 0; i < clause.blocks.length; i++) {
-          Block block = clause.blocks[i];
-          block._dragData.resetBlockOwned(_dragData.chainIndex, i, instanceId, clause.blocks.skip(i + 1), clauseIndex: clauseIndex);
-        }
+        Clause clause = clauses[clauseIndex];
+        clause.resetOwned();
       }
     }
   }

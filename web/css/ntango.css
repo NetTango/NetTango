@@ -50,10 +50,6 @@
   border-top: 1px solid #000;
 }
 
-.nt-clause {
-  margin-bottom: 0.6em;
-}
-
 .nt-clause-empty {
   border: 1px solid #000;
   border-right: 0;
@@ -66,6 +62,10 @@
 
 .nt-clause > .nt-block:first-child {
   border-top: 1px solid #000;
+}
+
+.nt-clause-divider {
+  height: 0.6em;
 }
 
 .nt-chain-starter > .nt-block:first-child {
@@ -93,6 +93,10 @@
   user-select: none;
   white-space: nowrap;
   height: fit-content;
+}
+
+.nt-block-with-clauses {
+  padding-bottom: 0.6em;
 }
 
 .nt-block-header {

@@ -31,12 +31,14 @@ part 'utils/utils.dart';
 
 part 'blocks/block-drag-data.dart';
 part 'blocks/block.dart';
+part 'blocks/block-collection.dart';
+part 'blocks/chain.dart';
+part 'blocks/clause.dart';
 part 'blocks/expression.dart';
 part 'blocks/formatter.dart';
 part 'blocks/menu.dart';
 part 'blocks/parameter.dart';
 part 'blocks/program-changed-event.dart';
-part 'blocks/chain.dart';
 part 'blocks/workspace.dart';
 
 var _workspaces = { };
