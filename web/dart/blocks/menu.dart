@@ -184,6 +184,8 @@ class Slot {
     if (_newBlockInstance.required) {
       drag.classes.add("nt-chain-starter");
       event.dataTransfer.setData("starter", "starter");
+    } else {
+      drag.classes.remove("nt-chain-starter");
     }
     drag.setInnerHtml("");
     drag.append(blockDiv);

@@ -74,6 +74,13 @@ class Chain extends BlockCollection {
       block.resetOwnedBlocksDragData();
       _div.append(block._blockDiv);
     }
+    if (blocks.isNotEmpty) {
+      if (blocks[0].required) {
+        _div.classes.add("nt-chain-starter");
+      } else {
+        _div.classes.remove("nt-chain-starter");
+      }
+    }
   }
 
   Iterable<Block> removeBlocks(int blockIndex) {
