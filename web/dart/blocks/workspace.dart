@@ -148,7 +148,7 @@ class CodeWorkspace {
     for (Slot slot in menu.slots) {
       if (slot.block.required) {
         if (getBlockCount(slot.block.id) == 0) {
-          json["chains"].add(slot.block.toJSON());
+          json["chains"].add([slot.block.toJSON()]);
         }
       }
     }
