@@ -221,7 +221,7 @@ class Block {
     if (this.children != null) {
       count = count + children.getBlockCount(id);
     }
-    if (this.clauses != null) {
+    if (this.clauses != null && this.clauses.isNotEmpty) {
       count = count + this.clauses.map( (clause) => clause.getBlockCount(id) ).reduce( (a, b) => a + b );
     }
     return count;
@@ -261,7 +261,6 @@ class Block {
     _blockDiv = blockNode;
 
     DivElement headerNode = new DivElement();
-    // TODO: If `children` changes (empties), update these classes
     if (children == null) {
       headerNode.classes.add("nt-block-header");
     } else {
@@ -350,10 +349,10 @@ class Block {
     }
   }
 
-  bool startDrag(MouseEvent event, DivElement drag) {
+  void startDrag(MouseEvent event, DivElement drag) {
     event.stopPropagation();
     if (isDragging) {
-      return false;
+      return;
     }
 
     event.dataTransfer.setData(workspace.containerId, workspace.containerId);
@@ -393,7 +392,7 @@ class Block {
       return false;
     }
     if (!event.dataTransfer.types.contains(workspace.containerId) || event.dataTransfer.types.contains("starter")) {
-      return true;
+      return false;
     }
 
     _blockDiv.classes.add("nt-drag-over");
@@ -416,7 +415,9 @@ class Block {
     final json = jsonDecode(event.dataTransfer.getData("text/json"));
     final blockData = BlockDragData.fromJSON(json);
     final newBlocks = workspace.removeBlocksFromSource(blockData);
+
     switch (_dragData.parentType) {
+
       case "workspace-chain":
         workspace.chains[_dragData.chainIndex].insertBlocks(_dragData.blockIndex + 1, newBlocks);
         break;
@@ -430,7 +431,9 @@ class Block {
         final parentBlock = workspace.chains[_dragData.chainIndex].getBlockInstance(_dragData.parentInstanceId);
         parentBlock.clauses[_dragData.clauseIndex].insertBlocks(_dragData.blockIndex + 1, newBlocks);
         break;
+
     }
+
     workspace.updateWorkspaceForChanges();
     Block changedBlock = newBlocks.elementAt(0);
     workspace.programChanged(new BlockChangedEvent(changedBlock));
