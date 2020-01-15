@@ -51,9 +51,11 @@
 }
 
 .nt-clause-empty {
-  border: 1px solid #000;
+  border: 1px solid;
   border-right: 0;
+  border-color: inherit;
   min-height: 1.6em;
+  background: white;
 }
 
 .nt-block-clause-drag-over {
@@ -61,15 +63,23 @@
 }
 
 .nt-clause > .nt-block:first-child {
-  border-top: 1px solid #000;
+  border-top: 1px solid;
 }
 
 .nt-clause-divider {
   height: 0.6em;
+  border-right: 1px solid;
+  border-color: inherit;
 }
 
-.nt-chain > .nt-block {
-  border-right: 1px solid #000;
+.nt-clause-footer {
+  height: 0.6em;
+  border-right: 1px solid;
+  border-color: inherit;
+}
+
+.nt-block:not(.nt-block-with-clauses) {
+  border-right: 1px solid;
 }
 
 .nt-chain > .nt-block:last-child {
@@ -80,23 +90,22 @@
   border-radius: 10px 10px 0 0;
 }
 
+.nt-block-with-clauses {
+  padding-bottom: 0.6em;
+  border-right: 0px;
+}
+
 .nt-block {
   border-width: 0px 0px 1px 1px;
   border-style: solid;
-  border-color: #000;
   font-size: 14px;
-  padding: 0.2em 0 0.2em 0.6em;
-  min-width: 10em;
-  height: min-content;
-  line-height: 2em;
-  background: white;
+  padding: 0 0 0 0.6em;
   user-select: none;
   white-space: nowrap;
+  min-width: 10em;
+  line-height: 2.5em;
   height: fit-content;
-}
-
-.nt-block-with-clauses {
-  padding-bottom: 0.6em;
+  min-height: 2.5em;
 }
 
 .nt-block-header {
@@ -111,6 +120,10 @@
   flex-direction: row;
   align-items: center;
   align-content: center;
+  border-right: 1px solid;
+  border-color: inherit;
+  min-height: 2.5em;
+  line-height: 2.5em;
 }
 
 .nt-block-action {
@@ -129,7 +142,7 @@
 }
 
 .nt-drag-over {
-  border-bottom: 3px solid cyan;
+  border-bottom: 3px solid cyan !important;
 }
 
 .nt-property {
@@ -137,6 +150,8 @@
   flex-direction: row;
   align-items: center;
   align-content: center;
+  min-height: 2em;
+  line-height: 2em;
 }
 
 .nt-property-name {
@@ -144,9 +159,9 @@
 }
 
 .nt-attribute-value {
-  background: #eee;
+  background: white;
   border: 1px solid #eee;
-  border-radius: 8px;
+  border-radius: 9px;
   padding: 0 0.5em;
   line-height: 1.5em;
   height: 1.5em;

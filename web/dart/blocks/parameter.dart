@@ -102,6 +102,9 @@ class Parameter {
     DivElement paramDiv = new DivElement();
     paramDiv.innerText = valueAsString;
     paramDiv.classes.add("nt-attribute-value");
+
+    paramDiv.style.color = this.block.blockColor;
+
     final updateValue = () { paramDiv.innerText = valueAsString; };
     paramDiv.onClick.listen( (event) {
       final rect = block.workspace.container.getBoundingClientRect();

@@ -15,8 +15,6 @@
  */
 part of NetTango;
 
-final num SCALE = window.devicePixelRatio;
-
 /**
  * Visual programming block
  */
@@ -61,10 +59,10 @@ class Block {
   String textColor = 'white';
 
   /// CSS border color of the block
-  String borderColor = "rgba(255, 255, 255, 0.6)";
+  String borderColor = "rgba(255, 255, 255, 0.9)";
 
   /// CSS font spec
-  String font = "400 ${14 * SCALE}px 'Poppins', sans-serif";
+  String font = "400 14px 'Poppins', sans-serif";
 
   /// Tells a code formatter that at least one block of this type is required
   bool required = false;
@@ -255,10 +253,20 @@ class Block {
 
     DivElement blockNode = new DivElement();
     blockNode.classes.add("nt-block");
+
     if (children != null || clauses != null) {
       blockNode.classes.add("nt-block-with-clauses");
     }
     _blockDiv = blockNode;
+
+    // lineHeight gets reset by the `font` property
+    final lineHeight = blockNode.style.lineHeight;
+    blockNode.style ..
+      backgroundColor = this.blockColor ..
+      borderColor     = this.borderColor ..
+      font            = this.font ..
+      lineHeight      = lineHeight ..
+      color           = this.textColor;
 
     DivElement headerNode = new DivElement();
     if (children == null) {
@@ -294,6 +302,12 @@ class Block {
         DivElement clauseDiv = clause.draw(drag, clauseDivider);
         blockNode.append(clauseDiv);
       }
+    }
+
+    if (children != null || clauses != null) {
+      DivElement footer = new DivElement();
+      footer.classes.add("nt-clause-footer");
+      blockNode.append(footer);
     }
 
     blockNode.draggable = true;

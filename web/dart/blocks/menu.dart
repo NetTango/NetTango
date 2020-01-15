@@ -141,6 +141,16 @@ class Slot {
     _slotDiv = new DivElement();
     _slotDiv.innerText = block.action;
     _slotDiv.classes.add("nt-menu-slot");
+
+    // lineHeight gets reset by the `font` property
+    final lineHeight = _slotDiv.style.lineHeight;
+    _slotDiv.style ..
+      backgroundColor = this.block.blockColor ..
+      borderColor     = this.block.borderColor ..
+      font            = this.block.font ..
+      lineHeight      = lineHeight ..
+      color           = this.block.textColor;
+
     _slotDiv.draggable = true;
     _slotDiv.onDragStart.listen( (e) => startDrag(e, drag) );
     _slotDiv.onDragEnd.listen( (e) => endDrag(e, drag) );
