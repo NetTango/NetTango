@@ -57,20 +57,19 @@ class BlockMenu {
   }
 
   DivElement draw(DivElement drag) {
-    DivElement menuDiv = new DivElement() .. id = "${workspace.containerId}-menu";
-    menuDiv.classes.add("nt-menu");
-    _menuDiv = menuDiv;
+    _menuDiv = new DivElement() .. id = "${workspace.containerId}-menu";
+    _menuDiv.classes.add("nt-menu");
+
     for (int i = 0; i < slots.length; i++) {
       Slot slot = slots[i];
-      menuDiv.append(slot.draw(drag, i));
+      _menuDiv.append(slot.draw(drag, i));
     }
 
-    menuDiv.onDragEnter.listen( (e) => enterDrag(e) );
-    // menuDiv.onDragLeave.listen( (e) => leaveDrag(e) );
-    menuDiv.onDragOver.listen( (e) => e.preventDefault() );
-    menuDiv.onDrop.listen( drop );
+    _menuDiv.onDragEnter.listen( (e) => enterDrag(e) );
+    _menuDiv.onDragOver.listen( (e) => e.preventDefault() );
+    _menuDiv.onDrop.listen( drop );
 
-    return menuDiv;
+    return _menuDiv;
   }
 
   void updateLimits() {

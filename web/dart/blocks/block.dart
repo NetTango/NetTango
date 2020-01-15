@@ -251,17 +251,16 @@ class Block {
   DivElement draw(DivElement drag, BlockDragData dragData) {
     this._dragData = dragData;
 
-    DivElement blockNode = new DivElement();
-    blockNode.classes.add("nt-block");
+    _blockDiv = new DivElement();
+    _blockDiv.classes.add("nt-block");
 
     if (children != null || clauses != null) {
-      blockNode.classes.add("nt-block-with-clauses");
+      _blockDiv.classes.add("nt-block-with-clauses");
     }
-    _blockDiv = blockNode;
 
     // lineHeight gets reset by the `font` property
-    final lineHeight = blockNode.style.lineHeight;
-    blockNode.style ..
+    final lineHeight = _blockDiv.style.lineHeight;
+    _blockDiv.style ..
       backgroundColor = this.blockColor ..
       borderColor     = this.borderColor ..
       font            = this.font ..
@@ -274,7 +273,7 @@ class Block {
     } else {
       headerNode.classes.add("nt-block-clause-header");
     }
-    blockNode.append(headerNode);
+    _blockDiv.append(headerNode);
 
     DivElement actionNode = new DivElement();
     actionNode.classes.add("nt-block-action");
@@ -285,40 +284,39 @@ class Block {
       headerNode.append(attribute.drawParameter());
     }
     for (Parameter attribute in properties.values) {
-      blockNode.append(attribute.drawProperty());
+      _blockDiv.append(attribute.drawProperty());
     }
 
     if (children != null) {
       DivElement childrenDiv = children.draw(drag, headerNode);
-      blockNode.append(childrenDiv);
+      _blockDiv.append(childrenDiv);
     }
 
     if (clauses != null) {
       for (int i = 0; i < clauses.length; i++) {
         DivElement clauseDivider = new DivElement();
         clauseDivider.classes.add("nt-clause-divider");
-        blockNode.append(clauseDivider);
+        _blockDiv.append(clauseDivider);
         Clause clause = clauses[i];
         DivElement clauseDiv = clause.draw(drag, clauseDivider);
-        blockNode.append(clauseDiv);
+        _blockDiv.append(clauseDiv);
       }
     }
 
     if (children != null || clauses != null) {
       DivElement footer = new DivElement();
       footer.classes.add("nt-clause-footer");
-      blockNode.append(footer);
+      _blockDiv.append(footer);
     }
 
-    blockNode.draggable = true;
-    blockNode.onDragStart.listen( (e) => startDrag(e, drag) );
-    blockNode.onDragEnd.listen( (e) => endDrag(e, drag) );
-    blockNode.onDragEnter.listen( enterDrag );
-    blockNode.onDragOver.listen( (e) => e.preventDefault() );
-    // blockNode.onDragLeave.listen( leaveDrag );
-    blockNode.onDrop.listen( drop );
+    _blockDiv.draggable = true;
+    _blockDiv.onDragStart.listen( (e) => startDrag(e, drag) );
+    _blockDiv.onDragEnd.listen( (e) => endDrag(e, drag) );
+    _blockDiv.onDragEnter.listen( enterDrag );
+    _blockDiv.onDragOver.listen( (e) => e.preventDefault() );
+    _blockDiv.onDrop.listen( drop );
 
-    return blockNode;
+    return _blockDiv;
   }
 
   void clearDragOver() {
