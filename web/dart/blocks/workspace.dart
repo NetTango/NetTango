@@ -136,7 +136,7 @@ class CodeWorkspace {
 /**
  * Returns a JSON object representing the program's parse tree
  */
-  Map exportParseTree() {
+  Map exportParseTree(bool includeRequired) {
     Map json = {
       "chains": []
     };
@@ -144,9 +144,9 @@ class CodeWorkspace {
       json["chains"].add(chain.exportParseTree());
     }
 
-    for (Slot slot in menu.slots) {
-      if (slot.block.required) {
-        if (getBlockCount(slot.block.id) == 0) {
+    if (includeRequired) {
+      for (Slot slot in menu.slots) {
+        if (slot.block.required && getBlockCount(slot.block.id) == 0) {
           json["chains"].add([slot.block.toJSON()]);
         }
       }
@@ -176,10 +176,6 @@ class CodeWorkspace {
     drag.classes.add("nt-block-drag");
     drag.classes.add("nt-chain");
     spaceDiv.append(drag);
-
-    if (chains.isEmpty) {
-      return;
-    }
 
     for (int i = 0; i < chains.length; i++) {
       Chain chain = chains[i];

@@ -339,7 +339,7 @@ void main() {
     versionThreeChainsCoordinates(model["program"]["chains"]);
     expect(result, equals(model));
 
-    var codeResult = CodeFormatter.formatCode("NetLogo", testCanavsID, GetWorkspace(testCanavsID).exportParseTree(), formatAttribute);
+    var codeResult = CodeFormatter.formatCode("NetLogo", testCanavsID, GetWorkspace(testCanavsID).exportParseTree(true), formatAttribute);
 
     expect(codeResult, equals("to sheep-actions\n  forward (__nt-canvas_24_6_3 + __nt-canvas_24_6_4)\nend\n\nto wolf-actions\n  forward (__nt-canvas_24_4_3 + __nt-canvas_24_4_4)\nend\n\n"));
   });
@@ -406,7 +406,7 @@ void main() {
     };
     expect(result, equals(expected));
 
-    var codeResult = CodeFormatter.formatCode("NetLogo", testCanavsID, GetWorkspace(testCanavsID).exportParseTree(), formatAttribute);
+    var codeResult = CodeFormatter.formatCode("NetLogo", testCanavsID, GetWorkspace(testCanavsID).exportParseTree(true), formatAttribute);
 
     expect(codeResult, equals("to wolf\n  ifelse random 100 < 20\n  [\n    forward 1\n  ]\n  [\n    left random 360\n  ]\nend\n\n"));
   });

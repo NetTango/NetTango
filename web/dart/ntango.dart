@@ -94,7 +94,7 @@ String JSExportCode(String containerId, String language, js.JsFunction formatter
     }
   }
   if (_workspaces.containsKey(containerId)) {
-    return CodeFormatter.formatCode(language, containerId, _workspaces[containerId].exportParseTree(), formatAttribute);
+    return CodeFormatter.formatCode(language, containerId, _workspaces[containerId].exportParseTree(true), formatAttribute);
   }
   return null;
 }
@@ -104,7 +104,7 @@ String JSExportCode(String containerId, String language, js.JsFunction formatter
 String JSSaveWorkspace(String containerId) {
   if (_workspaces.containsKey(containerId)) {
     var defs = _workspaces[containerId].definition;
-    defs['program'] = _workspaces[containerId].exportParseTree();
+    defs['program'] = _workspaces[containerId].exportParseTree(false);
     return jsonEncode(defs);
   }
 }
@@ -115,7 +115,7 @@ String JSSaveAllWorkspaces() {
   var json = { };
   for (var key in _workspaces.keys) {
     var defs = _workspaces[key].definition;
-    defs['program'] = _workspaces[key].exportParseTree();
+    defs['program'] = _workspaces[key].exportParseTree(false);
     json[key] = defs;
   }
   return jsonEncode(json);
