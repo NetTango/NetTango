@@ -261,13 +261,22 @@ class Block {
     // lineHeight gets reset by the `font` property
     final lineHeight = _blockDiv.style.lineHeight;
     _blockDiv.style ..
-      backgroundColor = this.blockColor ..
       borderColor     = this.borderColor ..
       font            = this.font ..
       lineHeight      = lineHeight ..
       color           = this.textColor;
 
+    DivElement leftBar = new DivElement();
+    leftBar.classes.add("nt-block-left-bar");
+    leftBar.style.backgroundColor = this.blockColor;
+    // This is pretty gross, but there isn't a way I have found using plain CSS
+    // to auto-clear a grid-positioned element to the last row when the number of
+    // rows is auto-generated.  -Jeremy B January 2020
+    leftBar.style.gridRowEnd = "${4 + (clauses != null ? clauses.length * 2 : 0)}";
+    _blockDiv.append(leftBar);
+
     DivElement headerNode = new DivElement();
+    headerNode.style.backgroundColor = this.blockColor;
     if (children == null) {
       headerNode.classes.add("nt-block-header");
     } else {
@@ -284,7 +293,9 @@ class Block {
       headerNode.append(attribute.drawParameter());
     }
     for (Parameter attribute in properties.values) {
-      _blockDiv.append(attribute.drawProperty());
+      final propertyDiv = attribute.drawProperty();
+      propertyDiv.style.backgroundColor = this.blockColor;
+      _blockDiv.append(propertyDiv);
     }
 
     if (children != null) {
@@ -296,6 +307,7 @@ class Block {
       for (int i = 0; i < clauses.length; i++) {
         DivElement clauseDivider = new DivElement();
         clauseDivider.classes.add("nt-clause-divider");
+        clauseDivider.style.backgroundColor = this.blockColor;
         _blockDiv.append(clauseDivider);
         Clause clause = clauses[i];
         DivElement clauseDiv = clause.draw(drag, clauseDivider);
@@ -306,6 +318,7 @@ class Block {
     if (children != null || clauses != null) {
       DivElement footer = new DivElement();
       footer.classes.add("nt-clause-footer");
+      footer.style.backgroundColor = this.blockColor;
       _blockDiv.append(footer);
     }
 

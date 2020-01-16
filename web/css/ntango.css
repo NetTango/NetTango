@@ -46,8 +46,23 @@
   position: absolute;
 }
 
-.nt-chain > .nt-block:first-child {
-  border-top: 1px solid #000;
+.nt-chain > .nt-block:first-child > .nt-block-header {
+  border-top: 1px solid;
+  border-color: inherit;
+}
+
+.nt-chain > .nt-block:first-child > .nt-block-clause-header {
+  border-top: 1px solid;
+  border-color: inherit;
+}
+
+.nt-chain > .nt-block:first-child > .nt-block-left-bar {
+  border-top: 1px solid;
+  border-color: inherit;
+}
+
+.nt-clause {
+  grid-column: 2;
 }
 
 .nt-clause-empty {
@@ -55,7 +70,6 @@
   border-right: 0;
   border-color: inherit;
   min-height: 2em;
-  background: white;
 }
 
 .nt-block-clause-drag-over {
@@ -70,24 +84,49 @@
   height: 0.6em;
   border-right: 1px solid;
   border-color: inherit;
+  grid-column: 2;
+}
+
+.nt-block-left-bar {
+  border-color: inherit;
+  border-width: 0 0 1px 1px;
+  border-style: solid;
+  min-width: 0.6em;
+  grid-column: 1;
+  grid-row-start: 1;
 }
 
 .nt-clause-footer {
   height: 0.6em;
   border-right: 1px solid;
   border-color: inherit;
+  grid-column: 2;
 }
 
-.nt-block:not(.nt-block-with-clauses) {
-  border-right: 1px solid;
+.nt-chain > .nt-block:last-child > .nt-block-left-bar {
+  border-radius: 0 0 0 10px;
+  border-color: inherit;
 }
 
-.nt-chain > .nt-block:last-child {
-  border-radius: 0 0 10px 10px;
+.nt-chain > .nt-block:last-child > :last-child {
+  border-radius: 0 0 10px;
 }
 
-.nt-chain-starter > .nt-block:first-child {
-  border-radius: 10px 10px 0 0;
+.nt-block > :last-child {
+  border-bottom: 1px solid;
+  border-color: inherit;
+}
+
+.nt-chain-starter > .nt-block:first-child > .nt-block-left-bar {
+  border-top: 1px solid;
+  border-radius: 10px 0 0 0;
+  border-color: inherit;
+}
+
+.nt-chain-starter > .nt-block:first-child > .nt-block-header {
+  border-top: 1px solid;
+  border-radius: 0 10px 0 0;
+  border-color: inherit;
 }
 
 .nt-block-with-clauses {
@@ -96,10 +135,15 @@
 }
 
 .nt-block {
-  border-width: 0px 0px 1px 1px;
+  display: grid;
+  grid-template-columns: min-content auto;
+  grid-template-rows: auto [last-line];
+  grid-column: 2;
+  background: rgba(0, 0, 0, 0);
+  border-width: 0;
   border-style: solid;
   font-size: 14px;
-  padding: 0 0 0 0.6em;
+  padding: 0;
   user-select: none;
   white-space: nowrap;
   min-width: 10em;
@@ -109,13 +153,19 @@
 }
 
 .nt-block-header {
+  border-width: 0 1px 0 0;
+  border-style: solid;
+  border-color: inherit;
+  padding-right: 0.6em;
   display: flex;
   flex-direction: row;
   align-items: center;
   align-content: center;
+  grid-column: 2;
 }
 
 .nt-block-clause-header {
+  padding-right: 0.6em;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -124,6 +174,7 @@
   border-color: inherit;
   min-height: 2.5em;
   line-height: 2.5em;
+  grid-column: 2;
 }
 
 .nt-block-action {
@@ -141,17 +192,25 @@
   opacity: 0.25;
 }
 
-.nt-drag-over {
+.nt-drag-over > .nt-block-left-bar {
+  border-bottom: 3px solid cyan !important;
+}
+
+.nt-drag-over > :last-child {
   border-bottom: 3px solid cyan !important;
 }
 
 .nt-property {
+  border-right: 1px solid;
+  border-color: inherit;
+  padding-right: 0.6em;
   display: flex;
   flex-direction: row;
   align-items: center;
   align-content: center;
   min-height: 2em;
   line-height: 2em;
+  grid-column: 2;
 }
 
 .nt-property-name {
@@ -162,10 +221,10 @@
   background: white;
   border: 1px solid #eee;
   border-radius: 9px;
+  margin-left: 0.5em;
   padding: 0 0.5em;
   line-height: 1.5em;
   height: 1.5em;
-  margin-right: 0.5em;
 }
 
 .nt-block.clause-block {
