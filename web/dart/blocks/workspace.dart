@@ -184,6 +184,7 @@ class CodeWorkspace {
     }
 
     final menuDiv = menu.draw(drag);
+    menuDiv.style.maxHeight = "${height}px";
     container.append(menuDiv);
 
     updateWorkspaceForChanges();
@@ -204,9 +205,9 @@ class CodeWorkspace {
     if (blockData.parentType == "workspace-chain" && blockData.blockIndex == 0) {
       // just move if we're dragging a whole chain
       Chain chain = chains[blockData.chainIndex];
+      repositionChain(chain, event.offset.x, event.offset.y);
       Block changedBlock = chain.blocks[0];
       programChanged(new BlockChangedEvent(changedBlock));
-      repositionChain(chain, event.offset.x, event.offset.y);
       return false;
     }
 
@@ -214,7 +215,6 @@ class CodeWorkspace {
     createChain(newBlocks, event.offset.x, event.offset.y);
     Block changedBlock = newBlocks.elementAt(0);
     programChanged(new BlockChangedEvent(changedBlock));
-
     return false;
   }
 
@@ -314,7 +314,9 @@ class CodeWorkspace {
       }
     }
     currentHeight = maxHeight + 1;
-    container.style.minHeight = "${currentHeight}px";
+    final newHeight = "${currentHeight}px";
+    spaceDiv.style.minHeight = newHeight;
+    menu._menuDiv.style.maxHeight = newHeight;
   }
 
   /// restore a constructed program from a previously saved state

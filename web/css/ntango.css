@@ -16,22 +16,38 @@
 
 /* Workspace container <div> */
 .nt-container {
+  background: #eee;
   font-family: Poppins, sans-serif;
   font-size: 14px;
   margin: 0;
   display: flex;
-  position: relative;
+  align-items: flex-start;
+  justify-content: space-around;
 }
 
 .nt-workspace {
   width: 70%;
+  background: white;
 }
 
 .nt-menu {
-  width: 40%;
+  width: 30%;
   max-width: 12em;
-  background: #eee;
   padding: 0.2em;
+  position: sticky;
+  top: 0;
+  overflow-y: scroll;
+}
+
+.nt-menu::-webkit-scrollbar {
+  -webkit-appearance: none;
+  width: 7px;
+}
+
+.nt-menu::-webkit-scrollbar-thumb {
+  border-radius: 4px;
+  background-color: rgba(0,0,0,.5);
+  -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
 }
 
 .nt-menu-drag-over {
@@ -381,14 +397,14 @@
   to {opacity: 1;}
 }
 
-input[type=range] {
+.nt-container input[type=range] {
   /*-webkit-appearance: none;*/
   border: 1px solid white;
   width: 100%;
 }
 
-input[type=range]::-webkit-slider-runnable-track,
-input[type=range]::-moz-range-track {
+.nt-container input[type=range]::-webkit-slider-runnable-track,
+.nt-container input[type=range]::-moz-range-track {
   width: 220px;
   height: 4px;
   background: #ddd;
@@ -396,9 +412,9 @@ input[type=range]::-moz-range-track {
   border-radius: 50%;
 }
 
-input[type=range]::-webkit-slider-thumb,
-input[type=range]::-moz-range-thumb,
-input[type=range]::-ms-thumb {
+.nt-container input[type=range]::-webkit-slider-thumb,
+.nt-container input[type=range]::-moz-range-thumb,
+.nt-container input[type=range]::-ms-thumb {
   -webkit-appearance: none;
   border: none;
   height: 20px;
@@ -408,18 +424,18 @@ input[type=range]::-ms-thumb {
   margin-top: -4px;
 }
 
-input[type=range]:focus {
+.nt-container input[type=range]:focus {
   outline: none;
 }
 
 
 /*hide the outline behind the border*/
-input[type=range]:-moz-focusring{
+.nt-container input[type=range]:-moz-focusring{
     outline: 1px solid white;
     outline-offset: -1px;
 }
 
-input[type=range]::-ms-track {
+.nt-container input[type=range]::-ms-track {
     width: 220px;
     height: 5px;
 
@@ -433,19 +449,19 @@ input[type=range]::-ms-track {
     /*remove default tick marks*/
     color: transparent;
 }
-input[type=range]::-ms-fill-lower {
+.nt-container input[type=range]::-ms-fill-lower {
     background: #777;
     border-radius: 10px;
 }
-input[type=range]::-ms-fill-upper {
+.nt-container input[type=range]::-ms-fill-upper {
     background: #ddd;
     border-radius: 10px;
 }
 
-input[type=range]:focus::-ms-fill-lower {
+.nt-container input[type=range]:focus::-ms-fill-lower {
     background: #888;
 }
-input[type=range]:focus::-ms-fill-upper {
+.nt-container input[type=range]:focus::-ms-fill-upper {
     background: #ccc;
 }
 
