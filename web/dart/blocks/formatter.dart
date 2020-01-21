@@ -34,9 +34,10 @@ abstract class CodeFormatter  {
     }
   }
 
-
   /// convert parse tree output from workspace into source code of a target output language
   String _format(String containerId, var parseTree, Function formatAttribute);
+
+  void formatChain(Function formatAttribute, StringBuffer out, String containerId, var chain, int indent);
 
   void _formatOutput(StringBuffer out, int indent, String post) {
     String fullIndent = "";
@@ -46,8 +47,7 @@ abstract class CodeFormatter  {
     out.writeln(indentedPost);
   }
 
-
-  void _formatBlock(Function formatAttribute, StringBuffer out, String containerId, var block, int indent) {
+  void formatBlock(Function formatAttribute, StringBuffer out, String containerId, var block, int indent) {
     String fmt = block["format"];
     var params = block["params"];
     var props = block["properties"];
@@ -81,7 +81,6 @@ abstract class CodeFormatter  {
     }
   }
 
-
   static String formatExpression(var expression) {
     var c = expression["children"];
     if (c == null || c is! List) c = [];
@@ -105,6 +104,7 @@ abstract class CodeFormatter  {
       return name;
     }
   }
+
 }
 
 
@@ -114,29 +114,29 @@ class PlainFormatter extends CodeFormatter {
   String _format(String containerId, var parseTree, Function formatAttribute) {
     StringBuffer out = new StringBuffer();
     for (var chain in parseTree["chains"]) {
-      _formatChain(formatAttribute, out, containerId, chain, 0);
+      formatChain(formatAttribute, out, containerId, chain, 0);
       out.writeln();
     }
 
     return out.toString();
   }
 
-
-  void _formatChain(Function formatAttribute, StringBuffer out, String containerId, var chain, int indent) {
+  void formatChain(Function formatAttribute, StringBuffer out, String containerId, var chain, int indent) {
     for (var block in chain) {
       if (block["children"] is List) {
-        _formatChain(formatAttribute, out, containerId, block["children"], indent+1);
+        formatChain(formatAttribute, out, containerId, block["children"], indent+1);
       }
       if (block["clauses"] is List) {
         for (var clause in block["clauses"]) {
-          _formatBlock(formatAttribute, out, containerId, clause, indent);
+          formatBlock(formatAttribute, out, containerId, clause, indent);
           if (clause["children"] is List) {
-            _formatChain(formatAttribute, out, containerId, clause["children"], indent+1);
+            formatChain(formatAttribute, out, containerId, clause["children"], indent+1);
           }
         }
       }
     }
   }
+
 }
 
 int compareChainsByAction(a, b) {
@@ -159,36 +159,42 @@ class NetLogoFormatter extends CodeFormatter {
     List chains = parseTree["chains"];
     chains.sort(compareChainsByAction);
     for (var chain in chains) {
-      if (chain.length > 0 && chain[0]["type"] == "nlogo:procedure") {
-        var block = chain.removeAt(0);
-        _formatBlock(formatAttribute, out, containerId, block, 0);
-        _formatChain(formatAttribute, out, containerId, chain, 1);
-        out.writeln("end");
-        out.writeln();
-      }
+      formatChain(formatAttribute, out, containerId, chain, 0);
     }
     return out.toString();
   }
 
+  void formatChain(Function formatAttribute, StringBuffer out, String containerId, var chain, int indent) {
+    if (chain.length == 0 || chain[0]["type"] != "nlogo:procedure") {
+      return;
+    }
+    var starter = chain[0];
+    formatBlock(formatAttribute, out, containerId, starter, indent);
+    _formatBlocks(formatAttribute, out, containerId, chain.skip(1), indent+1);
+    out.writeln("end");
+    out.writeln();
+  }
 
-  void _formatChain(Function formatAttribute, StringBuffer out, String containerId, var chain, int indent) {
-    for (var block in chain) {
-      _formatBlock(formatAttribute, out, containerId, block, indent);
+  void _formatBlocks(Function formatAttribute, StringBuffer out, String containerId, var blocks, int indent) {
+    for (var block in blocks) {
+      formatBlock(formatAttribute, out, containerId, block, indent);
       if (block["children"] is List) {
-        _formatOutput(out, indent, "[");
-        _formatChain(formatAttribute, out, containerId, block["children"], indent+1);
-        _formatOutput(out, indent, "]");
+        formatClause(formatAttribute, out, containerId, block["children"], indent);
       }
       if (block["clauses"] is List) {
         for (var clause in block["clauses"]) {
           if (clause["children"] is List) {
-            _formatOutput(out, indent, "[");
-            _formatChain(formatAttribute, out, containerId, clause["children"], indent+1);
-            _formatOutput(out, indent, "]");
+            formatClause(formatAttribute, out, containerId, clause["children"], indent);
           }
         }
       }
     }
+  }
+
+  void formatClause(Function formatAttribute, StringBuffer out, String containerId, var clause, int indent) {
+    _formatOutput(out, indent, "[");
+    _formatBlocks(formatAttribute, out, containerId, clause, indent + 1);
+    _formatOutput(out, indent, "]");
   }
 
   String _replaceAttribute(Function formatAttribute, String code, String placeholder, String containerId, var block, var attribute) {
