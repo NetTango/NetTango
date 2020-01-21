@@ -23,6 +23,8 @@ class CodeWorkspace {
   String containerId;
   DivElement container, spaceDiv, drag;
 
+  CodeFormatter formatter;
+
   List<Chain> chains = new List<Chain>();
 
   int nextBlockId = 0;
@@ -45,7 +47,7 @@ class CodeWorkspace {
 /**
  * Construct a code workspace from a JSON object
  */
-  CodeWorkspace(this.containerId, this.definition) {
+  CodeWorkspace(this.containerId, this.definition, this.formatter) {
 
     if (this.definition["version"] != VersionManager.VERSION) {
       throw "The supported NetTango version is ${VersionManager.VERSION}, but the given definition version was ${this.definition["version"]}.";
@@ -131,6 +133,12 @@ class CodeWorkspace {
     } catch (e) {
       print("Unable to relay program changed event to Javascript");
     }
+  }
+
+
+  String exportCode({Function formatAttributeOverride = null}) {
+    var parseTree = exportParseTree(true);
+    return this.formatter.formatCode(parseTree, formatAttributeOverride: formatAttributeOverride);
   }
 
 /**

@@ -42,63 +42,95 @@ part 'blocks/parameter.dart';
 part 'blocks/program-changed-event.dart';
 part 'blocks/workspace.dart';
 
-var _workspaces = { };
+Map<String, CodeWorkspace> _workspaces = { };
 
 CodeWorkspace GetWorkspace(String containerId) {
   return _workspaces[containerId];
 }
 
-void _init(String containerId, Map json) {
+void _initializeJS(String language, js.JsFunction formatAttributeJS, String containerId, Map json) {
+  String formatAttribute(containerId, blockId, instanceId, attributeId, value) {
+    if (formatAttributeJS == null) {
+      return value.toString();
+    } else {
+      return formatAttributeJS.apply([containerId, blockId, instanceId, attributeId, value]);
+    }
+  }
+
+  _initialize(language, formatAttribute, containerId, json);
+}
+
+void _initialize(String language, Function formatAttribute, String containerId, Map json) {
   VersionManager.updateWorkspace(json);
+
+  CodeFormatter formatter;
+  switch (language) {
+    case "NetLogo":
+      formatter = new NetLogoFormatter(formatAttribute, containerId);
+      break;
+
+    default:
+      formatter = new PlainFormatter(formatAttribute, containerId);
+      break;
+  }
+
   try {
-    _workspaces[containerId] = new CodeWorkspace(containerId, json);
+    _workspaces[containerId] = new CodeWorkspace(containerId, json, formatter);
   } on FormatException catch (e) {
     throw new FormatException("There was an error initializing the workspace with the given NetTango model JSON.", e );
   }
 }
 
 /// Javascript hook to initialize a workspace
-void JSInitWorkspace(String containerId, String jsonString) {
+void JSInitWorkspaceJS(String language, String containerId, String jsonString, js.JsFunction formatAttributeJS) {
   if (_workspaces[containerId] is CodeWorkspace) {
     _workspaces[containerId].unload();
   }
   var json = jsonDecode(jsonString);
   if (json is Map) {
-    _init(containerId, json);
+    _initializeJS(language, formatAttributeJS, containerId, json);
+  }
+}
+
+void JSInitWorkspace(String language, String containerId, String jsonString, Function formatAttribute) {
+  if (_workspaces[containerId] is CodeWorkspace) {
+    _workspaces[containerId].unload();
+  }
+  var json = jsonDecode(jsonString);
+  if (json is Map) {
+    _initialize(language, formatAttribute, containerId, json);
   }
 }
 
 /// Javascript hook to initialize all workspaces based on containerId names
-void JSInitAllWorkspaces(String jsonString) {
+void JSInitAllWorkspacesJS(String language, String jsonString, js.JsFunction formatAttributeJS) {
   var json = jsonDecode(jsonString);
   if (json is Map) {
     for (var key in json.keys) {
-      if (_workspaces[key] is CodeWorkspace) {
-        _workspaces[key].unload();
-      }
-      if (json[key] is Map) {
-        _init(key, json[key]);
-      }
+      JSInitWorkspaceJS(language, key, jsonString, formatAttributeJS);
     }
   }
 }
 
-
 /// Javascript hook to export code from a workspace
-String JSExportCode(String containerId, String language, js.JsFunction formatter) {
-  String formatAttribute(containerId, blockId, instanceId, attributeId, value) {
-    if (formatter == null) {
-      return value.toString();
-    } else {
-      return formatter.apply([containerId, blockId, instanceId, attributeId, value]);
-    }
-  }
+String JSExportCode(String containerId, js.JsFunction formatAttributeJS) {
   if (_workspaces.containsKey(containerId)) {
-    return CodeFormatter.formatCode(language, containerId, _workspaces[containerId].exportParseTree(true), formatAttribute);
+    if (formatAttributeJS != null) {
+      String formatAttribute(containerId, blockId, instanceId, attributeId, value) {
+        if (formatAttributeJS == null) {
+          return value.toString();
+        } else {
+          return formatAttributeJS.apply([containerId, blockId, instanceId, attributeId, value]);
+        }
+      }
+
+      return _workspaces[containerId].exportCode(formatAttributeOverride: formatAttribute);
+    } else {
+      return _workspaces[containerId].exportCode();
+    }
   }
   return null;
 }
-
 
 /// Javascript hook to export the entire state of a workspace
 String JSSaveWorkspace(String containerId) {
@@ -106,9 +138,10 @@ String JSSaveWorkspace(String containerId) {
     var defs = _workspaces[containerId].definition;
     defs['program'] = _workspaces[containerId].exportParseTree(false);
     return jsonEncode(defs);
+  } else {
+    return "{}";
   }
 }
-
 
 /// Javascript hook to export all workspaces
 String JSSaveAllWorkspaces() {
@@ -121,11 +154,10 @@ String JSSaveAllWorkspaces() {
   return jsonEncode(json);
 }
 
-
 /// Expose core API functions to Javascript
 void main() {
-  js.context['NetTango_InitWorkspace'] = JSInitWorkspace;
-  js.context['NetTango_InitAllWorkspaces'] = JSInitAllWorkspaces;
+  js.context['NetTango_InitWorkspace'] = JSInitWorkspaceJS;
+  js.context['NetTango_InitAllWorkspaces'] = JSInitAllWorkspacesJS;
   js.context['NetTango_ExportCode'] = JSExportCode;
   js.context['NetTango_Save'] = JSSaveWorkspace;
   js.context['NetTango_SaveAll'] = JSSaveAllWorkspaces;

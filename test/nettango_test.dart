@@ -198,7 +198,7 @@ String formatAttribute(containerId, blockId, instanceId, attributeId, value) {
 
 void main() {
   test("Smoke test of NetTango init and save", () {
-    JSInitWorkspace("nt-canvas", "{}");
+    JSInitWorkspace("NetLogo", "nt-canvas", "{}", formatAttribute);
     var result = JSSaveWorkspace("nt-canvas");
     var expected = jsonEncode({
       "version": VersionManager.VERSION,
@@ -271,7 +271,7 @@ void main() {
         ]
       }
     });
-    JSInitWorkspace("nt-canvas", json);
+    JSInitWorkspace("NetLogo", "nt-canvas", json, formatAttribute);
     var result = jsonDecode(JSSaveWorkspace("nt-canvas"));
     var expected = {
       "version": VersionManager.VERSION,
@@ -325,7 +325,7 @@ void main() {
       }
     };
     expect(result, equals(expected));
-    var codeResult = JSExportCode("nt-canvas", "NetLogo", null);
+    var codeResult = JSExportCode("nt-canvas", null);
     expect(codeResult, equals("to wolf-actions\n  forward 10\nend\n\n"));
   });
 
@@ -333,13 +333,13 @@ void main() {
     final testCanavsID = "nt-canvas";
     final model = copyJson(NETLOGO_MODEL_1);
     var json = jsonEncode(model);
-    JSInitWorkspace(testCanavsID, json);
+    JSInitWorkspace("NetLogo", testCanavsID, json, formatAttribute);
     var result = jsonDecode(JSSaveWorkspace(testCanavsID));
     model["version"] = VersionManager.VERSION;
     versionThreeChainsCoordinates(model["program"]["chains"]);
     expect(result, equals(model));
 
-    var codeResult = CodeFormatter.formatCode("NetLogo", testCanavsID, GetWorkspace(testCanavsID).exportParseTree(true), formatAttribute);
+    var codeResult = JSExportCode(testCanavsID, null);
 
     expect(codeResult, equals("to sheep-actions\n  forward (__nt-canvas_24_6_3 + __nt-canvas_24_6_4)\nend\n\nto wolf-actions\n  forward (__nt-canvas_24_4_3 + __nt-canvas_24_4_4)\nend\n\n"));
   });
@@ -369,7 +369,7 @@ void main() {
 
     print(jsonEncode(model));
 
-    JSInitWorkspace("nt-canvas", jsonEncode(model));
+    JSInitWorkspace("NetLogo", "nt-canvas", jsonEncode(model), formatAttribute);
     var result = jsonDecode(JSSaveWorkspace("nt-canvas"));
 
     print(jsonEncode(result));
@@ -406,7 +406,7 @@ void main() {
     };
     expect(result, equals(expected));
 
-    var codeResult = CodeFormatter.formatCode("NetLogo", testCanavsID, GetWorkspace(testCanavsID).exportParseTree(true), formatAttribute);
+    var codeResult = JSExportCode(testCanavsID, null);
 
     expect(codeResult, equals("to wolf\n  ifelse random 100 < 20\n  [\n    forward 1\n  ]\n  [\n    left random 360\n  ]\nend\n\n"));
   });
@@ -427,7 +427,7 @@ void main() {
       "program": { "chains": [ [ chain ] ] }
     };
 
-    JSInitWorkspace("nt-canvas", jsonEncode(model));
+    JSInitWorkspace("NetLogo", "nt-canvas", jsonEncode(model), formatAttribute);
     var result = jsonDecode(JSSaveWorkspace("nt-canvas"));
 
     Map<String, Object> expected = {
@@ -476,7 +476,7 @@ void main() {
     final expected = copyJson(model);
     expected["blocks"][1]["id"] = 1;
 
-    JSInitWorkspace("nt-canvas", jsonEncode(model));
+    JSInitWorkspace("NetLogo", "nt-canvas", jsonEncode(model), formatAttribute);
     final result = jsonDecode(JSSaveWorkspace("nt-canvas"));
 
     expect(result, equals(expected));
@@ -495,7 +495,7 @@ void main() {
       "version": 1
     };
 
-    JSInitWorkspace("nt-canvas", jsonEncode(model));
+    JSInitWorkspace("NetLogo", "nt-canvas", jsonEncode(model), formatAttribute);
     var result = jsonDecode(JSSaveWorkspace("nt-canvas"));
 
     Map<String, Object> expected = {
