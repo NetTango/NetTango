@@ -349,9 +349,12 @@
 }
 
 .nt-param-input {
-  width: 130px;
+  width: 80%;
   font-size: 16px;
   line-height: 150%;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
 }
 
 .nt-param-unit {

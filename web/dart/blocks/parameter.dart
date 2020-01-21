@@ -107,8 +107,11 @@ class Parameter {
 
     final updateValue = () { paramDiv.innerText = valueAsString; };
     paramDiv.onClick.listen( (event) {
-      final rect = block.workspace.container.getBoundingClientRect();
-      _showParameterDialog(event.page.x - rect.left.floor(), event.page.y - rect.top.floor(), updateValue);
+      final target = (event.target as DivElement);
+      final parent = target.offsetParent;
+      final left = parent.offsetLeft + target.offsetLeft + event.offset.x;
+      final top  = parent.offsetTop  + target.offsetTop  + event.offset.y;
+      _showParameterDialog(left.floor(), top.floor(), updateValue);
     });
     return paramDiv;
   }
