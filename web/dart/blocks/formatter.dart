@@ -180,19 +180,23 @@ class NetLogoFormatter extends CodeFormatter {
     out.writeln();
   }
 
+  void formatBlock(StringBuffer out, var block, int indent) {
+    super.formatBlock(out, block, indent);
+    if (block["children"] is List) {
+      formatClause(out, block["children"], indent);
+    }
+    if (block["clauses"] is List) {
+      for (var clause in block["clauses"]) {
+        if (clause["children"] is List) {
+          formatClause(out, clause["children"], indent);
+        }
+      }
+    }
+  }
+
   void _formatBlocks(StringBuffer out, var blocks, int indent) {
     for (var block in blocks) {
       formatBlock(out, block, indent);
-      if (block["children"] is List) {
-        formatClause(out, block["children"], indent);
-      }
-      if (block["clauses"] is List) {
-        for (var clause in block["clauses"]) {
-          if (clause["children"] is List) {
-            formatClause(out, clause["children"], indent);
-          }
-        }
-      }
     }
   }
 

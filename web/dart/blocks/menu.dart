@@ -69,6 +69,8 @@ class BlockMenu {
     _menuDiv.onDragOver.listen( (e) => e.preventDefault() );
     _menuDiv.onDrop.listen( drop );
 
+    updateLimits();
+
     return _menuDiv;
   }
 

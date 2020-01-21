@@ -129,6 +129,7 @@ class CodeWorkspace {
  */
   void programChanged(ProgramChangedEvent event) {
     try {
+      _updateWorkspaceForChanges();
       js.context["NetTango"].callMethod("_relayCallback", [ containerId, event.toJS() ]);
     } catch (e) {
       print("Unable to relay program changed event to Javascript");
@@ -195,7 +196,7 @@ class CodeWorkspace {
     menuDiv.style.maxHeight = "${height}px";
     container.append(menuDiv);
 
-    updateWorkspaceForChanges();
+    updateWorkspaceHeight();
   }
 
   bool drop(MouseEvent event) {
@@ -246,7 +247,6 @@ class CodeWorkspace {
       chain.resetDragData(i);
       chain.updatePosition();
     }
-    updateWorkspaceForChanges();
     return blocks;
   }
 
@@ -295,7 +295,6 @@ class CodeWorkspace {
       first.x = x;
       first.y = y;
       chain.updatePosition();
-      updateWorkspaceForChanges();
     }
   }
 
@@ -306,8 +305,9 @@ class CodeWorkspace {
     }
   }
 
-  void updateWorkspaceForChanges() {
+  void _updateWorkspaceForChanges() {
     updateWorkspaceHeight();
+    resetBlockActionText();
     menu.updateLimits();
   }
 
@@ -325,6 +325,14 @@ class CodeWorkspace {
     final newHeight = "${currentHeight}px";
     spaceDiv.style.minHeight = newHeight;
     menu._menuDiv.style.maxHeight = newHeight;
+  }
+
+  void resetBlockActionText() {
+    for (Chain chain in chains) {
+      for (Block block in chain.blocks) {
+        block.resetBlockActionText();
+      }
+    }
   }
 
   /// restore a constructed program from a previously saved state

@@ -76,6 +76,7 @@ class Block {
 
   BlockDragData _dragData;
   DivElement _blockDiv;
+  DivElement _actionDiv;
   bool isDragging = false;
 
   Block(this.workspace, this.id, this.action) {
@@ -284,10 +285,10 @@ class Block {
     }
     _blockDiv.append(headerNode);
 
-    DivElement actionNode = new DivElement();
-    actionNode.classes.add("nt-block-action");
-    actionNode.innerText = action;
-    headerNode.append(actionNode);
+    _actionDiv = new DivElement();
+    updateActionText();
+    _actionDiv.classes.add("nt-block-action");
+    headerNode.append(_actionDiv);
 
     for (Parameter attribute in params.values) {
       headerNode.append(attribute.drawParameter());
@@ -330,6 +331,26 @@ class Block {
     _blockDiv.onDrop.listen( drop );
 
     return _blockDiv;
+  }
+
+  void updateActionText() {
+    final codeTip = formatCodeTip();
+    _actionDiv.appendHtml("""<span title="$codeTip">$action</span>""");
+  }
+
+  String formatCodeTip() {
+    final out = new StringBuffer();
+    if (_dragData.parentType == "workspace-chain" && _dragData.blockIndex == 0) {
+      final chain = workspace.chains[_dragData.chainIndex].exportParseTree();
+      workspace.formatter.formatChain(out, chain, 0);
+      // if this block isn't a valid chain starter, nothing may have been written
+      if (out.isEmpty) {
+        workspace.formatter.formatBlock(out, this.toJSON(), 0);
+      }
+    } else {
+      workspace.formatter.formatBlock(out, this.toJSON(), 0);
+    }
+    return out.toString().trim();
   }
 
   void clearDragOver() {
@@ -459,7 +480,6 @@ class Block {
 
     }
 
-    workspace.updateWorkspaceForChanges();
     Block changedBlock = newBlocks.elementAt(0);
     workspace.programChanged(new BlockChangedEvent(changedBlock));
 
@@ -474,6 +494,23 @@ class Block {
       for (int clauseIndex = 0; clauseIndex < clauses.length; clauseIndex++) {
         Clause clause = clauses[clauseIndex];
         clause.resetOwned();
+      }
+    }
+  }
+
+  void resetBlockActionText() {
+    _actionDiv.innerHtml = "";
+    updateActionText();
+    if (children != null) {
+      for (Block block in children.blocks) {
+        block.resetBlockActionText();
+      }
+    }
+    if (clauses != null) {
+      for (Clause clause in clauses) {
+        for (Block block in clause.blocks) {
+          block.resetBlockActionText();
+        }
       }
     }
   }
