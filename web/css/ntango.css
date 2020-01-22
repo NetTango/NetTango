@@ -26,28 +26,17 @@
 }
 
 .nt-workspace {
-  width: 70%;
+  width: 100%;
   background: white;
 }
 
 .nt-menu {
-  width: 30%;
-  max-width: 12em;
+  width: fit-content;
+  min-width: fit-content;
   padding: 0.2em;
   position: sticky;
   top: 0;
   overflow-y: scroll;
-}
-
-.nt-menu::-webkit-scrollbar {
-  -webkit-appearance: none;
-  width: 7px;
-}
-
-.nt-menu::-webkit-scrollbar-thumb {
-  border-radius: 4px;
-  background-color: rgba(0,0,0,.5);
-  -webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
 }
 
 .nt-menu-drag-over {
