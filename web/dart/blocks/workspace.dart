@@ -65,6 +65,7 @@ class CodeWorkspace {
     width  = definition["width"]  is int ? definition["width"]  : 450;
     container.style.minHeight = "${height}px";
     container.style.minWidth  = "${width}px";
+    container.style.maxWidth  = "${width}px";
     currentHeight = height;
 
     //--------------------------------------------------------

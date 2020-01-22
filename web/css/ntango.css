@@ -28,6 +28,7 @@
 .nt-workspace {
   width: 100%;
   background: white;
+  position: relative;
 }
 
 .nt-menu {
