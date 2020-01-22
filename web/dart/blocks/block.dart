@@ -41,11 +41,11 @@ class Block {
   num x = 0.0, y = 0.0;
 
   /// parameters for this block (optional)
-  Map<int, Parameter> params = new Map<int, Parameter>();
+  Map<int, Attribute> params = new Map<int, Attribute>();
 
   /// properties for this block (optional)
   /// properties are just named paramters that get listed vertically
-  Map<int, Parameter> properties = new Map<int, Parameter>();
+  Map<int, Attribute> properties = new Map<int, Attribute>();
 
   int nextParamId = 0;
 
@@ -126,7 +126,7 @@ class Block {
     //----------------------------------------------------------
     if (json["params"] is List) {
       for (var p in json["params"]) {
-        Parameter param = new Parameter.fromJSON(block, p);
+        Attribute param = new Attribute.fromJSON(block, p);
         if (param != null) {
           block.params[param.id] = param;
         }
@@ -138,7 +138,7 @@ class Block {
     //----------------------------------------------------------
     if (json["properties"] is List) {
       for (var p in json["properties"]) {
-        Parameter prop = new Parameter.fromJSON(block, p);
+        Attribute prop = new Attribute.fromJSON(block, p);
         if (prop != null) {
           block.properties[prop.id] = prop;
         }
@@ -163,12 +163,12 @@ class Block {
     other.borderColor = borderColor;
     other.font = font;
     other.required = required;
-    for (Parameter param in params.values) {
-      Parameter otherParam = param.clone(other);
+    for (Attribute param in params.values) {
+      Attribute otherParam = param.clone(other);
       other.params[otherParam.id] = otherParam;
     }
-    for (Parameter prop in properties.values) {
-      Parameter otherProp = prop.clone(other);
+    for (Attribute prop in properties.values) {
+      Attribute otherProp = prop.clone(other);
       other.properties[otherProp.id] = otherProp;
     }
   }
@@ -201,13 +201,13 @@ class Block {
     }
     if (params.isNotEmpty) {
       data["params"] = [];
-      for (Parameter param in params.values) {
+      for (Attribute param in params.values) {
         data["params"].add(param.toJSON());
       }
     }
     if (properties.isNotEmpty) {
       data["properties"] = [];
-      for (Parameter prop in properties.values) {
+      for (Attribute prop in properties.values) {
         data["properties"].add(prop.toJSON());
       }
     }
@@ -290,10 +290,10 @@ class Block {
     _actionDiv.classes.add("nt-block-action");
     headerNode.append(_actionDiv);
 
-    for (Parameter attribute in params.values) {
+    for (Attribute attribute in params.values) {
       headerNode.append(attribute.drawParameter());
     }
-    for (Parameter attribute in properties.values) {
+    for (Attribute attribute in properties.values) {
       final propertyDiv = attribute.drawProperty();
       propertyDiv.style.backgroundColor = this.blockColor;
       _blockDiv.append(propertyDiv);

@@ -16,7 +16,7 @@
 part of NetTango;
 
 /// Represents a block's parameter value
-class Parameter {
+class Attribute {
 
   /// parameter id - unique per block
   int id;
@@ -46,7 +46,7 @@ class Parameter {
 
   String get valueAsString => "${_value.toString()}$unit";
 
-  Parameter(this.block, Map data) {
+  Attribute(this.block, Map data) {
     if (data.containsKey("id")) {
       id = data["id"];
       if (id >= this.block.nextParamId) {
@@ -64,8 +64,8 @@ class Parameter {
     value = defaultValue;
   }
 
-  Parameter clone(Block parent) {
-    return new Parameter.fromJSON(parent, toJSON());
+  Attribute clone(Block parent) {
+    return new Attribute.fromJSON(parent, toJSON());
   }
 
   Map toJSON() {
@@ -79,7 +79,7 @@ class Parameter {
     };
   }
 
-  factory Parameter.fromJSON(Block parent, Map data) {
+  factory Attribute.fromJSON(Block parent, Map data) {
     switch(toStr(data["type"], "num")) {
       case "int": return new IntParameter(parent, data);
 
@@ -91,9 +91,9 @@ class Parameter {
 
       case "select": return new SelectParameter(parent, data);
 
-      case "text": return new Parameter(parent, data);
+      case "text": return new Attribute(parent, data);
 
-      default: return new Parameter(parent, data);
+      default: return new Attribute(parent, data);
     }
   }
 
@@ -179,7 +179,7 @@ class Parameter {
 //-------------------------------------------------------------------------
 /// Represents a number parameter
 //-------------------------------------------------------------------------
-class NumParameter extends Parameter {
+class NumParameter extends Attribute {
 
   /// represents a random number?
   bool random = false;
@@ -305,7 +305,7 @@ class RangeParameter extends NumParameter {
 //-------------------------------------------------------------------------
 /// Represents a value selected from a list of options
 //-------------------------------------------------------------------------
-class SelectParameter extends Parameter {
+class SelectParameter extends Attribute {
 
   /// list of possible values for select type
   var values = [];
@@ -333,7 +333,7 @@ class SelectParameter extends Parameter {
     }
   }
 
-  Parameter clone(Block parent) {
+  Attribute clone(Block parent) {
     return new SelectParameter(parent, toJSON());
   }
 
@@ -384,7 +384,7 @@ class SelectParameter extends Parameter {
 //-------------------------------------------------------------------------
 /// Represents an expression (boolean or number)
 //-------------------------------------------------------------------------
-class ExpressionParameter extends Parameter {
+class ExpressionParameter extends Attribute {
 
   ExpressionBuilder builder;
 
@@ -410,7 +410,7 @@ class ExpressionParameter extends Parameter {
     return json;
   }
 
-  Parameter clone(Block parent) {
+  Attribute clone(Block parent) {
     return new ExpressionParameter(parent, toJSON());
   }
 

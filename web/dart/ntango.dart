@@ -38,7 +38,7 @@ part 'blocks/expression.dart';
 part 'blocks/formatter.dart';
 part 'blocks/slot.dart';
 part 'blocks/menu.dart';
-part 'blocks/parameter.dart';
+part 'blocks/attribute.dart';
 part 'blocks/program-changed-event.dart';
 part 'blocks/workspace.dart';
 
