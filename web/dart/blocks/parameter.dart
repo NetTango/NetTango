@@ -308,16 +308,28 @@ class RangeParameter extends NumParameter {
 class SelectParameter extends Parameter {
 
   /// list of possible values for select type
-  var values = [ ];
+  var values = [];
   var _display;
+
+  dynamic get value => _value;
+
+  set value(var v) {
+    _value = v;
+
+    final valueOptions = values.where( (o) => o["actual"] == v && o.containsKey("display") );
+    if (valueOptions.length == 1) {
+      _display = _chooseDisplayValue(valueOptions.elementAt(0));
+    } else {
+      _display = v;
+    }
+  }
 
   String get valueAsString => "${_display.toString()}$unit \u25BE";
 
   SelectParameter(Block block, Map data) : super(block, data) {
     if (data["values"] is List && data["values"].length > 0) {
       values = data["values"];
-      _display = _chooseDisplayValue(values[0]);
-      _value = values[0]["actual"];
+      value  = values[0]["actual"];
     }
   }
 
@@ -347,7 +359,6 @@ class SelectParameter extends Parameter {
       DivElement opt = new DivElement() .. className = "nt-select-option" .. innerHtml = display;
       if (v["actual"] == value) { opt.classes.add("selected"); }
       opt.onClick.listen((e) {
-        _display = _chooseDisplayValue(v);
         value = v["actual"];
         backdrop.remove();
         acceptCallback();
