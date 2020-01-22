@@ -28,6 +28,7 @@ class Slot {
   Block _newBlockInstance;
   DivElement _slotDiv;
   bool isDragging = false;
+  bool isAtLimit = false;
 
   Slot(this.block, this.workspace, this.limit);
 
@@ -54,14 +55,17 @@ class Slot {
     _slotDiv.draggable = true;
     _slotDiv.onDragStart.listen( (e) => startDrag(e, drag) );
     _slotDiv.onDragEnd.listen( (e) => endDrag(e, drag) );
+    _slotDiv.onDoubleClick.listen( raiseDoubleClick );
     updateForLimit();
     return _slotDiv;
   }
 
   void updateForLimit() {
     if (isAvailable()) {
+      _slotDiv.draggable = true;
       _slotDiv.classes.remove("nt-menu-slot-at-limit");
     } else {
+      _slotDiv.draggable = false;
       _slotDiv.classes.add("nt-menu-slot-at-limit");
     }
   }
@@ -112,5 +116,10 @@ class Slot {
 
     isDragging = false;
     _newBlockInstance = null;
+  }
+
+  void raiseDoubleClick(Event e) {
+    final event = new MenuItemClickedEvent(block.id);
+    workspace.programChanged(event);
   }
 }

@@ -58,3 +58,18 @@ class AttributeChangedEvent extends ProgramChangedEvent {
   }
 
 }
+
+class MenuItemClickedEvent extends ProgramChangedEvent {
+  final String type = "menu-item-clicked";
+  final int blockId;
+
+  MenuItemClickedEvent(int this.blockId);
+
+  dynamic toJS() {
+    return js.JsObject.jsify({
+      "type": type,
+      "blockId": blockId
+    });
+  }
+
+}
