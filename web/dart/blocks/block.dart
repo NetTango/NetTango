@@ -273,7 +273,7 @@ class Block {
     // This is pretty gross, but there isn't a way I have found using plain CSS
     // to auto-clear a grid-positioned element to the last row when the number of
     // rows is auto-generated.  -Jeremy B January 2020
-    leftBar.style.gridRowEnd = "${4 + (clauses != null ? clauses.length * 2 : 0)}";
+    leftBar.style.gridRowEnd = "${4 + properties.length + (clauses != null ? clauses.length * 2 : 0)}";
     _blockDiv.append(leftBar);
 
     DivElement headerNode = new DivElement();
