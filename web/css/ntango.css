@@ -71,7 +71,7 @@
   grid-column: 2;
 }
 
-.nt-clause-empty {
+.nt-clause:empty {
   border: 1px solid;
   border-right: 0;
   border-color: inherit;

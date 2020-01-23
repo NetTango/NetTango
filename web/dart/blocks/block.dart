@@ -385,18 +385,8 @@ class Block {
     }
   }
 
-  void setDraggingClasses() {
-    if (isDragging) {
-      _blockDiv.classes.add("nt-block-dragging");
-      for (Block sibling in _dragData.siblings) {
-        sibling._blockDiv.classes.add("nt-block-dragging");
-      }
-    } else {
-      _blockDiv.classes.remove("nt-block-dragging");
-      for (Block sibling in _dragData.siblings) {
-        sibling._blockDiv.classes.remove("nt-block-dragging");
-      }
-    }
+  void removeForDragging() {
+    workspace.removeBlocksFromSource(_dragData);
   }
 
   void startDrag(MouseEvent event, DivElement drag) {
@@ -406,8 +396,6 @@ class Block {
     }
 
     event.dataTransfer.setData(workspace.containerId, workspace.containerId);
-    String blockString = jsonEncode(this._dragData.toJSON());
-    event.dataTransfer.setData("text/json", blockString);
 
     Element dragClone = _blockDiv.clone(true);
 
@@ -422,15 +410,45 @@ class Block {
     }
 
     setDragging(true);
-    setDraggingClasses();
+    // This silliness is to avoid causing Chrome to freak out.  It immediately cancels
+    // any drag/drop operations if you change the DOM of the element that started the
+    // drag in the dragstart event.  -Jeremy B Jan-2020
+    (new Timer(Duration(milliseconds: 1), () => removeForDragging()));
+
     event.dataTransfer.setDragImage(drag, 0, 0);
   }
 
   void endDrag(MouseEvent event, DivElement drag) {
     workspace.clearDragOver();
 
+    if (workspace.hasDraggingBlocks) {
+      // our blocks weren't dropped anywhere, so reset
+      final newBlocks = workspace.consumeDraggingBlocks();
+      switch (_dragData.parentType) {
+
+        case "workspace-chain":
+          if (_dragData.blockIndex == 0) {
+            // new chain, we deleted the old one
+            workspace.createChain(newBlocks, x, y);
+          } else {
+            workspace.chains[_dragData.chainIndex].insertBlocks(_dragData.blockIndex, newBlocks);
+          }
+          break;
+
+        case "block-children":
+          final parentBlock = workspace.chains[_dragData.chainIndex].getBlockInstance(_dragData.parentInstanceId);
+          parentBlock.children.insertBlocks(_dragData.blockIndex, newBlocks);
+          break;
+
+        case "block-clause":
+          final parentBlock = workspace.chains[_dragData.chainIndex].getBlockInstance(_dragData.parentInstanceId);
+          parentBlock.clauses[_dragData.clauseIndex].insertBlocks(_dragData.blockIndex, newBlocks);
+          break;
+
+      }
+    }
+
     setDragging(false);
-    setDraggingClasses();
     drag.classes.remove("nt-chain-starter");
   }
 
@@ -462,9 +480,7 @@ class Block {
       return false;
     }
 
-    final json = jsonDecode(event.dataTransfer.getData("text/json"));
-    final blockData = BlockDragData.fromJSON(json);
-    final newBlocks = workspace.removeBlocksFromSource(blockData);
+    final newBlocks = workspace.consumeDraggingBlocks();
 
     switch (_dragData.parentType) {
 

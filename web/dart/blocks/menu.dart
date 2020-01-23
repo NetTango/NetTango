@@ -104,10 +104,7 @@ class BlockMenu {
       return false;
     }
 
-    final json = jsonDecode(event.dataTransfer.getData("text/json"));
-    final blockData = BlockDragData.fromJSON(json);
-
-    final oldBlocks = workspace.removeBlocksFromSource(blockData);
+    final oldBlocks = workspace.consumeDraggingBlocks();
 
     Block changedBlock = oldBlocks.elementAt(0);
     workspace.programChanged(new BlockChangedEvent(changedBlock));

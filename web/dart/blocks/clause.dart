@@ -136,9 +136,7 @@ class Clause extends BlockCollection {
       return false;
     }
 
-    final json = jsonDecode(event.dataTransfer.getData("text/json"));
-    final blockData = BlockDragData.fromJSON(json);
-    final newBlocks = owner.workspace.removeBlocksFromSource(blockData);
+    final newBlocks = owner.workspace.consumeDraggingBlocks();
 
     insertBlocks(0, newBlocks);
     _div.classes.remove("nt-clause-empty");
@@ -183,9 +181,7 @@ class Clause extends BlockCollection {
       return false;
     }
 
-    final json = jsonDecode(event.dataTransfer.getData("text/json"));
-    final blockData = BlockDragData.fromJSON(json);
-    final newBlocks = owner.workspace.removeBlocksFromSource(blockData);
+    final newBlocks = owner.workspace.consumeDraggingBlocks();
 
     insertBlocks(0, newBlocks);
     _div.classes.remove("nt-clause-empty");

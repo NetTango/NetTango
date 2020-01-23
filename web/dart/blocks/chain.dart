@@ -54,6 +54,7 @@ class Chain extends BlockCollection {
     Block first = blocks[0];
     _div.style.left = "${first.x.round()}px";
     _div.style.top = "${first.y.round()}px";
+    _div.style.zIndex = "${first.y.round()}";
   }
 
   void resetDragData(int newChainIndex) {

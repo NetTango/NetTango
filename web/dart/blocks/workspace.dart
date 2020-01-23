@@ -44,6 +44,10 @@ class CodeWorkspace {
 
   int height, width, currentHeight;
 
+  Iterable<Block> _draggingBlocks;
+  set draggingBlocks(v) => _draggingBlocks = v;
+  bool get hasDraggingBlocks => _draggingBlocks != null;
+
 /**
  * Construct a code workspace from a JSON object
  */
@@ -209,23 +213,19 @@ class CodeWorkspace {
       return false;
     }
 
-    final json = jsonDecode(event.dataTransfer.getData("text/json"));
-    final blockData = BlockDragData.fromJSON(json);
+    final blocks = consumeDraggingBlocks();
+    createChain(blocks, event.offset.x, event.offset.y);
+    Block changedBlock = blocks.elementAt(0);
+    draggingBlocks = null;
 
-    if (blockData.parentType == "workspace-chain" && blockData.blockIndex == 0) {
-      // just move if we're dragging a whole chain
-      Chain chain = chains[blockData.chainIndex];
-      repositionChain(chain, event.offset.x, event.offset.y);
-      Block changedBlock = chain.blocks[0];
-      programChanged(new BlockChangedEvent(changedBlock));
-      return false;
-    }
-
-    final newBlocks = removeBlocksFromSource(blockData);
-    createChain(newBlocks, event.offset.x, event.offset.y);
-    Block changedBlock = newBlocks.elementAt(0);
     programChanged(new BlockChangedEvent(changedBlock));
     return false;
+  }
+
+  Iterable<Block> consumeDraggingBlocks() {
+    final blocks = _draggingBlocks;
+    _draggingBlocks = null;
+    return blocks;
   }
 
   void createChain(Iterable<Block> newBlocks, int x, int y) {
@@ -251,7 +251,7 @@ class CodeWorkspace {
     return blocks;
   }
 
-  Iterable<Block> removeBlocksFromSource(BlockDragData blockData) {
+  void removeBlocksFromSource(BlockDragData blockData) {
     switch (blockData.parentType) {
 
       case "new-block":
@@ -259,35 +259,34 @@ class CodeWorkspace {
         slot._slotDiv.classes.remove("nt-block-dragging");
         final instance = slot._newBlockInstance;
         instance._blockDiv.style.pointerEvents = "";
-
-        return [instance];
+        draggingBlocks = [instance];
+        break;
 
       case "workspace-chain":
         if (blockData.blockIndex == 0) {
-          return removeChain(blockData.chainIndex);
+          draggingBlocks = removeChain(blockData.chainIndex);
         } else {
-          return chains[blockData.chainIndex].removeBlocks(blockData.blockIndex);
+          draggingBlocks = chains[blockData.chainIndex].removeBlocks(blockData.blockIndex);
         }
         break;
 
       case "block-children":
-        return chains[blockData.chainIndex]
+        draggingBlocks = chains[blockData.chainIndex]
           .getBlockInstance(blockData.parentInstanceId)
           .children.removeBlocks(blockData.blockIndex);
+        break;
 
       case "block-clause":
-        return chains[blockData.chainIndex]
+        draggingBlocks = chains[blockData.chainIndex]
           .getBlockInstance(blockData.parentInstanceId)
           .clauses[blockData.clauseIndex].removeBlocks(blockData.blockIndex);
+        break;
 
       case "default":
         throw new Exception("Unknown block removal type: ${blockData.parentType}");
         break;
 
     }
-
-    // just to satisfy the compiler, this code is unreachable
-    return [];
   }
 
   void repositionChain(Chain chain, int x, int y) {

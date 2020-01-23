@@ -91,8 +91,6 @@ class Slot {
     }
 
     BlockDragData dragData = BlockDragData.newBlock(_slotIndex);
-    String dataString = jsonEncode(dragData.toJSON());
-    event.dataTransfer.setData("text/json", dataString);
     final blockDiv = _newBlockInstance.draw(drag, dragData);
     blockDiv.style.pointerEvents = "none";
     if (_newBlockInstance.required) {
@@ -103,6 +101,8 @@ class Slot {
     }
     drag.setInnerHtml("");
     drag.append(blockDiv);
+
+    workspace.removeBlocksFromSource(dragData);
 
     isDragging = true;
     event.dataTransfer.setDragImage(drag, 0, 0);
