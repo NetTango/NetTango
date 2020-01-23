@@ -290,13 +290,17 @@ class Block {
     _actionDiv.classes.add("nt-block-action");
     headerNode.append(_actionDiv);
 
+    final paramDiv = new DivElement();
+    paramDiv.classes.add("nt-block-params");
+    headerNode.append(paramDiv);
+
     for (Attribute attribute in params.values) {
-      headerNode.append(attribute.drawParameter());
+      paramDiv.append(attribute.drawParameter());
     }
     for (Attribute attribute in properties.values) {
       final propertyDiv = attribute.drawProperty();
       propertyDiv.style.backgroundColor = this.blockColor;
-      _blockDiv.append(propertyDiv);
+      headerNode.append(propertyDiv);
     }
 
     if (children != null) {
