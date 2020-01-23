@@ -21,6 +21,8 @@ class Attribute {
   /// parameter id - unique per block
   int id;
 
+  get uniqueId => "${block.workspace.containerId}-${block.id}-${id}";
+
   /// parent block
   Block block;
 
@@ -130,21 +132,27 @@ class Attribute {
 
   void _showParameterDialog(int x, int y, Function acceptCallback) {
     DivElement backdrop = new DivElement() .. className = "backdrop";
+
+    DivElement dialog = new DivElement() .. className = "nt-param-dialog";
+    dialog.style.top = "${y}px";
+    backdrop.append(dialog);
+
     String inputCode = _buildHTMLInput();
-    backdrop.appendHtml("""
-      <div class="nt-param-dialog" style="top: ${y};">
-        <div class="nt-param-table">
-          <div class="nt-param-row">${inputCode}</div>
-        </div>
-        <button class="nt-param-confirm">OK</button>
-        <button class="nt-param-cancel">Cancel</button>
-      </div>""");
+
+    dialog.appendHtml("""
+      <div class="nt-param-table">
+        <div class="nt-param-row">${inputCode}</div>
+      </div>
+      <button class="nt-param-confirm">OK</button>
+      <button class="nt-param-cancel">Cancel</button>
+    """);
+
     HtmlElement container = querySelector("#${block.workspace.containerId}").parent;
     if (container == null) return;
     container.append(backdrop);
 
-    HtmlElement label = querySelector("#nt-param-label-$id");
-    InputElement input = querySelector("#nt-param-$id");
+    HtmlElement label = querySelector("#nt-param-label-$uniqueId");
+    InputElement input = querySelector("#nt-param-$uniqueId");
 
     querySelectorAll(".nt-param-confirm").onClick.listen((e) {
       if (input != null) {
@@ -169,8 +177,9 @@ class Attribute {
   }
 
   String _buildHTMLInput() {
+    final escapedValue = (new HtmlEscape()).convert(value);
     return """
-      <input class="nt-param-input" id="nt-param-${id}" type="text" value="${valueAsString}">
+      <input class="nt-param-input" id="nt-param-${uniqueId}" type="text" value="${escapedValue}">
       <span class="nt-param-unit">${unit}</span>
     """;
   }
@@ -212,7 +221,7 @@ class NumParameter extends Attribute {
     return """
       <div class="nt-param-name">${name}</div>
       <div class="nt-param-value">
-        <input class="nt-param-input" id="nt-param-${id}" type="number" step="${stepSize}" value="${value}">
+        <input class="nt-param-input" id="nt-param-${uniqueId}" type="number" step="${stepSize}" value="${value}">
         <span class="nt-param-unit">${unit}</span>
       </div>
     """;
@@ -231,7 +240,6 @@ class IntParameter extends NumParameter {
   set value(var v) => _value = toInt(v, 0);
 }
 
-
 //-------------------------------------------------------------------------
 /// Represents a range of numbers
 //-------------------------------------------------------------------------
@@ -242,7 +250,6 @@ class RangeParameter extends NumParameter {
 
   /// highest possible value that the user can select (for numbers and range)
   num maxValue = 10;
-
 
   RangeParameter(Block block, Map data) : super(block, data) {
     minValue = toNum(data["min"], minValue);
@@ -258,35 +265,38 @@ class RangeParameter extends NumParameter {
 
   void _showParameterDialog(int x, int y, Function acceptCallback) {
     DivElement backdrop = new DivElement() .. className = "backdrop";
+
     DivElement dialog = new DivElement() .. className = "nt-param-dialog";
     dialog.style.top = "${y}px";
+    backdrop.append(dialog);
+
     DivElement table = new DivElement() .. className = "nt-param-table";
+    dialog.append(table);
 
     table.appendHtml(
       """
         <div class="nt-param-row">
           <div class="nt-param-label">
             ${name}:
-            <label id="nt-param-label-${id}" for="nt-param-${id}">${value}</label>
+            <label id="nt-param-label-${uniqueId}" for="nt-param-${uniqueId}">${value}</label>
             <span class="nt-param-unit">${unit}</span>
           </div>
         </div>
         <div class="nt-param-row">
           <div class="nt-param-value">
-            <input class="nt-param-input" id="nt-param-${id}" type="range" value="${value}" min="$minValue" max="$maxValue" step="$stepSize">
+            <input class="nt-param-input" id="nt-param-${uniqueId}" type="range" value="${value}" min="$minValue" max="$maxValue" step="$stepSize">
           </div>
         </div>
       """);
 
-    dialog.append(table);
     dialog.onClick.listen((e) { e.stopPropagation(); });
-    backdrop.append(dialog);
     backdrop.onClick.listen((e) { backdrop.remove(); });
+
     HtmlElement container = querySelector("#${block.workspace.containerId}").parent;
     if (container != null) container.append(backdrop);
 
-    HtmlElement label = querySelector("#nt-param-label-$id");
-    InputElement input = querySelector("#nt-param-$id");
+    HtmlElement label = querySelector("#nt-param-label-$uniqueId");
+    InputElement input = querySelector("#nt-param-$uniqueId");
     if (input != null && label != null) {
       input.onChange.listen((e) {
         value = input.value;
@@ -349,9 +359,13 @@ class SelectParameter extends Attribute {
 
   void _showParameterDialog(int x, int y, Function acceptCallback) {
     DivElement backdrop = new DivElement() .. className = "backdrop";
+
     DivElement dialog = new DivElement() .. className = "nt-param-dialog small";
     dialog.style.top = "${y}px";
+    backdrop.append(dialog);
+
     DivElement table = new DivElement() .. className = "nt-param-table";
+    dialog.append(table);
 
     for (var v in values) {
       DivElement row = new DivElement() .. className = "nt-param-row";
@@ -369,8 +383,6 @@ class SelectParameter extends Attribute {
       table.append(row);
     }
 
-    dialog.append(table);
-    backdrop.append(dialog);
     backdrop.onClick.listen((e) { backdrop.remove(); });
 
     HtmlElement container = querySelector("#${block.workspace.containerId}").parent;
@@ -379,7 +391,6 @@ class SelectParameter extends Attribute {
     backdrop.classes.add("show");
   }
 }
-
 
 //-------------------------------------------------------------------------
 /// Represents an expression (boolean or number)
@@ -416,19 +427,24 @@ class ExpressionParameter extends Attribute {
 
   void _showParameterDialog(int x, int y, Function acceptCallback) {
     DivElement backdrop = new DivElement() .. className = "backdrop";
-    backdrop.appendHtml("""
-      <div class="nt-param-dialog" style="top: ${y};">
-        <div class="nt-param-table">
-          <div class="nt-param-row">
-            <div class="nt-param-label">${name}:</div>
-          </div>
-          <div class="nt-param-row">
-            <div id="nt-expression-${id}" class="nt-expression-root"></div>
-          </div>
+
+    DivElement dialog = new DivElement() .. className = "nt-param-dialog";
+    dialog.style.top = "${y}px";
+    backdrop.append(dialog);
+
+    dialog.appendHtml("""
+      <div class="nt-param-table">
+        <div class="nt-param-row">
+          <div class="nt-param-label">${name}:</div>
         </div>
-        <button class="nt-param-confirm">OK</button>
-        <button class="nt-param-cancel">Cancel</button>
-      </div>""");
+        <div class="nt-param-row">
+          <div id="nt-expression-${uniqueId}" class="nt-expression-root"></div>
+        </div>
+      </div>
+      <button class="nt-param-confirm">OK</button>
+      <button class="nt-param-cancel">Cancel</button>
+    """);
+
     HtmlElement container = querySelector("#${block.workspace.containerId}").parent;
     if (container == null) return;
     container.append(backdrop);
@@ -455,7 +471,7 @@ class ExpressionParameter extends Attribute {
 
     backdrop.classes.add("show");
 
-    builder.open("#nt-expression-${id}");
+    builder.open("#nt-expression-${uniqueId}");
 
     querySelectorAll(".nt-param-dialog").onClick.listen((e) {
       querySelectorAll('.nt-pulldown-menu').forEach((el) => el.remove());
