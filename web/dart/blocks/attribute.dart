@@ -124,7 +124,7 @@ class Attribute {
     propDiv.classes.add("nt-property");
     DivElement propName = new DivElement();
     propName.classes.add("nt-property-name");
-    propName.innerText = "\u25B8 $name";
+    propName.innerText = "\u2022 $name";
     propDiv.append(propName);
     propDiv.append(drawParameter());
     return propDiv;

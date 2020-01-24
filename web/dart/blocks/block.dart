@@ -78,6 +78,7 @@ class Block {
   DivElement _blockDiv;
   DivElement _actionDiv;
   bool isDragging = false;
+  Toggle _propertiesToggle;
 
   Block(this.workspace, this.id, this.action) {
     if (this.id == null) {
@@ -297,10 +298,20 @@ class Block {
     for (Attribute attribute in params.values) {
       paramDiv.append(attribute.drawParameter());
     }
+
+    final propertiesDiv = new DivElement();
+    propertiesDiv.classes.add("nt-block-properties");
+    headerNode.append(propertiesDiv);
+
+    if (properties.length > 0) {
+      _propertiesToggle = new Toggle( (isOn) => propertiesDiv.classes.toggle("nt-block-properties-hidden") );
+      _actionDiv.append(_propertiesToggle.div);
+    }
+
     for (Attribute attribute in properties.values) {
       final propertyDiv = attribute.drawProperty();
       propertyDiv.style.backgroundColor = this.blockColor;
-      headerNode.append(propertyDiv);
+      propertiesDiv.append(propertyDiv);
     }
 
     if (children != null) {
@@ -521,6 +532,9 @@ class Block {
   void resetBlockActionText() {
     _actionDiv.innerHtml = "";
     updateActionText();
+    if (_propertiesToggle != null) {
+      _actionDiv.append(_propertiesToggle.div);
+    }
     if (children != null) {
       for (Block block in children.blocks) {
         block.resetBlockActionText();
