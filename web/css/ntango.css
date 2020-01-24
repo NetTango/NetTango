@@ -189,6 +189,11 @@
   flex: auto;
 }
 
+.nt-block-action > span {
+  text-decoration: dashed underline;
+  text-decoration-color: #fff8;
+}
+
 .nt-block-params {
   display: flex;
   flex-direction: row;
