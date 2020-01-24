@@ -21,7 +21,7 @@ class CodeWorkspace {
 
   /// HTML Canvas ID
   String containerId;
-  DivElement container, spaceDiv, drag;
+  DivElement container, spaceDiv, chainsDiv, drag;
 
   CodeFormatter formatter;
 
@@ -183,18 +183,20 @@ class CodeWorkspace {
     spaceDiv.onDrop.listen( drop );
     container.append(spaceDiv);
 
-    StyleElement dragStyleElement = new StyleElement();
-    container.append(dragStyleElement);
-
     drag = new DivElement();
     drag.classes.add("nt-block-drag");
     drag.classes.add("nt-chain");
     spaceDiv.append(drag);
 
-    for (int i = 0; i < chains.length; i++) {
-      Chain chain = chains[i];
+    chainsDiv = new DivElement();
+    spaceDiv.append(chainsDiv);
+
+    final sortedChains = chains.toList();
+    sortedChains.sort((c1, c2) => c1.blocks.first.y.compareTo(c2.blocks.first.y));
+    for (int i = 0; i < sortedChains.length; i++) {
+      Chain chain = sortedChains[i];
       DivElement chainDiv = chain.draw(drag, i);
-      spaceDiv.append(chainDiv);
+      chainsDiv.append(chainDiv);
     }
 
     final menuDiv = menu.draw(drag);
@@ -295,6 +297,12 @@ class CodeWorkspace {
       first.x = x;
       first.y = y;
       chain.updatePosition();
+    }
+    final sortedChains = chains.toList();
+    sortedChains.sort((c1, c2) => c1.blocks.first.y.compareTo(c2.blocks.first.y));
+    chainsDiv.innerHtml = "";
+    for (Chain chain in sortedChains) {
+      chainsDiv.append(chain._div);
     }
   }
 

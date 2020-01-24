@@ -132,7 +132,6 @@ class Attribute {
 
   void _showParameterDialog(int x, int y, Function acceptCallback) {
     DivElement backdrop = new DivElement() .. className = "backdrop";
-    backdrop.style.zIndex = "${y + 1000}";
 
     DivElement dialog = new DivElement() .. className = "nt-param-dialog";
     dialog.style.top = "${y}px";
@@ -266,7 +265,6 @@ class RangeParameter extends NumParameter {
 
   void _showParameterDialog(int x, int y, Function acceptCallback) {
     DivElement backdrop = new DivElement() .. className = "backdrop";
-    backdrop.style.zIndex = "${y + 1000}";
 
     DivElement dialog = new DivElement() .. className = "nt-param-dialog";
     dialog.style.top = "${y}px";
@@ -361,7 +359,6 @@ class SelectParameter extends Attribute {
 
   void _showParameterDialog(int x, int y, Function acceptCallback) {
     DivElement backdrop = new DivElement() .. className = "backdrop";
-    backdrop.style.zIndex = "${y + 1000}";
 
     DivElement dialog = new DivElement() .. className = "nt-param-dialog small";
     dialog.style.top = "${y}px";
@@ -430,7 +427,6 @@ class ExpressionParameter extends Attribute {
 
   void _showParameterDialog(int x, int y, Function acceptCallback) {
     DivElement backdrop = new DivElement() .. className = "backdrop";
-    backdrop.style.zIndex = "${y + 1000}";
 
     DivElement dialog = new DivElement() .. className = "nt-param-dialog";
     dialog.style.top = "${y}px";
