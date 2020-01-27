@@ -359,7 +359,10 @@ class CodeWorkspace {
     chains.add(chain);
     for (var b in chainJson) {
       if (b is Map) {
-        chain.blocks.add(_restoreBlock(b));
+        Block block = _restoreBlock(b);
+        if (block != null) {
+          chain.blocks.add(block);
+        }
       }
     }
   }
@@ -387,7 +390,9 @@ class CodeWorkspace {
       for (var childJson in json['children']) {
         if (childJson is Map) {
           Block child = _restoreBlock(childJson);
-          block.children.blocks.add(child);
+          if (child != null) {
+            block.children.blocks.add(child);
+          }
         }
       }
     }
@@ -401,7 +406,9 @@ class CodeWorkspace {
           block.clauses.add(clause);
           for (var childJson in clauseJson['children']) {
             Block child = _restoreBlock(childJson);
-            clause.blocks.add(child);
+            if (child != null) {
+              clause.blocks.add(child);
+            }
           }
           clauseIndex++;
         }
