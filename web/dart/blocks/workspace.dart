@@ -44,9 +44,9 @@ class CodeWorkspace {
 
   int height, width, currentHeight;
 
-  BlockStyle starterBlockStyle   = new BlockStyle() .. blockColor = BlockStyle.DEFAULT_STARTER_COLOR;
-  BlockStyle containerBlockStyle = new BlockStyle() .. blockColor = BlockStyle.DEFAULT_CONTAINER_COLOR;
-  BlockStyle commandBlockStyle   = new BlockStyle() .. blockColor = BlockStyle.DEFAULT_COMMAND_COLOR;
+  BlockStyle starterBlockStyle;
+  BlockStyle containerBlockStyle;
+  BlockStyle commandBlockStyle;
 
   Iterable<Block> _draggingBlocks;
   set draggingBlocks(v) => _draggingBlocks = v;
@@ -76,6 +76,10 @@ class CodeWorkspace {
       starterBlockStyle   = BlockStyle.fromJSON(definition["blockStyles"]["starterBlockStyle"],   BlockStyle.DEFAULT_STARTER_COLOR);
       containerBlockStyle = BlockStyle.fromJSON(definition["blockStyles"]["containerBlockStyle"], BlockStyle.DEFAULT_CONTAINER_COLOR);
       commandBlockStyle   = BlockStyle.fromJSON(definition["blockStyles"]["commandBlockStyle"],   BlockStyle.DEFAULT_COMMAND_COLOR);
+    } else {
+      starterBlockStyle   = new BlockStyle() .. blockColor = BlockStyle.DEFAULT_STARTER_COLOR;
+      containerBlockStyle = new BlockStyle() .. blockColor = BlockStyle.DEFAULT_CONTAINER_COLOR;
+      commandBlockStyle   = new BlockStyle() .. blockColor = BlockStyle.DEFAULT_COMMAND_COLOR;
     }
 
     container.style.minHeight = "${height}px";
@@ -187,9 +191,17 @@ class CodeWorkspace {
   }
 
   void draw() {
-    StyleElement style = new StyleElement();
-    container.append(style);
+    String styleId = "nt-block-styles";
+    StyleElement style = document.getElementById(styleId);
+    if (style == null) {
+      style = new StyleElement() .. id = styleId;
+      container.append(style);
+    }
     CssStyleSheet styleSheet = style.sheet;
+    while (styleSheet.cssRules.length > 0) {
+      styleSheet.removeRule(0);
+    }
+
     starterBlockStyle.appendToSheet(styleSheet, "nt-block-starter");
     containerBlockStyle.appendToSheet(styleSheet, "nt-block-with-clauses");
     commandBlockStyle.appendToSheet(styleSheet, "nt-block-command");
