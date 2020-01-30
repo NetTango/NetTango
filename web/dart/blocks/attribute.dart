@@ -104,8 +104,8 @@ class Attribute {
     DivElement paramDiv = new DivElement();
     paramDiv.innerText = valueAsString;
     paramDiv.classes.add("nt-attribute-value");
-
-    paramDiv.style.color = this.block.blockColor;
+    paramDiv.classes.add("${block.getStyleClass()}-attribute");
+    if (block.blockColor != null) { paramDiv.style.color = block.blockColor; }
 
     final updateValue = () { paramDiv.innerText = valueAsString; };
     paramDiv.onClick.listen( (event) {

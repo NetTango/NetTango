@@ -42,15 +42,19 @@ class Slot {
     _slotDiv = new DivElement();
     _slotDiv.innerText = block.action;
     _slotDiv.classes.add("nt-menu-slot");
+    final styleClass = block.getStyleClass();
+    _slotDiv.classes.add(styleClass);
+    _slotDiv.classes.add("$styleClass-color");
 
-    // lineHeight gets reset by the `font` property
-    final lineHeight = _slotDiv.style.lineHeight;
-    _slotDiv.style ..
-      backgroundColor = this.block.blockColor ..
-      borderColor     = this.block.borderColor ..
-      font            = this.block.font ..
-      lineHeight      = lineHeight ..
-      color           = this.block.textColor;
+    if (block.blockColor != null)  { _slotDiv.style.backgroundColor = block.blockColor; }
+    if (block.borderColor != null) { _slotDiv.style.borderColor     = block.borderColor; }
+    if (block.textColor != null)   { _slotDiv.style.color           = block.textColor; }
+    if (block.font != null) {
+      // lineHeight gets reset by the `font` property
+      final lineHeight           = _slotDiv.style.lineHeight;
+      _slotDiv.style.font       = block.font;
+      _slotDiv.style.lineHeight = lineHeight;
+    }
 
     _slotDiv.draggable = true;
     _slotDiv.onDragStart.listen( (e) => startDrag(e, drag) );

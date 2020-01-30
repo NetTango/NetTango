@@ -52,17 +52,10 @@ class Block {
   Clause children = null;
   List<Clause> clauses = null;
 
-  /// CSS color of the block
-  String blockColor = '#6b9bc3'; //'#d2584a';
-
-  /// CSS color of the text
-  String textColor = 'white';
-
-  /// CSS border color of the block
-  String borderColor = "rgba(255, 255, 255, 0.9)";
-
-  /// CSS font spec
-  String font = "400 14px 'Poppins', sans-serif";
+  String blockColor;
+  String textColor;
+  String borderColor;
+  String font;
 
   /// Tells a code formatter that at least one block of this type is required
   bool required = false;
@@ -116,10 +109,10 @@ class Block {
     //----------------------------------------------------------
     block.type = toStr(json["type"]);
     block.format = toStr(json["format"], null);
-    block.blockColor = toStr(json["blockColor"], block.blockColor);
-    block.textColor = toStr(json["textColor"], block.textColor);
-    block.borderColor = toStr(json["borderColor"], block.borderColor);
-    block.font = toStr(json["font"], block.font);
+    block.blockColor = toStr(json["blockColor"], null);
+    block.textColor = toStr(json["textColor"], null);
+    block.borderColor = toStr(json["borderColor"], null);
+    block.font = toStr(json["font"], null);
     block.required = toBool(json["required"], block.required);
 
     //----------------------------------------------------------
@@ -250,27 +243,37 @@ class Block {
     this.y = y;
   }
 
+  String getStyleClass() {
+    if (required) {
+      return "nt-block-starter";
+    }
+    if (children != null || clauses != null) {
+      return "nt-block-with-clauses";
+    }
+    return "nt-block-command";
+  }
+
   DivElement draw(DivElement drag, BlockDragData dragData) {
     this._dragData = dragData;
 
     _blockDiv = new DivElement();
     _blockDiv.classes.add("nt-block");
+    final styleClass = getStyleClass();
+    _blockDiv.classes.add(styleClass);
 
-    if (children != null || clauses != null) {
-      _blockDiv.classes.add("nt-block-with-clauses");
+    if (borderColor != null) { _blockDiv.style.borderColor = this.borderColor; }
+    if (textColor != null)   { _blockDiv.style.color       = this.textColor; }
+    if (font != null) {
+      // lineHeight gets reset by the `font` property
+      final lineHeight           = _blockDiv.style.lineHeight;
+      _blockDiv.style.font       = this.font;
+      _blockDiv.style.lineHeight = lineHeight;
     }
-
-    // lineHeight gets reset by the `font` property
-    final lineHeight = _blockDiv.style.lineHeight;
-    _blockDiv.style ..
-      borderColor     = this.borderColor ..
-      font            = this.font ..
-      lineHeight      = lineHeight ..
-      color           = this.textColor;
 
     DivElement leftBar = new DivElement();
     leftBar.classes.add("nt-block-left-bar");
-    leftBar.style.backgroundColor = this.blockColor;
+    leftBar.classes.add("$styleClass-color");
+    if (blockColor != null) { leftBar.style.backgroundColor = this.blockColor; }
     // This is pretty gross, but there isn't a way I have found using plain CSS
     // to auto-clear a grid-positioned element to the last row when the number of
     // rows is auto-generated.  -Jeremy B January 2020
@@ -278,7 +281,8 @@ class Block {
     _blockDiv.append(leftBar);
 
     DivElement headerNode = new DivElement();
-    headerNode.style.backgroundColor = this.blockColor;
+    headerNode.classes.add("$styleClass-color");
+    if (blockColor != null) { headerNode.style.backgroundColor = this.blockColor; }
     if (children == null) {
       headerNode.classes.add("nt-block-header");
     } else {
@@ -310,7 +314,8 @@ class Block {
 
     for (Attribute attribute in properties.values) {
       final propertyDiv = attribute.drawProperty();
-      propertyDiv.style.backgroundColor = this.blockColor;
+      propertyDiv.classes.add("$styleClass-color");
+      if (blockColor != null) { propertyDiv.style.backgroundColor = this.blockColor; }
       propertiesDiv.append(propertyDiv);
     }
 
@@ -323,7 +328,8 @@ class Block {
       for (int i = 0; i < clauses.length; i++) {
         DivElement clauseDivider = new DivElement();
         clauseDivider.classes.add("nt-clause-divider");
-        clauseDivider.style.backgroundColor = this.blockColor;
+        clauseDivider.classes.add("$styleClass-color");
+        if (blockColor != null) { clauseDivider.style.backgroundColor = this.blockColor; }
         _blockDiv.append(clauseDivider);
         Clause clause = clauses[i];
         DivElement clauseDiv = clause.draw(drag, clauseDivider);
@@ -334,7 +340,8 @@ class Block {
     if (children != null || clauses != null) {
       DivElement footer = new DivElement();
       footer.classes.add("nt-clause-footer");
-      footer.style.backgroundColor = this.blockColor;
+      footer.classes.add("$styleClass-color");
+      if (blockColor != null) { footer.style.backgroundColor = this.blockColor; }
       _blockDiv.append(footer);
     }
 

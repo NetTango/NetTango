@@ -29,7 +29,17 @@ class BlockStyle {
   String fontSize    = "";
   String fontFace    = "";
 
-  String get font => "${fontWeight} ${fontSize} ${fontFace}".trim();
+  String get font =>
+    "$fontWeight $fontSize $fontFace".trim();
+
+  String get cssRule =>
+    "color: $textColor; border-color: $borderColor; ${font == "" ? "" : "font: " + font + ";"}".trim();
+
+  appendToSheet(CssStyleSheet sheet, String blockClass) {
+    sheet.insertRule(".$blockClass-color { background-color: $blockColor; }", 0);
+    sheet.insertRule(".$blockClass-attribute { color: $blockColor; }", 0);
+    sheet.insertRule(".$blockClass { $cssRule }", 0);
+  }
 
   Map toJSON() {
     return {
@@ -43,6 +53,9 @@ class BlockStyle {
   }
 
   static BlockStyle fromJSON(Map json, String blockColorDefault) {
+    if (json == null) {
+      return new BlockStyle() .. blockColor = blockColorDefault;
+    }
     return new BlockStyle() ..
       blockColor  = toStr(json["blockColor"],  blockColorDefault)    ..
       textColor   = toStr(json["textColor"],   DEFAULT_TEXT_COLOR)   ..
