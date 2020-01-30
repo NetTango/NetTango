@@ -21,6 +21,7 @@ class BlockStyle {
   static final String DEFAULT_COMMAND_COLOR   = "#9977aa";
   static final String DEFAULT_TEXT_COLOR      = "#ffffff";
   static final String DEFAULT_BORDER_COLOR    = "#ffffff";
+  static final String DEFAULT_FONT_FAMILY     = "Poppins, sans-serif";
 
   String blockColor  = DEFAULT_COMMAND_COLOR;
   String textColor   = DEFAULT_TEXT_COLOR;
@@ -29,11 +30,15 @@ class BlockStyle {
   String fontSize    = "";
   String fontFace    = "";
 
-  String get font =>
-    "$fontWeight $fontSize $fontFace".trim();
+  String get font {
+    final weight = fontWeight == "" ? "" : "font-weight: $fontWeight;";
+    final size   = fontSize   == "" ? "" : "font-size: $fontSize;";
+    final face = "font-family: ${ fontFace == "" ? DEFAULT_FONT_FAMILY : fontFace };";
+    return "$weight $size $face".trim();
+  }
 
   String get cssRule =>
-    "color: $textColor; border-color: $borderColor; ${font == "" ? "" : "font: " + font + ";"}".trim();
+    "color: $textColor; border-color: $borderColor; $font".trim();
 
   appendToSheet(CssStyleSheet sheet, String blockClass) {
     sheet.insertRule(".$blockClass-color { background-color: $blockColor; }", 0);
