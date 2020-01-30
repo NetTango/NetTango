@@ -31,6 +31,7 @@ part 'versions/version-manager.dart';
 part 'utils/utils.dart';
 
 part 'blocks/toggle.dart';
+part 'blocks/block-style.dart';
 part 'blocks/block-drag-data.dart';
 part 'blocks/block.dart';
 part 'blocks/block-collection.dart';
