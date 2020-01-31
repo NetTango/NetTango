@@ -375,7 +375,9 @@ class Block {
     } else {
       workspace.formatter.formatBlock(out, this.toJSON(), 0);
     }
-    return out.toString().trim();
+    final value = out.toString().trim();
+    final escapedValue = (new HtmlEscape()).convert(value);
+    return escapedValue;
   }
 
   void clearDragOver() {
