@@ -65,6 +65,11 @@ class CodeWorkspace {
     if (container == null) throw "No container element with ID $containerId found.";
     container.setInnerHtml("");
     container.classes.add("nt-container");
+    container.draggable = true;
+    container.onDragEnter.listen( (e) => enterContainerDrag(e) );
+    container.onDragOver.listen( (e) => e.preventDefault() );
+    container.onDrop.listen( containerDrop );
+
     if (container.parent != null) {
       container.parent.style.position = "relative";
     }
@@ -208,7 +213,7 @@ class CodeWorkspace {
 
     spaceDiv = new DivElement() .. id = "$containerId-space";
     spaceDiv.classes.add("nt-workspace");
-    spaceDiv.onDragEnter.listen( (e) => clearDragOver() );
+    spaceDiv.onDragEnter.listen( enterDrag );
     spaceDiv.onDragOver.listen( (e) => e.preventDefault() );
     spaceDiv.onDrop.listen( drop );
     container.append(spaceDiv);
@@ -236,6 +241,13 @@ class CodeWorkspace {
     updateWorkspaceHeight();
   }
 
+  bool enterDrag(MouseEvent event) {
+    event.stopPropagation();
+    clearDragOver();
+
+    return false;
+  }
+
   bool drop(MouseEvent event) {
     event.stopPropagation();
     event.preventDefault();
@@ -251,6 +263,33 @@ class CodeWorkspace {
     draggingBlocks = null;
 
     programChanged(new BlockChangedEvent(changedBlock));
+    return false;
+  }
+
+  bool enterContainerDrag(MouseEvent event) {
+    event.stopPropagation();
+    clearDragOver();
+
+    if (!event.dataTransfer.types.contains(containerId)) {
+      return false;
+    }
+    menu._menuDiv.classes.add("nt-menu-drag-over");
+    return false;
+  }
+
+  bool containerDrop(MouseEvent event) {
+    event.stopPropagation();
+    event.preventDefault();
+    clearDragOver();
+
+    if (!event.dataTransfer.types.contains(containerId)) {
+      return false;
+    }
+
+    final oldBlocks = consumeDraggingBlocks();
+    Block changedBlock = oldBlocks.elementAt(0);
+    programChanged(new BlockChangedEvent(changedBlock));
+
     return false;
   }
 

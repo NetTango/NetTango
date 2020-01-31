@@ -51,7 +51,7 @@ class Slot {
     if (block.textColor != null)   { _slotDiv.style.color           = block.textColor; }
     if (block.font != null) {
       // lineHeight gets reset by the `font` property
-      final lineHeight           = _slotDiv.style.lineHeight;
+      final lineHeight          = _slotDiv.style.lineHeight;
       _slotDiv.style.font       = block.font;
       _slotDiv.style.lineHeight = lineHeight;
     }
