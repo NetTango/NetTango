@@ -78,6 +78,9 @@ void _initialize(String language, Function formatAttribute, String containerId, 
   }
 
   try {
+    if (_workspaces.containsKey(containerId)) {
+      _workspaces[containerId].removeEventListeners();
+    }
     _workspaces[containerId] = new CodeWorkspace(containerId, json, formatter);
   } on FormatException catch (e) {
     throw new FormatException("There was an error initializing the workspace with the given NetTango model JSON.", e );

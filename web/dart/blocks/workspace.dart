@@ -49,8 +49,10 @@ class CodeWorkspace {
   BlockStyle commandBlockStyle;
 
   Iterable<Block> _draggingBlocks;
-  set draggingBlocks(v) => _draggingBlocks = v;
+  Iterable<Block> get draggingBlocks => _draggingBlocks;
+  set draggingBlocks(Iterable<Block> v) => _draggingBlocks = v;
   bool get hasDraggingBlocks => _draggingBlocks != null;
+  List<StreamSubscription> subscriptions = new List();
 
 /**
  * Construct a code workspace from a JSON object
@@ -65,9 +67,9 @@ class CodeWorkspace {
     if (container == null) throw "No container element with ID $containerId found.";
     container.setInnerHtml("");
     container.classes.add("nt-container");
-    container.onDragEnter.listen( (e) => enterContainerDrag(e) );
-    container.onDragOver.listen( (e) => e.preventDefault() );
-    container.onDrop.listen( containerDrop );
+    subscriptions.add(container.onDragEnter.listen( (e) => enterContainerDrag(e) ));
+    subscriptions.add(container.onDragOver.listen( (e) => e.preventDefault() ));
+    subscriptions.add(container.onDrop.listen( (e) => containerDrop(e) ));
 
     if (container.parent != null) {
       container.parent.style.position = "relative";
@@ -259,7 +261,6 @@ class CodeWorkspace {
     final blocks = consumeDraggingBlocks();
     createChain(blocks, event.offset.x, event.offset.y);
     Block changedBlock = blocks.elementAt(0);
-    draggingBlocks = null;
 
     programChanged(new BlockChangedEvent(changedBlock));
     return false;
@@ -293,8 +294,8 @@ class CodeWorkspace {
   }
 
   Iterable<Block> consumeDraggingBlocks() {
-    final blocks = _draggingBlocks;
-    _draggingBlocks = null;
+    final blocks = draggingBlocks;
+    draggingBlocks = null;
     return blocks;
   }
 
@@ -511,6 +512,12 @@ class CodeWorkspace {
           }
         }
       }
+    }
+  }
+
+  void removeEventListeners() {
+    for (StreamSubscription subscription in subscriptions) {
+      subscription.cancel();
     }
   }
 }
