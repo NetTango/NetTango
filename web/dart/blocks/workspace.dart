@@ -191,7 +191,7 @@ class CodeWorkspace {
   }
 
   void draw() {
-    String styleId = "nt-block-styles";
+    String styleId = "$containerId-styles";
     StyleElement style = document.getElementById(styleId);
     if (style == null) {
       style = new StyleElement() .. id = styleId;
@@ -202,11 +202,11 @@ class CodeWorkspace {
       styleSheet.removeRule(0);
     }
 
-    starterBlockStyle.appendToSheet(styleSheet, "nt-block-starter");
-    containerBlockStyle.appendToSheet(styleSheet, "nt-block-with-clauses");
-    commandBlockStyle.appendToSheet(styleSheet, "nt-block-command");
+    starterBlockStyle.appendToSheet(styleSheet, "$containerId-block-starter");
+    containerBlockStyle.appendToSheet(styleSheet, "$containerId-block-container");
+    commandBlockStyle.appendToSheet(styleSheet, "$containerId-block-command");
 
-    spaceDiv = new DivElement() .. id = "${containerId}-space";
+    spaceDiv = new DivElement() .. id = "$containerId-space";
     spaceDiv.classes.add("nt-workspace");
     spaceDiv.onDragEnter.listen( (e) => clearDragOver() );
     spaceDiv.onDragOver.listen( (e) => e.preventDefault() );

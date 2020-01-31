@@ -245,12 +245,12 @@ class Block {
 
   String getStyleClass() {
     if (required) {
-      return "nt-block-starter";
+      return "${workspace.containerId}-block-starter";
     }
     if (children != null || clauses != null) {
-      return "nt-block-with-clauses";
+      return "${workspace.containerId}-block-container";
     }
-    return "nt-block-command";
+    return "${workspace.containerId}-block-command";
   }
 
   DivElement draw(DivElement drag, BlockDragData dragData) {
@@ -260,6 +260,9 @@ class Block {
     _blockDiv.classes.add("nt-block");
     final styleClass = getStyleClass();
     _blockDiv.classes.add(styleClass);
+    if (children != null || clauses != null) {
+      _blockDiv.classes.add("nt-block-with-clauses");
+    }
 
     if (borderColor != null) { _blockDiv.style.borderColor = this.borderColor; }
     if (textColor != null)   { _blockDiv.style.color       = this.textColor; }
