@@ -65,7 +65,6 @@ class CodeWorkspace {
     if (container == null) throw "No container element with ID $containerId found.";
     container.setInnerHtml("");
     container.classes.add("nt-container");
-    container.draggable = true;
     container.onDragEnter.listen( (e) => enterContainerDrag(e) );
     container.onDragOver.listen( (e) => e.preventDefault() );
     container.onDrop.listen( containerDrop );
