@@ -60,6 +60,7 @@ class Slot {
     _slotDiv.onDragStart.listen( (e) => startDrag(e, drag) );
     _slotDiv.onDragEnd.listen( (e) => endDrag(e, drag) );
     _slotDiv.onDoubleClick.listen( raiseDoubleClick );
+    _slotDiv.onContextMenu.listen( raiseContextMenu );
     updateForLimit();
     return _slotDiv;
   }
@@ -125,5 +126,13 @@ class Slot {
   void raiseDoubleClick(Event e) {
     final event = new MenuItemClickedEvent(block.id);
     workspace.programChanged(event);
+  }
+
+  bool raiseContextMenu(MouseEvent e) {
+    e.preventDefault();
+    e.stopPropagation();
+    final event = new MenuItemContextMenuEvent(block.id, e.page.x, e.page.y);
+    workspace.programChanged(event);
+    return false;
   }
 }

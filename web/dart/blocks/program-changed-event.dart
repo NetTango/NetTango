@@ -73,3 +73,21 @@ class MenuItemClickedEvent extends ProgramChangedEvent {
   }
 
 }
+
+class MenuItemContextMenuEvent extends ProgramChangedEvent {
+  final String type = "menu-item-context-menu";
+  final int blockId;
+  final int x, y;
+
+  MenuItemContextMenuEvent(int this.blockId, int this.x, int this.y);
+
+  dynamic toJS() {
+    return js.JsObject.jsify({
+      "type": type,
+      "blockId": blockId,
+      "x": x,
+      "y": y
+    });
+  }
+
+}
