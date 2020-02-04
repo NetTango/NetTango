@@ -195,6 +195,7 @@
 
 .nt-block-action {
   flex: auto;
+  min-height: 2.5em;
 }
 
 .nt-block-action > span {
