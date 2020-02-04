@@ -424,7 +424,11 @@ class Block {
 
     if (required) {
       drag.classes.add("nt-chain-starter");
+      drag.classes.remove("nt-chain-fragment");
       event.dataTransfer.setData("starter", "starter");
+    } else {
+      drag.classes.remove("nt-chain-starter");
+      drag.classes.add("nt-chain-fragment");
     }
     drag.setInnerHtml("");
     drag.append(dragClone);
@@ -473,6 +477,7 @@ class Block {
 
     setDragging(false);
     drag.classes.remove("nt-chain-starter");
+    drag.classes.remove("nt-chain-fragment");
   }
 
   bool enterDrag(MouseEvent event) {

@@ -300,7 +300,7 @@ class CodeWorkspace {
   }
 
   void createChain(Iterable<Block> newBlocks, int x, int y) {
-    Chain newChain = new Chain();
+    Chain newChain = new Chain(this);
     int newChainIndex = chains.length;
     chains.add(newChain);
     DivElement chainDiv = newChain.draw(drag, newChainIndex);
@@ -424,7 +424,7 @@ class CodeWorkspace {
   }
 
   void _restoreChain(List chainJson) {
-    Chain chain = new Chain();
+    Chain chain = new Chain(this);
     chains.add(chain);
     for (var b in chainJson) {
       if (b is Map) {

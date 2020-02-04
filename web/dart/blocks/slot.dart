@@ -100,9 +100,11 @@ class Slot {
     blockDiv.style.pointerEvents = "none";
     if (_newBlockInstance.required) {
       drag.classes.add("nt-chain-starter");
+      drag.classes.remove("nt-chain-fragment");
       event.dataTransfer.setData("starter", "starter");
     } else {
       drag.classes.remove("nt-chain-starter");
+      drag.classes.add("nt-chain-fragment");
     }
     drag.setInnerHtml("");
     drag.append(blockDiv);
@@ -118,6 +120,7 @@ class Slot {
 
     _slotDiv.classes.remove("nt-block-dragging");
     drag.classes.remove("nt-chain-starter");
+    drag.classes.remove("nt-chain-fragment");
 
     isDragging = false;
     _newBlockInstance = null;

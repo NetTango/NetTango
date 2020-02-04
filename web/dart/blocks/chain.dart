@@ -17,10 +17,26 @@ part of NetTango;
 
 class Chain extends BlockCollection {
 
+  static final FRAGMENT_HEIGHT = 20;
+
+  final CodeWorkspace workspace;
+
   int chainIndex;
+
+  DivElement fragmentDiv;
+
+  // TODO: Starter/Fragment should really be explicit values in the data model
+  bool get isFragment => blocks.isEmpty || !blocks[0].required;
+
+  Chain(CodeWorkspace this.workspace);
 
   DivElement draw(Element drag, int newChainIndex) {
     this.chainIndex = newChainIndex;
+
+    fragmentDiv = new DivElement();
+    fragmentDiv.classes.add("nt-fragment");
+    fragmentDiv.onDragEnter.listen( enterDrag );
+    fragmentDiv.onDrop.listen( drop );
 
     _div = new DivElement();
     _div.classes.add("nt-chain");
@@ -29,13 +45,14 @@ class Chain extends BlockCollection {
       return _div;
     }
 
-    updatePosition();
-
-    // TODO: This should really be something like `first.starter`
-    // to mark blocks that can start code chains on their own
-    if (blocks[0].required) {
+    if (!isFragment) {
       _div.classes.add("nt-chain-starter");
+    } else {
+      _div.classes.add("nt-chain-fragment");
+      _div.append(fragmentDiv);
     }
+
+    updatePosition();
 
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks.elementAt(i);
@@ -52,8 +69,10 @@ class Chain extends BlockCollection {
       return;
     }
     Block first = blocks[0];
-    _div.style.left = "${first.x.round()}px";
-    _div.style.top = "${first.y.round()}px";
+    final left  = first.x.round();
+    final top   = first.y.round() - (isFragment ? FRAGMENT_HEIGHT : 0);
+    _div.style.left = "${left}px";
+    _div.style.top  = "${top}px";
   }
 
   void resetDragData(int newChainIndex) {
@@ -66,6 +85,7 @@ class Chain extends BlockCollection {
   }
 
   void clearDragOver() {
+    fragmentDiv.classes.remove("nt-drag-over");
     for (Block block in blocks) {
       block.clearDragOver();
     }
@@ -73,19 +93,21 @@ class Chain extends BlockCollection {
 
   void redrawBlocks() {
     _div.innerHtml = "";
+    if (!isFragment) {
+      _div.classes.add("nt-chain-starter");
+      _div.classes.remove("nt-chain-fragment");
+    } else {
+      _div.classes.remove("nt-chain-starter");
+      _div.classes.add("nt-chain-fragment");
+      _div.append(fragmentDiv);
+    }
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks[i];
       block._dragData.resetWorkspaceChain(chainIndex, i, blocks.skip(i + 1));
       block.resetOwnedBlocksDragData();
       _div.append(block._blockDiv);
     }
-    if (blocks.isNotEmpty) {
-      if (blocks[0].required) {
-        _div.classes.add("nt-chain-starter");
-      } else {
-        _div.classes.remove("nt-chain-starter");
-      }
-    }
+    updatePosition();
   }
 
   Iterable<Block> removeBlocks(int blockIndex) {
@@ -104,8 +126,42 @@ class Chain extends BlockCollection {
     redrawBlocks();
   }
 
+  bool enterDrag(MouseEvent event) {
+    event.preventDefault();
+    event.stopPropagation();
+    workspace.clearDragOver();
+
+    if (!event.dataTransfer.types.contains(workspace.containerId)) {
+      return false;
+    }
+
+    fragmentDiv.classes.add("nt-drag-over");
+
+    return false;
+  }
+
+  bool drop(MouseEvent event) {
+    event.preventDefault();
+    event.stopPropagation();
+    workspace.clearDragOver();
+
+    if (!event.dataTransfer.types.contains(workspace.containerId)) {
+      return false;
+    }
+
+    final oldFirst  = blocks[0];
+    final newBlocks = workspace.consumeDraggingBlocks();
+    final newFirst  = newBlocks.elementAt(0);
+    newFirst.x = oldFirst.x;
+    newFirst.y = oldFirst.y - FRAGMENT_HEIGHT + event.offset.y;
+    insertBlocks(0, newBlocks);
+    workspace.programChanged(new BlockChangedEvent(newFirst));
+
+    return false;
+  }
+
   static Chain fromJSON(CodeWorkspace workspace, Map json) {
-    Chain chain = new Chain();
+    Chain chain = new Chain(workspace);
     if (json["children"] is List) {
       chain.blocks = BlockCollection.fromJSON(workspace, json["children"]);
     }
