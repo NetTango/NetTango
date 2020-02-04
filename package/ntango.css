@@ -52,17 +52,20 @@
   position: absolute;
 }
 
-.nt-chain > .nt-block:first-child > .nt-block-header {
+.nt-chain-starter > .nt-block:first-child > .nt-block-header,
+.nt-chain-fragment > .nt-block:nth-child(2) > .nt-block-header {
   border-top: 1px solid;
   border-color: inherit;
 }
 
-.nt-chain > .nt-block:first-child > .nt-block-clause-header {
+.nt-chain-starter > .nt-block:first-child > .nt-block-clause-header,
+.nt-chain-fragment > .nt-block:nth-child(2) > .nt-block-clause-header {
   border-top: 1px solid;
   border-color: inherit;
 }
 
-.nt-chain > .nt-block:first-child > .nt-block-left-bar {
+.nt-chain-starter > .nt-block:first-child > .nt-block-left-bar,
+.nt-chain-fragment > .nt-block:nth-child(2) > .nt-block-left-bar {
   border-top: 1px solid;
   border-color: inherit;
 }
@@ -121,6 +124,11 @@
 .nt-block > :last-child {
   border-bottom: 1px solid;
   border-color: inherit;
+}
+
+.nt-fragment {
+  height: 20px;
+  background-color: rgba(0, 0, 0, 0);
 }
 
 .nt-chain-starter > .nt-block:first-child > .nt-block-left-bar {
@@ -187,6 +195,7 @@
 
 .nt-block-action {
   flex: auto;
+  min-height: 2.5em;
 }
 
 .nt-block-action > span {
@@ -225,6 +234,10 @@
 
 .nt-block-dragging {
   opacity: 0.25;
+}
+
+.nt-fragment.nt-drag-over {
+  border-bottom: 3px solid cyan !important;
 }
 
 .nt-drag-over > .nt-block-left-bar {
