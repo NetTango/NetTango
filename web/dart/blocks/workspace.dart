@@ -71,10 +71,6 @@ class CodeWorkspace {
     subscriptions.add(container.onDragOver.listen( (e) => e.preventDefault() ));
     subscriptions.add(container.onDrop.listen( (e) => containerDrop(e) ));
 
-    if (container.parent != null) {
-      container.parent.style.position = "relative";
-    }
-
     height = definition["height"] is int ? definition["height"] : 600;
     width  = definition["width"]  is int ? definition["width"]  : 450;
 
