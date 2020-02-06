@@ -32,8 +32,7 @@
 }
 
 .nt-menu {
-  width: fit-content;
-  min-width: fit-content;
+  min-width: min-content;
   padding: 0.2em;
   position: sticky;
   top: 0;
@@ -435,7 +434,7 @@
   border-radius: 10px;
   font-size: 14px;
   padding: 0.2em 0.5em;
-  width: fit-content;
+  width: min-content;
   height: 2em;
   min-width: 4em;
   margin: 0.3em;
