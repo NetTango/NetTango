@@ -272,6 +272,11 @@
   padding-bottom: 0.5em;
 }
 
+.nt-chain > .nt-block-with-clauses.nt-block-standalone > .nt-clause-footer,
+.nt-chain > .nt-block-with-clauses.nt-block-ender > .nt-clause-footer {
+  height: 0;
+}
+
 .nt-block-clause-standalone,
 .nt-block-clause-starter {
   border-top: 1px solid;
