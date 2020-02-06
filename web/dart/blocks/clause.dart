@@ -47,9 +47,11 @@ class Clause extends BlockCollection {
       Block block = blocks[i];
       final siblings = blocks.skip(i + 1);
       final dragData = BlockDragData.blockOwned(owner._dragData.chainIndex, i, owner.instanceId, siblings, clauseIndex: clauseIndex);
-      final blockDiv = block.draw(drag, dragData);
-      _div.append(blockDiv);
+      block.draw(drag, dragData);
     }
+
+    BlockCollection.appendBlocks(_div, blocks, "nt-block-clause");
+
     return _div;
   }
 
@@ -72,20 +74,19 @@ class Clause extends BlockCollection {
       Block block = blocks[i];
       block._dragData.resetBlockOwned(owner._dragData.chainIndex, i, owner.instanceId, blocks.skip(i + 1), clauseIndex: clauseIndex);
       block.resetOwnedBlocksDragData();
-      _div.append(block._blockDiv);
     }
+
+    BlockCollection.appendBlocks(_div, blocks, "nt-block-clause");
   }
 
   void setupClauseHeaderLiseners(DivElement headerNode) {
     headerNode.onDragEnter.listen( enterClauseHeaderDrag );
     headerNode.onDragOver.listen( (e) => e.preventDefault() );
-    // headerNode.onDragLeave.listen( leaveClauseHeaderDrag );
     headerNode.onDrop.listen( dropClauseHeader );
   }
 
   void setupEmptyClauseListeners() {
     _div.onDragEnter.listen( enterClauseDrag );
-    // _div.onDragLeave.listen( leaveClauseDrag );
     _div.onDragOver.listen( (e) => e.preventDefault() );
     _div.onDrop.listen( dropClause );
   }

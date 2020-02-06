@@ -69,6 +69,7 @@ class Block {
 
   BlockDragData _dragData;
   DivElement _blockDiv;
+  DivElement _dragImage;
   DivElement _actionDiv;
   bool isDragging = false;
   Toggle _propertiesToggle;
@@ -253,8 +254,9 @@ class Block {
     return "${workspace.containerId}-block-command";
   }
 
-  DivElement draw(DivElement drag, BlockDragData dragData) {
+  DivElement draw(DivElement dragImage, BlockDragData dragData) {
     this._dragData = dragData;
+    this._dragImage = dragImage;
 
     _blockDiv = new DivElement();
     _blockDiv.classes.add("nt-block");
@@ -264,19 +266,12 @@ class Block {
       _blockDiv.classes.add("nt-block-with-clauses");
     }
 
-    if (borderColor != null) { _blockDiv.style.borderColor = this.borderColor; }
-    if (textColor != null)   { _blockDiv.style.color       = this.textColor; }
-    if (font != null) {
-      // lineHeight gets reset by the `font` property
-      final lineHeight           = _blockDiv.style.lineHeight;
-      _blockDiv.style.font       = this.font;
-      _blockDiv.style.lineHeight = lineHeight;
-    }
+    applyStyleOverrides(this, this._blockDiv);
 
     DivElement leftBar = new DivElement();
     leftBar.classes.add("nt-block-left-bar");
     leftBar.classes.add("$styleClass-color");
-    if (blockColor != null) { leftBar.style.backgroundColor = this.blockColor; }
+    maybeSetColorOverride(this.blockColor, leftBar);
     // This is pretty gross, but there isn't a way I have found using plain CSS
     // to auto-clear a grid-positioned element to the last row when the number of
     // rows is auto-generated.  -Jeremy B January 2020
@@ -285,7 +280,7 @@ class Block {
 
     DivElement headerNode = new DivElement();
     headerNode.classes.add("$styleClass-color");
-    if (blockColor != null) { headerNode.style.backgroundColor = this.blockColor; }
+    maybeSetColorOverride(this.blockColor, headerNode);
     if (children == null) {
       headerNode.classes.add("nt-block-header");
     } else {
@@ -318,12 +313,12 @@ class Block {
     for (Attribute attribute in properties.values) {
       final propertyDiv = attribute.drawProperty();
       propertyDiv.classes.add("$styleClass-color");
-      if (blockColor != null) { propertyDiv.style.backgroundColor = this.blockColor; }
+      maybeSetColorOverride(this.blockColor, propertyDiv);
       propertiesDiv.append(propertyDiv);
     }
 
     if (children != null) {
-      DivElement childrenDiv = children.draw(drag, headerNode);
+      DivElement childrenDiv = children.draw(_dragImage, headerNode);
       _blockDiv.append(childrenDiv);
     }
 
@@ -332,10 +327,10 @@ class Block {
         DivElement clauseDivider = new DivElement();
         clauseDivider.classes.add("nt-clause-divider");
         clauseDivider.classes.add("$styleClass-color");
-        if (blockColor != null) { clauseDivider.style.backgroundColor = this.blockColor; }
+        maybeSetColorOverride(this.blockColor, clauseDivider);
         _blockDiv.append(clauseDivider);
         Clause clause = clauses[i];
-        DivElement clauseDiv = clause.draw(drag, clauseDivider);
+        DivElement clauseDiv = clause.draw(_dragImage, clauseDivider);
         _blockDiv.append(clauseDiv);
       }
     }
@@ -344,18 +339,37 @@ class Block {
       DivElement footer = new DivElement();
       footer.classes.add("nt-clause-footer");
       footer.classes.add("$styleClass-color");
-      if (blockColor != null) { footer.style.backgroundColor = this.blockColor; }
+      maybeSetColorOverride(this.blockColor, footer);
       _blockDiv.append(footer);
     }
 
-    _blockDiv.draggable = true;
-    _blockDiv.onDragStart.listen( (e) => startDrag(e, drag) );
-    _blockDiv.onDragEnd.listen( (e) => endDrag(e, drag) );
-    _blockDiv.onDragEnter.listen( enterDrag );
-    _blockDiv.onDragOver.listen( (e) => e.preventDefault() );
-    _blockDiv.onDrop.listen( drop );
+    Block.wireDragEvents(this, _blockDiv);
 
     return _blockDiv;
+  }
+
+  static void maybeSetColorOverride(String backgroundColor, DivElement div) {
+    if (backgroundColor != null) { div.style.backgroundColor = backgroundColor; }
+  }
+
+  static void applyStyleOverrides(Block block, DivElement div) {
+    if (block.borderColor != null) { div.style.borderColor = block.borderColor; }
+    if (block.textColor != null)   { div.style.color       = block.textColor; }
+    if (block.font != null) {
+      // lineHeight gets reset by the `font` property
+      final lineHeight     = div.style.lineHeight;
+      div.style.font       = block.font;
+      div.style.lineHeight = lineHeight;
+    }
+  }
+
+  static void wireDragEvents(Block block, DivElement div) {
+    div.draggable = true;
+    div.onDragStart.listen( block.startDrag );
+    div.onDragEnd.listen( block.endDrag );
+    div.onDragEnter.listen( block.enterDrag );
+    div.onDragOver.listen( (e) => e.preventDefault() );
+    div.onDrop.listen( block.drop );
   }
 
   void updateActionText() {
@@ -394,7 +408,7 @@ class Block {
   }
 
   void setDragging(bool dragging) {
-    isDragging = dragging;
+    this.isDragging = dragging;
     if (children != null) {
       children.setDragging(dragging);
     }
@@ -408,44 +422,35 @@ class Block {
     }
   }
 
-  void removeForDragging() {
-    workspace.removeBlocksFromSource(_dragData);
-  }
-
-  void startDrag(MouseEvent event, DivElement drag) {
+  void startDrag(MouseEvent event) {
     event.stopPropagation();
     if (isDragging) {
       return;
     }
 
     event.dataTransfer.setData(workspace.containerId, workspace.containerId);
-
-    Element dragClone = _blockDiv.clone(true);
-
-    if (required) {
-      drag.classes.add("nt-chain-starter");
-      drag.classes.remove("nt-chain-fragment");
+    if (this.required) {
       event.dataTransfer.setData("starter", "starter");
-    } else {
-      drag.classes.remove("nt-chain-starter");
-      drag.classes.add("nt-chain-fragment");
-    }
-    drag.setInnerHtml("");
-    drag.append(dragClone);
-    for (Block sibling in this._dragData.siblings) {
-      drag.append(sibling._blockDiv.clone(true));
     }
 
+    final blocks = new List<Block>() ..
+      add(this) ..
+      addAll(this._dragData.siblings);
+
+    Chain.redrawChain(this._dragImage, blocks, true);
     setDragging(true);
+
     // This silliness is to avoid causing Chrome to freak out.  It immediately cancels
     // any drag/drop operations if you change the DOM of the element that started the
     // drag in the dragstart event.  -Jeremy B Jan-2020
-    (new Timer(Duration(milliseconds: 1), () => removeForDragging()));
+    (new Timer(Duration(milliseconds: 1), () {
+      workspace.removeBlocksFromSource(this._dragData);
+    }));
 
-    event.dataTransfer.setDragImage(drag, 0, 0);
+    event.dataTransfer.setDragImage(this._dragImage, 0, 0);
   }
 
-  void endDrag(MouseEvent event, DivElement drag) {
+  void endDrag(MouseEvent event) {
     workspace.clearDragOver();
 
     if (workspace.hasDraggingBlocks) {
@@ -476,8 +481,9 @@ class Block {
     }
 
     setDragging(false);
-    drag.classes.remove("nt-chain-starter");
-    drag.classes.remove("nt-chain-fragment");
+    _dragImage.innerHtml = "";
+    _dragImage.classes.remove("nt-chain-starter");
+    _dragImage.classes.remove("nt-chain-fragment");
   }
 
   bool enterDrag(MouseEvent event) {

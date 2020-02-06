@@ -35,6 +35,7 @@ part 'blocks/block-style.dart';
 part 'blocks/block-drag-data.dart';
 part 'blocks/block.dart';
 part 'blocks/block-collection.dart';
+part 'blocks/notch.dart';
 part 'blocks/chain.dart';
 part 'blocks/clause.dart';
 part 'blocks/expression.dart';

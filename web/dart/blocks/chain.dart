@@ -45,21 +45,15 @@ class Chain extends BlockCollection {
       return _div;
     }
 
-    if (!isFragment) {
-      _div.classes.add("nt-chain-starter");
-    } else {
-      _div.classes.add("nt-chain-fragment");
-      _div.append(fragmentDiv);
-    }
-
-    updatePosition();
-
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks.elementAt(i);
       final dragData = BlockDragData.workspaceChain(chainIndex, i, blocks.skip(i + 1));
-      final blockDiv = block.draw(drag, dragData);
-      _div.append(blockDiv);
+      block.draw(drag, dragData);
     }
+
+    Chain.redrawChain(_div, blocks, false, fragmentDiv: fragmentDiv);
+
+    updatePosition();
 
     return _div;
   }
@@ -91,22 +85,34 @@ class Chain extends BlockCollection {
     }
   }
 
-  void redrawBlocks() {
-    _div.innerHtml = "";
-    if (!isFragment) {
-      _div.classes.add("nt-chain-starter");
-      _div.classes.remove("nt-chain-fragment");
+  static void redrawChain(DivElement div, List<Block> blocks, bool useClones, {DivElement fragmentDiv = null}) {
+    div.innerHtml = "";
+    if (blocks.first.required) {
+      div.classes.add("nt-chain-starter");
+      div.classes.remove("nt-chain-fragment");
     } else {
-      _div.classes.remove("nt-chain-starter");
-      _div.classes.add("nt-chain-fragment");
-      _div.append(fragmentDiv);
+      div.classes.remove("nt-chain-starter");
+      div.classes.add("nt-chain-fragment");
+      if (fragmentDiv != null) {
+        div.append(fragmentDiv);
+      }
+      final topNotch = Notch.draw(true, blocks.first);
+      div.append(topNotch);
     }
+
+    BlockCollection.appendBlocks(div, blocks, "nt-block", useClones: useClones);
+
+    final bottomNotch = Notch.draw(false, blocks.last);
+    div.append(bottomNotch);
+  }
+
+  void redrawBlocks() {
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks[i];
       block._dragData.resetWorkspaceChain(chainIndex, i, blocks.skip(i + 1));
       block.resetOwnedBlocksDragData();
-      _div.append(block._blockDiv);
     }
+    Chain.redrawChain(_div, blocks, false, fragmentDiv: fragmentDiv);
     updatePosition();
   }
 

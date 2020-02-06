@@ -95,19 +95,15 @@ class Slot {
       }
     }
 
+    if (_newBlockInstance.required) {
+      event.dataTransfer.setData("starter", "starter");
+    }
+
     BlockDragData dragData = BlockDragData.newBlock(_slotIndex);
     final blockDiv = _newBlockInstance.draw(drag, dragData);
     blockDiv.style.pointerEvents = "none";
-    if (_newBlockInstance.required) {
-      drag.classes.add("nt-chain-starter");
-      drag.classes.remove("nt-chain-fragment");
-      event.dataTransfer.setData("starter", "starter");
-    } else {
-      drag.classes.remove("nt-chain-starter");
-      drag.classes.add("nt-chain-fragment");
-    }
-    drag.setInnerHtml("");
-    drag.append(blockDiv);
+
+    Chain.redrawChain(drag, [_newBlockInstance], false);
 
     workspace.removeBlocksFromSource(dragData);
 

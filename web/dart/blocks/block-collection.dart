@@ -57,6 +57,37 @@ abstract class BlockCollection {
     return data;
   }
 
+  static void appendBlock(DivElement div, DivElement blockDiv, String newPosition, {bool useClones = false}) {
+    blockDiv.classes.removeAll([
+      "nt-block-starter",
+      "nt-block-ender",
+      "nt-block-standalone",
+      "nt-block-middle",
+      "nt-block-clause-starter",
+      "nt-block-clause-standalone",
+      "nt-block-clause-middle",
+      "nt-block-clause-ender"
+    ]);
+    blockDiv.classes.add(newPosition);
+    div.append(useClones ? blockDiv.clone(true) : blockDiv);
+  }
+
+  static void appendBlocks(DivElement div, List<Block> blocks, String classPrefix, {bool useClones = false}) {
+    if (blocks.isEmpty) {
+      return;
+    }
+
+    if (blocks.length == 1) {
+      BlockCollection.appendBlock(div, blocks.first._blockDiv, "$classPrefix-standalone", useClones: useClones);
+    } else {
+      BlockCollection.appendBlock(div, blocks.first._blockDiv, "$classPrefix-starter", useClones: useClones);
+      for (int i = 1; i < (blocks.length - 1); i++) {
+        BlockCollection.appendBlock(div, blocks[i]._blockDiv, "$classPrefix-middle", useClones: useClones);
+      }
+      BlockCollection.appendBlock(div, blocks.last._blockDiv, "$classPrefix-ender", useClones: useClones);
+    }
+  }
+
   static List<Block> fromJSON(CodeWorkspace workspace, List children) {
     List<Block> blocks = new List<Block>();
     for (var blockJson in children) {

@@ -223,13 +223,12 @@ class CodeWorkspace {
     chainsDiv = new DivElement();
     spaceDiv.append(chainsDiv);
 
-    final sortedChains = chains.toList();
-    sortedChains.sort((c1, c2) => c1.blocks.first.y.compareTo(c2.blocks.first.y));
-    for (int i = 0; i < sortedChains.length; i++) {
-      Chain chain = sortedChains[i];
-      DivElement chainDiv = chain.draw(drag, i);
-      chainsDiv.append(chainDiv);
+    for (int i = 0; i < chains.length; i++) {
+      Chain chain = chains[i];
+      chain.draw(drag, i);
     }
+
+    redrawChains();
 
     final menuDiv = menu.draw(drag);
     menuDiv.style.maxHeight = "${height}px";
@@ -356,6 +355,15 @@ class CodeWorkspace {
     }
   }
 
+  void redrawChains() {
+    final sortedChains = chains.toList();
+    sortedChains.sort((c1, c2) => c1.blocks.first.y.compareTo(c2.blocks.first.y));
+    chainsDiv.innerHtml = "";
+    for (Chain chain in sortedChains) {
+      chainsDiv.append(chain._div);
+    }
+  }
+
   void repositionChain(Chain chain, int x, int y) {
     if (!chain.blocks.isEmpty) {
       Block first = chain.blocks[0];
@@ -363,12 +371,7 @@ class CodeWorkspace {
       first.y = y;
       chain.updatePosition();
     }
-    final sortedChains = chains.toList();
-    sortedChains.sort((c1, c2) => c1.blocks.first.y.compareTo(c2.blocks.first.y));
-    chainsDiv.innerHtml = "";
-    for (Chain chain in sortedChains) {
-      chainsDiv.append(chain._div);
-    }
+    redrawChains();
   }
 
   void clearDragOver() {
