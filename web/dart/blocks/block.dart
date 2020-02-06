@@ -327,6 +327,7 @@ class Block {
         DivElement clauseDivider = new DivElement();
         clauseDivider.classes.add("nt-clause-divider");
         clauseDivider.classes.add("$styleClass-color");
+        clauseDivider.onDragOver.listen( (e) => e.preventDefault() );
         maybeSetColorOverride(this.blockColor, clauseDivider);
         _blockDiv.append(clauseDivider);
         Clause clause = clauses[i];
@@ -339,6 +340,7 @@ class Block {
       DivElement footer = new DivElement();
       footer.classes.add("nt-clause-footer");
       footer.classes.add("$styleClass-color");
+      footer.onDragOver.listen( (e) => e.preventDefault() );
       maybeSetColorOverride(this.blockColor, footer);
       _blockDiv.append(footer);
     }
@@ -433,12 +435,15 @@ class Block {
       event.dataTransfer.setData("starter", "starter");
     }
 
+    setDragging(true);
+
     final blocks = new List<Block>() ..
       add(this) ..
       addAll(this._dragData.siblings);
 
     Chain.redrawChain(this._dragImage, blocks, true);
-    setDragging(true);
+
+    event.dataTransfer.setDragImage(this._dragImage, 0, 0);
 
     // This silliness is to avoid causing Chrome to freak out.  It immediately cancels
     // any drag/drop operations if you change the DOM of the element that started the
@@ -446,8 +451,6 @@ class Block {
     (new Timer(Duration(milliseconds: 1), () {
       workspace.removeBlocksFromSource(this._dragData);
     }));
-
-    event.dataTransfer.setDragImage(this._dragImage, 0, 0);
   }
 
   void endDrag(MouseEvent event) {

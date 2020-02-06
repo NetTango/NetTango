@@ -58,7 +58,8 @@ abstract class BlockCollection {
   }
 
   static void appendBlock(DivElement div, DivElement blockDiv, String newPosition, {bool useClones = false}) {
-    blockDiv.classes.removeAll([
+    final DivElement appendDiv = useClones ? blockDiv.clone(true) : blockDiv;
+    appendDiv.classes.removeAll([
       "nt-block-starter",
       "nt-block-ender",
       "nt-block-standalone",
@@ -68,8 +69,8 @@ abstract class BlockCollection {
       "nt-block-clause-middle",
       "nt-block-clause-ender"
     ]);
-    blockDiv.classes.add(newPosition);
-    div.append(useClones ? blockDiv.clone(true) : blockDiv);
+    appendDiv.classes.add(newPosition);
+    div.append(appendDiv);
   }
 
   static void appendBlocks(DivElement div, List<Block> blocks, String classPrefix, {bool useClones = false}) {
