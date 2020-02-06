@@ -59,6 +59,7 @@ class Clause extends BlockCollection {
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks[i];
       block._dragData.resetBlockOwned(owner._dragData.chainIndex, i, owner.instanceId, blocks.skip(i + 1), clauseIndex: clauseIndex);
+      block.resetOwnedBlocksDragData();
     }
   }
 
