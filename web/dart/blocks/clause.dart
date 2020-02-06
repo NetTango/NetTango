@@ -37,10 +37,10 @@ class Clause extends BlockCollection {
     _div.classes.add("nt-clause");
 
     setupClauseHeaderLiseners(headerDiv);
+    setupEmptyClauseListeners();
 
     if (blocks.isEmpty) {
       _div.classes.add("nt-clause-empty");
-      setupEmptyClauseListeners();
     }
 
     for (int i = 0; i < blocks.length; i++) {
@@ -68,7 +68,8 @@ class Clause extends BlockCollection {
 
     if (blocks.isEmpty) {
       _div.classes.add("nt-clause-empty");
-      setupEmptyClauseListeners();
+    } else {
+      _div.classes.remove("nt-clause-empty");
     }
 
     for (int i = 0; i < blocks.length; i++) {
