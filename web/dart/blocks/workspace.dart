@@ -21,7 +21,7 @@ class CodeWorkspace {
 
   /// HTML Canvas ID
   String containerId;
-  DivElement container, spaceDiv, chainsDiv, drag;
+  DivElement container, spaceDiv, chainsDiv, drag, backdrop, dialog;
 
   CodeFormatter formatter;
 
@@ -158,7 +158,6 @@ class CodeWorkspace {
     }
   }
 
-
   String exportCode({Function formatAttributeOverride = null}) {
     var parseTree = exportParseTree(true);
     return this.formatter.formatCode(parseTree, formatAttributeOverride: formatAttributeOverride);
@@ -200,6 +199,7 @@ class CodeWorkspace {
       container.append(style);
     }
     CssStyleSheet styleSheet = style.sheet;
+    // the style sheet remains during a re-init of workspaces, so clear it
     while (styleSheet.cssRules.length > 0) {
       styleSheet.removeRule(0);
     }
@@ -208,12 +208,23 @@ class CodeWorkspace {
     containerBlockStyle.appendToSheet(styleSheet, "$containerId-block-container");
     commandBlockStyle.appendToSheet(styleSheet, "$containerId-block-command");
 
+    final wrapper = new DivElement();
+    wrapper.classes.add("nt-workspace-wrapper");
+    container.append(wrapper);
+
+    backdrop = new DivElement() .. className = "nt-attribute-backdrop";
+    backdrop.onClick.listen( (e) => backdrop.classes.remove("show") );
+    dialog = new DivElement() .. className = "nt-attribute-dialog";
+    dialog.onClick.listen( (e) => e.stopPropagation() );
+    backdrop.append(dialog);
+    container.append(backdrop);
+
     spaceDiv = new DivElement() .. id = "$containerId-space";
     spaceDiv.classes.add("nt-workspace");
     spaceDiv.onDragEnter.listen( enterDrag );
     spaceDiv.onDragOver.listen( (e) => e.preventDefault() );
     spaceDiv.onDrop.listen( drop );
-    container.append(spaceDiv);
+    wrapper.append(spaceDiv);
 
     drag = new DivElement();
     drag.classes.add("nt-block-drag");
@@ -232,7 +243,7 @@ class CodeWorkspace {
 
     final menuDiv = menu.draw(drag);
     menuDiv.style.maxHeight = "${height}px";
-    container.append(menuDiv);
+    wrapper.append(menuDiv);
 
     updateWorkspaceHeight();
   }

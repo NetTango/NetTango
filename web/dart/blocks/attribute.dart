@@ -131,11 +131,11 @@ class Attribute {
   }
 
   void _showParameterDialog(int x, int y, Function acceptCallback) {
-    DivElement backdrop = new DivElement() .. className = "backdrop";
-
-    DivElement dialog = new DivElement() .. className = "nt-param-dialog";
+    final backdrop = block.workspace.backdrop;
+    backdrop.classes.add("show");
+    final dialog = block.workspace.dialog;
     dialog.style.top = "${y}px";
-    backdrop.append(dialog);
+    dialog.innerHtml = "";
 
     String inputCode = _buildHTMLInput();
 
@@ -147,10 +147,6 @@ class Attribute {
       <button class="nt-param-cancel">Cancel</button>
     """);
 
-    HtmlElement container = querySelector("#${block.workspace.containerId}").parent;
-    if (container == null) return;
-    container.append(backdrop);
-
     HtmlElement label = querySelector("#nt-param-label-$uniqueId");
     InputElement input = querySelector("#nt-param-$uniqueId");
 
@@ -158,14 +154,12 @@ class Attribute {
       if (input != null) {
         value = input.value;
       }
-      backdrop.remove();
+      backdrop.classes.remove("show");
       acceptCallback();
       block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.value));
     });
 
-    querySelectorAll(".nt-param-cancel").onClick.listen((e) => backdrop.remove());
-
-    backdrop.classes.add("show");
+    querySelectorAll(".nt-param-cancel").onClick.listen((e) => backdrop.classes.remove("show") );
 
     if (input != null) {
       input.focus();
@@ -264,11 +258,11 @@ class RangeParameter extends NumParameter {
   }
 
   void _showParameterDialog(int x, int y, Function acceptCallback) {
-    DivElement backdrop = new DivElement() .. className = "backdrop";
-
-    DivElement dialog = new DivElement() .. className = "nt-param-dialog";
+    final backdrop = block.workspace.backdrop;
+    backdrop.classes.add("show");
+    final dialog = block.workspace.dialog;
     dialog.style.top = "${y}px";
-    backdrop.append(dialog);
+    dialog.innerHtml = "";
 
     DivElement table = new DivElement() .. className = "nt-param-table";
     dialog.append(table);
@@ -289,26 +283,18 @@ class RangeParameter extends NumParameter {
         </div>
       """);
 
-    dialog.onClick.listen((e) { e.stopPropagation(); });
-    backdrop.onClick.listen((e) { backdrop.remove(); });
-
-    HtmlElement container = querySelector("#${block.workspace.containerId}").parent;
-    if (container != null) container.append(backdrop);
-
     HtmlElement label = querySelector("#nt-param-label-$uniqueId");
     InputElement input = querySelector("#nt-param-$uniqueId");
     if (input != null && label != null) {
       input.onChange.listen((e) {
         value = input.value;
-        backdrop.remove();
+        backdrop.classes.remove("show");
         acceptCallback();
         block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.value));
         e.stopPropagation();
       });
       input.onInput.listen((e) { label.innerHtml = input.value; });
     }
-
-    backdrop.classes.add("show");
   }
 }
 
@@ -358,11 +344,12 @@ class SelectParameter extends Attribute {
   }
 
   void _showParameterDialog(int x, int y, Function acceptCallback) {
-    DivElement backdrop = new DivElement() .. className = "backdrop";
-
-    DivElement dialog = new DivElement() .. className = "nt-param-dialog small";
+    final backdrop = block.workspace.backdrop;
+    backdrop.classes.add("show");
+    final dialog = block.workspace.dialog;
     dialog.style.top = "${y}px";
-    backdrop.append(dialog);
+    dialog.classes.add("small");
+    dialog.innerHtml = "";
 
     DivElement table = new DivElement() .. className = "nt-param-table";
     dialog.append(table);
@@ -374,7 +361,8 @@ class SelectParameter extends Attribute {
       if (v["actual"] == value) { opt.classes.add("selected"); }
       opt.onClick.listen((e) {
         value = v["actual"];
-        backdrop.remove();
+        dialog.classes.remove("small");
+        backdrop.classes.remove("show");
         acceptCallback();
         block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.value));
         e.stopPropagation();
@@ -382,13 +370,6 @@ class SelectParameter extends Attribute {
       row.append(opt);
       table.append(row);
     }
-
-    backdrop.onClick.listen((e) { backdrop.remove(); });
-
-    HtmlElement container = querySelector("#${block.workspace.containerId}").parent;
-    if (container != null) container.append(backdrop);
-
-    backdrop.classes.add("show");
   }
 }
 
@@ -426,11 +407,11 @@ class ExpressionParameter extends Attribute {
   }
 
   void _showParameterDialog(int x, int y, Function acceptCallback) {
-    DivElement backdrop = new DivElement() .. className = "backdrop";
-
-    DivElement dialog = new DivElement() .. className = "nt-param-dialog";
+    final backdrop = block.workspace.backdrop;
+    backdrop.classes.add("show");
+    final dialog = block.workspace.dialog;
     dialog.style.top = "${y}px";
-    backdrop.append(dialog);
+    dialog.innerHtml = "";
 
     dialog.appendHtml("""
       <div class="nt-param-table">
@@ -445,15 +426,16 @@ class ExpressionParameter extends Attribute {
       <button class="nt-param-cancel">Cancel</button>
     """);
 
-    HtmlElement container = querySelector("#${block.workspace.containerId}").parent;
-    if (container == null) return;
-    container.append(backdrop);
+    final pulldownCloserStream = dialog.onClick.listen((e) {
+      querySelectorAll('.nt-pulldown-menu').forEach((el) => el.remove());
+    });
 
     querySelectorAll(".nt-param-confirm").onClick.listen((e) {
       var empties = querySelectorAll(".nt-expression.empty");
       if (empties.length > 0) return false;
       _value = builder.toJSON();
-      backdrop.remove();
+      pulldownCloserStream.cancel();
+      backdrop.classes.remove("show");
       acceptCallback();
       var val = CodeFormatter.formatExpression(_value);
       block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, val));
@@ -466,15 +448,10 @@ class ExpressionParameter extends Attribute {
       querySelectorAll(".nt-expression.empty").forEach((el) => el.classes.remove('warn'));
     });
     querySelectorAll(".nt-param-cancel").onClick.listen((e) {
-      backdrop.remove();
+      pulldownCloserStream.cancel();
+      backdrop.classes.remove("show");
     });
-
-    backdrop.classes.add("show");
 
     builder.open("#nt-expression-${uniqueId}");
-
-    querySelectorAll(".nt-param-dialog").onClick.listen((e) {
-      querySelectorAll('.nt-pulldown-menu').forEach((el) => el.remove());
-    });
   }
 }

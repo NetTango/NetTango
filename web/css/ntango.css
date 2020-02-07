@@ -14,8 +14,11 @@
  * of the National Science Foundation (NSF).
  */
 
-/* Workspace container <div> */
 .nt-container {
+  display: grid;
+}
+
+.nt-workspace-wrapper {
   background: #eee;
   font-family: Poppins, sans-serif;
   font-size: 14px;
@@ -23,6 +26,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-around;
+  grid-area: 1 / 1;
 }
 
 .nt-workspace {
@@ -449,23 +453,19 @@
 }
 
 /* Backdrop for the parameter popup menu */
-.backdrop {
+.nt-attribute-backdrop {
   visibility: hidden;
-  width: 100%;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  position: absolute;
   z-index: 1;
+  grid-area: 1 / 1;
 }
 
 /* Toggle this class - hide and show the popup */
-.backdrop.show {
+.nt-attribute-backdrop.show {
   visibility: visible;
   animation: fadeIn 0.25s;
 }
 
-.nt-param-dialog {
+.nt-attribute-dialog {
   border-radius: 15px;
   background-color: white;
   border: 2px solid rgba(0, 0, 0, 0.4);
@@ -478,7 +478,7 @@
   position: relative;
 }
 
-.nt-param-dialog.small {
+.nt-attribute-dialog.small {
   border-radius: 5px;
   max-width: 300px;
   padding: 15px;
