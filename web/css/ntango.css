@@ -69,11 +69,6 @@
   border-color: inherit;
 }
 
-.nt-chain-fragment > .nt-block-standalone > .nt-block-header {
-  padding-top: 0.2em;
-  padding-bottom: 0.2em;
-}
-
 .nt-chain-fragment > .nt-block-starter > .nt-block-header,
 .nt-chain-fragment > .nt-block-starter > .nt-block-clause-header,
 .nt-chain-fragment > .nt-block-standalone > .nt-block-clause-header {
@@ -83,7 +78,7 @@
 .nt-chain-starter > .nt-block-ender > .nt-block-header,
 .nt-chain-fragment > .nt-block-ender > .nt-block-header {
   padding-top: 0.5em;
-  padding-bottom: 0.1em;
+  padding-bottom: 0;
 }
 
 .nt-block-middle > .nt-block-header,
