@@ -135,6 +135,7 @@ class Attribute {
     backdrop.classes.add("show");
     final dialog = block.workspace.dialog;
     dialog.style.top = "${y}px";
+    dialog.classes.remove("small");
     dialog.innerHtml = "";
 
     String inputCode = _buildHTMLInput();
@@ -262,6 +263,7 @@ class RangeParameter extends NumParameter {
     backdrop.classes.add("show");
     final dialog = block.workspace.dialog;
     dialog.style.top = "${y}px";
+    dialog.classes.remove("small");
     dialog.innerHtml = "";
 
     DivElement table = new DivElement() .. className = "nt-param-table";
@@ -361,7 +363,6 @@ class SelectParameter extends Attribute {
       if (v["actual"] == value) { opt.classes.add("selected"); }
       opt.onClick.listen((e) {
         value = v["actual"];
-        dialog.classes.remove("small");
         backdrop.classes.remove("show");
         acceptCallback();
         block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.value));
@@ -411,6 +412,7 @@ class ExpressionParameter extends Attribute {
     backdrop.classes.add("show");
     final dialog = block.workspace.dialog;
     dialog.style.top = "${y}px";
+    dialog.classes.remove("small");
     dialog.innerHtml = "";
 
     dialog.appendHtml("""
