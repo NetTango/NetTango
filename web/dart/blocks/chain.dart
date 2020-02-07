@@ -64,7 +64,7 @@ class Chain extends BlockCollection {
     }
     Block first = blocks[0];
     final left  = first.x.round();
-    final top   = first.y.round() - (isFragment ? FRAGMENT_HEIGHT : 0);
+    final top   = first.y.round();
     _div.style.left = "${left}px";
     _div.style.top  = "${top}px";
   }
@@ -132,6 +132,21 @@ class Chain extends BlockCollection {
     redrawBlocks();
   }
 
+  void enableTopDropZone() {
+    if (!isFragment) {
+      return;
+    }
+    fragmentDiv.classes.add("show");
+    final top = blocks.first.y.round() - FRAGMENT_HEIGHT;
+    _div.style.top = "${top}px";
+  }
+
+  void disableTopDropZone() {
+    fragmentDiv.classes.remove("show");
+    final top = blocks.first.y.round();
+    _div.style.top = "${top}px";
+  }
+
   bool enterDrag(MouseEvent event) {
     event.preventDefault();
     event.stopPropagation();
@@ -162,6 +177,7 @@ class Chain extends BlockCollection {
     newFirst.y = oldFirst.y - FRAGMENT_HEIGHT + event.offset.y;
     insertBlocks(0, newBlocks);
     workspace.programChanged(new BlockChangedEvent(newFirst));
+    workspace.disableTopDropZones();
 
     return false;
   }

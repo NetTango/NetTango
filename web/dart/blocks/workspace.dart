@@ -269,6 +269,8 @@ class CodeWorkspace {
     Block changedBlock = blocks.elementAt(0);
 
     programChanged(new BlockChangedEvent(changedBlock));
+    disableTopDropZones();
+
     return false;
   }
 
@@ -295,6 +297,7 @@ class CodeWorkspace {
     final oldBlocks = consumeDraggingBlocks();
     Block changedBlock = oldBlocks.elementAt(0);
     programChanged(new BlockChangedEvent(changedBlock));
+    disableTopDropZones();
 
     return false;
   }
@@ -383,6 +386,18 @@ class CodeWorkspace {
       chain.updatePosition();
     }
     redrawChains();
+  }
+
+  void enableTopDropZones() {
+    for (Chain chain in chains) {
+      chain.enableTopDropZone();
+    }
+  }
+
+  void disableTopDropZones() {
+    for (Chain chain in chains) {
+      chain.disableTopDropZone();
+    }
   }
 
   void clearDragOver() {

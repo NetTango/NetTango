@@ -450,6 +450,7 @@ class Block {
     // drag in the dragstart event.  -Jeremy B Jan-2020
     (new Timer(Duration(milliseconds: 1), () {
       workspace.removeBlocksFromSource(this._dragData);
+      workspace.enableTopDropZones();
     }));
   }
 
@@ -487,6 +488,7 @@ class Block {
     _dragImage.innerHtml = "";
     _dragImage.classes.remove("nt-chain-starter");
     _dragImage.classes.remove("nt-chain-fragment");
+    workspace.disableTopDropZones();
   }
 
   bool enterDrag(MouseEvent event) {
@@ -539,6 +541,7 @@ class Block {
 
     Block changedBlock = newBlocks.elementAt(0);
     workspace.programChanged(new BlockChangedEvent(changedBlock));
+    workspace.disableTopDropZones();
 
     return false;
   }

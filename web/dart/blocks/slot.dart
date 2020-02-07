@@ -106,6 +106,7 @@ class Slot {
     Chain.redrawChain(drag, [_newBlockInstance], false);
 
     workspace.removeBlocksFromSource(dragData);
+    workspace.enableTopDropZones();
 
     isDragging = true;
     event.dataTransfer.setDragImage(drag, 0, 0);
@@ -120,6 +121,7 @@ class Slot {
 
     isDragging = false;
     _newBlockInstance = null;
+    workspace.disableTopDropZones();
   }
 
   void raiseDoubleClick(Event e) {

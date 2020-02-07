@@ -108,6 +108,7 @@ class BlockMenu {
 
     Block changedBlock = oldBlocks.elementAt(0);
     workspace.programChanged(new BlockChangedEvent(changedBlock));
+    workspace.disableTopDropZones();
 
     return false;
   }
