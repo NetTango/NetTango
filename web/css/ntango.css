@@ -55,6 +55,14 @@
   position: absolute;
 }
 
+.nt-chain > .nt-block {
+  grid-column: 2;
+}
+
+.nt-clause > .nt-block {
+  grid-column: 1;
+}
+
 .nt-chain-starter > .nt-block-standalone > .nt-block-left-bar,
 .nt-chain-starter > .nt-block-starter > .nt-block-left-bar {
   border-top: 1px solid;
@@ -117,6 +125,11 @@
   border-color: inherit;
 }
 
+.nt-clause-empty > .nt-notch-top > .nt-notch-left {
+  border-left: 0;
+  border-top-left-radius: 0;
+}
+
 .nt-notch-top > .nt-notch-middle {
   border-bottom: 1px solid;
   border-left: 1px solid;
@@ -157,6 +170,11 @@
   border-color: inherit;
 }
 
+.nt-clause-empty > .nt-notch-bottom > .nt-notch-left {
+  border-left: 0;
+  border-bottom-left-radius: 0;
+}
+
 .nt-notch-bottom > .nt-notch-middle {
   border-bottom: 1px solid;
   border-left: 1px solid;
@@ -178,18 +196,52 @@
 }
 
 .nt-clause {
+  display: grid;
+  grid-template-rows: min-content auto min-content;
   grid-column: 2;
 }
 
-.nt-clause:empty {
-  border: 1px solid;
-  border-right: 0;
+.nt-clause-empty {
   border-color: inherit;
-  min-height: 2em;
+  min-height: 3.5em;
 }
 
-.nt-block-clause-drag-over {
+.nt-clause-empty > .nt-notch-bottom {
+  grid-row: 1 / 2;
+}
+
+.nt-clause-empty > .nt-clause-drop {
+  background-color: rgba(0, 0, 0, 0);
+  border-left: 1px solid;
+  border-color: inherit;
+  grid-row: 2 / 3;
+}
+
+.nt-clause-empty > .nt-notch-top {
+  grid-row: 3 / 4;
+}
+
+.nt-clause-empty > .nt-notch-bottom > .nt-notch-clause-filler {
+  border-left: 1px solid;
+  border-color: inherit;
+  grid-column: 1 / 2;
+  grid-row: 2 / 3;
+}
+
+.nt-block.nt-block-clause-drag-over {
   border-top: 3px solid cyan !important;
+}
+
+.nt-block-clause-drag-over > .nt-notch-bottom > .nt-notch-left,
+.nt-block-clause-drag-over > .nt-notch-bottom > .nt-notch-middle,
+.nt-block-clause-drag-over > .nt-notch-bottom > .nt-notch-right {
+  border-bottom: 3px solid cyan !important;
+}
+
+.nt-block-clause-drag-over > .nt-notch-bottom > .nt-notch-middle {
+  border-left: 3px solid cyan !important;
+  border-right: 3px solid cyan !important;
+  margin-top: -3px;
 }
 
 .nt-clause-divider {
@@ -253,7 +305,6 @@
   display: grid;
   grid-template-columns: min-content auto;
   grid-template-rows: auto [last-line];
-  grid-column: 2;
   background: rgba(0, 0, 0, 0);
   border-width: 0;
   border-style: solid;

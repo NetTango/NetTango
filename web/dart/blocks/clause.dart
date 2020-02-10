@@ -37,10 +37,10 @@ class Clause extends BlockCollection {
     _div.classes.add("nt-clause");
 
     setupClauseHeaderLiseners(headerDiv);
-    setupEmptyClauseListeners();
 
     if (blocks.isEmpty) {
-      _div.classes.add("nt-clause-empty");
+      setEmpty();
+      return _div;
     }
 
     for (int i = 0; i < blocks.length; i++) {
@@ -55,6 +55,21 @@ class Clause extends BlockCollection {
     return _div;
   }
 
+  void setEmpty() {
+    _div.classes.add("nt-clause-empty");
+    _div.append(Notch.drawClause(false, this));
+
+    final dropZone = new DivElement() .. className = "nt-clause-drop";
+    _div.append(dropZone);
+    wireEvents(this, dropZone);
+
+    _div.append(Notch.drawClause(true,  this));
+  }
+
+  void setNonEmpty() {
+    _div.classes.remove("nt-clause-empty");
+  }
+
   void resetOwned() {
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks[i];
@@ -67,10 +82,11 @@ class Clause extends BlockCollection {
     _div.innerHtml = "";
 
     if (blocks.isEmpty) {
-      _div.classes.add("nt-clause-empty");
-    } else {
-      _div.classes.remove("nt-clause-empty");
+      setEmpty();
+      return;
     }
+
+    setNonEmpty();
 
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks[i];
@@ -87,10 +103,10 @@ class Clause extends BlockCollection {
     headerNode.onDrop.listen( dropClauseHeader );
   }
 
-  void setupEmptyClauseListeners() {
-    _div.onDragEnter.listen( enterClauseDrag );
-    _div.onDragOver.listen( (e) => e.preventDefault() );
-    _div.onDrop.listen( dropClause );
+  static void wireEvents(Clause clause, DivElement div) {
+    div.onDragEnter.listen( clause.enterClauseDrag );
+    div.onDragOver.listen( (e) => e.preventDefault() );
+    div.onDrop.listen( clause.dropClause );
   }
 
   void setDragging(bool dragging) {
