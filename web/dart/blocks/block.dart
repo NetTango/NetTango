@@ -149,6 +149,20 @@ class Block {
     return other;
   }
 
+  static Block cloneSlotForChain(Block block) {
+    final newBlock = block.clone();
+    if (block.clauses != null) {
+      newBlock.children = new Clause(newBlock);
+      if (block.clauses.length > 0) {
+        newBlock.clauses = new List<Clause>();
+        for (int i = 0; i < block.clauses.length; i++) {
+          newBlock.clauses.add(new Clause(newBlock, clauseIndex: i));
+        }
+      }
+    }
+    return newBlock;
+  }
+
   void _copyTo(Block other) {
     other.action = action;
     other.type = type;

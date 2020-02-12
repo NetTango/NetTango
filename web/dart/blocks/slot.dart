@@ -40,11 +40,14 @@ class Slot {
   DivElement draw(DivElement drag, int slotIndex) {
     _slotIndex = slotIndex;
     _slotDiv = new DivElement();
-    _slotDiv.innerText = block.action;
     _slotDiv.classes.add("nt-menu-slot");
     final styleClass = block.getStyleClass();
     _slotDiv.classes.add(styleClass);
     _slotDiv.classes.add("$styleClass-color");
+
+    final sampleBlock = Block.cloneSlotForChain(this.block);
+    final codeTip = formatCodeTip(sampleBlock);
+    _slotDiv.appendHtml("""<span title="$codeTip">${block.action}</span>""");
 
     if (block.blockColor != null)  { _slotDiv.style.backgroundColor = block.blockColor; }
     if (block.borderColor != null) { _slotDiv.style.borderColor     = block.borderColor; }
@@ -63,6 +66,14 @@ class Slot {
     _slotDiv.onContextMenu.listen( raiseContextMenu );
     updateForLimit();
     return _slotDiv;
+  }
+
+  String formatCodeTip(Block sampleBlock) {
+    final out = new StringBuffer();
+    workspace.formatter.formatBlock(out, sampleBlock.toJSON(), 0);
+    final value = out.toString().trim();
+    final escapedValue = (new HtmlEscape()).convert(value);
+    return escapedValue;
   }
 
   void updateForLimit() {
@@ -84,16 +95,7 @@ class Slot {
 
     _slotDiv.classes.add("nt-block-dragging");
 
-    _newBlockInstance = block.clone();
-    if (block.clauses != null) {
-      _newBlockInstance.children = new Clause(_newBlockInstance);
-      if (block.clauses.length > 0) {
-        _newBlockInstance.clauses = new List<Clause>();
-        for (int i = 0; i < block.clauses.length; i++) {
-          _newBlockInstance.clauses.add(new Clause(_newBlockInstance, clauseIndex: i));
-        }
-      }
-    }
+    _newBlockInstance = Block.cloneSlotForChain(this.block);
 
     if (_newBlockInstance.required) {
       event.dataTransfer.setData("starter", "starter");
