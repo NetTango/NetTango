@@ -37,6 +37,9 @@ class Block {
   /// "if random 100 > {0}"
   String format;
 
+  /// extra text to include in the code tip info of a block
+  String note;
+
   /// block dimensions and position
   num x = 0.0, y = 0.0;
 
@@ -110,6 +113,7 @@ class Block {
     //----------------------------------------------------------
     block.type = toStr(json["type"]);
     block.format = toStr(json["format"], null);
+    block.note = toStr(json["note"], null);
     block.blockColor = toStr(json["blockColor"], null);
     block.textColor = toStr(json["textColor"], null);
     block.borderColor = toStr(json["borderColor"], null);
@@ -167,6 +171,7 @@ class Block {
     other.action = action;
     other.type = type;
     other.format = format;
+    other.note = note;
     other.blockColor = blockColor;
     other.textColor = textColor;
     other.borderColor = borderColor;
@@ -193,6 +198,7 @@ class Block {
     data["action"] = action;
     data["type"] = type;
     data["format"] = format;
+    data["note"] = note;
     data["required"] = required;
     data["x"] = x;
     data["y"] = y;
@@ -395,6 +401,10 @@ class Block {
 
   String formatCodeTip() {
     final out = new StringBuffer();
+    if (this.note != null && this.note.trimLeft().isNotEmpty) {
+      out.writeln(this.note);
+      out.writeln();
+    }
     if (_dragData.parentType == "workspace-chain" && _dragData.blockIndex == 0) {
       final chain = workspace.chains[_dragData.chainIndex].exportParseTree();
       workspace.formatter.formatChain(out, chain, 0);

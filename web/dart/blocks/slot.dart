@@ -70,6 +70,10 @@ class Slot {
 
   String formatCodeTip(Block sampleBlock) {
     final out = new StringBuffer();
+    if (this.block.note != null && this.block.note.trimLeft().isNotEmpty) {
+      out.writeln(this.block.note);
+      out.writeln();
+    }
     workspace.formatter.formatBlock(out, sampleBlock.toJSON(), 0);
     final value = out.toString().trim();
     final escapedValue = (new HtmlEscape()).convert(value);
