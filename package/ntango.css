@@ -369,6 +369,7 @@
   flex: auto;
 }
 
+.nt-menu-slot > span,
 .nt-block-action > span {
   text-decoration: dashed underline;
   text-decoration-color: #fff8;
