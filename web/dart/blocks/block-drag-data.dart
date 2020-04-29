@@ -26,8 +26,8 @@ class BlockDragData {
 
   Map toJSON() {
     Map dragData = {
-       "parent-type": parentType,
-       "workspace-chain-index": chainIndex
+      "parent-type": parentType,
+      "workspace-chain-index": chainIndex
     };
     setIfNotNull(dragData, "parent-instance-id", parentInstanceId);
     setIfNotNull(dragData, "clause-index", clauseIndex);
@@ -82,6 +82,7 @@ class BlockDragData {
     this.blockIndex = blockIndex;
     this.siblings   = siblings;
   }
+
   static BlockDragData workspaceChain(int chainIndex, int blockIndex, Iterable<Block> siblings) {
     BlockDragData dragData = new BlockDragData();
     dragData.resetWorkspaceChain(chainIndex, blockIndex, siblings);
@@ -97,6 +98,7 @@ class BlockDragData {
     this.clauseIndex      = clauseIndex;
     this.siblings         = siblings;
   }
+
   static BlockDragData blockOwned(int chainIndex, int blockIndex, int parentInstanceId, Iterable<Block> siblings, {int clauseIndex = null}) {
     BlockDragData dragData = new BlockDragData();
     dragData.resetBlockOwned(chainIndex, blockIndex, parentInstanceId, siblings, clauseIndex: clauseIndex);

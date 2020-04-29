@@ -39,7 +39,7 @@ class Notch {
       div.append(filler);
     });
 
-    Block.wireDragEvents(block, div);
+    Block.wireDragEvents(block, div, (isOver) => block.isDragNotchOver = isOver );
 
     return div;
   }
@@ -71,8 +71,6 @@ class Notch {
       final clauseFiller = new DivElement() .. className = "nt-notch-clause-filler";
       div.append(clauseFiller);
     }
-
-    Clause.wireEvents(clause, div);
 
     return div;
   }

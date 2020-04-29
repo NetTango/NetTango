@@ -15,11 +15,12 @@
  */
 library NetTango;
 
-import 'dart:math';
-import 'dart:html';
-import 'dart:convert';
 import 'dart:async';
+import 'dart:convert';
+import 'dart:html';
 import 'dart:js' as js;
+import 'dart:math';
+import 'package:dnd/dnd.dart';
 
 part 'versions/version-utils.dart';
 part 'versions/version-1.dart';
@@ -30,6 +31,8 @@ part 'versions/version-manager.dart';
 //part 'utils/sounds.dart';
 part 'utils/utils.dart';
 
+part 'blocks/drag-acceptor.dart';
+part 'blocks/drag-image.dart';
 part 'blocks/toggle.dart';
 part 'blocks/block-style.dart';
 part 'blocks/block-drag-data.dart';

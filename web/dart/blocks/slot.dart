@@ -27,7 +27,7 @@ class Slot {
   int _slotIndex;
   Block _newBlockInstance;
   DivElement _slotDiv;
-  bool isDragging = false;
+  DragImage _dragImage;
   bool isAtLimit = false;
 
   Slot(this.block, this.workspace, this.limit);
@@ -37,7 +37,8 @@ class Slot {
     return (limit <= 0 || free > 0);
   }
 
-  DivElement draw(DivElement drag, int slotIndex) {
+  DivElement draw(DragImage dragImage, int slotIndex) {
+    _dragImage = dragImage;
     _slotIndex = slotIndex;
     _slotDiv = new DivElement();
     _slotDiv.classes.add("nt-menu-slot");
@@ -59,9 +60,10 @@ class Slot {
       _slotDiv.style.lineHeight = lineHeight;
     }
 
-    _slotDiv.draggable = true;
-    _slotDiv.onDragStart.listen( (e) => startDrag(e, drag) );
-    _slotDiv.onDragEnd.listen( (e) => endDrag(e, drag) );
+    final slotDrag = Draggable(_slotDiv, avatarHandler: _dragImage, draggingClass: "nt-block-dragging", cancel: ".nt-menu-slot-at-limit");
+    slotDrag.onDragStart.listen(startDrag);
+    slotDrag.onDragEnd.listen(endDrag);
+
     _slotDiv.onDoubleClick.listen( raiseDoubleClick );
     _slotDiv.onContextMenu.listen( raiseContextMenu );
     updateForLimit();
@@ -82,52 +84,31 @@ class Slot {
 
   void updateForLimit() {
     if (isAvailable()) {
-      _slotDiv.draggable = true;
       _slotDiv.classes.remove("nt-menu-slot-at-limit");
     } else {
-      _slotDiv.draggable = false;
       _slotDiv.classes.add("nt-menu-slot-at-limit");
     }
   }
 
-  void startDrag(MouseEvent event, DivElement drag) {
-    if (isDragging) {
-      return;
-    }
-
-    event.dataTransfer.setData(block.workspace.containerId, block.workspace.containerId);
-
-    _slotDiv.classes.add("nt-block-dragging");
-
+  void startDrag(DraggableEvent event) {
+    DragAcceptor.wasHandled = false;
+    DragAcceptor.isDragStarter = this.block.required;
     _newBlockInstance = Block.cloneSlotForChain(this.block);
 
-    if (_newBlockInstance.required) {
-      event.dataTransfer.setData("starter", "starter");
-    }
-
     BlockDragData dragData = BlockDragData.newBlock(_slotIndex);
-    final blockDiv = _newBlockInstance.draw(drag, dragData);
-    blockDiv.style.pointerEvents = "none";
+    _newBlockInstance.draw(_dragImage, dragData);
+    Chain.redrawChain(_dragImage.element, [_newBlockInstance], false);
 
-    Chain.redrawChain(drag, [_newBlockInstance], false);
-
+    DragAcceptor.sourceContainerId = this.workspace.containerId;
+    DragAcceptor.dragStartOffset = event.startPosition - DragImage.getOffsetToRoot(event.draggableElement);
     workspace.removeBlocksFromSource(dragData);
     workspace.enableTopDropZones();
-
-    isDragging = true;
-    event.dataTransfer.setDragImage(drag, 0, 0);
   }
 
-  void endDrag(MouseEvent event, DivElement drag) {
-    workspace.clearDragOver();
-
-    _slotDiv.classes.remove("nt-block-dragging");
-    drag.classes.remove("nt-chain-starter");
-    drag.classes.remove("nt-chain-fragment");
-
-    isDragging = false;
+  void endDrag(DraggableEvent event) {
     _newBlockInstance = null;
     workspace.disableTopDropZones();
+    workspace.clearDragOver();
   }
 
   void raiseDoubleClick(Event e) {

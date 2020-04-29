@@ -70,11 +70,12 @@ class Block {
 
   bool get hasProperties => properties.isNotEmpty;
 
+  DragImage _dragImage;
   BlockDragData _dragData;
+  bool isDragOver = false;
+  bool isDragNotchOver = false;
   DivElement _blockDiv;
-  DivElement _dragImage;
   DivElement _actionDiv;
-  bool isDragging = false;
   Toggle _propertiesToggle;
 
   Block(this.workspace, this.id, this.action) {
@@ -274,7 +275,7 @@ class Block {
     return "${workspace.containerId}-block-command";
   }
 
-  DivElement draw(DivElement dragImage, BlockDragData dragData) {
+  DivElement draw(DragImage dragImage, BlockDragData dragData) {
     this._dragData = dragData;
     this._dragImage = dragImage;
 
@@ -347,7 +348,6 @@ class Block {
         DivElement clauseDivider = new DivElement();
         clauseDivider.classes.add("nt-clause-divider");
         clauseDivider.classes.add("$styleClass-color");
-        clauseDivider.onDragOver.listen( (e) => e.preventDefault() );
         maybeSetColorOverride(this.blockColor, clauseDivider);
         _blockDiv.append(clauseDivider);
         Clause clause = clauses[i];
@@ -360,12 +360,11 @@ class Block {
       DivElement footer = new DivElement();
       footer.classes.add("nt-clause-footer");
       footer.classes.add("$styleClass-color");
-      footer.onDragOver.listen( (e) => e.preventDefault() );
       maybeSetColorOverride(this.blockColor, footer);
       _blockDiv.append(footer);
     }
 
-    Block.wireDragEvents(this, _blockDiv);
+    Block.wireDragEvents(this, _blockDiv, (isOver) => this.isDragOver = isOver );
 
     return _blockDiv;
   }
@@ -385,13 +384,14 @@ class Block {
     }
   }
 
-  static void wireDragEvents(Block block, DivElement div) {
-    div.draggable = true;
-    div.onDragStart.listen( block.startDrag );
-    div.onDragEnd.listen( block.endDrag );
-    div.onDragEnter.listen( block.enterDrag );
-    div.onDragOver.listen( (e) => e.preventDefault() );
-    div.onDrop.listen( block.drop );
+  static void wireDragEvents(Block block, DivElement div, void setOver(bool isOver)) {
+    final draggable = Draggable(div, avatarHandler: block._dragImage, draggingClass: "nt-block-dragging");
+    draggable.onDragStart.listen(block.startDrag);
+    draggable.onDragEnd.listen(block.endDrag);
+    final dropzone = Dropzone(div, acceptor: block.workspace.blockAcceptor);
+    dropzone.onDrop.listen(block.drop);
+    dropzone.onDragEnter.listen( (e) => setOver(true) );
+    dropzone.onDragLeave.listen( (e) => setOver(false) );
   }
 
   void updateActionText() {
@@ -420,11 +420,33 @@ class Block {
     return escapedValue;
   }
 
+  bool updateDragOver() {
+    _blockDiv.classes.remove("nt-drag-over");
+    _blockDiv.classes.remove("nt-block-clause-drag-over");
+    bool isHighlightHandled = false;
+    if (children != null) {
+      isHighlightHandled = children.updateDragOver();
+    }
+    if (clauses != null) {
+      for (Clause clause in clauses) {
+        final clauseResult = clause.updateDragOver();
+        isHighlightHandled = isHighlightHandled || clauseResult;
+      }
+    }
+    if ((isDragOver || isDragNotchOver) && !isHighlightHandled) {
+      isHighlightHandled = true;
+      _blockDiv.classes.add("nt-drag-over");
+    }
+    return isHighlightHandled;
+  }
+
   void clearDragOver() {
     _blockDiv.classes.remove("nt-drag-over");
     _blockDiv.classes.remove("nt-block-clause-drag-over");
+    isDragOver = false;
+    isDragNotchOver = false;
     if (children != null) {
-      children.clearDragOver();
+       children.clearDragOver();
     }
     if (clauses != null) {
       for (Clause clause in clauses) {
@@ -433,115 +455,61 @@ class Block {
     }
   }
 
-  void setDragging(bool dragging) {
-    this.isDragging = dragging;
-    if (children != null) {
-      children.setDragging(dragging);
-    }
-    if (clauses != null) {
-      for (Clause clause in clauses) {
-        clause.setDragging(dragging);
-      }
-    }
-    for (Block sibling in _dragData.siblings) {
-      sibling.setDragging(dragging);
-    }
-  }
-
-  void startDrag(MouseEvent event) {
-    event.stopPropagation();
-    if (isDragging) {
-      return;
-    }
-
-    event.dataTransfer.setData(workspace.containerId, workspace.containerId);
-    if (this.required) {
-      event.dataTransfer.setData("starter", "starter");
-    }
-
-    setDragging(true);
+  void startDrag(DraggableEvent event) {
+    DragAcceptor.wasHandled = false;
+    DragAcceptor.isDragStarter = this.required;
 
     final blocks = new List<Block>() ..
       add(this) ..
       addAll(this._dragData.siblings);
 
-    Chain.redrawChain(this._dragImage, blocks, true);
+    Chain.redrawChain(this._dragImage.element, blocks, true);
 
-    event.dataTransfer.setDragImage(this._dragImage, 0, 0);
-
-    // This silliness is to avoid causing Chrome to freak out.  It immediately cancels
-    // any drag/drop operations if you change the DOM of the element that started the
-    // drag in the dragstart event.  -Jeremy B Jan-2020
-    (new Timer(Duration(milliseconds: 1), () {
-      workspace.removeBlocksFromSource(this._dragData);
-      workspace.enableTopDropZones();
-    }));
+    DragAcceptor.sourceContainerId = this.workspace.containerId;
+    DragAcceptor.dragStartOffset = event.startPosition - DragImage.getOffsetToRoot(event.draggableElement);
+    workspace.removeBlocksFromSource(this._dragData);
+    workspace.enableTopDropZones();
   }
 
-  void endDrag(MouseEvent event) {
-    workspace.clearDragOver();
-
-    if (workspace.hasDraggingBlocks) {
-      // our blocks weren't dropped anywhere, so reset
-      final newBlocks = workspace.consumeDraggingBlocks();
-      switch (_dragData.parentType) {
-
-        case "workspace-chain":
-          if (_dragData.blockIndex == 0) {
-            // new chain, we deleted the old one
-            workspace.createChain(newBlocks, x, y);
-          } else {
-            workspace.chains[_dragData.chainIndex].insertBlocks(_dragData.blockIndex, newBlocks);
-          }
-          break;
-
-        case "block-children":
-          final parentBlock = workspace.chains[_dragData.chainIndex].getBlockInstance(_dragData.parentInstanceId);
-          parentBlock.children.insertBlocks(_dragData.blockIndex, newBlocks);
-          break;
-
-        case "block-clause":
-          final parentBlock = workspace.chains[_dragData.chainIndex].getBlockInstance(_dragData.parentInstanceId);
-          parentBlock.clauses[_dragData.clauseIndex].insertBlocks(_dragData.blockIndex, newBlocks);
-          break;
-
-      }
-    }
-
-    setDragging(false);
-    _dragImage.innerHtml = "";
-    _dragImage.classes.remove("nt-chain-starter");
-    _dragImage.classes.remove("nt-chain-fragment");
+  void endDrag(DraggableEvent event) {
     workspace.disableTopDropZones();
-  }
-
-  bool enterDrag(MouseEvent event) {
-    event.stopPropagation();
     workspace.clearDragOver();
 
-    if (isDragging) {
-      return false;
-    }
-    if (!event.dataTransfer.types.contains(workspace.containerId) || event.dataTransfer.types.contains("starter")) {
-      return false;
+    if (!workspace.hasDraggingBlocks) {
+      return;
     }
 
-    _blockDiv.classes.add("nt-drag-over");
+    // our blocks weren't dropped anywhere, so reset
+    final newBlocks = workspace.consumeDraggingBlocks();
+    switch (_dragData.parentType) {
 
-    return false;
+      case "workspace-chain":
+        if (_dragData.blockIndex == 0) {
+          // new chain, we deleted the old one
+          workspace.createChain(newBlocks, x, y);
+        } else {
+          workspace.chains[_dragData.chainIndex].insertBlocks(_dragData.blockIndex, newBlocks);
+        }
+        break;
+
+      case "block-children":
+        final parentBlock = workspace.chains[_dragData.chainIndex].getBlockInstance(_dragData.parentInstanceId);
+        parentBlock.children.insertBlocks(_dragData.blockIndex, newBlocks);
+        break;
+
+      case "block-clause":
+        final parentBlock = workspace.chains[_dragData.chainIndex].getBlockInstance(_dragData.parentInstanceId);
+        parentBlock.clauses[_dragData.clauseIndex].insertBlocks(_dragData.blockIndex, newBlocks);
+        break;
+
+    }
   }
 
-  bool drop(MouseEvent event) {
-    event.preventDefault();
-    event.stopPropagation();
-    workspace.clearDragOver();
-
-    if (isDragging) {
-      return false;
+  void drop(DropzoneEvent event) {
+    if (DragAcceptor.wasHandled) {
+      return;
     }
-    if (!event.dataTransfer.types.contains(workspace.containerId) || event.dataTransfer.types.contains("starter")) {
-      return false;
-    }
+    DragAcceptor.wasHandled = true;
 
     final newBlocks = workspace.consumeDraggingBlocks();
 
@@ -566,8 +534,6 @@ class Block {
     Block changedBlock = newBlocks.elementAt(0);
     workspace.programChanged(new BlockChangedEvent(changedBlock));
     workspace.disableTopDropZones();
-
-    return false;
   }
 
   void resetOwnedBlocksDragData() {

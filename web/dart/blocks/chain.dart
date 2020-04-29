@@ -24,19 +24,22 @@ class Chain extends BlockCollection {
   int chainIndex;
 
   DivElement fragmentDiv;
+  bool isDragOver = false;
 
   // TODO: Starter/Fragment should really be explicit values in the data model
   bool get isFragment => blocks.isEmpty || !blocks[0].required;
 
   Chain(CodeWorkspace this.workspace);
 
-  DivElement draw(Element drag, int newChainIndex) {
+  DivElement draw(DragImage dragImage, int newChainIndex) {
     this.chainIndex = newChainIndex;
 
     fragmentDiv = new DivElement();
     fragmentDiv.classes.add("nt-fragment");
-    fragmentDiv.onDragEnter.listen( enterDrag );
-    fragmentDiv.onDrop.listen( drop );
+    final fragmentDropzone = Dropzone(fragmentDiv, acceptor: this.workspace.workspaceAcceptor);
+    fragmentDropzone.onDrop.listen(drop);
+    fragmentDropzone.onDragEnter.listen( (e) => isDragOver = true );
+    fragmentDropzone.onDragLeave.listen( (e) => isDragOver = false );
 
     _div = new DivElement();
     _div.classes.add("nt-chain");
@@ -48,7 +51,7 @@ class Chain extends BlockCollection {
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks.elementAt(i);
       final dragData = BlockDragData.workspaceChain(chainIndex, i, blocks.skip(i + 1));
-      block.draw(drag, dragData);
+      block.draw(dragImage, dragData);
     }
 
     Chain.redrawChain(_div, blocks, false, fragmentDiv: fragmentDiv);
@@ -78,8 +81,23 @@ class Chain extends BlockCollection {
     }
   }
 
+  bool updateDragOver() {
+    fragmentDiv.classes.remove("nt-drag-over");
+    bool isHighlightHandled = false;
+    for (Block block in blocks) {
+      final blockResult = block.updateDragOver();
+      isHighlightHandled = isHighlightHandled || blockResult;
+    }
+    if (isDragOver && !isHighlightHandled) {
+      isHighlightHandled = true;
+      fragmentDiv.classes.add("nt-drag-over");
+    }
+    return isHighlightHandled;
+  }
+
   void clearDragOver() {
     fragmentDiv.classes.remove("nt-drag-over");
+    isDragOver = false;
     for (Block block in blocks) {
       block.clearDragOver();
     }
@@ -147,39 +165,23 @@ class Chain extends BlockCollection {
     _div.style.top = "${top}px";
   }
 
-  bool enterDrag(MouseEvent event) {
-    event.preventDefault();
-    event.stopPropagation();
-    workspace.clearDragOver();
-
-    if (!event.dataTransfer.types.contains(workspace.containerId)) {
-      return false;
+  void drop(DropzoneEvent event) {
+    if (DragAcceptor.wasHandled) {
+      return;
     }
-
-    fragmentDiv.classes.add("nt-drag-over");
-
-    return false;
-  }
-
-  bool drop(MouseEvent event) {
-    event.preventDefault();
-    event.stopPropagation();
-    workspace.clearDragOver();
-
-    if (!event.dataTransfer.types.contains(workspace.containerId)) {
-      return false;
-    }
+    DragAcceptor.wasHandled = true;
 
     final oldFirst  = blocks[0];
     final newBlocks = workspace.consumeDraggingBlocks();
     final newFirst  = newBlocks.elementAt(0);
+    final offset = DragImage.getOffsetToRoot(this._div);
+    final dropLocation = event.position - offset;
     newFirst.x = oldFirst.x;
-    newFirst.y = oldFirst.y - FRAGMENT_HEIGHT + event.offset.y;
+    newFirst.y = oldFirst.y - FRAGMENT_HEIGHT + dropLocation.y;
     insertBlocks(0, newBlocks);
+
     workspace.programChanged(new BlockChangedEvent(newFirst));
     workspace.disableTopDropZones();
-
-    return false;
   }
 
   static Chain fromJSON(CodeWorkspace workspace, Map json) {

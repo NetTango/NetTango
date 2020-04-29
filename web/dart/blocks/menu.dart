@@ -56,18 +56,19 @@ class BlockMenu {
     return null;
   }
 
-  DivElement draw(DivElement drag) {
+  DivElement draw(DragImage dragImage) {
     _menuDiv = new DivElement() .. id = "${workspace.containerId}-menu";
     _menuDiv.classes.add("nt-menu");
 
     for (int i = 0; i < slots.length; i++) {
       Slot slot = slots[i];
-      _menuDiv.append(slot.draw(drag, i));
+      _menuDiv.append(slot.draw(dragImage, i));
     }
 
-    _menuDiv.onDragEnter.listen( (e) => enterDrag(e) );
-    _menuDiv.onDragOver.listen( (e) => e.preventDefault() );
-    _menuDiv.onDrop.listen( drop );
+    final dropZone = Dropzone(_menuDiv, acceptor: workspace.workspaceAcceptor);
+    dropZone.onDragEnter.listen( (e) { DragAcceptor.isOverMenu = true; this.updateDragOver(); } );
+    dropZone.onDragLeave.listen( (e) { DragAcceptor.isOverMenu = false; this.updateDragOver(); } );
+    dropZone.onDrop.listen(drop);
 
     updateLimits();
 
@@ -80,36 +81,23 @@ class BlockMenu {
     }
   }
 
-  void clearDragOver() {
-    _menuDiv.classes.remove("nt-menu-drag-over");
+  void updateDragOver() {
+    if (DragAcceptor.isOverMenu || (DragAcceptor.isOverContainer && !DragAcceptor.isOverWorkspace)) {
+      _menuDiv.classes.add("nt-menu-drag-over");
+    } else {
+      _menuDiv.classes.remove("nt-menu-drag-over");
+    }
   }
 
-  bool enterDrag(MouseEvent event) {
-    event.stopPropagation();
-    workspace.clearDragOver();
-
-    if (!event.dataTransfer.types.contains(workspace.containerId)) {
-      return false;
+  void drop(DropzoneEvent event) {
+    if (DragAcceptor.wasHandled) {
+      return;
     }
-    _menuDiv.classes.add("nt-menu-drag-over");
-    return false;
-  }
-
-  bool drop(MouseEvent event) {
-    event.stopPropagation();
-    event.preventDefault();
-    workspace.clearDragOver();
-
-    if (!event.dataTransfer.types.contains(workspace.containerId)) {
-      return false;
-    }
+    DragAcceptor.wasHandled = true;
 
     final oldBlocks = workspace.consumeDraggingBlocks();
-
     Block changedBlock = oldBlocks.elementAt(0);
     workspace.programChanged(new BlockChangedEvent(changedBlock));
     workspace.disableTopDropZones();
-
-    return false;
   }
 }

@@ -21,7 +21,7 @@ class CodeWorkspace {
 
   /// HTML Canvas ID
   String containerId;
-  DivElement container, spaceDiv, chainsDiv, drag, backdrop, dialog;
+  DivElement container, spaceDiv, chainsDiv, backdrop, dialog;
 
   CodeFormatter formatter;
 
@@ -48,11 +48,14 @@ class CodeWorkspace {
   BlockStyle containerBlockStyle;
   BlockStyle commandBlockStyle;
 
+  DragImage _dragImage;
   Iterable<Block> _draggingBlocks;
   Iterable<Block> get draggingBlocks => _draggingBlocks;
   set draggingBlocks(Iterable<Block> v) => _draggingBlocks = v;
   bool get hasDraggingBlocks => _draggingBlocks != null;
-  List<StreamSubscription> subscriptions = new List();
+
+  DragAcceptor workspaceAcceptor, blockAcceptor;
+  Dropzone containerDropzone;
 
 /**
  * Construct a code workspace from a JSON object
@@ -67,9 +70,12 @@ class CodeWorkspace {
     if (container == null) throw "No container element with ID $containerId found.";
     container.setInnerHtml("");
     container.classes.add("nt-container");
-    subscriptions.add(container.onDragEnter.listen( (e) => enterContainerDrag(e) ));
-    subscriptions.add(container.onDragOver.listen( (e) => e.preventDefault() ));
-    subscriptions.add(container.onDrop.listen( (e) => containerDrop(e) ));
+
+    this.workspaceAcceptor = DragAcceptor(this.containerId, true);
+    this.blockAcceptor     = DragAcceptor(this.containerId, false);
+
+    containerDropzone = Dropzone(container, acceptor: this.workspaceAcceptor);
+    containerDropzone.onDrop.listen(containerDrop);
 
     height = definition["height"] is int ? definition["height"] : 600;
     width  = definition["width"]  is int ? definition["width"]  : 450;
@@ -212,6 +218,11 @@ class CodeWorkspace {
     wrapper.classes.add("nt-workspace-wrapper");
     container.append(wrapper);
 
+    final drag = new DivElement();
+    drag.classes.add("nt-block-drag");
+    drag.classes.add("nt-chain");
+    wrapper.append(drag);
+
     backdrop = new DivElement() .. className = "nt-attribute-backdrop";
     backdrop.onClick.listen( (e) => backdrop.classes.remove("show") );
     dialog = new DivElement() .. className = "nt-attribute-dialog";
@@ -221,85 +232,61 @@ class CodeWorkspace {
 
     spaceDiv = new DivElement() .. id = "$containerId-space";
     spaceDiv.classes.add("nt-workspace");
-    spaceDiv.onDragEnter.listen( enterDrag );
-    spaceDiv.onDragOver.listen( (e) => e.preventDefault() );
-    spaceDiv.onDrop.listen( drop );
-    wrapper.append(spaceDiv);
 
-    drag = new DivElement();
-    drag.classes.add("nt-block-drag");
-    drag.classes.add("nt-chain");
-    spaceDiv.append(drag);
+    _dragImage = new DragImage(drag);
+
+    wrapper.append(spaceDiv);
 
     chainsDiv = new DivElement();
     spaceDiv.append(chainsDiv);
 
     for (int i = 0; i < chains.length; i++) {
       Chain chain = chains[i];
-      chain.draw(drag, i);
+      chain.draw(_dragImage, i);
     }
 
     redrawChains();
 
-    final menuDiv = menu.draw(drag);
+    final menuDiv = menu.draw(_dragImage);
     menuDiv.style.maxHeight = "${height}px";
     wrapper.append(menuDiv);
+
+    final spaceDropzone = Dropzone(spaceDiv, acceptor: this.workspaceAcceptor);
+    spaceDropzone.onDragEnter.listen( (e) { DragAcceptor.isOverWorkspace = true; menu.updateDragOver(); } );
+    spaceDropzone.onDragOver.listen( (e) => this.updateDragOver() );
+    spaceDropzone.onDragLeave.listen( (e) { DragAcceptor.isOverWorkspace = false; this.updateDragOver(); menu.updateDragOver(); } );
+    spaceDropzone.onDrop.listen(drop);
+    containerDropzone.onDragEnter.listen( (e) { DragAcceptor.isOverContainer = true; menu.updateDragOver(); }  );
+    containerDropzone.onDragLeave.listen( (e) { DragAcceptor.isOverContainer = false; menu.updateDragOver(); } );
 
     updateWorkspaceHeight();
   }
 
-  bool enterDrag(MouseEvent event) {
-    event.stopPropagation();
-    clearDragOver();
-
-    return false;
-  }
-
-  bool drop(MouseEvent event) {
-    event.stopPropagation();
-    event.preventDefault();
-    clearDragOver();
-
-    if (!event.dataTransfer.types.contains(containerId)) {
-      return false;
+  void drop(DropzoneEvent event) {
+    if (DragAcceptor.wasHandled) {
+      return;
     }
-
-    final blocks = consumeDraggingBlocks();
-    createChain(blocks, event.offset.x, event.offset.y);
-    Block changedBlock = blocks.elementAt(0);
-
-    programChanged(new BlockChangedEvent(changedBlock));
+    DragAcceptor.wasHandled = true;
     disableTopDropZones();
 
-    return false;
+    final blocks = consumeDraggingBlocks();
+    final offset = DragImage.getOffsetToRoot(this.chainsDiv);
+    final dropLocation = event.position - offset - DragAcceptor.dragStartOffset;
+    createChain(blocks, max(0, dropLocation.x.floor()), max(0, dropLocation.y.floor()));
+    Block changedBlock = blocks.elementAt(0);
+    programChanged(new BlockChangedEvent(changedBlock));
   }
 
-  bool enterContainerDrag(MouseEvent event) {
-    event.stopPropagation();
-    clearDragOver();
-
-    if (!event.dataTransfer.types.contains(containerId)) {
-      return false;
+  void containerDrop(DropzoneEvent event) {
+    if (DragAcceptor.wasHandled) {
+      return;
     }
-    menu._menuDiv.classes.add("nt-menu-drag-over");
-    return false;
-  }
-
-  bool containerDrop(MouseEvent event) {
-    event.stopPropagation();
-    event.preventDefault();
-    clearDragOver();
-
-    if (!event.dataTransfer.types.contains(containerId)) {
-      return false;
-    }
+    DragAcceptor.wasHandled = true;
+    disableTopDropZones();
 
     final oldBlocks = consumeDraggingBlocks();
     Block changedBlock = oldBlocks.elementAt(0);
     programChanged(new BlockChangedEvent(changedBlock));
-    disableTopDropZones();
-
-    return false;
   }
 
   Iterable<Block> consumeDraggingBlocks() {
@@ -312,7 +299,7 @@ class CodeWorkspace {
     Chain newChain = new Chain(this);
     int newChainIndex = chains.length;
     chains.add(newChain);
-    DivElement chainDiv = newChain.draw(drag, newChainIndex);
+    DivElement chainDiv = newChain.draw(_dragImage, newChainIndex);
     spaceDiv.append(chainDiv);
     newChain.addBlocks(newBlocks);
     repositionChain(newChain, x, y);
@@ -338,7 +325,6 @@ class CodeWorkspace {
         final slot = menu.slots[blockData.slotIndex];
         slot._slotDiv.classes.remove("nt-block-dragging");
         final instance = slot._newBlockInstance;
-        instance._blockDiv.style.pointerEvents = "";
         draggingBlocks = [instance];
         break;
 
@@ -400,8 +386,13 @@ class CodeWorkspace {
     }
   }
 
+  void updateDragOver() {
+    for (Chain chain in chains) {
+      chain.updateDragOver();
+    }
+  }
+
   void clearDragOver() {
-    menu.clearDragOver();
     for (Chain chain in chains) {
       chain.clearDragOver();
     }
@@ -541,8 +532,6 @@ class CodeWorkspace {
   }
 
   void removeEventListeners() {
-    for (StreamSubscription subscription in subscriptions) {
-      subscription.cancel();
-    }
+    containerDropzone.destroy();
   }
 }

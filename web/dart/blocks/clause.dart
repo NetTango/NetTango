@@ -20,7 +20,8 @@ class Clause extends BlockCollection {
   final Block owner;
   final int clauseIndex;
 
-  bool isDragging = false;
+  bool isDragOver = false;
+  bool isDragHeaderOver = false;
 
   Clause(this.owner, {this.clauseIndex = null}) {}
 
@@ -32,11 +33,12 @@ class Clause extends BlockCollection {
     return clause;
   }
 
-  DivElement draw(Element drag, DivElement headerDiv) {
+  DivElement draw(DragImage dragImage, DivElement headerDiv) {
     _div = new DivElement();
     _div.classes.add("nt-clause");
 
     setupClauseHeaderLiseners(headerDiv);
+    wireEvents(this, _div);
 
     if (blocks.isEmpty) {
       setEmpty();
@@ -47,7 +49,7 @@ class Clause extends BlockCollection {
       Block block = blocks[i];
       final siblings = blocks.skip(i + 1);
       final dragData = BlockDragData.blockOwned(owner._dragData.chainIndex, i, owner.instanceId, siblings, clauseIndex: clauseIndex);
-      block.draw(drag, dragData);
+      block.draw(dragImage, dragData);
     }
 
     BlockCollection.appendBlocks(_div, blocks, "nt-block-clause");
@@ -59,9 +61,8 @@ class Clause extends BlockCollection {
     _div.classes.add("nt-clause-empty");
     _div.append(Notch.drawClause(false, this));
 
-    final dropZone = new DivElement() .. className = "nt-clause-drop";
-    _div.append(dropZone);
-    wireEvents(this, dropZone);
+    final dropElement = new DivElement() .. className = "nt-clause-drop";
+    _div.append(dropElement);
 
     _div.append(Notch.drawClause(true,  this));
   }
@@ -98,62 +99,53 @@ class Clause extends BlockCollection {
   }
 
   void setupClauseHeaderLiseners(DivElement headerNode) {
-    headerNode.onDragEnter.listen( enterClauseHeaderDrag );
-    headerNode.onDragOver.listen( (e) => e.preventDefault() );
-    headerNode.onDrop.listen( dropClauseHeader );
+    final dropzone = Dropzone(headerNode, acceptor: owner.workspace.blockAcceptor);
+    dropzone.onDrop.listen(dropClauseHeader);
+    dropzone.onDragEnter.listen( (e) => isDragHeaderOver = true );
+    dropzone.onDragLeave.listen( (e) => isDragHeaderOver = false );
   }
 
   static void wireEvents(Clause clause, DivElement div) {
-    div.onDragEnter.listen( clause.enterClauseDrag );
-    div.onDragOver.listen( (e) => e.preventDefault() );
-    div.onDrop.listen( clause.dropClause );
+    final dropzone = Dropzone(div, acceptor: clause.owner.workspace.blockAcceptor);
+    dropzone.onDrop.listen(clause.dropClause);
+    dropzone.onDragEnter.listen( (e) => clause.isDragOver = true );
+    dropzone.onDragLeave.listen( (e) => clause.isDragOver = false );
   }
 
-  void setDragging(bool dragging) {
-    isDragging = dragging;
+  bool updateDragOver() {
+    _div.classes.remove("nt-block-clause-drag-over");
+    if (blocks.isNotEmpty) { blocks[0]._blockDiv.classes.remove("nt-block-clause-drag-over"); }
+    bool isHighlightHandled = false;
     for (Block block in blocks) {
-      block.setDragging(dragging);
+      final blockResult = block.updateDragOver();
+      isHighlightHandled = isHighlightHandled || blockResult;
     }
+    if ((isDragOver || isDragHeaderOver) && !isHighlightHandled) {
+      isHighlightHandled = true;
+      if (blocks.isEmpty) {
+        _div.classes.add("nt-block-clause-drag-over");
+      } else {
+        blocks[0]._blockDiv.classes.add("nt-block-clause-drag-over");
+      }
+    }
+    return isHighlightHandled;
   }
 
   void clearDragOver() {
     _div.classes.remove("nt-block-clause-drag-over");
+    if (blocks.isNotEmpty) { blocks[0]._blockDiv.classes.remove("nt-block-clause-drag-over"); }
+    isDragOver = false;
+    isDragHeaderOver = false;
     for (Block block in blocks) {
       block.clearDragOver();
     }
   }
 
-  bool enterClauseHeaderDrag(MouseEvent event) {
-    event.stopPropagation();
-    owner.workspace.clearDragOver();
-
-    if (isDragging) {
-      return false;
+  void dropClauseHeader(DropzoneEvent event) {
+    if (DragAcceptor.wasHandled) {
+      return;
     }
-    if (!event.dataTransfer.types.contains(owner.workspace.containerId) || event.dataTransfer.types.contains("starter")) {
-      return false;
-    }
-
-    if (blocks.isEmpty) {
-      _div.classes.add("nt-block-clause-drag-over");
-    } else {
-      blocks[0]._blockDiv.classes.add("nt-block-clause-drag-over");
-    }
-
-    return false;
-  }
-
-  bool dropClauseHeader(MouseEvent event) {
-    event.preventDefault();
-    event.stopPropagation();
-    owner.workspace.clearDragOver();
-
-    if (isDragging) {
-      return false;
-    }
-    if (!event.dataTransfer.types.contains(owner.workspace.containerId) || event.dataTransfer.types.contains("starter")) {
-      return false;
-    }
+    DragAcceptor.wasHandled = true;
 
     final newBlocks = owner.workspace.consumeDraggingBlocks();
 
@@ -162,43 +154,13 @@ class Clause extends BlockCollection {
 
     Block changedBlock = newBlocks.elementAt(0);
     owner.workspace.programChanged(new BlockChangedEvent(changedBlock));
-
-    return false;
   }
 
-  bool enterClauseDrag(MouseEvent event) {
-    event.stopPropagation();
-    owner.workspace.clearDragOver();
-
-    if (blocks.isNotEmpty) {
-      return false;
+  void dropClause(DropzoneEvent event) {
+    if (DragAcceptor.wasHandled) {
+      return;
     }
-    if (isDragging) {
-      return false;
-    }
-    if (!event.dataTransfer.types.contains(owner.workspace.containerId) || event.dataTransfer.types.contains("starter")) {
-      return false;
-    }
-
-    _div.classes.add("nt-block-clause-drag-over");
-
-    return false;
-  }
-
-  bool dropClause(MouseEvent event) {
-    event.preventDefault();
-    event.stopPropagation();
-    owner.workspace.clearDragOver();
-
-    if (blocks.isNotEmpty) {
-      return false;
-    }
-    if (isDragging) {
-      return false;
-    }
-    if (!event.dataTransfer.types.contains(owner.workspace.containerId) || event.dataTransfer.types.contains("starter")) {
-      return false;
-    }
+    DragAcceptor.wasHandled = true;
 
     final newBlocks = owner.workspace.consumeDraggingBlocks();
 
@@ -207,8 +169,6 @@ class Clause extends BlockCollection {
 
     Block changedBlock = newBlocks.elementAt(0);
     owner.workspace.programChanged(new BlockChangedEvent(changedBlock));
-
-    return false;
   }
 
   void insertBlocks(int blockIndex, Iterable<Block> newBlocks) {
