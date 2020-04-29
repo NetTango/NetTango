@@ -24,41 +24,6 @@ class BlockDragData {
   int slotIndex;
   Iterable<Block> siblings;
 
-  Map toJSON() {
-    Map dragData = {
-      "parent-type": parentType,
-      "workspace-chain-index": chainIndex
-    };
-    setIfNotNull(dragData, "parent-instance-id", parentInstanceId);
-    setIfNotNull(dragData, "clause-index", clauseIndex);
-    setIfNotNull(dragData, "block-index", blockIndex);
-    setIfNotNull(dragData, "slot-index", slotIndex);
-    return dragData;
-  }
-
-  static BlockDragData fromJSON(Map json) {
-    String parentType    = json["parent-type"];
-    int chainIndex       = json["workspace-chain-index"];
-    int blockIndex       = json["block-index"];
-    int parentInstanceId = json["parent-instance-id"];
-    int clauseIndex      = json["clause-index"];
-    int slotIndex        = json["slot-index"];
-    return new BlockDragData() ..
-      chainIndex       = chainIndex ..
-      parentType       = parentType ..
-      parentInstanceId = parentInstanceId ..
-      clauseIndex      = clauseIndex ..
-      blockIndex       = blockIndex ..
-      slotIndex        = slotIndex ..
-      siblings         = new List<Block>();
-  }
-
-  static void setIfNotNull(Map data, String key, Object value) {
-    if (value != null) {
-      data[key] = value;
-    }
-  }
-
   void reset() {
     chainIndex       = null;
     parentType       = null;
