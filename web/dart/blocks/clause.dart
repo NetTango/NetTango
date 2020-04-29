@@ -37,8 +37,15 @@ class Clause extends BlockCollection {
     _div = new DivElement();
     _div.classes.add("nt-clause");
 
-    setupClauseHeaderLiseners(headerDiv);
-    wireEvents(this, _div);
+    final headerDropzone = Dropzone(headerDiv, acceptor: owner.workspace.blockAcceptor);
+    headerDropzone.onDrop.listen(drop);
+    headerDropzone.onDragEnter.listen( (e) => isDragHeaderOver = true );
+    headerDropzone.onDragLeave.listen( (e) => isDragHeaderOver = false );
+
+    final dropzone = Dropzone(_div, acceptor: owner.workspace.blockAcceptor);
+    dropzone.onDrop.listen(drop);
+    dropzone.onDragEnter.listen( (e) => isDragOver = true );
+    dropzone.onDragLeave.listen( (e) => isDragOver = false );
 
     if (blocks.isEmpty) {
       setEmpty();
@@ -98,20 +105,6 @@ class Clause extends BlockCollection {
     BlockCollection.appendBlocks(_div, blocks, "nt-block-clause");
   }
 
-  void setupClauseHeaderLiseners(DivElement headerNode) {
-    final dropzone = Dropzone(headerNode, acceptor: owner.workspace.blockAcceptor);
-    dropzone.onDrop.listen(dropClauseHeader);
-    dropzone.onDragEnter.listen( (e) => isDragHeaderOver = true );
-    dropzone.onDragLeave.listen( (e) => isDragHeaderOver = false );
-  }
-
-  static void wireEvents(Clause clause, DivElement div) {
-    final dropzone = Dropzone(div, acceptor: clause.owner.workspace.blockAcceptor);
-    dropzone.onDrop.listen(clause.dropClause);
-    dropzone.onDragEnter.listen( (e) => clause.isDragOver = true );
-    dropzone.onDragLeave.listen( (e) => clause.isDragOver = false );
-  }
-
   bool updateDragOver() {
     _div.classes.remove("nt-block-clause-drag-over");
     if (blocks.isNotEmpty) { blocks[0]._blockDiv.classes.remove("nt-block-clause-drag-over"); }
@@ -141,22 +134,7 @@ class Clause extends BlockCollection {
     }
   }
 
-  void dropClauseHeader(DropzoneEvent event) {
-    if (DragAcceptor.wasHandled) {
-      return;
-    }
-    DragAcceptor.wasHandled = true;
-
-    final newBlocks = owner.workspace.consumeDraggingBlocks();
-
-    insertBlocks(0, newBlocks);
-    _div.classes.remove("nt-clause-empty");
-
-    Block changedBlock = newBlocks.elementAt(0);
-    owner.workspace.programChanged(new BlockChangedEvent(changedBlock));
-  }
-
-  void dropClause(DropzoneEvent event) {
+  void drop(DropzoneEvent event) {
     if (DragAcceptor.wasHandled) {
       return;
     }
