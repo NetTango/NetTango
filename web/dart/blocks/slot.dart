@@ -91,21 +91,20 @@ class Slot {
   }
 
   void startDrag(DraggableEvent event) {
-    DragAcceptor.wasHandled = false;
-    DragAcceptor.isDragStarter = this.block.required;
     _newBlockInstance = Block.cloneSlotForChain(this.block);
-
     BlockDragData dragData = BlockDragData.newBlock(_slotIndex);
     _newBlockInstance.draw(_dragImage, dragData);
+
+    DragAcceptor.startDrag(_newBlockInstance, event);
     Chain.redrawChain(_dragImage.element, [_newBlockInstance], false);
 
-    DragAcceptor.sourceContainerId = this.workspace.containerId;
-    DragAcceptor.dragStartOffset = event.startPosition - DragImage.getOffsetToRoot(event.draggableElement);
     workspace.removeBlocksFromSource(dragData);
     workspace.enableTopDropZones();
   }
 
   void endDrag(DraggableEvent event) {
+    DragAcceptor.endDrag();
+
     _newBlockInstance = null;
     workspace.disableTopDropZones();
     workspace.clearDragOver();

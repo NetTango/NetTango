@@ -390,7 +390,7 @@ class CodeWorkspace {
     for (Chain chain in chains) {
       chain.clearDragOver();
     }
-    menu.clearDragOver();
+    menu.updateDragOver();
   }
 
   void _updateWorkspaceForChanges() {

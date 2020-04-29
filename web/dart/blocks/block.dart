@@ -450,8 +450,7 @@ class Block {
   }
 
   void startDrag(DraggableEvent event) {
-    DragAcceptor.wasHandled = false;
-    DragAcceptor.isDragStarter = this.required;
+    DragAcceptor.startDrag(this, event);
 
     final blocks = new List<Block>() ..
       add(this) ..
@@ -459,13 +458,13 @@ class Block {
 
     Chain.redrawChain(this._dragImage.element, blocks, true);
 
-    DragAcceptor.sourceContainerId = this.workspace.containerId;
-    DragAcceptor.dragStartOffset = event.startPosition - DragImage.getOffsetToRoot(event.draggableElement);
     workspace.removeBlocksFromSource(this._dragData);
     workspace.enableTopDropZones();
   }
 
   void endDrag(DraggableEvent event) {
+    DragAcceptor.endDrag();
+
     workspace.disableTopDropZones();
     workspace.clearDragOver();
 

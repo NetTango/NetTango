@@ -1,6 +1,6 @@
 /*
  * NetTango
- * Copyright (c) 2019 Michael S. Horn, Uri Wilensky, and Corey Brady
+ * Copyright (c) 2020 Michael S. Horn, Uri Wilensky, and Corey Brady
  *
  * Northwestern University
  * 2120 Campus Drive
@@ -13,9 +13,13 @@
  * material are those of the author(s) and do not necessarily reflect the views
  * of the National Science Foundation (NSF).
  */
+
 part of NetTango;
 
 class DragAcceptor extends Acceptor {
+  // Ideally these would not be static/global values, but for now this works for a single drag at a time.
+  // If we ever want to support multi-drag, these could be moved into their own class, and some way of
+  // associating each drag with its drag state would have to be implemented.  -Jeremy B April 2020
   static String sourceContainerId;
   static Point dragStartOffset;
   static bool isDragStarter = false;
@@ -23,6 +27,20 @@ class DragAcceptor extends Acceptor {
   static bool isOverMenu = false;
   static bool isOverWorkspace = false;
   static bool isOverContainer = false;
+
+  static startDrag(Block firstBlock, DraggableEvent startEvent) {
+    DragAcceptor.sourceContainerId = firstBlock.workspace.containerId;
+    DragAcceptor.dragStartOffset = startEvent.startPosition - DragImage.getOffsetToRoot(startEvent.draggableElement);
+    DragAcceptor.isDragStarter = firstBlock.required;
+    DragAcceptor.wasHandled = false;
+  }
+
+  static endDrag() {
+    DragAcceptor.wasHandled = true;
+    DragAcceptor.isOverMenu = false;
+    DragAcceptor.isOverContainer = false;
+    DragAcceptor.isOverWorkspace = false;
+  }
 
   String containerId;
   bool allowStarters;
