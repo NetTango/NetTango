@@ -41,7 +41,7 @@ class Block {
   String note;
 
   /// block dimensions and position
-  num x = 0.0, y = 0.0;
+  int x = 0, y = 0;
 
   /// parameters for this block (optional)
   Map<int, Attribute> params = new Map<int, Attribute>();
@@ -257,12 +257,6 @@ class Block {
       }
     }
     return null;
-  }
-
-  /// move a single block to a location
-  void moveBlock(num x, num y) {
-    this.x = x;
-    this.y = y;
   }
 
   String getStyleClass() {

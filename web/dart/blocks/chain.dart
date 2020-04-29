@@ -177,7 +177,7 @@ class Chain extends BlockCollection {
     final offset = DragImage.getOffsetToRoot(this._div);
     final dropLocation = event.position - offset;
     newFirst.x = oldFirst.x;
-    newFirst.y = oldFirst.y - FRAGMENT_HEIGHT + dropLocation.y;
+    newFirst.y = oldFirst.y - FRAGMENT_HEIGHT + dropLocation.y.floor();
     insertBlocks(0, newBlocks);
 
     workspace.programChanged(new BlockChangedEvent(newFirst));
