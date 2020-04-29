@@ -398,7 +398,7 @@
 }
 
 .nt-block-drag {
-  display: none;
+  visibility: hidden;
   position: absolute;
   z-index: 1;
 }

@@ -27,18 +27,9 @@ class DragImage extends AvatarHandler {
     avatar = element;
     // move the drag display "home" to calc the root offset
     setLeftTop(Point(0, 0));
-    avatar.style.display = "block";
     final avatarOffset = getOffsetToRoot(avatar);
     final draggableOffset = getOffsetToRoot(draggable);
     setLeftTop(draggableOffset - avatarOffset);
-  }
-
-  static Point getOffsetTo(Element element, String className) {
-    if (element.parent == null || element.parent.classes.contains(className)) {
-      return element.offset.topLeft;
-    } else {
-      return element.offset.topLeft + getOffsetTo(element.parent, className);
-    }
   }
 
   static Point getOffsetToRoot(Element element) {
@@ -52,13 +43,14 @@ class DragImage extends AvatarHandler {
   @override
   void drag(Point startPosition, Point position) {
     setTranslate(position - startPosition);
+    avatar.style.visibility = "visible";
   }
 
   @override
   void dragEnd(Point startPosition, Point position) {
     element.classes.remove("nt-chain-starter");
     element.classes.remove("nt-chain-fragment");
-    element.style.display = null;
+    element.style.visibility = null;
   }
 
 }
