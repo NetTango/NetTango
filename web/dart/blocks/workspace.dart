@@ -263,9 +263,6 @@ class CodeWorkspace {
   }
 
   void drop(DropzoneEvent event) {
-    if (DragAcceptor.wasHandled) {
-      return;
-    }
     DragAcceptor.wasHandled = true;
     disableTopDropZones();
 
@@ -278,9 +275,6 @@ class CodeWorkspace {
   }
 
   void containerDrop(DropzoneEvent event) {
-    if (DragAcceptor.wasHandled) {
-      return;
-    }
     DragAcceptor.wasHandled = true;
     disableTopDropZones();
 
@@ -396,6 +390,7 @@ class CodeWorkspace {
     for (Chain chain in chains) {
       chain.clearDragOver();
     }
+    menu.clearDragOver();
   }
 
   void _updateWorkspaceForChanges() {

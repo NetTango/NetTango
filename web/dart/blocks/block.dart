@@ -500,9 +500,6 @@ class Block {
   }
 
   void drop(DropzoneEvent event) {
-    if (DragAcceptor.wasHandled) {
-      return;
-    }
     DragAcceptor.wasHandled = true;
 
     final newBlocks = workspace.consumeDraggingBlocks();

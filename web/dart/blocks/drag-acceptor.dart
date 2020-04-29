@@ -31,6 +31,6 @@ class DragAcceptor extends Acceptor {
 
   @override
   bool accepts(Element draggableElement, int draggableId, Element dropzoneElement) {
-    return this.containerId == DragAcceptor.sourceContainerId && (this.allowStarters || !DragAcceptor.isDragStarter);
+    return !DragAcceptor.wasHandled && this.containerId == DragAcceptor.sourceContainerId && (this.allowStarters || !DragAcceptor.isDragStarter);
   }
 }

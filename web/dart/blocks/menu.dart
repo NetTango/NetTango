@@ -89,10 +89,14 @@ class BlockMenu {
     }
   }
 
+  void clearDragOver() {
+    DragAcceptor.isOverMenu = false;
+    DragAcceptor.isOverContainer = false;
+    DragAcceptor.isOverWorkspace = false;
+    _menuDiv.classes.remove("nt-menu-drag-over");
+  }
+
   void drop(DropzoneEvent event) {
-    if (DragAcceptor.wasHandled) {
-      return;
-    }
     DragAcceptor.wasHandled = true;
 
     final oldBlocks = workspace.consumeDraggingBlocks();

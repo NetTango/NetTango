@@ -166,9 +166,6 @@ class Chain extends BlockCollection {
   }
 
   void drop(DropzoneEvent event) {
-    if (DragAcceptor.wasHandled) {
-      return;
-    }
     DragAcceptor.wasHandled = true;
 
     final oldFirst  = blocks[0];

@@ -135,9 +135,6 @@ class Clause extends BlockCollection {
   }
 
   void drop(DropzoneEvent event) {
-    if (DragAcceptor.wasHandled) {
-      return;
-    }
     DragAcceptor.wasHandled = true;
 
     final newBlocks = owner.workspace.consumeDraggingBlocks();
