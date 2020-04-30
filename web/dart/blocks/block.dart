@@ -324,13 +324,13 @@ class Block {
     headerNode.append(propertiesDiv);
 
     if (properties.length > 0) {
-      _propertiesToggle = new Toggle( (bool isOn) {
+      _propertiesToggle = new Toggle(propertiesDisplay != "hidden", (bool isOn) {
         propertiesDisplay = isOn ? "shown" : "hidden";
         propertiesDiv.classes.toggle("nt-block-properties-hidden");
         workspace.programChanged(new BlockChangedEvent(this));
       });
       if (propertiesDisplay == "hidden") {
-        _propertiesToggle.toggle();
+        propertiesDiv.classes.add("nt-block-properties-hidden");
       }
       _actionDiv.append(_propertiesToggle.div);
     }

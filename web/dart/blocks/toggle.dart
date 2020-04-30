@@ -24,14 +24,11 @@ class Toggle {
   bool isOn;
   Function onChange;
 
-  Toggle(Function this.onChange) {
-    isOn = true;
-
+  Toggle(bool this.isOn, Function this.onChange) {
     div = new DivElement();
     div.classes.add("nt-toggle");
-    div.innerText = onGlyph;
-
-    div.onClick.listen( click );
+    div.innerText = isOn ? onGlyph : offGlyph;
+    div.onClick.listen(click);
   }
 
   void click(MouseEvent event) {
@@ -41,11 +38,7 @@ class Toggle {
 
   void toggle() {
     isOn = !isOn;
-    if (isOn) {
-      div.innerText = onGlyph;
-    } else {
-      div.innerText = offGlyph;
-    }
+    div.innerText = isOn ? onGlyph : offGlyph;
     onChange(isOn);
   }
 }
