@@ -36,6 +36,10 @@ class Toggle {
 
   void click(MouseEvent event) {
     event.stopPropagation();
+    toggle();
+  }
+
+  void toggle() {
     isOn = !isOn;
     if (isOn) {
       div.innerText = onGlyph;

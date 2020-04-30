@@ -49,6 +49,7 @@ class Block {
   /// properties for this block (optional)
   /// properties are just named paramters that get listed vertically
   Map<int, Attribute> properties = new Map<int, Attribute>();
+  String propertiesDisplay = "shown";
 
   int nextParamId = 0;
 
@@ -143,6 +144,7 @@ class Block {
           block.properties[prop.id] = prop;
         }
       }
+      block.propertiesDisplay = toStr(json["propertiesDisplay"], "shown");
     }
 
     return block;
@@ -226,6 +228,7 @@ class Block {
       for (Attribute prop in properties.values) {
         data["properties"].add(prop.toJSON());
       }
+      data["propertiesDisplay"] = this.propertiesDisplay;
     }
     return data;
   }
@@ -321,7 +324,14 @@ class Block {
     headerNode.append(propertiesDiv);
 
     if (properties.length > 0) {
-      _propertiesToggle = new Toggle( (isOn) => propertiesDiv.classes.toggle("nt-block-properties-hidden") );
+      _propertiesToggle = new Toggle( (bool isOn) {
+        propertiesDisplay = isOn ? "shown" : "hidden";
+        propertiesDiv.classes.toggle("nt-block-properties-hidden");
+        workspace.programChanged(new BlockChangedEvent(this));
+      });
+      if (propertiesDisplay == "hidden") {
+        _propertiesToggle.toggle();
+      }
       _actionDiv.append(_propertiesToggle.div);
     }
 

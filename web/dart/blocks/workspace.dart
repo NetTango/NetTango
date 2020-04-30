@@ -463,6 +463,7 @@ class CodeWorkspace {
       block.y = json['y'];
     }
 
+    block.propertiesDisplay = toStr(json["propertiesDisplay"], "shown");
     _restoreParams(block, json['params'], json['properties']);
 
     if (json['children'] is List) {
