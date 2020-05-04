@@ -459,8 +459,8 @@ class CodeWorkspace {
     Block block = proto.clone();
 
     if (json['x'] is num && json['y'] is num) {
-      block.x = json['x'];
-      block.y = json['y'];
+      block.x = json['x'].floor();
+      block.y = json['y'].floor();
     }
 
     block.propertiesDisplay = toStr(json["propertiesDisplay"], "shown");
