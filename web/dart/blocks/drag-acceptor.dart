@@ -27,6 +27,8 @@ class DragAcceptor extends Acceptor {
   static bool isOverMenu = false;
   static bool isOverWorkspace = false;
   static bool isOverContainer = false;
+  static int oldChainX;
+  static int oldChainY;
 
   static startDrag(Block firstBlock, DraggableEvent startEvent) {
     DragAcceptor.sourceContainerId = firstBlock.workspace.containerId;

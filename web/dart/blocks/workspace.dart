@@ -31,7 +31,7 @@ class CodeWorkspace {
   int nextBlockInstanceId = 0;
 
   /// save a copy of the workspace definition object for the save() function
-  Map definition;
+  JsObject definition;
 
   /// block menu
   BlockMenu menu;
@@ -80,7 +80,7 @@ class CodeWorkspace {
     height = definition["height"] is int ? definition["height"] : 600;
     width  = definition["width"]  is int ? definition["width"]  : 450;
 
-    if (definition.containsKey("blockStyles")) {
+    if (definition.hasProperty("blockStyles")) {
       starterBlockStyle   = BlockStyle.fromJSON(definition["blockStyles"]["starterBlockStyle"],   BlockStyle.DEFAULT_STARTER_COLOR);
       containerBlockStyle = BlockStyle.fromJSON(definition["blockStyles"]["containerBlockStyle"], BlockStyle.DEFAULT_CONTAINER_COLOR);
       commandBlockStyle   = BlockStyle.fromJSON(definition["blockStyles"]["commandBlockStyle"],   BlockStyle.DEFAULT_COMMAND_COLOR);
@@ -99,7 +99,7 @@ class CodeWorkspace {
     // initialize block menu
     //--------------------------------------------------------
     menu = new BlockMenu(this);
-    if (definition['blocks'] is List) {
+    if (definition['blocks'] is JsArray) {
       // pre-check block IDs for our next one, as they may be out of order
       // and we'll need to set any that aren't set (new blocks) while processing
       for (var b in definition['blocks']) {
@@ -124,21 +124,21 @@ class CodeWorkspace {
     //--------------------------------------------------------
     // initialize global variables
     //--------------------------------------------------------
-    if (definition['variables'] is List) {
+    if (definition['variables'] is JsArray) {
       variables = definition['variables'];
     }
 
     //--------------------------------------------------------
     // initialize expression builder
     //--------------------------------------------------------
-    if (definition['expressions'] is List) {
+    if (definition['expressions'] is JsArray) {
       expressions = definition['expressions'];
     }
 
     //--------------------------------------------------------
     // saved program state
     //--------------------------------------------------------
-    if (definition['program'] is Map) {
+    if (definition['program'] is JsObject) {
       _restoreProgram(definition['program']);
     }
 
@@ -158,7 +158,7 @@ class CodeWorkspace {
   void programChanged(ProgramChangedEvent event) {
     try {
       _updateWorkspaceForChanges();
-      js.context["NetTango"].callMethod("_relayCallback", [ containerId, event.toJS() ]);
+      context["NetTango"].callMethod("_relayCallback", [ containerId, event.toJS() ]);
     } catch (e) {
       print("Unable to relay program changed event to Javascript");
     }
@@ -172,12 +172,12 @@ class CodeWorkspace {
 /**
  * Returns a JSON object representing the program's parse tree
  */
-  Map exportParseTree(bool includeRequired) {
-    Map json = {
+  JsObject exportParseTree(bool includeRequired) {
+    final json = JsObject.jsify({
       "chains": []
-    };
+    });
     for (Chain chain in chains) {
-      json["chains"].add(chain.exportParseTree());
+      json["chains"].add(chain.toJSON());
     }
 
     if (includeRequired) {
@@ -296,23 +296,24 @@ class CodeWorkspace {
     DivElement chainDiv = newChain.draw(_dragImage, newChainIndex);
     spaceDiv.append(chainDiv);
     newChain.addBlocks(newBlocks);
-    repositionChain(newChain, x, y);
+    newChain.updatePosition(x, y);
   }
 
-  Iterable<Block> removeChain(int chainIndex) {
+  Iterable<Block> removeChainForDrag(int chainIndex) {
     Chain oldChain = chains[chainIndex];
+    DragAcceptor.oldChainX = oldChain.x;
+    DragAcceptor.oldChainY = oldChain.y;
     final blocks = oldChain.blocks;
     chains.removeAt(chainIndex);
     oldChain._div.remove();
     for (int i = 0; i < chains.length; i++) {
       Chain chain = chains[i];
       chain.resetDragData(i);
-      chain.updatePosition();
     }
     return blocks;
   }
 
-  void removeBlocksFromSource(BlockDragData blockData) {
+  void removeBlocksForDrag(BlockDragData blockData) {
     switch (blockData.parentType) {
 
       case "new-block":
@@ -324,7 +325,7 @@ class CodeWorkspace {
 
       case "workspace-chain":
         if (blockData.blockIndex == 0) {
-          draggingBlocks = removeChain(blockData.chainIndex);
+          draggingBlocks = removeChainForDrag(blockData.chainIndex);
         } else {
           draggingBlocks = chains[blockData.chainIndex].removeBlocks(blockData.blockIndex);
         }
@@ -351,21 +352,11 @@ class CodeWorkspace {
 
   void redrawChains() {
     final sortedChains = chains.toList();
-    sortedChains.sort((c1, c2) => c1.blocks.first.y.compareTo(c2.blocks.first.y));
+    sortedChains.sort((c1, c2) => c1.y.compareTo(c2.y));
     chainsDiv.innerHtml = "";
     for (Chain chain in sortedChains) {
       chainsDiv.append(chain._div);
     }
-  }
-
-  void repositionChain(Chain chain, int x, int y) {
-    if (!chain.blocks.isEmpty) {
-      Block first = chain.blocks[0];
-      first.x = x;
-      first.y = y;
-      chain.updatePosition();
-    }
-    redrawChains();
   }
 
   void enableTopDropZones() {
@@ -424,21 +415,31 @@ class CodeWorkspace {
   }
 
   /// restore a constructed program from a previously saved state
-  void _restoreProgram(Map json) {
-    if (json['chains'] is List) {
+  void _restoreProgram(JsObject json) {
+    if (json['chains'] is JsArray) {
       for (var chain in json['chains']) {
-        if (chain is List) {
+        if (chain is JsObject) {
           _restoreChain(chain);
         }
       }
     }
   }
 
-  void _restoreChain(List chainJson) {
+  void _restoreChain(JsObject chainJson) {
     Chain chain = new Chain(this);
+
+    if (chainJson['x'] is num && chainJson['y'] is num) {
+      chain.x = chainJson['x'].floor();
+      chain.y = chainJson['y'].floor();
+    }
+
     chains.add(chain);
-    for (var b in chainJson) {
-      if (b is Map) {
+    if (chainJson['blocks'] is! JsArray) {
+      return;
+    }
+
+    for (var b in chainJson['blocks']) {
+      if (b is JsObject) {
         Block block = _restoreBlock(b);
         if (block != null) {
           chain.blocks.add(block);
@@ -448,7 +449,7 @@ class CodeWorkspace {
   }
 
   /// restore a block from a previously saved program state
-  Block _restoreBlock(Map json) {
+  Block _restoreBlock(JsObject json) {
     Block proto = menu.getBlockById(json["id"]);
     if (proto == null) {
       print("No prototype block found for id: ${json["id"]}");
@@ -458,18 +459,13 @@ class CodeWorkspace {
 
     Block block = proto.clone();
 
-    if (json['x'] is num && json['y'] is num) {
-      block.x = json['x'].floor();
-      block.y = json['y'].floor();
-    }
-
     block.propertiesDisplay = toStr(json["propertiesDisplay"], "shown");
     _restoreParams(block, json['params'], json['properties']);
 
-    if (json['children'] is List) {
+    if (json['children'] is JsArray) {
       block.children = new Clause(block);
       for (var childJson in json['children']) {
-        if (childJson is Map) {
+        if (childJson is JsObject) {
           Block child = _restoreBlock(childJson);
           if (child != null) {
             block.children.blocks.add(child);
@@ -478,11 +474,11 @@ class CodeWorkspace {
       }
     }
 
-    if (json['clauses'] is List) {
+    if (json['clauses'] is JsArray) {
       block.clauses = new List<Clause>();
       int clauseIndex = 0;
       for (var clauseJson in json['clauses']) {
-        if (clauseJson is Map && clauseJson['children'] is List) {
+        if (clauseJson is JsObject && clauseJson['children'] is JsArray) {
           Clause clause = new Clause(block, clauseIndex: clauseIndex);
           block.clauses.add(clause);
           for (var childJson in clauseJson['children']) {
@@ -500,12 +496,12 @@ class CodeWorkspace {
   }
 
   /// restore parameters for a block from a previously saved program
-  void _restoreParams(Block block, List params, List properties) {
-    if (params is List) {
-      for (var param in params) {
-        if (param is Map && param.containsKey('id') && param.containsKey('value') && block.params.containsKey(param['id'])) {
+  void _restoreParams(Block block, JsArray params, JsArray properties) {
+    if (params is JsArray) {
+      for (JsObject param in params) {
+        if (param is JsObject && param.hasProperty('id') && param.hasProperty('value') && block.params.containsKey(param['id'])) {
           final blockParam = block.params[param['id']];
-          if (param["value"] is Map && ![ "bool", "num" ].contains(blockParam.type)) {
+          if (param["value"] is JsObject && ![ "bool", "num" ].contains(blockParam.type)) {
             blockParam.value = blockParam.defaultValue;
           } else {
             blockParam.value = param['value'];
@@ -513,11 +509,11 @@ class CodeWorkspace {
         }
       }
     }
-    if (properties is List) {
-      for (var prop in properties) {
-        if (prop is Map && prop.containsKey('id') && prop.containsKey('value') && block.properties.containsKey(prop['id'])) {
+    if (properties is JsArray) {
+      for (JsObject prop in properties) {
+        if (prop is JsObject && prop.hasProperty('id') && prop.hasProperty('value') && block.properties.containsKey(prop['id'])) {
           final blockProp = block.properties[prop['id']];
-          if (prop["value"] is Map && ![ "bool", "num" ].contains(blockProp.type)) {
+          if (prop["value"] is JsObject && ![ "bool", "num" ].contains(blockProp.type)) {
             blockProp.value = blockProp.defaultValue;
           } else {
             blockProp.value = prop['value'];

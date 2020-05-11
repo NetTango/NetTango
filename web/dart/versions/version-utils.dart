@@ -2,30 +2,76 @@ part of NetTango;
 
 class VersionUtils {
 
-  static void updateBlocks(Map json, Function(Map) blockDefinitionHandler, Function(Map) blockInstanceHandler) {
-    if (!json.containsKey("blocks") || json["blocks"] is! List) {
+  static void updateBlocks(JsObject json, Function(JsObject) blockDefinitionHandler, Function(JsObject) blockInstanceHandler) {
+    if (!json.hasProperty("blocks") || json["blocks"] is! JsArray) {
       return;
     }
 
-    for (Map<String, Object> b in json["blocks"]) {
+    for (JsObject b in json["blocks"]) {
+      blockDefinitionHandler(b);
+    }
+
+    if (!json.hasProperty("program") || json["program"] is! JsObject) {
+      return;
+    }
+
+    JsObject program = json["program"];
+    if (!program.hasProperty("chains") || program["chains"] is! JsArray) {
+      return;
+    }
+
+    for (JsObject chain in program["chains"]) {
+      if (chain.hasProperty("blocks") && chain["blocks"] is JsArray) {
+        for(JsObject b in chain["blocks"]) {
+
+          blockInstanceHandler(b);
+
+          if (b.hasProperty("children") && b["children"] is JsArray) {
+            for (JsObject child in b["children"]) {
+              blockInstanceHandler(child);
+            }
+          }
+
+          if (b.hasProperty("clauses") && b["clauses"] is JsArray) {
+            for (JsObject clause in b["clauses"]) {
+              if (clause.hasProperty("children") && clause["children"] is JsArray) {
+                for (var child in clause["children"]) {
+                  blockInstanceHandler(child);
+                }
+              }
+            }
+          }
+
+        }
+      }
+    }
+
+  }
+
+  /// the data structure changed for version 4, so this remains for updating version 3 or
+  /// earlier files.
+  static void updateBlocks3(JsObject json, Function(JsObject) blockDefinitionHandler, Function(JsObject) blockInstanceHandler) {
+    if (!json.hasProperty("blocks") || json["blocks"] is! JsArray) {
+      return;
+    }
+
+    for (JsObject b in json["blocks"]) {
       blockDefinitionHandler(b);
     }
 
     // it's possible we want all the block definition updates done before processing any children
     // so run through them again.  -Jeremy B August 2019
-    for (Map<String, Object> b in json["blocks"]) {
-      if (b.containsKey("children") && b["children"] is List) {
-        for (var child in b["children"]) {
-          if (child is Map) {
-            blockInstanceHandler(child);
-          }
+    for (JsObject b in json["blocks"]) {
+      if (b.hasProperty("children") && b["children"] is JsArray) {
+        for (JsObject child in b["children"]) {
+          blockInstanceHandler(child);
         }
       }
 
-      if (b.containsKey("clauses") && b["clauses"] is List) {
-        for (var clause in b["clauses"]) {
-          if (clause is Map && clause.containsKey("children") && clause["children"] is List) {
-            for (var child in clause['children']) {
+      if (b.hasProperty("clauses") && b["clauses"] is JsArray) {
+        for (JsObject clause in b["clauses"]) {
+          if (clause.hasProperty("children") && clause["children"] is JsArray) {
+            for (JsObject child in clause['children']) {
               blockInstanceHandler(child);
             }
           }
@@ -34,29 +80,29 @@ class VersionUtils {
 
     }
 
-    if (!json.containsKey("program") || json["program"] is! Map) {
+    if (!json.hasProperty("program") || json["program"] is! JsObject) {
       return;
     }
 
-    Map program = json["program"];
-    if (!program.containsKey("chains") || program["chains"] is! List) {
+    JsObject program = json["program"];
+    if (!program.hasProperty("chains") || program["chains"] is! JsArray) {
       return;
     }
 
-    for (List bs in program["chains"]) {
-      for(Map b in bs) {
+    for (JsArray bs in program["chains"]) {
+      for(JsObject b in bs) {
         blockInstanceHandler(b);
       }
     }
 
   }
 
-  static void updateBlockAttributes(Map b, Function(List) attributesHandler) {
-    if (b.containsKey("params") && b["params"] is List) {
+  static void updateBlockAttributes(JsObject b, Function(JsArray) attributesHandler) {
+    if (b.hasProperty("params") && b["params"] is JsArray) {
       attributesHandler(b["params"]);
     }
 
-    if (b.containsKey("properties") && b["properties"] is List) {
+    if (b.hasProperty("properties") && b["properties"] is JsArray) {
       attributesHandler(b["properties"]);
     }
   }

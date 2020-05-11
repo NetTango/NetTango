@@ -48,8 +48,8 @@ class Attribute {
 
   String get valueAsString => "${_value.toString()}$unit";
 
-  Attribute(this.block, Map data) {
-    if (data.containsKey("id")) {
+  Attribute(this.block, JsObject data) {
+    if (data.hasProperty("id")) {
       id = data["id"];
       if (id >= this.block.nextParamId) {
         this.block.nextParamId = id + 1;
@@ -70,18 +70,18 @@ class Attribute {
     return new Attribute.fromJSON(parent, toJSON());
   }
 
-  Map toJSON() {
-    return {
+  JsObject toJSON() {
+    return JsObject.jsify({
       "id" : id,
       "type" : type,
       "name" : name,
       "unit" : unit,
       "value" : value,
       "default" : defaultValue
-    };
+    });
   }
 
-  factory Attribute.fromJSON(Block parent, Map data) {
+  factory Attribute.fromJSON(Block parent, JsObject data) {
     switch(toStr(data["type"], "num")) {
       case "int": return new IntParameter(parent, data);
 
@@ -191,13 +191,13 @@ class NumParameter extends Attribute {
   /// step interval for selections (for numbers and range)
   num stepSize = 1;
 
-  NumParameter(Block block, Map data) : super(block, data) {
+  NumParameter(Block block, JsObject data) : super(block, data) {
     random = toBool(data["random"], false);
     stepSize = toNum(data["step"], stepSize);
   }
 
-  Map toJSON() {
-    Map json = super.toJSON();
+  JsObject toJSON() {
+    JsObject json = super.toJSON();
     json["random"] = random;
     json["step"] = stepSize;
     return json;
@@ -229,7 +229,7 @@ class NumParameter extends Attribute {
 //-------------------------------------------------------------------------
 class IntParameter extends NumParameter {
 
-  IntParameter(Block block, Map data) : super(block, data) { stepSize = 1; }
+  IntParameter(Block block, JsObject data) : super(block, data) { stepSize = 1; }
 
   dynamic get value => toInt(_value, 0);
   set value(var v) => _value = toInt(v, 0);
@@ -246,13 +246,13 @@ class RangeParameter extends NumParameter {
   /// highest possible value that the user can select (for numbers and range)
   num maxValue = 10;
 
-  RangeParameter(Block block, Map data) : super(block, data) {
+  RangeParameter(Block block, JsObject data) : super(block, data) {
     minValue = toNum(data["min"], minValue);
     maxValue = toNum(data["max"], maxValue);
   }
 
-  Map toJSON() {
-    Map json = super.toJSON();
+  JsObject toJSON() {
+    final json = super.toJSON();
     json["min"] = minValue;
     json["max"] = maxValue;
     return json;
@@ -324,7 +324,7 @@ class SelectParameter extends Attribute {
 
   String get valueAsString => "${_display.toString()}$unit \u25BE";
 
-  SelectParameter(Block block, Map data) : super(block, data) {
+  SelectParameter(Block block, JsObject data) : super(block, data) {
     if (data["values"] is List && data["values"].length > 0) {
       values = data["values"];
       value  = values[0]["actual"];
@@ -335,8 +335,8 @@ class SelectParameter extends Attribute {
     return new SelectParameter(parent, toJSON());
   }
 
-  Map toJSON() {
-    Map json = super.toJSON();
+  JsObject toJSON() {
+    final json = super.toJSON();
     json["values"] = values;
     return json;
   }
@@ -390,14 +390,14 @@ class ExpressionParameter extends Attribute {
     if (builder != null) builder.fromJSON(v);
   }
 
-  ExpressionParameter(Block block, Map data) : super(block, data) {
+  ExpressionParameter(Block block, JsObject data) : super(block, data) {
     builder = new ExpressionBuilder(block.workspace, data['type']);
     builder.fromJSON(value);
   }
 
-  Map toJSON() {
-    Map json = super.toJSON();
-    if (json["value"] is Map) {
+  JsObject toJSON() {
+    final json = super.toJSON();
+    if (json["value"] is JsObject) {
       json["expressionValue"] = CodeFormatter.formatExpression(json["value"]);
     }
     return json;

@@ -66,10 +66,10 @@ class Expression {
   }
 
 
-  Map toJSON() {
-    Map data = { "name" : name, "type" : type };
+  JsObject toJSON() {
+    final data = JsObject.jsify({ "name" : name, "type" : type });
     if (hasChildren) {
-      data["children"] = [];
+      data["children"] = JsArray.from([]);
       for (Expression child in children) {
         data["children"].add(child.toJSON());
       }
@@ -79,14 +79,14 @@ class Expression {
   }
 
 
-  void fromJSON(Map json) {
+  void fromJSON(JsObject json) {
     name = toStr(json['name']);
     type = toStr(json['type'], "num");
     if (json['format'] != null) {
       format = json['format'];
     }
     children.clear();
-    if (json['children'] is List) {
+    if (json['children'] is JsArray) {
       for (var c in json['children']) {
         Expression child = new Expression(builder, c['type']);
         children.add(child);
@@ -303,13 +303,13 @@ class ExpressionBuilder {
   }
 
 
-  Map toJSON() {
+  JsObject toJSON() {
     return root.toJSON();
   }
 
 
   void fromJSON(var json) {
-    if (json is Map) {
+    if (json is JsObject) {
       root.fromJSON(json);
     } else if (json != null) {
       root.name = json.toString();

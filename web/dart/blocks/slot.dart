@@ -98,7 +98,7 @@ class Slot {
     DragAcceptor.startDrag(_newBlockInstance, event);
     Chain.redrawChain(_dragImage.element, [_newBlockInstance], false);
 
-    workspace.removeBlocksFromSource(dragData);
+    workspace.removeBlocksForDrag(dragData);
     workspace.enableTopDropZones();
   }
 

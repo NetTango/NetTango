@@ -2,23 +2,23 @@ part of NetTango;
 
 class Version2 {
 
-  static void update(Map json) {
-    VersionUtils.updateBlocks(json, updateBlockSelectAttributes, updateBlockSelectAttributes);
+  static void update(JsObject json) {
+    VersionUtils.updateBlocks3(json, updateBlockSelectAttributes, updateBlockSelectAttributes);
   }
 
-  static void updateBlockSelectAttributes(Map b) {
+  static void updateBlockSelectAttributes(JsObject b) {
     VersionUtils.updateBlockAttributes(b, objectifySelectAttributes);
   }
 
-  static void objectifySelectAttribute(Map attribute) {
-    if (!attribute.containsKey("values") || attribute["values"] is! List) {
+  static void objectifySelectAttribute(JsObject attribute) {
+    if (!attribute.hasProperty("values") || attribute["values"] is! JsArray) {
       return;
     }
-    attribute["values"] = attribute["values"].map( (v) { return { "actual": v }; } ).toList();
+    attribute["values"] = JsArray.from(attribute["values"].map( (v) { return JsObject.jsify({ "actual": v }); } ));
   }
 
-  static void objectifySelectAttributes(List attributes) {
-    for (Map<String, Object> a in attributes.where( (f) => f.containsKey("type") && f["type"] == "select" )) {
+  static void objectifySelectAttributes(JsArray attributes) {
+    for (JsObject a in attributes.where( (f) => f.hasProperty("type") && f["type"] == "select" )) {
       objectifySelectAttribute(a);
     }
   }

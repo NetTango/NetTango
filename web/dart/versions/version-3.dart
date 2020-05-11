@@ -2,15 +2,15 @@ part of NetTango;
 
 class Version3 {
 
-  static void update(Map json) {
-    VersionUtils.updateBlocks(json, (b) {}, unscaleBlockLocation);
+  static void update(JsObject json) {
+    VersionUtils.updateBlocks3(json, (b) {}, unscaleBlockLocation);
 
-    if (!json.containsKey("program") || json["program"] is! Map) {
+    if (!json.hasProperty("program") || json["program"] is! JsObject) {
       return;
     }
 
-    Map program = json["program"];
-    if (!program.containsKey("chains") || program["chains"] is! List) {
+    JsObject program = json["program"];
+    if (!program.hasProperty("chains") || program["chains"] is! JsArray) {
       return;
     }
 
@@ -22,10 +22,10 @@ class Version3 {
   // this now, and any version 2 model we see that has these empty procedures would've had them
   // removed anyway (not displayed to the user).  Hence we clear them so users aren't surprised
   // to find procedures they hadn't previously added.  -Jeremy B Jan-2020
-  static void removeEmptyChains(Map program) {
-    List chains = program["chains"];
-    program["chains"] = chains.where( (chain) {
-      if (chain is! List) {
+  static void removeEmptyChains(JsObject program) {
+    JsArray chains = program["chains"];
+    program["chains"] = JsArray.from(chains.where( (chain) {
+      if (chain is! JsArray) {
         return false;
       }
       if (chain.length == 0) {
@@ -34,14 +34,15 @@ class Version3 {
       if (chain.length > 1) {
         return true;
       }
-      if (chain[0].containsKey("required") && chain[0]["required"]) {
+      JsObject first = chain[0];
+      if (first.hasProperty("required") && first["required"]) {
         return false;
       }
       return true;
-    }).toList();
+    }));
   }
 
-  static void unscaleBlockLocation(Map b) {
+  static void unscaleBlockLocation(JsObject b) {
     if (b["x"] is num) {
       b["x"] = (b["x"] * 10);
     }

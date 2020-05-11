@@ -1,3 +1,5 @@
+import 'dart:js';
+
 @TestOn("browser")
 
 import "package:test/test.dart";
@@ -24,7 +26,6 @@ const NETLOGO_MODEL_1 = {
       "format": "forward ({0} + {P0})",
       "type": "nlogo:command",
       "control": false,
-      "clauses": null,
       "params": [
         {
           "id": 3,
@@ -46,7 +47,6 @@ const NETLOGO_MODEL_1 = {
           "name": "",
           "unit": "",
           "value": 2,
-          "default": null
         }
       ]
     },
@@ -103,8 +103,7 @@ const NETLOGO_MODEL_1 = {
               "type": "num",
               "name": "",
               "unit": "",
-              "value": 2,
-              "default": null
+              "value": 2
             }
           ]
         }
@@ -149,8 +148,7 @@ const NETLOGO_MODEL_1 = {
               "type": "num",
               "name": "",
               "unit": "",
-              "value": 3,
-              "default": null
+              "value": 3
             }
           ]
         }
@@ -192,13 +190,48 @@ void versionThreeChainsCoordinates(List chains) {
   }
 }
 
+void versionThreePropertiesDisplayUpdates(List chains) {
+  for (var chain in chains) {
+    if (chain is List) {
+      for (Map block in chain) {
+        if (block.containsKey("properties")) {
+          block["propertiesDisplay"] = "shown";
+        }
+      }
+    }
+  }
+}
+
+void versionFourChainUpdates(Map program) {
+  List chainBlocks = program["chains"];
+  List chains = new List();
+  for (List blocks in chainBlocks) {
+    final chain = new Map();
+    chain["blocks"] = blocks;
+    if (blocks.length > 0) {
+      Map first = blocks[0];
+      chain["x"] = (first.containsKey("x") && first["x"] != null) ? first["x"].floor() : 0;
+      chain["y"] = (first.containsKey("y") && first["y"] != null) ? first["y"].floor() : 0;
+      for (Map block in blocks) {
+        if (block.containsKey("x")) { block.remove("x"); }
+        if (block.containsKey("y")) { block.remove("y"); }
+      }
+    } else {
+      chain["x"] = 0;
+      chain["y"] = 0;
+    }
+    chains.add(chain);
+  }
+  program["chains"] = chains;
+}
+
 String formatAttribute(containerId, blockId, instanceId, attributeId, value) {
   return "__${containerId}_${blockId}_${instanceId}_${attributeId}";
 }
 
 void main() {
   test("Smoke test of NetTango init and save", () {
-    JSInitWorkspace("NetLogo", "nt-canvas", "{}", formatAttribute);
+    JSInitWorkspace("NetLogo", "nt-canvas", JsObject.jsify({}), formatAttribute);
     var result = JSSaveWorkspace("nt-canvas");
     var expected = jsonEncode({
       "version": VersionManager.VERSION,
@@ -208,7 +241,7 @@ void main() {
   });
 
   test("Remove a paramater from a block that is in a chain", () {
-    var json = jsonEncode({
+    var json = JsObject.jsify({
       "version": 1,
       "blocks": [
         {
@@ -298,17 +331,16 @@ void main() {
       ],
       "expressions": [],
       "program": {
-        "chains": [
-          [
+        "chains": [ {
+          "x": 40, "y": 80,
+          "blocks": [
             {
               "id": 23,
               "instanceId": 2,
               "action": "wolf actions",
               "type": "nlogo:procedure",
               "format": "to wolf-actions",
-              "required": true,
-              "x": 40,
-              "y": 80
+              "required": true
             },
             {
               "id": 24,
@@ -316,12 +348,10 @@ void main() {
               "action": "forward",
               "type": "nlogo:command",
               "format": "forward 10",
-              "required": false,
-              "x": 40,
-              "y": 114
+              "required": false
             }
           ]
-        ]
+        } ]
       }
     };
     expect(result, equals(expected));
@@ -332,11 +362,15 @@ void main() {
   test("NetLogo code exports in proper order with params", () {
     final testCanavsID = "nt-canvas";
     final model = copyJson(NETLOGO_MODEL_1);
-    var json = jsonEncode(model);
-    JSInitWorkspace("NetLogo", testCanavsID, json, formatAttribute);
-    var result = jsonDecode(JSSaveWorkspace(testCanavsID));
+    JSInitWorkspace("NetLogo", testCanavsID, JsObject.jsify(model), formatAttribute);
+    final result = jsonDecode(JSSaveWorkspace(testCanavsID));
     model["version"] = VersionManager.VERSION;
+    // TODO: This is getting out of hand.  Probably a better way is to have unit tests for each update
+    // as we do in the version-manager_test.dart tests,  and then to use the actual update code from
+    // the version manager to do the changes so we don't maintain these separate version.
     versionThreeChainsCoordinates(model["program"]["chains"]);
+    versionThreePropertiesDisplayUpdates(model["program"]["chains"]);
+    versionFourChainUpdates(model["program"]);
     expect(result, equals(model));
 
     var codeResult = JSExportCode(testCanavsID, null);
@@ -369,7 +403,7 @@ void main() {
 
     print(jsonEncode(model));
 
-    JSInitWorkspace("NetLogo", "nt-canvas", jsonEncode(model), formatAttribute);
+    JSInitWorkspace("NetLogo", "nt-canvas", JsObject.jsify(model), formatAttribute);
     var result = jsonDecode(JSSaveWorkspace("nt-canvas"));
 
     print(jsonEncode(result));
@@ -378,31 +412,26 @@ void main() {
     forwardExp["instanceId"] = 6;
     forwardExp["type"] = "";
     forwardExp["required"] = false;
-    forwardExp["x"] = 0;
-    forwardExp["y"] = 0;
     var wiggleExp = copyJson(wiggleInst);
     wiggleExp["instanceId"] = 7;
     wiggleExp["type"] = "";
     wiggleExp["required"] = false;
-    wiggleExp["x"] = 0;
-    wiggleExp["y"] = 0;
     var chanceExp = copyJson(chanceInst);
     chanceExp["instanceId"] = 5;
     chanceExp["required"] = false;
-    chanceExp["x"] = 0;
-    chanceExp["y"] = 0;
     chanceExp["children"] = [ forwardExp ];
     chanceExp["clauses"] = [ { "children": [ wiggleExp ] } ];
     var procExp = copyJson(procInst);
     procExp["instanceId"] = 4;
     procExp["required"] = false;
-    procExp["x"] = 0;
-    procExp["y"] = 0;
 
     var expected = {
       "version": VersionManager.VERSION,
       "blocks": [ proc, chance, forward, wiggle ],
-      "program": { "chains": [ [ procExp, chanceExp ] ] }
+      "program": { "chains": [ {
+        "x": 0, "y": 0,
+        "blocks": [ procExp, chanceExp ]
+      }] }
     };
     expect(result, equals(expected));
 
@@ -427,7 +456,7 @@ void main() {
       "program": { "chains": [ [ chain ] ] }
     };
 
-    JSInitWorkspace("NetLogo", "nt-canvas", jsonEncode(model), formatAttribute);
+    JSInitWorkspace("NetLogo", "nt-canvas", JsObject.jsify(model), formatAttribute);
     var result = jsonDecode(JSSaveWorkspace("nt-canvas"));
 
     Map<String, Object> expected = {
@@ -438,18 +467,20 @@ void main() {
         "params": [ { "id": 0, "type": "num", "default": 10 } ],
         "properties": [ { "id": 1, "type": "num", "default": 9 } ]
       } ],
-      "program": { "chains": [ [ {
-        "id": 0,
-        "instanceId": 1,
-        "action": "sheep actions",
-        "type": "",
-        "format": null,
-        "required": false,
-        "x": 0,
-        "y": 0,
-        "params": [ { "id": 0, "type": "num", "default": 10, "value": 10, "name": "", "unit": "" } ],
-        "properties": [ { "id": 1, "type": "num", "default": 9, "value": 9, "name": "", "unit": "" } ]
-      } ] ] }
+      "program": { "chains": [ {
+        "x": 0, "y": 0,
+        "blocks": [ {
+          "id": 0,
+          "instanceId": 1,
+          "action": "sheep actions",
+          "type": "",
+          "format": null,
+          "required": false,
+          "params": [ { "id": 0, "type": "num", "default": 10, "value": 10, "name": "", "unit": "" } ],
+          "properties": [ { "id": 1, "type": "num", "default": 9, "value": 9, "name": "", "unit": "" } ],
+          "propertiesDisplay": "shown"
+        } ]
+      } ] }
     };
     expect(result, equals(expected));
   });
@@ -471,12 +502,12 @@ void main() {
           "properties": [ { "id": 1, "type": "num", "default": 9 } ]
         }
       ],
-      "program": { "chains": [ [] ] }
+      "program": { "chains": [] }
     };
     final expected = copyJson(model);
     expected["blocks"][1]["id"] = 1;
 
-    JSInitWorkspace("NetLogo", "nt-canvas", jsonEncode(model), formatAttribute);
+    JSInitWorkspace("NetLogo", "nt-canvas", JsObject.jsify(model), formatAttribute);
     final result = jsonDecode(JSSaveWorkspace("nt-canvas"));
 
     expect(result, equals(expected));
@@ -495,7 +526,7 @@ void main() {
       "version": 1
     };
 
-    JSInitWorkspace("NetLogo", "nt-canvas", jsonEncode(model), formatAttribute);
+    JSInitWorkspace("NetLogo", "nt-canvas", JsObject.jsify(model), formatAttribute);
     var result = jsonDecode(JSSaveWorkspace("nt-canvas"));
 
     Map<String, Object> expected = {

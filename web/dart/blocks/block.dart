@@ -40,9 +40,6 @@ class Block {
   /// extra text to include in the code tip info of a block
   String note;
 
-  /// block dimensions and position
-  int x = 0, y = 0;
-
   /// parameters for this block (optional)
   Map<int, Attribute> params = new Map<int, Attribute>();
 
@@ -91,7 +88,7 @@ class Block {
   }
 
   /// create a block from a JSON definition
-  factory Block.fromJSON(CodeWorkspace workspace, Map json) {
+  factory Block.fromJSON(CodeWorkspace workspace, JsObject json) {
 
     String action = toStr(json["action"]);  // required
     int id = json["id"];
@@ -101,7 +98,7 @@ class Block {
     //----------------------------------------------------------
     // block types
     //----------------------------------------------------------
-    if (json["clauses"] is List) {
+    if (json["clauses"] is JsArray) {
       block.clauses = new List<Clause>();
       for (int i = 0; i < json["clauses"].length; i++) {
         final clauseJson = json["clauses"][i];
@@ -125,7 +122,7 @@ class Block {
     //----------------------------------------------------------
     // parameters
     //----------------------------------------------------------
-    if (json["params"] is List) {
+    if (json["params"] is JsArray) {
       for (var p in json["params"]) {
         Attribute param = new Attribute.fromJSON(block, p);
         if (param != null) {
@@ -137,7 +134,7 @@ class Block {
     //----------------------------------------------------------
     // properties
     //----------------------------------------------------------
-    if (json["properties"] is List) {
+    if (json["properties"] is JsArray) {
       for (var p in json["properties"]) {
         Attribute prop = new Attribute.fromJSON(block, p);
         if (prop != null) {
@@ -194,37 +191,35 @@ class Block {
 //-------------------------------------------------------------------------
 /// export block to a JSON object
 //-------------------------------------------------------------------------
-  Map toJSON() {
-    var data = { };
+  JsObject toJSON() {
+    var data = JsObject.jsify({});
     data["id"] = id;
     data["instanceId"] = instanceId;
     data["action"] = action;
     data["type"] = type;
     data["format"] = format;
-    data["note"] = note;
+    if (note != null) { data["note"] = note; }
     data["required"] = required;
-    data["x"] = x;
-    data["y"] = y;
     if (children != null) {
-      data["children"] = [];
+      data["children"] = JsArray.from([]);
       for (Block child in children.blocks) {
         data["children"].add(child.toJSON());
       }
     }
     if (clauses != null) {
-      data["clauses"] = [];
+      data["clauses"] = JsArray.from([]);
       for (Clause clause in clauses) {
         data["clauses"].add(clause.toJSON());
       }
     }
     if (params.isNotEmpty) {
-      data["params"] = [];
+      data["params"] = JsArray.from([]);
       for (Attribute param in params.values) {
         data["params"].add(param.toJSON());
       }
     }
     if (properties.isNotEmpty) {
-      data["properties"] = [];
+      data["properties"] = JsArray.from([]);
       for (Attribute prop in properties.values) {
         data["properties"].add(prop.toJSON());
       }
@@ -468,7 +463,7 @@ class Block {
 
     Chain.redrawChain(this._dragImage.element, blocks, true);
 
-    workspace.removeBlocksFromSource(this._dragData);
+    workspace.removeBlocksForDrag(this._dragData);
     workspace.enableTopDropZones();
   }
 
@@ -489,7 +484,7 @@ class Block {
       case "workspace-chain":
         if (_dragData.blockIndex == 0) {
           // new chain, we deleted the old one
-          workspace.createChain(newBlocks, x, y);
+          workspace.createChain(newBlocks, DragAcceptor.oldChainX, DragAcceptor.oldChainY);
         } else {
           workspace.chains[_dragData.chainIndex].insertBlocks(_dragData.blockIndex, newBlocks);
         }

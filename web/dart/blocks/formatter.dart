@@ -24,7 +24,7 @@ abstract class CodeFormatter  {
   CodeFormatter(Function this._formatAttribute, String this._containerId);
 
   /// convert parse tree output from workspace into source code of a target output language
-  String formatCode(var parseTree, {Function formatAttributeOverride = null}) {
+  String formatCode(JsObject parseTree, {Function formatAttributeOverride = null}) {
     Function originalFormatAttribute = _formatAttribute;
     if (formatAttributeOverride != null) {
       _formatAttribute = formatAttributeOverride;
@@ -37,9 +37,9 @@ abstract class CodeFormatter  {
     return result;
   }
 
-  String _formatLanguageCode(var parseTree);
+  String _formatLanguageCode(JsObject parseTree);
 
-  void formatChain(StringBuffer out, var chain, int indent);
+  void formatChain(StringBuffer out, JsObject chain, int indent);
 
   void _formatOutput(StringBuffer out, int indent, String post) {
     String fullIndent = "";
@@ -49,12 +49,12 @@ abstract class CodeFormatter  {
     out.writeln(indentedPost);
   }
 
-  void formatBlock(StringBuffer out, var block, int indent) {
+  void formatBlock(StringBuffer out, JsObject block, int indent) {
     String fmt = block["format"];
     var params = block["params"];
     var props = block["properties"];
-    int pcount = (params is List) ? params.length : 0;
-    int rcount = (props is List) ? props.length : 0;
+    int pcount = (params is JsArray) ? params.length : 0;
+    int rcount = (props is JsArray) ? props.length : 0;
 
     if (fmt is! String) {
       fmt = "${block['action']}";
@@ -71,21 +71,21 @@ abstract class CodeFormatter  {
     _formatOutput(out, indent, fmt);
   }
 
-  String _replaceAttribute(String code, String placeholder, var block, var parameter) {
+  String _replaceAttribute(String code, String placeholder, JsObject block, JsObject parameter) {
     return code.replaceAll(placeholder, _formatAttributeValue(parameter));
   }
 
-  String _formatAttributeValue(var param) {
-    if (param["value"] is Map) {
+  String _formatAttributeValue(JsObject param) {
+    if (param["value"] is JsObject) {
       return formatExpression(param["value"]);
     } else {
       return toStr(param["value"]);
     }
   }
 
-  static String formatExpression(var expression) {
+  static String formatExpression(JsObject expression) {
     var c = expression["children"];
-    if (c == null || c is! List) c = [];
+    if (c == null || c is! JsArray) c = JsArray.from([]);
 
     String name = toStr(expression["name"]);
 
@@ -113,9 +113,9 @@ class PlainFormatter extends CodeFormatter {
 
   PlainFormatter(Function formatAttribute, String containerId) : super(formatAttribute, containerId);
 
-  String _formatLanguageCode(var parseTree) {
+  String _formatLanguageCode(JsObject parseTree) {
     StringBuffer out = new StringBuffer();
-    for (var chain in parseTree["chains"]) {
+    for (JsObject chain in parseTree["chains"]) {
       formatChain(out, chain, 0);
       out.writeln();
     }
@@ -123,15 +123,18 @@ class PlainFormatter extends CodeFormatter {
     return out.toString();
   }
 
-  void formatChain(StringBuffer out, var chain, int indent) {
-    for (var block in chain) {
-      if (block["children"] is List) {
+  void formatChain(StringBuffer out, JsObject chain, int indent) {
+    if (!chain.hasProperty("blocks") || chain["blocks"] is! JsArray) {
+      return;
+    }
+    for (JsObject block in chain["blocks"]) {
+      if (block["children"] is JsArray) {
         formatChain(out, block["children"], indent+1);
       }
-      if (block["clauses"] is List) {
-        for (var clause in block["clauses"]) {
+      if (block["clauses"] is JsArray) {
+        for (JsObject clause in block["clauses"]) {
           formatBlock(out, clause, indent);
-          if (clause["children"] is List) {
+          if (clause["children"] is JsArray) {
             formatChain(out, clause["children"], indent+1);
           }
         }
@@ -155,12 +158,12 @@ class NetLogoFormatter extends CodeFormatter {
 
   NetLogoFormatter(Function formatAttribute, String containerId) : super(formatAttribute, containerId);
 
-  String _formatLanguageCode(var parseTree) {
+  String _formatLanguageCode(JsObject parseTree) {
     StringBuffer out = new StringBuffer();
-    if (parseTree["chains"] is! List || parseTree["chains"].length == 0) {
+    if (parseTree["chains"] is! JsArray || parseTree["chains"].length == 0) {
       return out.toString();
     }
-    List chains = parseTree["chains"];
+    JsArray chains = parseTree["chains"];
     chains.sort(compareChainsByAction);
     for (var chain in chains) {
       formatChain(out, chain, 0);
@@ -169,44 +172,48 @@ class NetLogoFormatter extends CodeFormatter {
     return out.toString();
   }
 
-  void formatChain(StringBuffer out, var chain, int indent) {
-    if (chain.length == 0 || chain[0]["type"] != "nlogo:procedure") {
+  void formatChain(StringBuffer out, JsObject chain, int indent) {
+    if (!chain.hasProperty("blocks") || chain["blocks"] is! JsArray) {
       return;
     }
-    var starter = chain[0];
+    JsArray blocks = chain["blocks"];
+    if (blocks.length == 0 || blocks[0]["type"] != "nlogo:procedure") {
+      return;
+    }
+    var starter = blocks[0];
     formatBlock(out, starter, indent);
-    _formatBlocks(out, chain.skip(1), indent+1);
+    _formatBlocks(out, JsArray.from(blocks.skip(1)), indent + 1);
     out.writeln("end");
     out.writeln();
   }
 
-  void formatBlock(StringBuffer out, var block, int indent) {
+  void formatBlock(StringBuffer out, JsObject block, int indent) {
     super.formatBlock(out, block, indent);
-    if (block["children"] is List) {
+    if (block["children"] is JsArray) {
       formatClause(out, block["children"], indent);
     }
-    if (block["clauses"] is List) {
+    if (block["clauses"] is JsArray) {
       for (var clause in block["clauses"]) {
-        if (clause["children"] is List) {
+        if (clause["children"] is JsArray) {
           formatClause(out, clause["children"], indent);
         }
       }
     }
   }
 
-  void _formatBlocks(StringBuffer out, var blocks, int indent) {
+  void _formatBlocks(StringBuffer out, JsArray blocks, int indent) {
     for (var block in blocks) {
       formatBlock(out, block, indent);
     }
   }
 
-  void formatClause(StringBuffer out, var clause, int indent) {
+  void formatClause(StringBuffer out, JsArray clause, int indent) {
     _formatOutput(out, indent, "[");
     _formatBlocks(out, clause, indent + 1);
     _formatOutput(out, indent, "]");
   }
 
-  String _replaceAttribute(String code, String placeholder, var block, var attribute) {
+  String _replaceAttribute(String code, String placeholder, JsObject block, JsObject attribute) {
     var valToPass = attribute["expressionValue"] == null ? attribute["value"] : attribute["expressionValue"];
     String replacement = _formatAttribute(_containerId, block["id"], block["instanceId"], attribute["id"], valToPass);
     return code.replaceAll(placeholder, replacement);

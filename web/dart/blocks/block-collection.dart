@@ -21,8 +21,8 @@ abstract class BlockCollection {
 
   DivElement _div;
 
-  List exportParseTree() {
-    List tree = [];
+  JsArray exportParseTree() {
+    final tree = JsArray.from([]);
     for (Block block in blocks) {
       tree.add(block.toJSON());
     }
@@ -48,9 +48,8 @@ abstract class BlockCollection {
     return null;
   }
 
-  Map toJSON() {
-    var data = { };
-    data["children"] = [];
+  JsObject toJSON() {
+    var data = JsObject.jsify({ "children": [] });
     for (Block block in blocks) {
       data["children"].add(block.toJSON());
     }
@@ -89,7 +88,7 @@ abstract class BlockCollection {
     }
   }
 
-  static List<Block> fromJSON(CodeWorkspace workspace, List children) {
+  static List<Block> fromJSON(CodeWorkspace workspace, JsArray children) {
     List<Block> blocks = new List<Block>();
     for (var blockJson in children) {
       Block block = Block.fromJSON(workspace, blockJson);

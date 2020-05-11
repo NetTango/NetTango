@@ -19,6 +19,8 @@ class Chain extends BlockCollection {
 
   static final FRAGMENT_HEIGHT = 20;
 
+  int x = 0, y = 0;
+
   final CodeWorkspace workspace;
 
   int chainIndex;
@@ -30,6 +32,16 @@ class Chain extends BlockCollection {
   bool get isFragment => blocks.isEmpty || !blocks[0].required;
 
   Chain(CodeWorkspace this.workspace);
+
+  JsObject toJSON() {
+    final blocks = exportParseTree();
+    final chain = JsObject.jsify({
+      "x": x,
+      "y": y
+    });
+    chain["blocks"] = blocks;
+    return chain;
+  }
 
   DivElement draw(DragImage dragImage, int newChainIndex) {
     this.chainIndex = newChainIndex;
@@ -56,20 +68,16 @@ class Chain extends BlockCollection {
 
     Chain.redrawChain(_div, blocks, false, fragmentDiv: fragmentDiv);
 
-    updatePosition();
+    updatePosition(this.x, this.y);
 
     return _div;
   }
 
-  void updatePosition() {
-    if (blocks.isEmpty) {
-      return;
-    }
-    Block first = blocks[0];
-    final left  = first.x.round();
-    final top   = first.y.round();
-    _div.style.left = "${left}px";
-    _div.style.top  = "${top}px";
+  void updatePosition(int x, int y) {
+    this.x = x;
+    this.y = y;
+    _div.style.left = "${x}px";
+    _div.style.top  = "${y}px";
   }
 
   void resetDragData(int newChainIndex) {
@@ -131,7 +139,6 @@ class Chain extends BlockCollection {
       block.resetOwnedBlocksDragData();
     }
     Chain.redrawChain(_div, blocks, false, fragmentDiv: fragmentDiv);
-    updatePosition();
   }
 
   Iterable<Block> removeBlocks(int blockIndex) {
@@ -155,35 +162,33 @@ class Chain extends BlockCollection {
       return;
     }
     fragmentDiv.classes.add("show");
-    final top = blocks.first.y.round() - FRAGMENT_HEIGHT;
+    final top = this.y.round() - FRAGMENT_HEIGHT;
     _div.style.top = "${top}px";
   }
 
   void disableTopDropZone() {
     fragmentDiv.classes.remove("show");
-    final top = blocks.first.y.round();
+    final top = this.y.round();
     _div.style.top = "${top}px";
   }
 
   void drop(DropzoneEvent event) {
     DragAcceptor.wasHandled = true;
 
-    final oldFirst  = blocks[0];
     final newBlocks = workspace.consumeDraggingBlocks();
     final newFirst  = newBlocks.elementAt(0);
     final offset = DragImage.getOffsetToRoot(this._div);
     final dropLocation = event.position - offset;
-    newFirst.x = oldFirst.x;
-    newFirst.y = oldFirst.y - FRAGMENT_HEIGHT + dropLocation.y.floor();
+    this.y = this.y - FRAGMENT_HEIGHT + dropLocation.y.floor();
     insertBlocks(0, newBlocks);
 
     workspace.programChanged(new BlockChangedEvent(newFirst));
     workspace.disableTopDropZones();
   }
 
-  static Chain fromJSON(CodeWorkspace workspace, Map json) {
+  static Chain fromJSON(CodeWorkspace workspace, JsObject json) {
     Chain chain = new Chain(workspace);
-    if (json["children"] is List) {
+    if (json["children"] is JsArray) {
       chain.blocks = BlockCollection.fromJSON(workspace, json["children"]);
     }
     return chain;

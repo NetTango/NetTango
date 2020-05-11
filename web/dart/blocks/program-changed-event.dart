@@ -30,7 +30,7 @@ class BlockChangedEvent extends ProgramChangedEvent {
   }
 
   dynamic toJS() {
-    return js.JsObject.jsify({
+    return JsObject.jsify({
       "type": type,
       "blockId": blockId,
       "instanceId": instanceId
@@ -48,7 +48,7 @@ class AttributeChangedEvent extends ProgramChangedEvent {
   AttributeChangedEvent(int this.blockId, int this.instanceId, int this.attributeId, dynamic this.value);
 
   dynamic toJS() {
-    return js.JsObject.jsify({
+    return JsObject.jsify({
       "type": type,
       "blockId": blockId,
       "instanceId": instanceId,
@@ -66,7 +66,7 @@ class MenuItemClickedEvent extends ProgramChangedEvent {
   MenuItemClickedEvent(int this.blockId);
 
   dynamic toJS() {
-    return js.JsObject.jsify({
+    return JsObject.jsify({
       "type": type,
       "blockId": blockId
     });
@@ -82,7 +82,7 @@ class MenuItemContextMenuEvent extends ProgramChangedEvent {
   MenuItemContextMenuEvent(int this.blockId, int this.x, int this.y);
 
   dynamic toJS() {
-    return js.JsObject.jsify({
+    return JsObject.jsify({
       "type": type,
       "blockId": blockId,
       "x": x,

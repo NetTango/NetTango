@@ -46,18 +46,18 @@ class BlockStyle {
     sheet.insertRule(".$blockClass { $cssRule }", 0);
   }
 
-  Map toJSON() {
-    return {
+  JsObject toJSON() {
+    return JsObject.jsify({
       blockColor:  blockColor,
       textColor:   textColor,
       borderColor: borderColor,
       fontWeight:  fontWeight,
       fontSize:    fontSize,
       fontFace:    fontFace
-    };
+    });
   }
 
-  static BlockStyle fromJSON(Map json, String blockColorDefault) {
+  static BlockStyle fromJSON(JsObject json, String blockColorDefault) {
     if (json == null) {
       return new BlockStyle() .. blockColor = blockColorDefault;
     }

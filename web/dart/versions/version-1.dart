@@ -2,13 +2,13 @@ part of NetTango;
 
 class Version1 {
 
-  static void update(Map json) {
+  static void update(JsObject json) {
     Map<String, int> actionToId = new Map<String, int>();
     Map<int, int> blockIdToAttributeIdOffset = new Map<int, int>();
     int attributeId = 0;
 
-    Function(Map) blockDefinitionHandler = (b) {
-      if (!b.containsKey("action")) { return; }
+    Function(JsObject) blockDefinitionHandler = (b) {
+      if (!b.hasProperty("action")) { return; }
 
       int id = actionToId.length;
       b["id"] = id;
@@ -20,16 +20,16 @@ class Version1 {
       attributeId = addIdsToParamsAndProps(attributeId, b);
     };
 
-    Function(Map) blockInstanceHandler = (b) {
+    Function(JsObject) blockInstanceHandler = (b) {
       addIdToBlock(actionToId, blockIdToAttributeIdOffset, b);
     };
 
-    VersionUtils.updateBlocks(json, blockDefinitionHandler, blockInstanceHandler);
+    VersionUtils.updateBlocks3(json, blockDefinitionHandler, blockInstanceHandler);
 
   }
 
-  static int addIdsToParamsAndProps(int attributeId, Map<String, Object> b) {
-    Function(List) attributesHandler = (attributes) {
+  static int addIdsToParamsAndProps(int attributeId, JsObject b) {
+    Function(JsArray) attributesHandler = (attributes) {
       attributeId = addIdsToAttributes(attributeId, attributes);
     };
     VersionUtils.updateBlockAttributes(b, attributesHandler);
@@ -37,16 +37,16 @@ class Version1 {
     return attributeId;
   }
 
-  static int addIdsToAttributes(int attributeId, List attributes) {
-    for (Map<String, Object> attribute in attributes) {
+  static int addIdsToAttributes(int attributeId, JsArray attributes) {
+    for (JsObject attribute in attributes) {
       attribute["id"] = attributeId;
       attributeId++;
     }
     return attributeId;
   }
 
-  static void addIdToBlock(Map<String, int> actionToId, Map<int, int> blockIdToAttributeIdOffset, Map b) {
-    if (!b.containsKey("action")) { return; }
+  static void addIdToBlock(Map<String, int> actionToId, Map<int, int> blockIdToAttributeIdOffset, JsObject b) {
+    if (!b.hasProperty("action")) { return; }
 
     String action = b["action"];
     if (actionToId.containsKey(action)) {
