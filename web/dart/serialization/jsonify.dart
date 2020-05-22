@@ -36,9 +36,11 @@ js.JsObject encodeWorkspace(CodeWorkspace workspace) {
    }
 
   // expressions
-  if (workspace.expressions != null && workspace.expressions.isNotEmpty) {
+  if (workspace.expressionDefinitions != null && workspace.expressionDefinitions.isNotEmpty) {
     final expressions = definition["expressions"] = js.JsArray.from([]);
-    // TODO: actually save those expressions
+    for (ExpressionDefinition expressionDef in workspace.expressionDefinitions) {
+      expressions.add(encodeExpressionDefinition(expressionDef));
+    }
   }
 
   // program
@@ -203,4 +205,18 @@ js.JsObject encodeExpression(Expression expression) {
     }
 
     return expressionDef;
+}
+
+js.JsObject encodeExpressionDefinition(ExpressionDefinition definition) {
+  final definitionDef = js.JsObject.jsify({
+    "name": definition.name,
+    "type": definition.type
+  });
+  if (definition.arguments.length > 0) {
+    definitionDef["arguments"] = js.JsArray.from(definition.arguments);
+  }
+  if (definition.format != null) {
+    definitionDef["format"] = definition.format;
+  }
+  return definitionDef;
 }

@@ -24,7 +24,7 @@ CodeWorkspace restoreWorkspace(String containerId, js.JsObject definition, CodeF
   }
 
   if (definition["expressions"] is js.JsArray) {
-    workspace.expressions = definition["expressions"];
+    restoreExpressionDefinitions(workspace, definition["expressions"]);
   }
 
   if (definition["program"] is js.JsObject) {
@@ -173,6 +173,23 @@ Attribute restoreAttribute(Block block, js.JsObject attributeDef) {
   attribute.defaultValue = attributeDef["default"];
 
   return attribute;
+}
+
+void restoreExpressionDefinitions(CodeWorkspace workspace, js.JsArray definitionDefs) {
+  if (definitionDefs == null || definitionDefs.length == 0) {
+    return;
+  }
+
+  for (js.JsObject definitionDef in definitionDefs) {
+    final definition = new ExpressionDefinition(definitionDef["name"], definitionDef["type"]);
+    definition.format = definitionDef["format"];
+    if (definitionDef.hasProperty("arguments") && definitionDef["arguments"] is js.JsArray) {
+      for (String argument in definitionDef["arguments"]) {
+        definition.arguments.add(argument);
+      }
+    }
+    workspace.expressionDefinitions.add(definition);
+  }
 }
 
 void restoreProgram(CodeWorkspace workspace, js.JsObject programDef) {

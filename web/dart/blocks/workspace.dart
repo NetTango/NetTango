@@ -37,7 +37,7 @@ class CodeWorkspace {
   List variables = new List();
 
   /// list of expressions
-  List expressions = new List();
+  List<ExpressionDefinition> expressionDefinitions = new List<ExpressionDefinition>();
 
   int height, width, currentHeight;
 

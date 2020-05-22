@@ -587,6 +587,14 @@ void main() {
       "properties": [ { "name": "ExpressMe", "type": "num", "default": "1", "id": 0 } ]
     }
   ],
+  "expressions": [
+    { "name": "true", "type": "bool" },
+    { "name": "false", "type": "bool" },
+    { "name": "AND", "type": "bool", "arguments": [ "bool", "bool" ], "format": "({0} and {1})" },
+    { "name": "NOT", "type": "bool", "arguments": [ "bool" ], "format": "(not {0})" },
+    { "name": ">", "type": "bool", "arguments": [ "num", "num" ] },
+    { "name": "random", "type": "num", "arguments": [ "num" ], "format": "random-float {0}" }
+  ],
   "program": {
     "chains": [
       [

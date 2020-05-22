@@ -72,23 +72,28 @@ class Expression {
 
   // test to see if the current children match arg list?
   // if so, leave them alone rather than replace them
-  bool childMismatch(List args) {
-    if (args == null) return children.isNotEmpty;
-    if (children.length != args.length) return true;
-    for (int i=0; i<args.length; i++) {
-      if (args[i] != children[i].type) return true;
+  bool childMismatch(List<String> args) {
+    if (args == null) {
+      return children.isNotEmpty;
+    }
+    if (children.length != args.length) {
+      return true;
+    }
+    for (int i =0 ; i < args.length; i++) {
+      if (args[i] != children[i].type) {
+        return true;
+      }
     }
     return false;
   }
 
-  void setChildren(List args) {
+  void setChildren(List<String> args) {
     bool childless = isChildless;
 
     if (childMismatch(args)) {
       children.clear();
       if (args != null) {
-        for (int i=0; i<args.length; i++) {
-
+        for (int i = 0; i < args.length; i++) {
           // chain first expression?
           if (i == 0 && childless && args[i] == type) {
             children.add(new Expression(builder, args[i]) .. name = name);
@@ -221,18 +226,18 @@ class Expression {
   }
 
 
-  void _addMenuItems(DivElement hmenu, List items) {
-    for (var item in items) {
-      if (item['type'] == type) {
+  void _addMenuItems(DivElement hmenu, List<ExpressionDefinition> items) {
+    for (final item in items) {
+      if (item.type == type) {
         AnchorElement link = new AnchorElement(href : "#")
-          .. innerHtml = "${item['name']}";
+          .. innerHtml = "${item.name}";
         hmenu.append(link);
         link.onClick.listen((e) {
           hmenu.remove();
-          setChildren(item['arguments']);
-          name = item['name'];
-          type = item['type'];
-          format = item['format'];
+          setChildren(item.arguments);
+          name = item.name;
+          type = item.type;
+          format = item.format;
           builder.renderHtml();
           e.stopPropagation();
           e.preventDefault();
@@ -251,7 +256,7 @@ class ExpressionBuilder {
 
   Expression root;
 
-  List get expressions => workspace.expressions;
+  List<ExpressionDefinition> get expressions => workspace.expressionDefinitions;
 
   List get variables => workspace.variables;
 
