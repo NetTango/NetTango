@@ -25,7 +25,6 @@ const NETLOGO_MODEL_1 = {
       "action": "forward",
       "format": "forward ({0} + {P0})",
       "type": "nlogo:command",
-      "control": false,
       "params": [
         {
           "id": 3,
@@ -43,7 +42,8 @@ const NETLOGO_MODEL_1 = {
       "properties": [
         {
           "id": 4,
-          "type": "num",
+          "type": "int",
+          "step": 2,
           "name": "",
           "unit": "",
           "value": 2,
@@ -60,7 +60,6 @@ const NETLOGO_MODEL_1 = {
       "required": true
     }
   ],
-  "expressions": [],
   "program": {
     "chains": [
       [
@@ -100,7 +99,8 @@ const NETLOGO_MODEL_1 = {
           "properties": [
             {
               "id": 4,
-              "type": "num",
+              "type": "int",
+              "step": 2,
               "name": "",
               "unit": "",
               "value": 2
@@ -145,10 +145,11 @@ const NETLOGO_MODEL_1 = {
           "properties": [
             {
               "id": 4,
-              "type": "num",
+              "type": "int",
               "name": "",
               "unit": "",
-              "value": 3
+              "value": 3,
+              "step": 2
             }
           ]
         }
@@ -190,14 +191,10 @@ void versionThreeChainsCoordinates(List chains) {
   }
 }
 
-void versionThreePropertiesDisplayUpdates(List chains) {
-  for (var chain in chains) {
-    if (chain is List) {
-      for (Map block in chain) {
-        if (block.containsKey("properties")) {
-          block["propertiesDisplay"] = "shown";
-        }
-      }
+void versionThreePropertiesDisplayUpdates(List blocks) {
+  for (Map block in blocks) {
+    if (block.containsKey("properties")) {
+      block["propertiesDisplay"] = "shown";
     }
   }
 }
@@ -235,6 +232,8 @@ void main() {
     var result = JSSaveWorkspace("nt-canvas");
     var expected = jsonEncode({
       "version": VersionManager.VERSION,
+      "height": 600, "width": 450,
+      "blocks": [],
       "program": { "chains": [] }
     });
     expect(result, equals(expected));
@@ -308,6 +307,7 @@ void main() {
     var result = jsonDecode(JSSaveWorkspace("nt-canvas"));
     var expected = {
       "version": VersionManager.VERSION,
+      "height": 600, "width": 450,
       "blocks": [
         {
           "id": 23,
@@ -323,28 +323,23 @@ void main() {
           "action": "forward",
           "format": "forward 10",
           "type": "nlogo:command",
-          "control": false,
-          "clauses": null,
-          "params": [],
-          "properties": []
+          "required": false,
         }
       ],
-      "expressions": [],
       "program": {
         "chains": [ {
           "x": 40, "y": 80,
           "blocks": [
             {
               "id": 23,
-              "instanceId": 2,
               "action": "wolf actions",
               "type": "nlogo:procedure",
               "format": "to wolf-actions",
+              "blockColor": "#bb5555",
               "required": true
             },
             {
               "id": 24,
-              "instanceId": 3,
               "action": "forward",
               "type": "nlogo:command",
               "format": "forward 10",
@@ -362,29 +357,57 @@ void main() {
   test("NetLogo code exports in proper order with params", () {
     final testCanavsID = "nt-canvas";
     final model = copyJson(NETLOGO_MODEL_1);
+
+    // load and then save out the result to make sure it's correct
     JSInitWorkspace("NetLogo", testCanavsID, JsObject.jsify(model), formatAttribute);
     final result = jsonDecode(JSSaveWorkspace(testCanavsID));
+
     model["version"] = VersionManager.VERSION;
+    model["width"] = 450;
+    model["height"] = 600;
+    model["blocks"][1]["required"] = false;
+    model["blocks"][1]["params"][0].remove("unit");
+    model["blocks"][1]["params"][0].remove("value");
+    model["blocks"][1]["properties"][0].remove("name");
+    model["blocks"][1]["properties"][0].remove("unit");
+    model["blocks"][1]["properties"][0].remove("value");
+
     // TODO: This is getting out of hand.  Probably a better way is to have unit tests for each update
     // as we do in the version-manager_test.dart tests,  and then to use the actual update code from
     // the version manager to do the changes so we don't maintain these separate version.
     versionThreeChainsCoordinates(model["program"]["chains"]);
-    versionThreePropertiesDisplayUpdates(model["program"]["chains"]);
+    versionThreePropertiesDisplayUpdates(model["blocks"]);
+    versionThreePropertiesDisplayUpdates(model["program"]["chains"][0]);
     versionFourChainUpdates(model["program"]);
+
+    model["program"]["chains"][0]["blocks"][0]["blockColor"] = "#bb5555";
+    model["program"]["chains"][0]["blocks"][0].remove("instanceId");
+    model["program"]["chains"][0]["blocks"][1].remove("instanceId");
+    model["program"]["chains"][0]["blocks"][1]["params"][0].remove("unit");
+    model["program"]["chains"][0]["blocks"][1]["properties"][0].remove("name");
+    model["program"]["chains"][0]["blocks"][1]["properties"][0].remove("unit");
+    model["program"]["chains"][1]["blocks"][0].remove("instanceId");
+    model["program"]["chains"][1]["blocks"][0]["blockColor"] = "#bb5555";
+    model["program"]["chains"][1]["blocks"][1].remove("instanceId");
+    model["program"]["chains"][1]["blocks"][1]["params"][0].remove("unit");
+    model["program"]["chains"][1]["blocks"][1]["properties"][0].remove("name");
+    model["program"]["chains"][1]["blocks"][1]["properties"][0].remove("unit");
+    model["program"]["chains"][1]["blocks"][1]["propertiesDisplay"] = "shown";
+
     expect(result, equals(model));
 
     var codeResult = JSExportCode(testCanavsID, null);
 
-    expect(codeResult, equals("to sheep-actions\n  forward (__nt-canvas_24_6_3 + __nt-canvas_24_6_4)\nend\n\nto wolf-actions\n  forward (__nt-canvas_24_4_3 + __nt-canvas_24_4_4)\nend\n\n"));
+    expect(codeResult, equals("to sheep-actions\n  forward (__nt-canvas_24_3_3 + __nt-canvas_24_3_4)\nend\n\nto wolf-actions\n  forward (__nt-canvas_24_1_3 + __nt-canvas_24_1_4)\nend\n\n"));
   });
 
   test("Model with ifelse properly imports and generates code", () {
     final testCanavsID = "nt-canvas";
 
-    var proc    = { "id": 4, "action": "wolf actions", "format": "to wolf", "type": "nlogo:procedure" };
-    var forward = { "id": 1, "action": "forward", "format": "forward 1" };
-    var wiggle  = { "id": 2, "action": "wiggle", "format": "left random 360" };
-    var chance  = { "id": 0, "action": "chance", "format": "ifelse random 100 < 20", "type": "nlogo:ifelse" };
+    var proc    = { "id": 4, "action": "wolf actions", "format": "to wolf", "type": "nlogo:procedure", "required": true };
+    var forward = { "id": 1, "action": "forward", "format": "forward 1", "required": false };
+    var wiggle  = { "id": 2, "action": "wiggle", "format": "left random 360", "required": false };
+    var chance  = { "id": 0, "action": "chance", "format": "ifelse random 100 < 20", "type": "nlogo:ifelse", "required": false };
     var forwardInst = copyJson(forward);
     forwardInst["instanceId"] = 1;
     var wiggleInst = copyJson(wiggle);
@@ -409,24 +432,19 @@ void main() {
     print(jsonEncode(result));
 
     var forwardExp = copyJson(forwardInst);
-    forwardExp["instanceId"] = 6;
-    forwardExp["type"] = "";
-    forwardExp["required"] = false;
+    forwardExp.remove("instanceId");
     var wiggleExp = copyJson(wiggleInst);
-    wiggleExp["instanceId"] = 7;
-    wiggleExp["type"] = "";
-    wiggleExp["required"] = false;
+    wiggleExp.remove("instanceId");
     var chanceExp = copyJson(chanceInst);
-    chanceExp["instanceId"] = 5;
-    chanceExp["required"] = false;
+    chanceExp.remove("instanceId");
     chanceExp["children"] = [ forwardExp ];
     chanceExp["clauses"] = [ { "children": [ wiggleExp ] } ];
     var procExp = copyJson(procInst);
-    procExp["instanceId"] = 4;
-    procExp["required"] = false;
+    procExp.remove("instanceId");
 
     var expected = {
       "version": VersionManager.VERSION,
+      "height": 600, "width": 450,
       "blocks": [ proc, chance, forward, wiggle ],
       "program": { "chains": [ {
         "x": 0, "y": 0,
@@ -441,43 +459,44 @@ void main() {
   });
 
   test("Unversioned model gets IDs added for version 1", () {
-    Map<String, Object> action = {
+    final action = {
       "action": "sheep actions",
-      "params": [ { "type": "num", "default": 10 } ],
-      "properties": [ { "type": "num", "default": 9 } ]
+      "required": false,
+      "params": [ { "type": "int", "default": 10, "step": 1 } ],
+      "properties": [ { "type": "int", "default": 9, "step": 1 } ]
     };
-    Map<String, Object> chain = {
+    final block = {
       "action": "sheep actions",
-      "params": [ { "type": "num", "default": 5 } ],
-      "properties": [ { "type": "num", "default": 4 } ]
+      "required": false,
+      "params": [ { "type": "int", "default": 5 } ],
+      "properties": [ { "type": "int", "default": 4 } ]
     };
-    Map<String, Object> model = {
+    final model = {
       "blocks": [ action ],
-      "program": { "chains": [ [ chain ] ] }
+      "program": { "chains": [ [ block ] ] }
     };
 
     JSInitWorkspace("NetLogo", "nt-canvas", JsObject.jsify(model), formatAttribute);
     var result = jsonDecode(JSSaveWorkspace("nt-canvas"));
 
-    Map<String, Object> expected = {
-      "version": VersionManager.VERSION,
+    final expected = {
+      "version": VersionManager.VERSION, "height": 600, "width": 450,
       "blocks": [ {
         "id": 0,
         "action": "sheep actions",
-        "params": [ { "id": 0, "type": "num", "default": 10 } ],
-        "properties": [ { "id": 1, "type": "num", "default": 9 } ]
+        "required": false,
+        "params": [ { "id": 0, "type": "int", "default": 10, "step": 1 } ],
+        "properties": [ { "id": 1, "type": "int", "default": 9, "step": 1 } ],
+        "propertiesDisplay": "shown"
       } ],
       "program": { "chains": [ {
         "x": 0, "y": 0,
         "blocks": [ {
           "id": 0,
-          "instanceId": 1,
           "action": "sheep actions",
-          "type": "",
-          "format": null,
           "required": false,
-          "params": [ { "id": 0, "type": "num", "default": 10, "value": 10, "name": "", "unit": "" } ],
-          "properties": [ { "id": 1, "type": "num", "default": 9, "value": 9, "name": "", "unit": "" } ],
+          "params": [ { "id": 0, "type": "int", "default": 10, "value": 10, "step": 1 } ],
+          "properties": [ { "id": 1, "type": "int", "default": 9, "value": 9, "step": 1 } ],
           "propertiesDisplay": "shown"
         } ]
       } ] }
@@ -488,18 +507,20 @@ void main() {
   test("Duplicate menu block IDs get reset automatically", () {
 
     Map<String, Object> model = {
-      "version": VersionManager.VERSION,
+      "version": VersionManager.VERSION, "width": 300, "height": 300,
       "blocks": [ {
           "id": 0,
-          "action": "sheep actions",
-          "params": [ { "id": 0, "type": "num", "default": 10 } ],
-          "properties": [ { "id": 1, "type": "num", "default": 9 } ]
+          "action": "sheep actions", "required": true,
+          "params": [ { "id": 0, "type": "int", "default": 10, "step": 2 } ],
+          "properties": [ { "id": 1, "type": "int", "default": 9, "step": 1 } ],
+          "propertiesDisplay": "shown"
         },
         {
           "id": 0,
-          "action": "wolf actions",
-          "params": [ { "id": 0, "type": "num", "default": 10 } ],
-          "properties": [ { "id": 1, "type": "num", "default": 9 } ]
+          "action": "wolf actions", "required": true,
+          "params": [ { "id": 0, "type": "int", "default": 10, "step": 2 } ],
+          "properties": [ { "id": 1, "type": "int", "default": 9, "step": 1 } ],
+          "propertiesDisplay": "shown"
         }
       ],
       "program": { "chains": [] }
@@ -516,9 +537,9 @@ void main() {
 
   test("Version 1 gets IDs added for new block", () {
     Map<String, Object> action = {
-      "action": "sheep actions",
-      "params": [ { "type": "num", "default": 10 } ],
-      "properties": [ { "type": "num", "default": 9 } ]
+      "action": "sheep actions", "required": true,
+      "params": [ { "type": "int", "default": 10, "step": 1 } ],
+      "properties": [ { "type": "int", "default": 9, "step": 1 } ]
     };
     Map<String, Object> model = {
       "blocks": [ action ],
@@ -530,15 +551,94 @@ void main() {
     var result = jsonDecode(JSSaveWorkspace("nt-canvas"));
 
     Map<String, Object> expected = {
-      "version": VersionManager.VERSION,
+      "version": VersionManager.VERSION, "height": 600, "width": 450,
       "blocks": [ {
         "id": 0,
-        "action": "sheep actions",
-        "params": [ { "id": 0, "type": "num", "default": 10 } ],
-        "properties": [ { "id": 1, "type": "num", "default": 9 } ]
+        "action": "sheep actions", "required": true,
+        "params": [ { "id": 0, "type": "int", "default": 10, "step": 1 } ],
+        "properties": [ { "id": 1, "type": "int", "default": 9, "step": 1 } ],
+        "propertiesDisplay": "shown"
       } ],
       "program": { "chains": [] }
     };
+    expect(result, equals(expected));
+  });
+
+  test("Version 3 model with select and expression attributes saves correctly", () {
+    final model =
+{
+  "version": 3,
+  "height": 500,
+  "width": 430,
+  "blocks": [
+    {
+      "action": "procede", "format": "to procede show ({0}+{P0})", "required": true, "limit": 1, "id": 0, "type": "nlogo:procedure",
+      "params": [
+        {
+          "name": "SelectMe", "type": "select", "default": "10",
+          "values": [ { "actual": "10", "display": "mars" }, { "actual": "20", "display": "venus" }, { "actual": "30", "display": "mercury" } ],
+          "id": 0
+        }
+      ],
+      "properties": [ { "name": "ExpressMe", "type": "num", "default": "5", "id": 1 } ]
+    },
+    {
+      "action": "show", "format": "show ({P0})", "required": false, "id": 1, "type": "nlogo:command",
+      "properties": [ { "name": "ExpressMe", "type": "num", "default": "1", "id": 0 } ]
+    }
+  ],
+  "program": {
+    "chains": [
+      [
+        {
+          "id": 0, "instanceId": 2, "action": "procede", "type": "nlogo:procedure", "format": "to procede show ({0}+{P0})", "required": true, "x": 46, "y": 11,
+          "params": [
+            {
+              "id": 0, "type": "select", "name": "SelectMe", "value": "20", "default": "10",
+              "values": [ { "actual": "10", "display": "mars" }, { "actual": "20", "display": "venus" }, { "actual": "30", "display": "mercury" } ]
+            }
+          ],
+          "properties": [
+            {
+              "id": 1, "type": "num", "name": "ExpressMe",
+              "value": { "name": "+", "type": "num",
+                "children": [
+                  { "name": "5", "type": "num" },
+                  { "name": "/", "type": "num",
+                    "children": [
+                      { "name": "7", "type": "num" },
+                      { "name": "2", "type": "num" }
+                    ]
+                  }
+                ]
+              },
+              "default": "5",
+              "expressionValue": "(5 + (7 / 2))"
+            }
+          ],
+          "propertiesDisplay": "hidden"
+        },
+        {
+          "id": 1, "instanceId": 6, "action": "show", "type": "nlogo:command", "format": "show ({P0})", "required": false,
+          "properties": [ { "id": 0, "type": "num", "name": "ExpressMe", "value": "3", "default": "1" } ],
+          "propertiesDisplay": "hidden"
+        }
+      ]
+    ]
+  }
+};
+
+    JSInitWorkspace("NetLogo", "nt-canvas", JsObject.jsify(model), formatAttribute);
+    final result = jsonDecode(JSSaveWorkspace("nt-canvas"));
+
+    final expected = copyJson(model);
+    expected["version"] = VersionManager.VERSION;
+    versionFourChainUpdates(expected["program"]);
+    expected["blocks"][0]["propertiesDisplay"] = "shown";
+    expected["blocks"][1]["propertiesDisplay"] = "shown";
+    expected["program"]["chains"][0]["blocks"][0].remove("instanceId");
+    expected["program"]["chains"][0]["blocks"][1].remove("instanceId");
+
     expect(result, equals(expected));
   });
 

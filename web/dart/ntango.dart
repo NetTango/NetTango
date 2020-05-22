@@ -18,7 +18,7 @@ library NetTango;
 import 'dart:async';
 import 'dart:convert';
 import 'dart:html';
-import 'dart:js';
+import 'dart:js' as js;
 import 'dart:math';
 import 'package:dnd/dnd.dart';
 
@@ -50,13 +50,16 @@ part 'blocks/attribute.dart';
 part 'blocks/program-changed-event.dart';
 part 'blocks/workspace.dart';
 
+part 'serialization/dartify.dart';
+part 'serialization/jsonify.dart';
+
 Map<String, CodeWorkspace> _workspaces = { };
 
 CodeWorkspace GetWorkspace(String containerId) {
   return _workspaces[containerId];
 }
 
-void _initializeJS(String language, JsFunction formatAttributeJS, String containerId, JsObject json) {
+void _initializeJS(String language, js.JsFunction formatAttributeJS, String containerId, js.JsObject definition) {
   String formatAttribute(containerId, blockId, instanceId, attributeId, value) {
     if (formatAttributeJS == null) {
       return value.toString();
@@ -65,11 +68,11 @@ void _initializeJS(String language, JsFunction formatAttributeJS, String contain
     }
   }
 
-  _initialize(language, formatAttribute, containerId, json);
+  _initialize(language, formatAttribute, containerId, definition);
 }
 
-void _initialize(String language, Function formatAttribute, String containerId, JsObject json) {
-  VersionManager.updateWorkspace(json);
+void _initialize(String language, Function formatAttribute, String containerId, js.JsObject definition) {
+  VersionManager.updateWorkspace(definition);
 
   CodeFormatter formatter;
   switch (language) {
@@ -86,23 +89,25 @@ void _initialize(String language, Function formatAttribute, String containerId, 
     if (_workspaces.containsKey(containerId)) {
       _workspaces[containerId].removeEventListeners();
     }
-    _workspaces[containerId] = new CodeWorkspace(containerId, json, formatter);
+    CodeWorkspace workspace = restoreWorkspace(containerId, definition, formatter);
+    _workspaces[containerId] = workspace;
+    workspace.draw();
   } on FormatException catch (e) {
     throw new FormatException("There was an error initializing the workspace with the given NetTango model JSON.", e );
   }
 }
 
 /// Javascript hook to initialize a workspace
-void JSInitWorkspaceJS(String language, String containerId, String jsonString, JsFunction formatAttributeJS) {
+void JSInitWorkspaceJS(String language, String containerId, String jsonString, js.JsFunction formatAttributeJS) {
   if (_workspaces[containerId] is CodeWorkspace) {
     _workspaces[containerId].unload();
   }
   final json = jsonDecode(jsonString);
-  final pojo = JsObject.jsify(json);
+  final pojo = js.JsObject.jsify(json);
   _initializeJS(language, formatAttributeJS, containerId, pojo);
 }
 
-void JSInitWorkspace(String language, String containerId, JsObject pojo, Function formatAttribute) {
+void JSInitWorkspace(String language, String containerId, js.JsObject pojo, Function formatAttribute) {
   if (_workspaces[containerId] is CodeWorkspace) {
     _workspaces[containerId].unload();
   }
@@ -110,7 +115,7 @@ void JSInitWorkspace(String language, String containerId, JsObject pojo, Functio
 }
 
 /// Javascript hook to initialize all workspaces based on containerId names
-void JSInitAllWorkspacesJS(String language, String jsonString, JsFunction formatAttributeJS) {
+void JSInitAllWorkspacesJS(String language, String jsonString, js.JsFunction formatAttributeJS) {
   var json = jsonDecode(jsonString);
   if (json is Map) {
     for (var key in json.keys) {
@@ -120,7 +125,7 @@ void JSInitAllWorkspacesJS(String language, String jsonString, JsFunction format
 }
 
 /// Javascript hook to export code from a workspace
-String JSExportCode(String containerId, JsFunction formatAttributeJS) {
+String JSExportCode(String containerId, js.JsFunction formatAttributeJS) {
   if (_workspaces.containsKey(containerId)) {
     if (formatAttributeJS != null) {
       String formatAttribute(containerId, blockId, instanceId, attributeId, value) {
@@ -142,9 +147,8 @@ String JSExportCode(String containerId, JsFunction formatAttributeJS) {
 /// Javascript hook to export the entire state of a workspace
 String JSSaveWorkspace(String containerId) {
   if (_workspaces.containsKey(containerId)) {
-    var defs = _workspaces[containerId].definition;
-    defs['program'] = _workspaces[containerId].exportParseTree(false);
-    return context['JSON'].callMethod('stringify', [defs]);
+    final definition = encodeWorkspace(_workspaces[containerId]);
+    return js.context['JSON'].callMethod('stringify', [definition]);
   } else {
     return "{}";
   }
@@ -152,20 +156,19 @@ String JSSaveWorkspace(String containerId) {
 
 /// Javascript hook to export all workspaces
 String JSSaveAllWorkspaces() {
-  var json = {};
-  for (var key in _workspaces.keys) {
-    var defs = _workspaces[key].definition;
-    defs['program'] = _workspaces[key].exportParseTree(false);
-    json[key] = context['JSON'].callMethod('stringify', [defs]);;
+  final definitions = {};
+  for (var containerId in _workspaces.keys) {
+    final definition = encodeWorkspace(_workspaces[containerId]);
+    definitions[containerId] = js.context['JSON'].callMethod('stringify', [definition]);;
   }
   return jsonEncode(json);
 }
 
 /// Expose core API functions to Javascript
 void main() {
-  context['NetTango_InitWorkspace'] = JSInitWorkspaceJS;
-  context['NetTango_InitAllWorkspaces'] = JSInitAllWorkspacesJS;
-  context['NetTango_ExportCode'] = JSExportCode;
-  context['NetTango_Save'] = JSSaveWorkspace;
-  context['NetTango_SaveAll'] = JSSaveAllWorkspaces;
+  js.context['NetTango_InitWorkspace'] = JSInitWorkspaceJS;
+  js.context['NetTango_InitAllWorkspaces'] = JSInitAllWorkspacesJS;
+  js.context['NetTango_ExportCode'] = JSExportCode;
+  js.context['NetTango_Save'] = JSSaveWorkspace;
+  js.context['NetTango_SaveAll'] = JSSaveAllWorkspaces;
 }

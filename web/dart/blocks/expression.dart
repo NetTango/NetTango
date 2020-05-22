@@ -42,9 +42,14 @@ class Expression {
 
   List<Expression> children = new List<Expression>();
 
-
   Expression(this.builder, this.type);
 
+  Expression.clone(this.builder, Expression source) {
+    this.name = source.name;
+    this.type = source.type;
+    this.format = source.format;
+    source.children.forEach( (child) => this.children.add(Expression.clone(this.builder, child)) );
+  }
 
   void displayString(StringBuffer out) {
     if (isUnary) {
@@ -65,37 +70,6 @@ class Expression {
     }
   }
 
-
-  JsObject toJSON() {
-    final data = JsObject.jsify({ "name" : name, "type" : type });
-    if (hasChildren) {
-      data["children"] = JsArray.from([]);
-      for (Expression child in children) {
-        data["children"].add(child.toJSON());
-      }
-    }
-    if (format != null) data["format"] = format;
-    return data;
-  }
-
-
-  void fromJSON(JsObject json) {
-    name = toStr(json['name']);
-    type = toStr(json['type'], "num");
-    if (json['format'] != null) {
-      format = json['format'];
-    }
-    children.clear();
-    if (json['children'] is JsArray) {
-      for (var c in json['children']) {
-        Expression child = new Expression(builder, c['type']);
-        children.add(child);
-        child.fromJSON(c);
-      }
-    }
-  }
-
-
   // test to see if the current children match arg list?
   // if so, leave them alone rather than replace them
   bool childMismatch(List args) {
@@ -106,7 +80,6 @@ class Expression {
     }
     return false;
   }
-
 
   void setChildren(List args) {
     bool childless = isChildless;
@@ -127,7 +100,6 @@ class Expression {
     }
   }
 
-
   void appendOperator(DivElement parent) {
     DivElement div = new DivElement()
       .. innerHtml = "$name"
@@ -143,12 +115,10 @@ class Expression {
     parent.append(div);
   }
 
-
   void electricBrace(DivElement curr, DivElement parent) {
     curr.onMouseEnter.listen((e) { parent.classes.add("highlight"); });
     curr.onMouseLeave.listen((e) { parent.classes.remove("highlight"); });
   }
-
 
   void appendParen(DivElement parent, bool left) {
     DivElement paren = new DivElement()
@@ -158,7 +128,6 @@ class Expression {
     electricBrace(paren, parent);
     parent.append(paren);
   }
-
 
   void appendNumber(DivElement parent) {
     name = toNum(name, 0).toString();
@@ -176,14 +145,12 @@ class Expression {
     parent.append(input);
   }
 
-
   bool get isNum {
     if (name != null) {
       return num.parse(name, (e) => null) != null;
     }
     return false;
   }
-
 
   void renderHtml(DivElement parent) {
     DivElement div = new DivElement() .. className = "nt-expression";
@@ -219,7 +186,6 @@ class Expression {
     }
     parent.append(div);
   }
-
 
  //-------------------------------------------------------------
  // Creates an expression pulldown menu
@@ -277,7 +243,6 @@ class Expression {
 
 }
 
-
 class ExpressionBuilder {
 
   CodeWorkspace workspace;
@@ -290,11 +255,16 @@ class ExpressionBuilder {
 
   List get variables => workspace.variables;
 
-
   ExpressionBuilder(this.workspace, String type) {
     root = new Expression(this, type);
   }
 
+  ExpressionBuilder.clone(ExpressionBuilder source) {
+    this.workspace = source.workspace;
+    if (source.root != null) {
+      this.root = Expression.clone(this, source.root);
+    }
+  }
 
   String toString() {
     StringBuffer out = new StringBuffer();
@@ -302,31 +272,16 @@ class ExpressionBuilder {
     return out.toString();
   }
 
-
-  JsObject toJSON() {
-    return root.toJSON();
-  }
-
-
-  void fromJSON(var json) {
-    if (json is JsObject) {
-      root.fromJSON(json);
-    } else if (json != null) {
-      root.name = json.toString();
-    }
-  }
-
-
   void open(String parentSelector) {
     this.parent = querySelector(parentSelector);
     renderHtml();
   }
 
-
-  renderHtml() {
+  void renderHtml() {
     if (parent != null && root != null) {
       parent.children.clear();
       root.renderHtml(parent);
     }
   }
+
 }

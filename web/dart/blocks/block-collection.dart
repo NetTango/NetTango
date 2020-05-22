@@ -21,14 +21,6 @@ abstract class BlockCollection {
 
   DivElement _div;
 
-  JsArray exportParseTree() {
-    final tree = JsArray.from([]);
-    for (Block block in blocks) {
-      tree.add(block.toJSON());
-    }
-    return tree;
-  }
-
   int getBlockCount(int id) {
     try {
       if (this.blocks.isEmpty) {
@@ -46,14 +38,6 @@ abstract class BlockCollection {
       if (block != null) { return block; }
     }
     return null;
-  }
-
-  JsObject toJSON() {
-    var data = JsObject.jsify({ "children": [] });
-    for (Block block in blocks) {
-      data["children"].add(block.toJSON());
-    }
-    return data;
   }
 
   static void appendBlock(DivElement div, DivElement blockDiv, String newPosition, {bool useClones = false}) {
@@ -87,14 +71,4 @@ abstract class BlockCollection {
       BlockCollection.appendBlock(div, blocks.last._blockDiv, "$classPrefix-ender", useClones: useClones);
     }
   }
-
-  static List<Block> fromJSON(CodeWorkspace workspace, JsArray children) {
-    List<Block> blocks = new List<Block>();
-    for (var blockJson in children) {
-      Block block = Block.fromJSON(workspace, blockJson);
-      blocks.add(block);
-    }
-    return blocks;
-  }
-
 }

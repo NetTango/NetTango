@@ -16,7 +16,7 @@
 part of NetTango;
 
 /// Represents a block's parameter value
-class Attribute {
+class Attribute<T> {
 
   /// parameter id - unique per block
   int id;
@@ -27,13 +27,13 @@ class Attribute {
   Block block;
 
   /// current parameter value
-  var _value;
+  dynamic value;
 
   /// default / initial value (can be null)
-  var defaultValue;
+  dynamic defaultValue;
 
   /// parameter type: can be "bool", "num", "int", "range", "text", or "selection"
-  String type = "int";
+  String type = "text";
 
   /// name of the parameter (e.g. degrees, length)
   String name = "";
@@ -41,73 +41,42 @@ class Attribute {
   /// short unit name that will be displayed after the value (e.g. %, px, m, mm, s)
   String unit = "";
 
-  /// subclasses override this property definition
-  dynamic get value => toStr(_value, "");
+  String get displayValue => "${value.toString()}$unit";
 
-  set value(var v) => _value = toStr(v, "");
-
-  String get valueAsString => "${_value.toString()}$unit";
-
-  Attribute(this.block, JsObject data) {
-    if (data.hasProperty("id")) {
-      id = data["id"];
+  Attribute(this.block, this.id) {
+    if (this.id != null) {
       if (id >= this.block.nextParamId) {
         this.block.nextParamId = id + 1;
       }
     } else {
       id = this.block.nextParamId++;
     };
-    data["id"] = id;
-
-    type = toStr(data["type"], "num");
-    name = toStr(data["name"], "");
-    unit = toStr(data["unit"], "");
-    defaultValue = data["default"];
-    value = defaultValue;
   }
 
-  Attribute clone(Block parent) {
-    return new Attribute.fromJSON(parent, toJSON());
-  }
-
-  JsObject toJSON() {
-    return JsObject.jsify({
-      "id" : id,
-      "type" : type,
-      "name" : name,
-      "unit" : unit,
-      "value" : value,
-      "default" : defaultValue
-    });
-  }
-
-  factory Attribute.fromJSON(Block parent, JsObject data) {
-    switch(toStr(data["type"], "num")) {
-      case "int": return new IntParameter(parent, data);
-
-      case "num": return new ExpressionParameter(parent, data);
-
-      case "bool": return new ExpressionParameter(parent, data);
-
-      case "range": return new RangeParameter(parent, data);
-
-      case "select": return new SelectParameter(parent, data);
-
-      case "text": return new Attribute(parent, data);
-
-      default: return new Attribute(parent, data);
+  Attribute.clone(this.block, Attribute source, bool isSlotBlock) {
+    this.id = source.id;
+    this.name = source.name;
+    this.unit = source.unit;
+    this.defaultValue = source.defaultValue;
+    if (!isSlotBlock) {
+      this.value = (source.value == null) ? this.defaultValue : source.value;
     }
+  }
+
+  // just so we can clone without knowing the type
+  Attribute clone(Block block, bool isSlotBlock) {
+    return Attribute.clone(block, this, isSlotBlock);
   }
 
   // parameters are meant to display inline with just a value
   DivElement drawParameter() {
     DivElement paramDiv = new DivElement();
-    paramDiv.innerText = valueAsString;
+    paramDiv.innerText = displayValue;
     paramDiv.classes.add("nt-attribute-value");
     paramDiv.classes.add("${block.getStyleClass()}-attribute");
     if (block.blockColor != null) { paramDiv.style.color = block.blockColor; }
 
-    final updateValue = () { paramDiv.innerText = valueAsString; };
+    final updateValue = () { paramDiv.innerText = displayValue; };
     paramDiv.onClick.listen( (event) {
       final target = (event.target as DivElement);
       final parent = target.offsetParent;
@@ -172,7 +141,7 @@ class Attribute {
   }
 
   String _buildHTMLInput() {
-    final escapedValue = (new HtmlEscape()).convert(value);
+    final escapedValue = (new HtmlEscape()).convert(value.toString());
     return """
       <input class="nt-param-input" id="nt-param-${uniqueId}" type="text" value="${escapedValue}">
       <span class="nt-param-unit">${unit}</span>
@@ -185,29 +154,31 @@ class Attribute {
 //-------------------------------------------------------------------------
 class NumParameter extends Attribute {
 
+  int _value = null;
+
   /// represents a random number?
-  bool random = false;
+  bool random = null;
 
   /// step interval for selections (for numbers and range)
   num stepSize = 1;
 
-  NumParameter(Block block, JsObject data) : super(block, data) {
-    random = toBool(data["random"], false);
-    stepSize = toNum(data["step"], stepSize);
+  NumParameter(Block block, int id) : super(block, id);
+
+  NumParameter.clone(Block block, NumParameter source, bool isSlotBlock) : super.clone(block, source, isSlotBlock) {
+    this.random = source.random;
+    this.stepSize = source.stepSize;
   }
 
-  JsObject toJSON() {
-    JsObject json = super.toJSON();
-    json["random"] = random;
-    json["step"] = stepSize;
-    return json;
+  // just so we can clone without knowing the type
+  Attribute clone(Block block, bool isSlotBlock) {
+    return NumParameter.clone(block, this, isSlotBlock);
   }
 
-  dynamic get value => toNum(_value, 0.0);
-  set value(var v) => _value = toNum(v, 0.0);
+  int get value => _value;
+  set value(dynamic v) => _value = toNum(v, 0.0);
 
-  String get valueAsString {
-    String s = (value as num).toStringAsFixed(1);
+  String get displayValue {
+    String s = (_value != null ? _value : 0).toStringAsFixed(1);
     s = (s.endsWith('.0')) ? s.substring(0, s.length - 2) : s;
     return "$s$unit";
   }
@@ -229,10 +200,16 @@ class NumParameter extends Attribute {
 //-------------------------------------------------------------------------
 class IntParameter extends NumParameter {
 
-  IntParameter(Block block, JsObject data) : super(block, data) { stepSize = 1; }
+  String type = "int";
 
-  dynamic get value => toInt(_value, 0);
-  set value(var v) => _value = toInt(v, 0);
+  IntParameter(Block block, int id) : super(block, id) { stepSize = 1; }
+
+  IntParameter.clone(Block block, IntParameter source, bool isSlotBlock) : super.clone(block, source, isSlotBlock);
+
+  Attribute clone(Block block, bool isSlotBlock) {
+    return IntParameter.clone(block, this, isSlotBlock);
+  }
+
 }
 
 //-------------------------------------------------------------------------
@@ -240,22 +217,23 @@ class IntParameter extends NumParameter {
 //-------------------------------------------------------------------------
 class RangeParameter extends NumParameter {
 
+  String type = "range";
+
   /// lowest possible value that the user can select (for numbers and range)
   num minValue = 0;
 
   /// highest possible value that the user can select (for numbers and range)
   num maxValue = 10;
 
-  RangeParameter(Block block, JsObject data) : super(block, data) {
-    minValue = toNum(data["min"], minValue);
-    maxValue = toNum(data["max"], maxValue);
+  RangeParameter(Block block, int id) : super(block, id);
+
+  RangeParameter.clone(Block block, RangeParameter source, bool isSlotBlock) : super.clone(block, source, isSlotBlock) {
+    this.minValue = source.minValue;
+    this.maxValue = source.maxValue;
   }
 
-  JsObject toJSON() {
-    final json = super.toJSON();
-    json["min"] = minValue;
-    json["max"] = maxValue;
-    return json;
+  Attribute clone(Block block, bool isSlotBlock) {
+    return RangeParameter.clone(block, this, isSlotBlock);
   }
 
   void _showParameterDialog(int x, int y, Function acceptCallback) {
@@ -300,49 +278,46 @@ class RangeParameter extends NumParameter {
   }
 }
 
+
+class Option {
+  final String actual;
+  final String display;
+
+  get displayValue {
+    this.display == null || this.display == "" ? this.actual : this.display;
+  }
+
+  Option(this.actual, this.display);
+}
+
 //-------------------------------------------------------------------------
 /// Represents a value selected from a list of options
 //-------------------------------------------------------------------------
 class SelectParameter extends Attribute {
 
+  String type = "select";
+
   /// list of possible values for select type
-  var values = [];
-  var _display;
-
-  dynamic get value => _value;
-
-  set value(var v) {
-    _value = v;
-
-    final valueOptions = values.where( (o) => o["actual"] == v && o.containsKey("display") );
+  final values = new List<Option>();
+  String get selectedDisplay {
+    final valueOptions = values.where( (o) => o.actual == value && o.display != null && o.display != "");
     if (valueOptions.length == 1) {
-      _display = _chooseDisplayValue(valueOptions.elementAt(0));
+      return valueOptions.elementAt(0).displayValue;
     } else {
-      _display = v;
+      return value;
     }
   }
 
-  String get valueAsString => "${_display.toString()}$unit \u25BE";
+  String get displayValue => "$selectedDisplay$unit \u25BE";
 
-  SelectParameter(Block block, JsObject data) : super(block, data) {
-    if (data["values"] is List && data["values"].length > 0) {
-      values = data["values"];
-      value  = values[0]["actual"];
-    }
+  SelectParameter(Block block, int id) : super(block, id);
+
+  SelectParameter.clone(Block block, SelectParameter source, bool isSlotBlock) : super.clone(block, source, isSlotBlock) {
+    source.values.forEach( (option) => this.values.add( option ) );
   }
 
-  Attribute clone(Block parent) {
-    return new SelectParameter(parent, toJSON());
-  }
-
-  JsObject toJSON() {
-    final json = super.toJSON();
-    json["values"] = values;
-    return json;
-  }
-
-  dynamic _chooseDisplayValue(dynamic v) {
-    return v.containsKey("display") && v["display"] != "" ? v["display"] : v["actual"];
+  Attribute clone(Block block, bool isSlotBlock) {
+    return SelectParameter.clone(block, this, isSlotBlock);
   }
 
   void _showParameterDialog(int x, int y, Function acceptCallback) {
@@ -356,13 +331,12 @@ class SelectParameter extends Attribute {
     DivElement table = new DivElement() .. className = "nt-param-table";
     dialog.append(table);
 
-    for (var v in values) {
+    for (Option v in values) {
       DivElement row = new DivElement() .. className = "nt-param-row";
-      final display = _chooseDisplayValue(v);
-      DivElement opt = new DivElement() .. className = "nt-select-option" .. innerHtml = display;
-      if (v["actual"] == value) { opt.classes.add("selected"); }
+      DivElement opt = new DivElement() .. className = "nt-select-option" .. innerHtml = v.displayValue;
+      if (v.actual == value) { opt.classes.add("selected"); }
       opt.onClick.listen((e) {
-        value = v["actual"];
+        value = v.actual;
         backdrop.classes.remove("show");
         acceptCallback();
         block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.value));
@@ -381,30 +355,22 @@ class ExpressionParameter extends Attribute {
 
   ExpressionBuilder builder;
 
-  String get valueAsString => (builder != null) ? builder.toString() : "";
+  String get displayValue => (builder != null) ? builder.toString() : "";
 
-  dynamic get value => _value;
+  String get expressionValue => CodeFormatter.formatExpression(builder.root);
 
-  set value(var v) {
-    _value = v;
-    if (builder != null) builder.fromJSON(v);
+  ExpressionParameter(Block block, int id, String type) : super(block, id) {
+    this.builder = new ExpressionBuilder(block.workspace, type);
+    this.type = type;
   }
 
-  ExpressionParameter(Block block, JsObject data) : super(block, data) {
-    builder = new ExpressionBuilder(block.workspace, data['type']);
-    builder.fromJSON(value);
+  ExpressionParameter.clone(Block block, ExpressionParameter source, bool isSlotBlock) : super.clone(block, source, isSlotBlock) {
+    this.type = source.type;
+    this.builder = ExpressionBuilder.clone(source.builder);
   }
 
-  JsObject toJSON() {
-    final json = super.toJSON();
-    if (json["value"] is JsObject) {
-      json["expressionValue"] = CodeFormatter.formatExpression(json["value"]);
-    }
-    return json;
-  }
-
-  Attribute clone(Block parent) {
-    return new ExpressionParameter(parent, toJSON());
+  Attribute clone(Block block, bool isSlotBlock) {
+    return ExpressionParameter.clone(block, this, isSlotBlock);
   }
 
   void _showParameterDialog(int x, int y, Function acceptCallback) {
@@ -435,12 +401,10 @@ class ExpressionParameter extends Attribute {
     querySelectorAll(".nt-param-confirm").onClick.listen((e) {
       var empties = querySelectorAll(".nt-expression.empty");
       if (empties.length > 0) return false;
-      _value = builder.toJSON();
       pulldownCloserStream.cancel();
       backdrop.classes.remove("show");
       acceptCallback();
-      var val = CodeFormatter.formatExpression(_value);
-      block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, val));
+      block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.expressionValue));
     });
 
     querySelectorAll(".nt-param-confirm").onMouseDown.listen((e) {

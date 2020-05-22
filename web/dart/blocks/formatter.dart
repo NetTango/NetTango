@@ -23,23 +23,22 @@ abstract class CodeFormatter  {
 
   CodeFormatter(Function this._formatAttribute, String this._containerId);
 
-  /// convert parse tree output from workspace into source code of a target output language
-  String formatCode(JsObject parseTree, {Function formatAttributeOverride = null}) {
+  String formatCode(CodeWorkspace workspace, {Function formatAttributeOverride = null}) {
     Function originalFormatAttribute = _formatAttribute;
     if (formatAttributeOverride != null) {
       _formatAttribute = formatAttributeOverride;
     }
 
-    final result = _formatLanguageCode(parseTree);
+    final result = _formatLanguageCode(workspace);
 
     _formatAttribute = originalFormatAttribute;
 
     return result;
   }
 
-  String _formatLanguageCode(JsObject parseTree);
+  String _formatLanguageCode(CodeWorkspace workspace);
 
-  void formatChain(StringBuffer out, JsObject chain, int indent);
+  void formatBlocks(StringBuffer out, List<Block> blocks, int indent);
 
   void _formatOutput(StringBuffer out, int indent, String post) {
     String fullIndent = "";
@@ -49,58 +48,69 @@ abstract class CodeFormatter  {
     out.writeln(indentedPost);
   }
 
-  void formatBlock(StringBuffer out, JsObject block, int indent) {
-    String fmt = block["format"];
-    var params = block["params"];
-    var props = block["properties"];
-    int pcount = (params is JsArray) ? params.length : 0;
-    int rcount = (props is JsArray) ? props.length : 0;
-
-    if (fmt is! String) {
-      fmt = "${block['action']}";
-      for (int i = 0; i < pcount; i++) fmt += " {$i}";
-      for (int i = 0; i < rcount; i++) fmt += " {P$i}";
-    }
-    for (int i = 0; i < pcount; i++) {
-      fmt = _replaceAttribute(fmt, "{$i}", block, params[i]);
-    }
-    for (int i=0; i < rcount; i++) {
-      fmt = _replaceAttribute(fmt, "{P$i}", block, props[i]);
+  void formatBlock(StringBuffer out, Block block, int indent) {
+    String format = block.format;
+    if (format == null) {
+      format = "${block.action}";
+      if (block.params != null) {
+        for (int i = 0; i < block.params.length; i++) {
+          format += " {$i}";
+        }
+      }
+      if (block.properties != null) {
+        for (int i = 0; i < block.properties.length; i++) {
+          format += " {P$i}";
+        }
+      }
     }
 
-    _formatOutput(out, indent, fmt);
+    int i = 0;
+    if (block.params != null) {
+      i = 0;
+      for (int key in block.params.keys) {
+        format = _replaceAttribute(format, "{$i}", block, block.params[key]);
+        i++;
+      }
+    }
+
+    if (block.properties != null) {
+      i = 0;
+      for (int key in block.properties.keys) {
+        format = _replaceAttribute(format, "{P$i}", block, block.properties[key]);
+        i++;
+      }
+    }
+
+    _formatOutput(out, indent, format);
   }
 
-  String _replaceAttribute(String code, String placeholder, JsObject block, JsObject parameter) {
+  String _replaceAttribute(String code, String placeholder, Block block, Attribute parameter) {
     return code.replaceAll(placeholder, _formatAttributeValue(parameter));
   }
 
-  String _formatAttributeValue(JsObject param) {
-    if (param["value"] is JsObject) {
-      return formatExpression(param["value"]);
+  String _formatAttributeValue(Attribute param) {
+    if (param is ExpressionParameter) {
+      return formatExpression(param.builder.root);
     } else {
-      return toStr(param["value"]);
+      return toStr(param.value);
     }
   }
 
-  static String formatExpression(JsObject expression) {
-    var c = expression["children"];
-    if (c == null || c is! JsArray) c = JsArray.from([]);
+  static String formatExpression(Expression expression) {
+    String name = toStr(expression.name);
 
-    String name = toStr(expression["name"]);
-
-    if (expression["format"] is String) {
-      String fmt = expression["format"];
-      for (int i=0; i<c.length; i++) {
-        fmt = fmt.replaceAll("{$i}", formatExpression(c[i]));
+    if (expression.format != null) {
+      String format = expression.format;
+      for (int i = 0; i < expression.children.length; i++) {
+        format = format.replaceAll("{$i}", formatExpression(expression.children[i]));
       }
-      return fmt;
+      return format;
     }
-    else if (c.length == 1) {
-      return "($name ${formatExpression(c[0])})";
+    else if (expression.children.length == 1) {
+      return "($name ${formatExpression(expression.children[0])})";
     }
-    else if (c.length == 2) {
-      return "(${formatExpression(c[0])} $name ${formatExpression(c[1])})";
+    else if (expression.children.length == 2) {
+      return "(${formatExpression(expression.children[0])} $name ${formatExpression(expression.children[1])})";
     }
     else {
       return name;
@@ -113,29 +123,25 @@ class PlainFormatter extends CodeFormatter {
 
   PlainFormatter(Function formatAttribute, String containerId) : super(formatAttribute, containerId);
 
-  String _formatLanguageCode(JsObject parseTree) {
+  String _formatLanguageCode(CodeWorkspace workspace) {
     StringBuffer out = new StringBuffer();
-    for (JsObject chain in parseTree["chains"]) {
-      formatChain(out, chain, 0);
+    for (Chain chain in workspace.chains) {
+      formatBlocks(out, chain.blocks, 0);
       out.writeln();
     }
 
     return out.toString();
   }
 
-  void formatChain(StringBuffer out, JsObject chain, int indent) {
-    if (!chain.hasProperty("blocks") || chain["blocks"] is! JsArray) {
-      return;
-    }
-    for (JsObject block in chain["blocks"]) {
-      if (block["children"] is JsArray) {
-        formatChain(out, block["children"], indent+1);
+  void formatBlocks(StringBuffer out, List<Block> blocks, int indent) {
+    for (Block block in blocks) {
+      if (block.children != null) {
+        formatBlocks(out, block.children.blocks, indent + 1);
       }
-      if (block["clauses"] is JsArray) {
-        for (JsObject clause in block["clauses"]) {
-          formatBlock(out, clause, indent);
-          if (clause["children"] is JsArray) {
-            formatChain(out, clause["children"], indent+1);
+      if (block.clauses != null) {
+        for (Clause clause in block.clauses) {
+          if (clause.blocks != null) {
+            formatBlocks(out, clause.blocks, indent + 1);
           }
         }
       }
@@ -144,78 +150,73 @@ class PlainFormatter extends CodeFormatter {
 
 }
 
-int compareChainsByAction(a, b) {
-  if (a is! List || a.length == 0 || a[0]["action"] == null) {
+int compareChainsByAction(List<Block> a, List<Block> b) {
+  if (a.length == 0 || a[0].action == null) {
     return -1;
   }
-  if (b is! List || b.length == 0 || b[0]["action"] == null) {
+  if (b.length == 0 || b[0].action == null) {
     return 1;
   }
-  return a[0]["action"].compareTo(b[0]["action"]);
+  return a[0].action.compareTo(b[0].action);
 }
 
 class NetLogoFormatter extends CodeFormatter {
 
   NetLogoFormatter(Function formatAttribute, String containerId) : super(formatAttribute, containerId);
 
-  String _formatLanguageCode(JsObject parseTree) {
+  String _formatLanguageCode(CodeWorkspace workspace) {
     StringBuffer out = new StringBuffer();
-    if (parseTree["chains"] is! JsArray || parseTree["chains"].length == 0) {
+    if (workspace.chains.length == 0) {
       return out.toString();
     }
-    JsArray chains = parseTree["chains"];
+    final chains = workspace.chains.map( (c) => c.blocks ).toList();
     chains.sort(compareChainsByAction);
     for (var chain in chains) {
-      formatChain(out, chain, 0);
+      formatBlocks(out, chain, 0);
     }
 
     return out.toString();
   }
 
-  void formatChain(StringBuffer out, JsObject chain, int indent) {
-    if (!chain.hasProperty("blocks") || chain["blocks"] is! JsArray) {
-      return;
-    }
-    JsArray blocks = chain["blocks"];
-    if (blocks.length == 0 || blocks[0]["type"] != "nlogo:procedure") {
+  void formatBlocks(StringBuffer out, List<Block> blocks, int indent) {
+    if (blocks.length == 0 || blocks[0].type != "nlogo:procedure") {
       return;
     }
     var starter = blocks[0];
     formatBlock(out, starter, indent);
-    _formatBlocks(out, JsArray.from(blocks.skip(1)), indent + 1);
+    _formatBlocks(out, blocks.skip(1).toList(), indent + 1);
     out.writeln("end");
     out.writeln();
   }
 
-  void formatBlock(StringBuffer out, JsObject block, int indent) {
+  void formatBlock(StringBuffer out, Block block, int indent) {
     super.formatBlock(out, block, indent);
-    if (block["children"] is JsArray) {
-      formatClause(out, block["children"], indent);
+    if (block.children != null) {
+      formatClause(out, block.children, indent);
     }
-    if (block["clauses"] is JsArray) {
-      for (var clause in block["clauses"]) {
-        if (clause["children"] is JsArray) {
-          formatClause(out, clause["children"], indent);
-        }
+    if (block.clauses != null) {
+      for (Clause clause in block.clauses) {
+        formatClause(out, clause, indent);
       }
     }
   }
 
-  void _formatBlocks(StringBuffer out, JsArray blocks, int indent) {
+  void _formatBlocks(StringBuffer out, List<Block> blocks, int indent) {
     for (var block in blocks) {
       formatBlock(out, block, indent);
     }
   }
 
-  void formatClause(StringBuffer out, JsArray clause, int indent) {
+  void formatClause(StringBuffer out, Clause clause, int indent) {
     _formatOutput(out, indent, "[");
-    _formatBlocks(out, clause, indent + 1);
+    _formatBlocks(out, clause.blocks, indent + 1);
     _formatOutput(out, indent, "]");
   }
 
-  String _replaceAttribute(String code, String placeholder, JsObject block, JsObject attribute) {
-    var valToPass = attribute["expressionValue"] == null ? attribute["value"] : attribute["expressionValue"];
-    String replacement = _formatAttribute(_containerId, block["id"], block["instanceId"], attribute["id"], valToPass);
+  String _replaceAttribute(String code, String placeholder, Block block, Attribute attribute) {
+    assert (attribute != null);
+    var valToPass = (attribute is ExpressionParameter) ? attribute.expressionValue : attribute.value;
+    String replacement = _formatAttribute(_containerId, block.id, block.instanceId, attribute.id, valToPass);
     return code.replaceAll(placeholder, replacement);
   }
 

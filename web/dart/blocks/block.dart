@@ -76,98 +76,21 @@ class Block {
   DivElement _actionDiv;
   Toggle _propertiesToggle;
 
-  Block(this.workspace, this.id, this.action) {
+  Block(this.workspace, this.id, this.action, bool isSlotBlock) {
     if (this.id == null) {
       this.id = this.workspace.nextBlockId;
       this.workspace.nextBlockId++;
     } else if (this.id >= this.workspace.nextBlockId) {
       this.workspace.nextBlockId = this.id + 1;
     }
-    this.instanceId = this.workspace.nextBlockInstanceId;
-    this.workspace.nextBlockInstanceId++;
+    if (!isSlotBlock) {
+      this.instanceId = this.workspace.nextBlockInstanceId;
+      this.workspace.nextBlockInstanceId++;
+    }
   }
 
-  /// create a block from a JSON definition
-  factory Block.fromJSON(CodeWorkspace workspace, JsObject json) {
-
-    String action = toStr(json["action"]);  // required
-    int id = json["id"];
-    Block block = new Block(workspace, id, action);
-    json["id"] = block.id;
-
-    //----------------------------------------------------------
-    // block types
-    //----------------------------------------------------------
-    if (json["clauses"] is JsArray) {
-      block.clauses = new List<Clause>();
-      for (int i = 0; i < json["clauses"].length; i++) {
-        final clauseJson = json["clauses"][i];
-        Clause chain = Clause.fromJSON(workspace, block, clauseJson, i);
-        block.clauses.add(chain);
-      }
-    }
-
-    //----------------------------------------------------------
-    // block properties
-    //----------------------------------------------------------
-    block.type = toStr(json["type"]);
-    block.format = toStr(json["format"], null);
-    block.note = toStr(json["note"], null);
-    block.blockColor = toStr(json["blockColor"], null);
-    block.textColor = toStr(json["textColor"], null);
-    block.borderColor = toStr(json["borderColor"], null);
-    block.font = toStr(json["font"], null);
-    block.required = toBool(json["required"], block.required);
-
-    //----------------------------------------------------------
-    // parameters
-    //----------------------------------------------------------
-    if (json["params"] is JsArray) {
-      for (var p in json["params"]) {
-        Attribute param = new Attribute.fromJSON(block, p);
-        if (param != null) {
-          block.params[param.id] = param;
-        }
-      }
-    }
-
-    //----------------------------------------------------------
-    // properties
-    //----------------------------------------------------------
-    if (json["properties"] is JsArray) {
-      for (var p in json["properties"]) {
-        Attribute prop = new Attribute.fromJSON(block, p);
-        if (prop != null) {
-          block.properties[prop.id] = prop;
-        }
-      }
-      block.propertiesDisplay = toStr(json["propertiesDisplay"], "shown");
-    }
-
-    return block;
-  }
-
-  Block clone() {
-    Block other = new Block(workspace, id, action);
-    _copyTo(other);
-    return other;
-  }
-
-  static Block cloneSlotForChain(Block block) {
-    final newBlock = block.clone();
-    if (block.clauses != null) {
-      newBlock.children = new Clause(newBlock);
-      if (block.clauses.length > 0) {
-        newBlock.clauses = new List<Clause>();
-        for (int i = 0; i < block.clauses.length; i++) {
-          newBlock.clauses.add(new Clause(newBlock, clauseIndex: i));
-        }
-      }
-    }
-    return newBlock;
-  }
-
-  void _copyTo(Block other) {
+  Block clone(bool isSlotBlock) {
+    Block other = new Block(workspace, id, action, isSlotBlock);
     other.action = action;
     other.type = type;
     other.format = format;
@@ -178,54 +101,28 @@ class Block {
     other.font = font;
     other.required = required;
     for (Attribute param in params.values) {
-      Attribute otherParam = param.clone(other);
+      Attribute otherParam = param.clone(other, isSlotBlock);
       other.params[otherParam.id] = otherParam;
     }
     for (Attribute prop in properties.values) {
-      Attribute otherProp = prop.clone(other);
+      Attribute otherProp = prop.clone(other, isSlotBlock);
       other.properties[otherProp.id] = otherProp;
     }
+    return other;
   }
 
-
-//-------------------------------------------------------------------------
-/// export block to a JSON object
-//-------------------------------------------------------------------------
-  JsObject toJSON() {
-    var data = JsObject.jsify({});
-    data["id"] = id;
-    data["instanceId"] = instanceId;
-    data["action"] = action;
-    data["type"] = type;
-    data["format"] = format;
-    if (note != null) { data["note"] = note; }
-    data["required"] = required;
-    if (children != null) {
-      data["children"] = JsArray.from([]);
-      for (Block child in children.blocks) {
-        data["children"].add(child.toJSON());
+  static Block cloneSlotForChain(Block block) {
+    final newBlock = block.clone(false);
+    if (block.clauses != null) {
+      newBlock.children = new Clause(newBlock);
+      if (block.clauses.length > 0) {
+        newBlock.clauses = new List<Clause>();
+        for (int i = 0; i < block.clauses.length; i++) {
+          newBlock.clauses.add(new Clause(newBlock, clauseIndex: i));
+        }
       }
     }
-    if (clauses != null) {
-      data["clauses"] = JsArray.from([]);
-      for (Clause clause in clauses) {
-        data["clauses"].add(clause.toJSON());
-      }
-    }
-    if (params.isNotEmpty) {
-      data["params"] = JsArray.from([]);
-      for (Attribute param in params.values) {
-        data["params"].add(param.toJSON());
-      }
-    }
-    if (properties.isNotEmpty) {
-      data["properties"] = JsArray.from([]);
-      for (Attribute prop in properties.values) {
-        data["properties"].add(prop.toJSON());
-      }
-      data["propertiesDisplay"] = this.propertiesDisplay;
-    }
-    return data;
+    return newBlock;
   }
 
   int getBlockCount(int id) {
@@ -405,14 +302,14 @@ class Block {
       out.writeln();
     }
     if (_dragData.parentType == "workspace-chain" && _dragData.blockIndex == 0) {
-      final chain = workspace.chains[_dragData.chainIndex].exportParseTree();
-      workspace.formatter.formatChain(out, chain, 0);
+      final chain = workspace.chains[_dragData.chainIndex];
+      workspace.formatter.formatBlocks(out, chain.blocks, 0);
       // if this block isn't a valid chain starter, nothing may have been written
       if (out.isEmpty) {
-        workspace.formatter.formatBlock(out, this.toJSON(), 0);
+        workspace.formatter.formatBlock(out, this, 0);
       }
     } else {
-      workspace.formatter.formatBlock(out, this.toJSON(), 0);
+      workspace.formatter.formatBlock(out, this, 0);
     }
     final value = out.toString().trim();
     final escapedValue = (new HtmlEscape()).convert(value);

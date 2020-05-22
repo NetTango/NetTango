@@ -23,6 +23,10 @@ class BlockStyle {
   static final String DEFAULT_BORDER_COLOR    = "#ffffff";
   static final String DEFAULT_FONT_FAMILY     = "Poppins, sans-serif";
 
+  static BlockStyle DEFAULT_STARTER_STYLE   = new BlockStyle() .. blockColor = BlockStyle.DEFAULT_STARTER_COLOR;
+  static BlockStyle DEFAULT_CONTAINER_STYLE = new BlockStyle() .. blockColor = BlockStyle.DEFAULT_CONTAINER_COLOR;
+  static BlockStyle DEFAULT_COMMAND_STYLE   = new BlockStyle() .. blockColor = BlockStyle.DEFAULT_COMMAND_COLOR;
+
   String blockColor  = DEFAULT_COMMAND_COLOR;
   String textColor   = DEFAULT_TEXT_COLOR;
   String borderColor = DEFAULT_BORDER_COLOR;
@@ -46,27 +50,4 @@ class BlockStyle {
     sheet.insertRule(".$blockClass { $cssRule }", 0);
   }
 
-  JsObject toJSON() {
-    return JsObject.jsify({
-      blockColor:  blockColor,
-      textColor:   textColor,
-      borderColor: borderColor,
-      fontWeight:  fontWeight,
-      fontSize:    fontSize,
-      fontFace:    fontFace
-    });
-  }
-
-  static BlockStyle fromJSON(JsObject json, String blockColorDefault) {
-    if (json == null) {
-      return new BlockStyle() .. blockColor = blockColorDefault;
-    }
-    return new BlockStyle() ..
-      blockColor  = toStr(json["blockColor"],  blockColorDefault)    ..
-      textColor   = toStr(json["textColor"],   DEFAULT_TEXT_COLOR)   ..
-      borderColor = toStr(json["borderColor"], DEFAULT_BORDER_COLOR) ..
-      fontWeight  = toStr(json["fontWeight"],  "") ..
-      fontSize    = toStr(json["fontSize"],    "") ..
-      fontFace    = toStr(json["fontFace"],    "");
-  }
 }

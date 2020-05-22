@@ -33,16 +33,6 @@ class Chain extends BlockCollection {
 
   Chain(CodeWorkspace this.workspace);
 
-  JsObject toJSON() {
-    final blocks = exportParseTree();
-    final chain = JsObject.jsify({
-      "x": x,
-      "y": y
-    });
-    chain["blocks"] = blocks;
-    return chain;
-  }
-
   DivElement draw(DragImage dragImage, int newChainIndex) {
     this.chainIndex = newChainIndex;
 
@@ -186,11 +176,4 @@ class Chain extends BlockCollection {
     workspace.disableTopDropZones();
   }
 
-  static Chain fromJSON(CodeWorkspace workspace, JsObject json) {
-    Chain chain = new Chain(workspace);
-    if (json["children"] is JsArray) {
-      chain.blocks = BlockCollection.fromJSON(workspace, json["children"]);
-    }
-    return chain;
-  }
 }

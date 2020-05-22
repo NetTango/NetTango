@@ -25,14 +25,6 @@ class Clause extends BlockCollection {
 
   Clause(this.owner, {this.clauseIndex = null}) {}
 
-  static Clause fromJSON(CodeWorkspace workspace, Block owner, JsObject json, int clauseIndex) {
-    Clause clause = new Clause(owner, clauseIndex: clauseIndex);
-    if (json["children"] is JsArray) {
-      clause.blocks = BlockCollection.fromJSON(workspace, json["children"]);
-    }
-    return clause;
-  }
-
   DivElement draw(DragImage dragImage, DivElement headerDiv) {
     _div = new DivElement();
     _div.classes.add("nt-clause");

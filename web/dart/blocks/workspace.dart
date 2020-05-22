@@ -30,9 +30,6 @@ class CodeWorkspace {
   int nextBlockId = 0;
   int nextBlockInstanceId = 0;
 
-  /// save a copy of the workspace definition object for the save() function
-  JsObject definition;
-
   /// block menu
   BlockMenu menu;
 
@@ -57,14 +54,7 @@ class CodeWorkspace {
   DragAcceptor workspaceAcceptor, blockAcceptor;
   Dropzone containerDropzone;
 
-/**
- * Construct a code workspace from a JSON object
- */
-  CodeWorkspace(this.containerId, this.definition, this.formatter) {
-
-    if (this.definition["version"] != VersionManager.VERSION) {
-      throw "The supported NetTango version is ${VersionManager.VERSION}, but the given definition version was ${this.definition["version"]}.";
-    }
+  CodeWorkspace(this.containerId, this.formatter) {
 
     container = querySelector("#${containerId}");
     if (container == null) throw "No container element with ID $containerId found.";
@@ -77,72 +67,17 @@ class CodeWorkspace {
     containerDropzone = Dropzone(container, acceptor: this.workspaceAcceptor);
     containerDropzone.onDrop.listen(containerDrop);
 
-    height = definition["height"] is int ? definition["height"] : 600;
-    width  = definition["width"]  is int ? definition["width"]  : 450;
-
-    if (definition.hasProperty("blockStyles")) {
-      starterBlockStyle   = BlockStyle.fromJSON(definition["blockStyles"]["starterBlockStyle"],   BlockStyle.DEFAULT_STARTER_COLOR);
-      containerBlockStyle = BlockStyle.fromJSON(definition["blockStyles"]["containerBlockStyle"], BlockStyle.DEFAULT_CONTAINER_COLOR);
-      commandBlockStyle   = BlockStyle.fromJSON(definition["blockStyles"]["commandBlockStyle"],   BlockStyle.DEFAULT_COMMAND_COLOR);
-    } else {
-      starterBlockStyle   = new BlockStyle() .. blockColor = BlockStyle.DEFAULT_STARTER_COLOR;
-      containerBlockStyle = new BlockStyle() .. blockColor = BlockStyle.DEFAULT_CONTAINER_COLOR;
-      commandBlockStyle   = new BlockStyle() .. blockColor = BlockStyle.DEFAULT_COMMAND_COLOR;
-    }
+    starterBlockStyle   = BlockStyle.DEFAULT_STARTER_STYLE;
+    containerBlockStyle = BlockStyle.DEFAULT_CONTAINER_STYLE;
+    commandBlockStyle   = BlockStyle.DEFAULT_COMMAND_STYLE;
 
     container.style.minHeight = "${height}px";
     container.style.minWidth  = "${width}px";
     container.style.maxWidth  = "${width}px";
     currentHeight = height;
 
-    //--------------------------------------------------------
-    // initialize block menu
-    //--------------------------------------------------------
     menu = new BlockMenu(this);
-    if (definition['blocks'] is JsArray) {
-      // pre-check block IDs for our next one, as they may be out of order
-      // and we'll need to set any that aren't set (new blocks) while processing
-      for (var b in definition['blocks']) {
-        int id = b['id'];
-        if (id != null && id > nextBlockId) {
-          nextBlockId = id + 1;
-        }
-      }
-      for (var b in definition['blocks']) {
-        Block block = new Block.fromJSON(this, b);
-        if (menu.getBlockById(block.id) != null) {
-          // duplicate block ID - wipe the ID and re-generate a new block with a new ID
-          block.id = null;
-          block = block.clone();
-          b['id'] = block.id;
-        }
-        int limit = toInt(b['limit'], -1);
-        menu.addBlock(block, limit);
-      }
-    }
 
-    //--------------------------------------------------------
-    // initialize global variables
-    //--------------------------------------------------------
-    if (definition['variables'] is JsArray) {
-      variables = definition['variables'];
-    }
-
-    //--------------------------------------------------------
-    // initialize expression builder
-    //--------------------------------------------------------
-    if (definition['expressions'] is JsArray) {
-      expressions = definition['expressions'];
-    }
-
-    //--------------------------------------------------------
-    // saved program state
-    //--------------------------------------------------------
-    if (definition['program'] is JsObject) {
-      _restoreProgram(definition['program']);
-    }
-
-    draw();
   }
 
 /**
@@ -158,36 +93,14 @@ class CodeWorkspace {
   void programChanged(ProgramChangedEvent event) {
     try {
       _updateWorkspaceForChanges();
-      context["NetTango"].callMethod("_relayCallback", [ containerId, event.toJS() ]);
+      js.context["NetTango"].callMethod("_relayCallback", [ containerId, event.toJS() ]);
     } catch (e) {
       print("Unable to relay program changed event to Javascript");
     }
   }
 
   String exportCode({Function formatAttributeOverride = null}) {
-    var parseTree = exportParseTree(true);
-    return this.formatter.formatCode(parseTree, formatAttributeOverride: formatAttributeOverride);
-  }
-
-/**
- * Returns a JSON object representing the program's parse tree
- */
-  JsObject exportParseTree(bool includeRequired) {
-    final json = JsObject.jsify({
-      "chains": []
-    });
-    for (Chain chain in chains) {
-      json["chains"].add(chain.toJSON());
-    }
-
-    if (includeRequired) {
-      for (Slot slot in menu.slots) {
-        if (slot.block.required && getBlockCount(slot.block.id) == 0) {
-          json["chains"].add([slot.block.toJSON()]);
-        }
-      }
-    }
-    return json;
+    return this.formatter.formatCode(this, formatAttributeOverride: formatAttributeOverride);
   }
 
   int getBlockCount(int id) {
@@ -410,115 +323,6 @@ class CodeWorkspace {
     for (Chain chain in chains) {
       for (Block block in chain.blocks) {
         block.resetBlockActionText();
-      }
-    }
-  }
-
-  /// restore a constructed program from a previously saved state
-  void _restoreProgram(JsObject json) {
-    if (json['chains'] is JsArray) {
-      for (var chain in json['chains']) {
-        if (chain is JsObject) {
-          _restoreChain(chain);
-        }
-      }
-    }
-  }
-
-  void _restoreChain(JsObject chainJson) {
-    Chain chain = new Chain(this);
-
-    if (chainJson['x'] is num && chainJson['y'] is num) {
-      chain.x = chainJson['x'].floor();
-      chain.y = chainJson['y'].floor();
-    }
-
-    chains.add(chain);
-    if (chainJson['blocks'] is! JsArray) {
-      return;
-    }
-
-    for (var b in chainJson['blocks']) {
-      if (b is JsObject) {
-        Block block = _restoreBlock(b);
-        if (block != null) {
-          chain.blocks.add(block);
-        }
-      }
-    }
-  }
-
-  /// restore a block from a previously saved program state
-  Block _restoreBlock(JsObject json) {
-    Block proto = menu.getBlockById(json["id"]);
-    if (proto == null) {
-      print("No prototype block found for id: ${json["id"]}");
-      print(menu.slots.map( (s) { return s.block.id; }));
-      return null;
-    }
-
-    Block block = proto.clone();
-
-    block.propertiesDisplay = toStr(json["propertiesDisplay"], "shown");
-    _restoreParams(block, json['params'], json['properties']);
-
-    if (json['children'] is JsArray) {
-      block.children = new Clause(block);
-      for (var childJson in json['children']) {
-        if (childJson is JsObject) {
-          Block child = _restoreBlock(childJson);
-          if (child != null) {
-            block.children.blocks.add(child);
-          }
-        }
-      }
-    }
-
-    if (json['clauses'] is JsArray) {
-      block.clauses = new List<Clause>();
-      int clauseIndex = 0;
-      for (var clauseJson in json['clauses']) {
-        if (clauseJson is JsObject && clauseJson['children'] is JsArray) {
-          Clause clause = new Clause(block, clauseIndex: clauseIndex);
-          block.clauses.add(clause);
-          for (var childJson in clauseJson['children']) {
-            Block child = _restoreBlock(childJson);
-            if (child != null) {
-              clause.blocks.add(child);
-            }
-          }
-          clauseIndex++;
-        }
-      }
-    }
-
-    return block;
-  }
-
-  /// restore parameters for a block from a previously saved program
-  void _restoreParams(Block block, JsArray params, JsArray properties) {
-    if (params is JsArray) {
-      for (JsObject param in params) {
-        if (param is JsObject && param.hasProperty('id') && param.hasProperty('value') && block.params.containsKey(param['id'])) {
-          final blockParam = block.params[param['id']];
-          if (param["value"] is JsObject && ![ "bool", "num" ].contains(blockParam.type)) {
-            blockParam.value = blockParam.defaultValue;
-          } else {
-            blockParam.value = param['value'];
-          }
-        }
-      }
-    }
-    if (properties is JsArray) {
-      for (JsObject prop in properties) {
-        if (prop is JsObject && prop.hasProperty('id') && prop.hasProperty('value') && block.properties.containsKey(prop['id'])) {
-          final blockProp = block.properties[prop['id']];
-          if (prop["value"] is JsObject && ![ "bool", "num" ].contains(blockProp.type)) {
-            blockProp.value = blockProp.defaultValue;
-          } else {
-            blockProp.value = prop['value'];
-          }
-        }
       }
     }
   }

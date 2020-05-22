@@ -2,15 +2,15 @@ part of NetTango;
 
 class Version3 {
 
-  static void update(JsObject json) {
+  static void update(js.JsObject json) {
     VersionUtils.updateBlocks3(json, (b) {}, unscaleBlockLocation);
 
-    if (!json.hasProperty("program") || json["program"] is! JsObject) {
+    if (!json.hasProperty("program") || json["program"] is! js.JsObject) {
       return;
     }
 
-    JsObject program = json["program"];
-    if (!program.hasProperty("chains") || program["chains"] is! JsArray) {
+    js.JsObject program = json["program"];
+    if (!program.hasProperty("chains") || program["chains"] is! js.JsArray) {
       return;
     }
 
@@ -22,10 +22,10 @@ class Version3 {
   // this now, and any version 2 model we see that has these empty procedures would've had them
   // removed anyway (not displayed to the user).  Hence we clear them so users aren't surprised
   // to find procedures they hadn't previously added.  -Jeremy B Jan-2020
-  static void removeEmptyChains(JsObject program) {
-    JsArray chains = program["chains"];
-    program["chains"] = JsArray.from(chains.where( (chain) {
-      if (chain is! JsArray) {
+  static void removeEmptyChains(js.JsObject program) {
+    js.JsArray chains = program["chains"];
+    program["chains"] = js.JsArray.from(chains.where( (chain) {
+      if (chain is! js.JsArray) {
         return false;
       }
       if (chain.length == 0) {
@@ -34,7 +34,7 @@ class Version3 {
       if (chain.length > 1) {
         return true;
       }
-      JsObject first = chain[0];
+      js.JsObject first = chain[0];
       if (first.hasProperty("required") && first["required"]) {
         return false;
       }
@@ -42,7 +42,7 @@ class Version3 {
     }));
   }
 
-  static void unscaleBlockLocation(JsObject b) {
+  static void unscaleBlockLocation(js.JsObject b) {
     if (b["x"] is num) {
       b["x"] = (b["x"] * 10);
     }
