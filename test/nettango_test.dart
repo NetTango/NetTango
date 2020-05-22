@@ -232,7 +232,7 @@ void main() {
     var result = JSSaveWorkspace("nt-canvas");
     var expected = jsonEncode({
       "version": VersionManager.VERSION,
-      "height": 600, "width": 450,
+      "height": CodeWorkspace.DEFAULT_HEIGHT, "width": CodeWorkspace.DEFAULT_WIDTH,
       "blocks": [],
       "program": { "chains": [] }
     });
@@ -307,7 +307,7 @@ void main() {
     var result = jsonDecode(JSSaveWorkspace("nt-canvas"));
     var expected = {
       "version": VersionManager.VERSION,
-      "height": 600, "width": 450,
+      "height": CodeWorkspace.DEFAULT_HEIGHT, "width": CodeWorkspace.DEFAULT_WIDTH,
       "blocks": [
         {
           "id": 23,
@@ -363,8 +363,8 @@ void main() {
     final result = jsonDecode(JSSaveWorkspace(testCanavsID));
 
     model["version"] = VersionManager.VERSION;
-    model["width"] = 450;
-    model["height"] = 600;
+    model["width"] = CodeWorkspace.DEFAULT_WIDTH;
+    model["height"] = CodeWorkspace.DEFAULT_HEIGHT;
     model["blocks"][1]["required"] = false;
     model["blocks"][1]["params"][0].remove("unit");
     model["blocks"][1]["params"][0].remove("value");
@@ -444,7 +444,7 @@ void main() {
 
     var expected = {
       "version": VersionManager.VERSION,
-      "height": 600, "width": 450,
+      "height": CodeWorkspace.DEFAULT_HEIGHT, "width": CodeWorkspace.DEFAULT_WIDTH,
       "blocks": [ proc, chance, forward, wiggle ],
       "program": { "chains": [ {
         "x": 0, "y": 0,
@@ -480,7 +480,7 @@ void main() {
     var result = jsonDecode(JSSaveWorkspace("nt-canvas"));
 
     final expected = {
-      "version": VersionManager.VERSION, "height": 600, "width": 450,
+      "version": VersionManager.VERSION, "height": CodeWorkspace.DEFAULT_HEIGHT, "width": CodeWorkspace.DEFAULT_WIDTH,
       "blocks": [ {
         "id": 0,
         "action": "sheep actions",
@@ -551,7 +551,7 @@ void main() {
     var result = jsonDecode(JSSaveWorkspace("nt-canvas"));
 
     Map<String, Object> expected = {
-      "version": VersionManager.VERSION, "height": 600, "width": 450,
+      "version": VersionManager.VERSION, "height": CodeWorkspace.DEFAULT_HEIGHT, "width": CodeWorkspace.DEFAULT_WIDTH,
       "blocks": [ {
         "id": 0,
         "action": "sheep actions", "required": true,

@@ -6,8 +6,8 @@ CodeWorkspace restoreWorkspace(String containerId, js.JsObject definition, CodeF
   }
 
   final workspace = new CodeWorkspace(containerId, formatter);
-  workspace.height = definition["height"] is int ? definition["height"] : 600;
-  workspace.width  = definition["width"]  is int ? definition["width"]  : 450;
+  workspace.height = definition["height"] is int ? definition["height"] : CodeWorkspace.DEFAULT_HEIGHT;
+  workspace.width  = definition["width"]  is int ? definition["width"]  : CodeWorkspace.DEFAULT_WIDTH;
 
   if (definition.hasProperty("blockStyles")) {
     workspace.starterBlockStyle   = restoreBlockStyle(definition["blockStyles"]["starterBlockStyle"],   BlockStyle.DEFAULT_STARTER_COLOR);

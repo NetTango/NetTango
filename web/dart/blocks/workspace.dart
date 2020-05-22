@@ -17,6 +17,9 @@ part of NetTango;
 
 class CodeWorkspace {
 
+  static int DEFAULT_HEIGHT = 600;
+  static int DEFAULT_WIDTH = 450;
+
   int version = VersionManager.VERSION;
 
   /// HTML Canvas ID
