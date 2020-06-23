@@ -42,7 +42,21 @@ class CodeWorkspace {
   /// list of expressions
   List<ExpressionDefinition> expressionDefinitions = new List<ExpressionDefinition>();
 
-  int height, width, currentHeight;
+  int _height = DEFAULT_HEIGHT;
+  int get height => _height;
+  set height(int h) {
+    _height = h;
+    container.style.minHeight = "${height}px";
+  }
+  int currentHeight = DEFAULT_HEIGHT;
+
+  int _width = DEFAULT_WIDTH;
+  int get width => _width;
+  set width(int w) {
+    _width = w;
+    container.style.minWidth = "${width}px";
+    container.style.maxWidth = "${width}px";
+  }
 
   BlockStyle starterBlockStyle;
   BlockStyle containerBlockStyle;
@@ -77,7 +91,6 @@ class CodeWorkspace {
     container.style.minHeight = "${height}px";
     container.style.minWidth  = "${width}px";
     container.style.maxWidth  = "${width}px";
-    currentHeight = height;
 
     menu = new BlockMenu(this);
 
