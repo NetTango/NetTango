@@ -103,7 +103,7 @@ class CodeWorkspace {
   }
 
   String exportCode({Function formatAttributeOverride = null}) {
-    return this.formatter.formatCode(this, formatAttributeOverride: formatAttributeOverride);
+    return this.formatter.formatCode(this, true, formatAttributeOverride: formatAttributeOverride);
   }
 
   int getBlockCount(int id) {

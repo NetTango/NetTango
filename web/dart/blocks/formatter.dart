@@ -23,20 +23,24 @@ abstract class CodeFormatter  {
 
   CodeFormatter(Function this._formatAttribute, String this._containerId);
 
-  String formatCode(CodeWorkspace workspace, {Function formatAttributeOverride = null}) {
+  String formatCode(CodeWorkspace workspace, bool includeRequired, {Function formatAttributeOverride = null}) {
     Function originalFormatAttribute = _formatAttribute;
     if (formatAttributeOverride != null) {
       _formatAttribute = formatAttributeOverride;
     }
 
-    final result = _formatLanguageCode(workspace);
+    final extraChains = workspace.menu.slots
+      .where( (slot) => includeRequired && slot.block.required && workspace.getBlockCount(slot.block.id) == 0)
+      .map( (slot) => new List<Block>() .. add(slot.block)).toList();
+
+    final result = _formatLanguageCode(workspace, extraChains);
 
     _formatAttribute = originalFormatAttribute;
 
     return result;
   }
 
-  String _formatLanguageCode(CodeWorkspace workspace);
+  String _formatLanguageCode(CodeWorkspace workspace, List<List<Block>> extraChains);
 
   void formatBlocks(StringBuffer out, List<Block> blocks, int indent);
 
@@ -123,13 +127,15 @@ class PlainFormatter extends CodeFormatter {
 
   PlainFormatter(Function formatAttribute, String containerId) : super(formatAttribute, containerId);
 
-  String _formatLanguageCode(CodeWorkspace workspace) {
+  String _formatLanguageCode(CodeWorkspace workspace, List<List<Block>> extraChains) {
     StringBuffer out = new StringBuffer();
     for (Chain chain in workspace.chains) {
       formatBlocks(out, chain.blocks, 0);
       out.writeln();
     }
-
+    for (List<Block> blocks in extraChains) {
+      formatBlocks(out, blocks, 0);
+    }
     return out.toString();
   }
 
@@ -164,15 +170,17 @@ class NetLogoFormatter extends CodeFormatter {
 
   NetLogoFormatter(Function formatAttribute, String containerId) : super(formatAttribute, containerId);
 
-  String _formatLanguageCode(CodeWorkspace workspace) {
+  String _formatLanguageCode(CodeWorkspace workspace, List<List<Block>> extraChains) {
     StringBuffer out = new StringBuffer();
-    if (workspace.chains.length == 0) {
-      return out.toString();
-    }
+
     final chains = workspace.chains.map( (c) => c.blocks ).toList();
     chains.sort(compareChainsByAction);
     for (var chain in chains) {
       formatBlocks(out, chain, 0);
+    }
+
+    for (List<Block> blocks in extraChains) {
+      formatBlocks(out, blocks, 0);
     }
 
     return out.toString();
