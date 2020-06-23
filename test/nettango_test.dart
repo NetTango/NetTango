@@ -332,6 +332,7 @@ void main() {
           "blocks": [
             {
               "id": 23,
+              "instanceId": 0,
               "action": "wolf actions",
               "type": "nlogo:procedure",
               "format": "to wolf-actions",
@@ -340,6 +341,7 @@ void main() {
             },
             {
               "id": 24,
+              "instanceId": 1,
               "action": "forward",
               "type": "nlogo:command",
               "format": "forward 10",
@@ -381,14 +383,14 @@ void main() {
     versionFourChainUpdates(model["program"]);
 
     model["program"]["chains"][0]["blocks"][0]["blockColor"] = "#bb5555";
-    model["program"]["chains"][0]["blocks"][0].remove("instanceId");
-    model["program"]["chains"][0]["blocks"][1].remove("instanceId");
+    model["program"]["chains"][0]["blocks"][0]["instanceId"] = 0;
+    model["program"]["chains"][0]["blocks"][1]["instanceId"] = 1;
     model["program"]["chains"][0]["blocks"][1]["params"][0].remove("unit");
     model["program"]["chains"][0]["blocks"][1]["properties"][0].remove("name");
     model["program"]["chains"][0]["blocks"][1]["properties"][0].remove("unit");
-    model["program"]["chains"][1]["blocks"][0].remove("instanceId");
+    model["program"]["chains"][1]["blocks"][0]["instanceId"] = 2;
     model["program"]["chains"][1]["blocks"][0]["blockColor"] = "#bb5555";
-    model["program"]["chains"][1]["blocks"][1].remove("instanceId");
+    model["program"]["chains"][1]["blocks"][1]["instanceId"] = 3;
     model["program"]["chains"][1]["blocks"][1]["params"][0].remove("unit");
     model["program"]["chains"][1]["blocks"][1]["properties"][0].remove("name");
     model["program"]["chains"][1]["blocks"][1]["properties"][0].remove("unit");
@@ -432,15 +434,15 @@ void main() {
     print(jsonEncode(result));
 
     var forwardExp = copyJson(forwardInst);
-    forwardExp.remove("instanceId");
+    forwardExp["instanceId"] = 2;
     var wiggleExp = copyJson(wiggleInst);
-    wiggleExp.remove("instanceId");
+    wiggleExp["instanceId"] = 3;
     var chanceExp = copyJson(chanceInst);
-    chanceExp.remove("instanceId");
+    chanceExp["instanceId"] = 1;
     chanceExp["children"] = [ forwardExp ];
     chanceExp["clauses"] = [ { "children": [ wiggleExp ] } ];
     var procExp = copyJson(procInst);
-    procExp.remove("instanceId");
+    procExp["instanceId"] = 0;
 
     var expected = {
       "version": VersionManager.VERSION,
@@ -493,6 +495,7 @@ void main() {
         "x": 0, "y": 0,
         "blocks": [ {
           "id": 0,
+          "instanceId": 0,
           "action": "sheep actions",
           "required": false,
           "params": [ { "id": 0, "type": "int", "default": 10, "value": 10, "step": 1 } ],
@@ -644,8 +647,8 @@ void main() {
     versionFourChainUpdates(expected["program"]);
     expected["blocks"][0]["propertiesDisplay"] = "shown";
     expected["blocks"][1]["propertiesDisplay"] = "shown";
-    expected["program"]["chains"][0]["blocks"][0].remove("instanceId");
-    expected["program"]["chains"][0]["blocks"][1].remove("instanceId");
+    expected["program"]["chains"][0]["blocks"][0]["instanceId"] = 0;
+    expected["program"]["chains"][0]["blocks"][1]["instanceId"] = 1;
 
     expect(result, equals(expected));
   });

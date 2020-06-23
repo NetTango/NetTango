@@ -77,6 +77,7 @@ js.JsObject encodeBlock(Block block, int limit) {
     "action":   block.action,
     "required": block.required
   });
+  setIfNotNull(blockDef, "instanceId", block.instanceId);
   setIfNotNullOrEmpty(blockDef, "type", block.type);
   setIfNotNullOrEmpty(blockDef, "format", block.format);
   setIfNotNull(blockDef, "limit", limit);
