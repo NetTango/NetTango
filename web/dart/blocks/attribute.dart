@@ -154,7 +154,7 @@ class Attribute<T> {
 //-------------------------------------------------------------------------
 class NumParameter extends Attribute {
 
-  int _value = null;
+  num _value = null;
 
   /// represents a random number?
   bool random = null;
@@ -174,7 +174,7 @@ class NumParameter extends Attribute {
     return NumParameter.clone(block, this, isSlotBlock);
   }
 
-  int get value => _value;
+  num get value => _value;
   set value(dynamic v) => _value = toNum(v, 0.0);
 
   String get displayValue {
