@@ -284,7 +284,7 @@ class Option {
   final String display;
 
   get displayValue {
-    this.display == null || this.display == "" ? this.actual : this.display;
+    return this.display == null || this.display == "" ? this.actual : this.display;
   }
 
   Option(this.actual, this.display);
@@ -333,7 +333,9 @@ class SelectParameter extends Attribute {
 
     for (Option v in values) {
       DivElement row = new DivElement() .. className = "nt-param-row";
-      DivElement opt = new DivElement() .. className = "nt-select-option" .. innerHtml = v.displayValue;
+      DivElement opt = new DivElement()
+        .. className = "nt-select-option"
+        .. innerHtml = v.displayValue;
       if (v.actual == value) { opt.classes.add("selected"); }
       opt.onClick.listen((e) {
         value = v.actual;
