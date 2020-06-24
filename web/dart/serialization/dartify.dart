@@ -288,7 +288,7 @@ void restoreChainBlockAttributes(Map<int, Attribute> blockAttributes, js.JsArray
         final builder = restoreExpressionBuilder(expressionAttibute.block.workspace, expressionAttibute.type, attributeDef["value"]);
         expressionAttibute.builder = builder;
       } else {
-        final builder = restoreExpressionValue(expressionAttibute.block.workspace, expressionAttibute.type, attributeDef["value"]);
+        final builder = restoreExpressionValue(expressionAttibute.block.workspace, expressionAttibute.type, attributeDef["value"].toString());
         expressionAttibute.builder = builder;
       }
     } else {

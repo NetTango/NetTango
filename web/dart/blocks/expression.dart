@@ -204,7 +204,8 @@ class Expression {
 
     // ---------------  variables ---------------------
     if (builder.variables.isNotEmpty) hmenu.appendHtml("<hr>");
-    _addMenuItems(hmenu, builder.variables);
+    // TODO: get this working again once variables are implemented
+    // _addMenuItems(hmenu, builder.variables);
 
     // ---------------  clear button ---------------------
     hmenu.appendHtml("<hr>");
