@@ -17,7 +17,7 @@ part of NetTango;
 
 class Chain extends BlockCollection {
 
-  static final FRAGMENT_HEIGHT = 20;
+  static final FRAGMENT_HEIGHT = 40;
 
   int x = 0, y = 0;
 
