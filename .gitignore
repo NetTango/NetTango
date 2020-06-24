@@ -21,8 +21,5 @@ django/reese/media
 django/uploadstatic.sh
 *.pyc
 
-# Include when developing application packages.
-pubspec.lock
-
 login.sh
 upload.sh
