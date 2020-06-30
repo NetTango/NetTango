@@ -75,6 +75,7 @@ class Attribute<T> {
     paramDiv.classes.add("nt-attribute-value");
     paramDiv.classes.add("${block.getStyleClass()}-attribute");
     if (block.blockColor != null) { paramDiv.style.color = block.blockColor; }
+    if (block.textColor != null) { paramDiv.style.backgroundColor = block.textColor; }
 
     final updateValue = () { paramDiv.innerText = displayValue; };
     paramDiv.onClick.listen( (event) {

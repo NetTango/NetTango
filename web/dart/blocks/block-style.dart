@@ -46,7 +46,7 @@ class BlockStyle {
 
   appendToSheet(CssStyleSheet sheet, String blockClass) {
     sheet.insertRule(".$blockClass-color { background-color: $blockColor; }", 0);
-    sheet.insertRule(".$blockClass-attribute { color: $blockColor; }", 0);
+    sheet.insertRule(".$blockClass-attribute { color: $blockColor; background-color: $textColor; }", 0);
     sheet.insertRule(".$blockClass { $cssRule }", 0);
   }
 
