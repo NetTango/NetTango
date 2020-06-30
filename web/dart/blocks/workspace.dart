@@ -112,6 +112,7 @@ class CodeWorkspace {
       js.context["NetTango"].callMethod("_relayCallback", [ containerId, event.toJS() ]);
     } catch (e) {
       print("Unable to relay program changed event to Javascript");
+      print(e);
     }
   }
 
