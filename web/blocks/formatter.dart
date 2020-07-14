@@ -31,7 +31,7 @@ abstract class CodeFormatter  {
     }
 
     final extraChains = workspace.menu.slots
-      .where( (slot) => includeRequired && slot.block.required && workspace.getBlockCount(slot.block.id) == 0)
+      .where( (slot) => includeRequired && slot.block.isRequired && workspace.getBlockCount(slot.block.id) == 0)
       .map( (slot) => new List<Block>() .. add(slot.block)).toList();
 
     final result = _formatLanguageCode(workspace, extraChains);

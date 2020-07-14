@@ -91,7 +91,7 @@ js.JsObject encodeBlock(Block block, int limit) {
   var blockEnc = js.JsObject.jsify({
     "id":       block.id,
     "action":   block.action,
-    "required": block.required
+    "required": block.isRequired
   });
   setIfNotNull(blockEnc, "instanceId", block.instanceId);
   setIfNotNullOrEmpty(blockEnc, "type", block.type);

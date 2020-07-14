@@ -45,7 +45,7 @@ class Block {
   Map<int, Attribute> params = new Map<int, Attribute>();
 
   /// properties for this block (optional)
-  /// properties are just named paramters that get listed vertically
+  /// properties are just named parameters that get listed vertically
   Map<int, Attribute> properties = new Map<int, Attribute>();
   String propertiesDisplay = "shown";
 
@@ -60,7 +60,7 @@ class Block {
   String font;
 
   /// Tells a code formatter that at least one block of this type is required
-  bool required = false;
+  bool isRequired = false;
 
   /// link back to the main workspace
   CodeWorkspace workspace;
@@ -100,7 +100,7 @@ class Block {
     other.textColor = textColor;
     other.borderColor = borderColor;
     other.font = font;
-    other.required = required;
+    other.isRequired = isRequired;
     for (Attribute param in params.values) {
       Attribute otherParam = param.clone(other, isSlotBlock);
       other.params[otherParam.id] = otherParam;
@@ -156,7 +156,7 @@ class Block {
   }
 
   String getStyleClass() {
-    if (required) {
+    if (isRequired) {
       return "${workspace.containerId}-block-starter";
     }
     if (children != null || clauses != null) {

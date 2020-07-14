@@ -33,7 +33,7 @@ class DragAcceptor extends Acceptor {
   static startDrag(Block firstBlock, DraggableEvent startEvent) {
     DragAcceptor.sourceContainerId = firstBlock.workspace.containerId;
     DragAcceptor.dragStartOffset = startEvent.startPosition - DragImage.getOffsetToRoot(startEvent.draggableElement);
-    DragAcceptor.isDragStarter = firstBlock.required;
+    DragAcceptor.isDragStarter = firstBlock.isRequired;
     DragAcceptor.wasHandled = false;
   }
 
