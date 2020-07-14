@@ -8820,7 +8820,7 @@ else U.mB([])})})()
 //# sourceMappingURL=ntango.dart.js.map
 /*
  * NetTango
- * Copyright (c) 2017 Michael S. Horn, Uri Wilensky, and Corey Brady
+ * Copyright (c) 2020 Michael S. Horn, Uri Wilensky, and Corey Brady
  *
  * Northwestern University
  * 2120 Campus Drive
