@@ -1,17 +1,27 @@
-# Getting Started with NetTango Modeling 
+# Getting Started with NetTango Modeling
 
-* To create a NetTango workspace, start by downloading the [ntango.js](https://raw.githubusercontent.com/NetTango/NetTango/version_0.8/web/lib/ntango.js) library.
+NetTango is published as a package on [the npm package directory](https://www.npmjs.com/package/nettango).  You can include it as a regular JavaScript dependency if your project uses a `package.json` file with the `npm` or `yarn` tools:
 
-* You'll also need the NetTango stylesheet: [ntango.css](https://raw.githubusercontent.com/NetTango/NetTango/version_0.8/web/css/ntango.css).
+```json
+{
+  "name": "my-app",
+  "version": "1.0.0",
+  "dependencies": {
+    "nettango": "0.11.1"
+  }
+}
+```
 
-* Then create a test HTML file in the same directory as the library file (you can copy this code):
+To create a NetTango workspace, you will need to include the `ntango.js` file in your project, as well as the `ntango.css` file for styling.
+
+A basic HTML example might them look like this:
 
 ```html
 <!DOCTYPE html>
-<html> 
-<head> 
+<html>
+<head>
   <title>NetTango Example</title>
-  <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">   
+  <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">
   <link href="ntango.css" rel="stylesheet">
   <script src="ntango.js"></script>
 </head>
@@ -37,11 +47,10 @@ document.body.onload = function() {
   // STEP 2: Initialize the workspace (with the canvasId and the list of blocks)
   NetTango.init("nt-workspace", workspaceDefinition);
 
-
   // STEP 3: Add a callback to catch program changed events
   NetTango.addProgramChangedCallback("nt-workspace", function(canvasId) {
     var code = NetTango.exportCode(canvasId, "NetLogo");
-    console.log(code); 
+    console.log(code);
 
     // send code to NetLogo Web here!
   });
@@ -51,11 +60,11 @@ document.body.onload = function() {
 </html>
 ```
 
-* Load this file into a browser (Chrome or Firefox). If everything works, you should see a workspace with just one block available in the menu.
+Load this file into a web browser (Chrome, Firefox, or Safari). If everything works, you should see a workspace with just one block available in the menu.
 
-* The next step is to try a more full-fledged block definition object. Try replacing workspaceDefinition with this object:
+The next step is to try a more full-fledged block definition object. Try replacing workspaceDefinition with this object:
 
-```javascript
+```js
   var workspaceDefinition = {
     "blocks" : [
       {
@@ -123,17 +132,17 @@ document.body.onload = function() {
         "params" : [ { "type" : "range", "min" : -20, "max" : 20, "step" : 0.5, "default" : 1, "name" : "amount" }]
       },
 
-      { 
-        "action" : "\uD83D\uDC3A   hatch", 
-        "format" : "hatch 1", 
+      {
+        "action" : "\uD83D\uDC3A   hatch",
+        "format" : "hatch 1",
         "blockColor" : "#916da0",
         "params" : [
           { "type" : "int", "min" : 1, "name" : "child count", "default" : 1 }
         ]
       },
 
-      { 
-        "action" : "die", 
+      {
+        "action" : "die",
         "blockColor" : "#916da0",
       },
 
@@ -157,7 +166,6 @@ document.body.onload = function() {
         "format" : "ask sheep-here",
         "clauses" : [ ]
       },
-
 
       {
         "action" : "chance",
