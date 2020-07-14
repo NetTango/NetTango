@@ -5,7 +5,7 @@ js.JsObject encodeWorkspace(CodeWorkspace workspace) {
   // maybe that is possible, but at the moment there are slight differences in property names
   // for the exported JSON, and we'd have to do a ton of testing, so stick to the
   // bespoke method for now.
-  final definition = js.JsObject.jsify({
+  final workspaceEnc = js.JsObject.jsify({
     "version": workspace.version,
     "height":  workspace.height,
     "width":   workspace.width,
@@ -17,47 +17,47 @@ js.JsObject encodeWorkspace(CodeWorkspace workspace) {
 
   // block styles
   if (workspace.starterBlockStyle != BlockStyle.DEFAULT_STARTER_STYLE || workspace.containerBlockStyle != BlockStyle.DEFAULT_CONTAINER_STYLE || workspace.commandBlockStyle != BlockStyle.DEFAULT_COMMAND_STYLE) {
-    definition["blockStyles"] = js.JsObject.jsify({});
-    definition["blockStyles"]["starterBlockStyle"]   = encodeBlockStyle(workspace.starterBlockStyle);
-    definition["blockStyles"]["containerBlockStyle"] = encodeBlockStyle(workspace.containerBlockStyle);
-    definition["blockStyles"]["commandBlockStyle"]   = encodeBlockStyle(workspace.commandBlockStyle);
+    workspaceEnc["blockStyles"] = js.JsObject.jsify({});
+    workspaceEnc["blockStyles"]["starterBlockStyle"]   = encodeBlockStyle(workspace.starterBlockStyle);
+    workspaceEnc["blockStyles"]["containerBlockStyle"] = encodeBlockStyle(workspace.containerBlockStyle);
+    workspaceEnc["blockStyles"]["commandBlockStyle"]   = encodeBlockStyle(workspace.commandBlockStyle);
   }
 
   // blocks
   for (Slot slot  in workspace.menu.slots) {
-    final blockDef = encodeBlock(slot.block, slot.limit == -1 ? null : slot.limit);
-    definition["blocks"].add(blockDef);
+    final blockEnc = encodeBlock(slot.block, slot.limit == -1 ? null : slot.limit);
+    workspaceEnc["blocks"].add(blockEnc);
   }
 
   // variables
   if (workspace.variables != null && workspace.variables.isNotEmpty) {
-    final variables = definition["variables"] = js.JsArray.from([]);
+    final variables = workspaceEnc["variables"] = js.JsArray.from([]);
     // TODO: actually save those variables
    }
 
   // expressions
   if (workspace.expressionDefinitions != null && workspace.expressionDefinitions.isNotEmpty) {
-    final expressions = definition["expressions"] = js.JsArray.from([]);
-    for (ExpressionDefinition expressionDef in workspace.expressionDefinitions) {
-      expressions.add(encodeExpressionDefinition(expressionDef));
+    final expressions = workspaceEnc["expressions"] = js.JsArray.from([]);
+    for (ExpressionDefinition expressionEnc in workspace.expressionDefinitions) {
+      expressions.add(encodeExpressionDefinition(expressionEnc));
     }
   }
 
   // program
-  final chains = definition["program"]["chains"];
+  final chains = workspaceEnc["program"]["chains"];
   for (Chain chain in workspace.chains) {
-    final chainDef = js.JsObject.jsify({
+    final chainEnc = js.JsObject.jsify({
       "x": chain.x, "y": chain.y,
       "blocks": []
     });
     for (Block block in chain.blocks) {
-      final blockDef = encodeBlock(block, null);
-      chainDef["blocks"].add(blockDef);
+      final blockEnc = encodeBlock(block, null);
+      chainEnc["blocks"].add(blockEnc);
     }
-    chains.add(chainDef);
+    chains.add(chainEnc);
   }
 
-  return definition;
+  return workspaceEnc;
 }
 
 js.JsObject encodeBlockStyle(BlockStyle style) {
@@ -72,67 +72,67 @@ js.JsObject encodeBlockStyle(BlockStyle style) {
 }
 
 js.JsObject encodeBlock(Block block, int limit) {
-  var blockDef = js.JsObject.jsify({
+  var blockEnc = js.JsObject.jsify({
     "id":       block.id,
     "action":   block.action,
     "required": block.required
   });
-  setIfNotNull(blockDef, "instanceId", block.instanceId);
-  setIfNotNullOrEmpty(blockDef, "type", block.type);
-  setIfNotNullOrEmpty(blockDef, "format", block.format);
-  setIfNotNull(blockDef, "limit", limit);
-  setIfNotNullOrEmpty(blockDef, "note", block.note);
-  setIfNotNullOrEmpty(blockDef, "blockColor", block.blockColor);
-  setIfNotNullOrEmpty(blockDef, "textColor", block.textColor);
-  setIfNotNullOrEmpty(blockDef, "borderColor", block.borderColor);
-  setIfNotNullOrEmpty(blockDef, "font", block.font);
+  setIfNotNull(blockEnc, "instanceId", block.instanceId);
+  setIfNotNullOrEmpty(blockEnc, "type", block.type);
+  setIfNotNullOrEmpty(blockEnc, "format", block.format);
+  setIfNotNull(blockEnc, "limit", limit);
+  setIfNotNullOrEmpty(blockEnc, "note", block.note);
+  setIfNotNullOrEmpty(blockEnc, "blockColor", block.blockColor);
+  setIfNotNullOrEmpty(blockEnc, "textColor", block.textColor);
+  setIfNotNullOrEmpty(blockEnc, "borderColor", block.borderColor);
+  setIfNotNullOrEmpty(blockEnc, "font", block.font);
 
   if (block.children != null) {
-    final children = blockDef["children"] = js.JsArray.from([]);
+    final children = blockEnc["children"] = js.JsArray.from([]);
     for (Block child in block.children.blocks) {
-      final childDef = encodeBlock(child, null);
-      children.add(childDef);
+      final childEnc = encodeBlock(child, null);
+      children.add(childEnc);
     }
   }
 
   if (block.clauses != null) {
-    final clauses = blockDef["clauses"] = js.JsArray.from([]);
+    final clauses = blockEnc["clauses"] = js.JsArray.from([]);
     for (Clause clause in block.clauses) {
-      final clauseDef = encodeClause(clause);
-      clauses.add(clauseDef);
+      final clauseEnc = encodeClause(clause);
+      clauses.add(clauseEnc);
     }
   }
 
   if (block.params.isNotEmpty) {
-    final params = blockDef["params"] = js.JsArray.from([]);
+    final params = blockEnc["params"] = js.JsArray.from([]);
     for (Attribute param in block.params.values) {
-      final paramDef = encodeAttribute(param);
-      params.add(paramDef);
+      final paramEnc = encodeAttribute(param);
+      params.add(paramEnc);
     }
   }
 
   if (block.properties.isNotEmpty) {
-    final properties = blockDef["properties"] = js.JsArray.from([]);
+    final properties = blockEnc["properties"] = js.JsArray.from([]);
     for (Attribute property in block.properties.values) {
-      final propertyDef = encodeAttribute(property);
-      properties.add(propertyDef);
+      final propertyEnc = encodeAttribute(property);
+      properties.add(propertyEnc);
     }
-    blockDef["propertiesDisplay"] = block.propertiesDisplay;
+    blockEnc["propertiesDisplay"] = block.propertiesDisplay;
   }
 
-  return blockDef;
+  return blockEnc;
 }
 
 js.JsObject encodeClause(Clause clause) {
-  final clauseDef = js.JsObject.jsify({
+  final clauseEnc = js.JsObject.jsify({
     "children": []
   });
-  final children = clauseDef["children"];
+  final children = clauseEnc["children"];
   for (Block block in clause.blocks) {
-    final blockDef = encodeBlock(block, null);
-    children.add(blockDef);
+    final blockEnc = encodeBlock(block, null);
+    children.add(blockEnc);
   }
-  return clauseDef;
+  return clauseEnc;
 }
 
 setIfNotNull<T>(js.JsObject def, String key, T value) {
@@ -148,30 +148,30 @@ setIfNotNullOrEmpty(js.JsObject def, String key, String value) {
 }
 
 js.JsObject encodeAttribute(Attribute attribute) {
-  final attributeDef = js.JsObject.jsify({
+  final attributeEnc = js.JsObject.jsify({
     "id" :      attribute.id,
     "type" :    attribute.type,
   });
-  setIfNotNull(attributeDef, "value", attribute.value);
-  setIfNotNull(attributeDef, "default", attribute.defaultValue);
-  setIfNotNullOrEmpty(attributeDef, "name", attribute.name);
-  setIfNotNullOrEmpty(attributeDef, "unit", attribute.unit);
+  setIfNotNull(attributeEnc, "value", attribute.value);
+  setIfNotNull(attributeEnc, "default", attribute.defaultValue);
+  setIfNotNullOrEmpty(attributeEnc, "name", attribute.name);
+  setIfNotNullOrEmpty(attributeEnc, "unit", attribute.unit);
 
   if (attribute is NumParameter) {
-    setIfNotNull(attributeDef, "random", attribute.random);
-    attributeDef["step"] = attribute.stepSize;
+    setIfNotNull(attributeEnc, "random", attribute.random);
+    attributeEnc["step"] = attribute.stepSize;
   }
 
   if (attribute is RangeParameter) {
-    attributeDef["min"] = attribute.minValue;
-    attributeDef["max"] = attribute.maxValue;
+    attributeEnc["min"] = attribute.minValue;
+    attributeEnc["max"] = attribute.maxValue;
   }
 
   if (attribute is SelectParameter) {
-    final values = attributeDef["values"] = js.JsArray.from([]);
+    final values = attributeEnc["values"] = js.JsArray.from([]);
     for (final value in attribute.values) {
-      final valueDef = js.JsObject.jsify({ "actual": value.actual, "display": value.display });
-      values.add(valueDef);
+      final valueEnc = js.JsObject.jsify({ "actual": value.actual, "display": value.display });
+      values.add(valueEnc);
     }
   }
 
@@ -180,44 +180,44 @@ js.JsObject encodeAttribute(Attribute attribute) {
       // this is to maintain the same structure as versions prior to 4.  It could be
       // switched out to only use the encoded expression at some point.
       if (attribute.builder.root.children.isEmpty) {
-        attributeDef["value"] = attribute.expressionValue;
+        attributeEnc["value"] = attribute.expressionValue;
       } else {
-        attributeDef["value"] = encodeExpression(attribute.builder.root);
-        attributeDef["expressionValue"] = attribute.expressionValue;
+        attributeEnc["value"] = encodeExpression(attribute.builder.root);
+        attributeEnc["expressionValue"] = attribute.expressionValue;
       }
     }
   }
 
-  return attributeDef;
+  return attributeEnc;
 }
 
 js.JsObject encodeExpression(Expression expression) {
-    final expressionDef = js.JsObject.jsify({
+    final expressionEnc = js.JsObject.jsify({
       "name" : expression.name,
       "type" : expression.type
     });
-    setIfNotNull(expressionDef, "format", expression.format);
+    setIfNotNull(expressionEnc, "format", expression.format);
 
     if (expression.hasChildren) {
-      expressionDef["children"] = js.JsArray.from([]);
+      expressionEnc["children"] = js.JsArray.from([]);
       for (Expression child in expression.children) {
-        expressionDef["children"].add(encodeExpression(child));
+        expressionEnc["children"].add(encodeExpression(child));
       }
     }
 
-    return expressionDef;
+    return expressionEnc;
 }
 
 js.JsObject encodeExpressionDefinition(ExpressionDefinition definition) {
-  final definitionDef = js.JsObject.jsify({
+  final definitionEnc = js.JsObject.jsify({
     "name": definition.name,
     "type": definition.type
   });
   if (definition.arguments.length > 0) {
-    definitionDef["arguments"] = js.JsArray.from(definition.arguments);
+    definitionEnc["arguments"] = js.JsArray.from(definition.arguments);
   }
   if (definition.format != null) {
-    definitionDef["format"] = definition.format;
+    definitionEnc["format"] = definition.format;
   }
-  return definitionDef;
+  return definitionEnc;
 }
