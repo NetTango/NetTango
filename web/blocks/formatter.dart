@@ -31,8 +31,10 @@ abstract class CodeFormatter  {
     }
 
     final extraChains = workspace.menu.slots
-      .where( (slot) => includeRequired && slot.block.isRequired && workspace.getBlockCount(slot.block.id) == 0)
+      .where( (slot) => includeRequired && slot.block.isRequired && slot.block.canBeStarter && workspace.getBlockCount(slot.block.id) == 0)
       .map( (slot) => new List<Block>() .. add(slot.block)).toList();
+
+    // TODO: What to do with required blocks that cannot be starters?
 
     final result = _formatLanguageCode(workspace, extraChains);
 
@@ -188,7 +190,7 @@ class NetLogoFormatter extends CodeFormatter {
   }
 
   void formatBlocks(StringBuffer out, List<Block> blocks, int indent) {
-    if (blocks.length == 0 || blocks[0].type != "nlogo:procedure") {
+    if (blocks.length == 0 || !blocks[0].canBeStarter) {
       return;
     }
     var starter = blocks[0];

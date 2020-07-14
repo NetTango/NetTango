@@ -24,7 +24,7 @@ void main() {
 
     final expected = {
       "version": VersionManager.VERSION,
-      "blocks": [ { "id": 0, "action": "wolf actions" } ]
+      "blocks": [ { "id": 0, "action": "wolf actions", "allowedPlacement": BlockPlacement.child.index } ]
     };
 
     VersionManager.updateWorkspace(model);
@@ -41,10 +41,10 @@ void main() {
 
     final expected = {
       "version": VersionManager.VERSION,
-      "blocks": [ { "id": 0, "action": "wolf actions" } ],
+      "blocks": [ { "id": 0, "action": "wolf actions", "allowedPlacement": BlockPlacement.child.index } ],
       "program": { "chains": [ {
         "x": 0, "y": 0,
-        "blocks": [ { "id": 0, "action": "wolf actions" } ]
+        "blocks": [ { "id": 0, "action": "wolf actions", "allowedPlacement": BlockPlacement.child.index } ]
       } ] }
     };
 
@@ -64,10 +64,10 @@ void main() {
     final expected = {
       "version": VersionManager.VERSION,
       "blocks": [
-        { "id": 0, "action": "wolf actions" },
-        { "id": 1, "action": "forward 10" }
+        { "id": 0, "action": "wolf actions", "allowedPlacement": BlockPlacement.child.index },
+        { "id": 1, "action": "forward 10", "allowedPlacement": BlockPlacement.child.index }
       ],
-      "program": { "chains": [ { "x": 0, "y": 0, "blocks": [ { "id": 0, "action": "wolf actions", "children": [ { "id": 1, "action": "forward 10" } ] } ] } ] }
+      "program": { "chains": [ { "x": 0, "y": 0, "blocks": [ { "id": 0, "action": "wolf actions", "allowedPlacement": BlockPlacement.child.index, "children": [ { "id": 1, "action": "forward 10", "allowedPlacement": BlockPlacement.child.index } ] } ] } ] }
     };
 
     VersionManager.updateWorkspace(model);
@@ -86,10 +86,10 @@ void main() {
     final expected = {
       "version": VersionManager.VERSION,
       "blocks": [
-        { "id": 0, "action": "wolf actions" },
-        { "id": 1, "action": "forward 10" }
+        { "id": 0, "action": "wolf actions", "allowedPlacement": BlockPlacement.child.index },
+        { "id": 1, "action": "forward 10", "allowedPlacement": BlockPlacement.child.index }
       ],
-      "program": { "chains": [ { "x": 0, "y": 0, "blocks": [ { "id": 0, "action": "wolf actions", "clauses": [ { "children": [ { "id": 1, "action": "forward 10" } ] } ] } ] } ] }
+      "program": { "chains": [ { "x": 0, "y": 0, "blocks": [ { "id": 0, "action": "wolf actions", "allowedPlacement": BlockPlacement.child.index, "clauses": [ { "children": [ { "id": 1, "action": "forward 10", "allowedPlacement": BlockPlacement.child.index } ] } ] } ] } ] }
     };
 
     VersionManager.updateWorkspace(model);
@@ -111,6 +111,7 @@ void main() {
       "blocks": [ {
         "id": 0,
         "action": "wolf actions",
+        "allowedPlacement": BlockPlacement.child.index,
         "params": [ { "id": 0, "type": "num", "default": 10 } ],
         "properties": [ { "id": 1, "type": "num", "default": 9 } ]
       } ]
@@ -141,6 +142,7 @@ void main() {
       "blocks": [ {
         "id": 0,
         "action": "wolf actions",
+        "allowedPlacement": BlockPlacement.child.index,
         "params": [ { "id": 0, "type": "num", "default": 10 } ],
         "properties": [ { "id": 1, "type": "num", "default": 9 } ]
       } ],
@@ -149,6 +151,7 @@ void main() {
         "blocks": [ {
           "id": 0,
           "action": "wolf actions",
+          "allowedPlacement": BlockPlacement.child.index,
           "params": [ { "id": 0, "type": "num", "default": 5 } ],
           "properties": [ { "id": 1, "type": "num", "default": 4 } ]
         } ]
@@ -181,6 +184,7 @@ void main() {
       "blocks": [ {
         "id": 0,
         "action": "wolf actions",
+        "allowedPlacement": BlockPlacement.child.index,
         "params": [ { "type": "select", "default": "apples", "values": [ { "actual": "apples" }, { "actual": "oranges" } ] } ]
       } ],
       "program": { "chains": [ {
@@ -188,6 +192,7 @@ void main() {
         "blocks": [ {
           "id": 0,
           "action": "wolf actions",
+          "allowedPlacement": BlockPlacement.child.index,
           "params": [ { "type": "select", "default": "apples", "values": [ { "actual": "apples" }, { "actual": "oranges" } ] } ]
         } ]
       } ] }
@@ -209,10 +214,10 @@ void main() {
     VersionManager.updateWorkspace(model);
 
     final expected = {
-      "version": 4,
-      "blocks": [ { "id": 0, "action": "act1" } ],
+      "version": VersionManager.VERSION,
+      "blocks": [ { "id": 0, "action": "act1", "allowedPlacement": BlockPlacement.child.index } ],
       "program": {
-        "chains": [ { "blocks": [ { "id": 0, "action": "act1" }, { "id": 0, "action": "act1" } ], "x": 10, "y": 7 } ]
+        "chains": [ { "blocks": [ { "id": 0, "action": "act1", "allowedPlacement": BlockPlacement.child.index  }, { "id": 0, "action": "act1", "allowedPlacement": BlockPlacement.child.index  } ], "x": 10, "y": 7 } ]
       }
     };
     expect(TestUtils.dartify(model), equals(expected));

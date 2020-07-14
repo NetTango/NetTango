@@ -17,7 +17,7 @@
 part of NetTango;
 
 class VersionManager {
-  static final VERSION = 4;
+  static final VERSION = 5;
 
   static void updateWorkspace(js.JsObject definition) {
     int version = definition.hasProperty("version") ? definition["version"] : 0;
@@ -40,6 +40,10 @@ class VersionManager {
 
     if (version < 4) {
       Version4.update(definition);
+    }
+
+    if (version < 5) {
+      Version5.update(definition);
     }
 
     definition["version"] = VERSION;

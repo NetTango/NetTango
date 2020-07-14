@@ -22,7 +22,7 @@ class DragAcceptor extends Acceptor {
   // associating each drag with its drag state would have to be implemented.  -Jeremy B April 2020
   static String sourceContainerId;
   static Point dragStartOffset;
-  static bool isDragStarter = false;
+  static bool canBeChild = false;
   static bool wasHandled = false;
   static bool isOverMenu = false;
   static bool isOverWorkspace = false;
@@ -33,7 +33,7 @@ class DragAcceptor extends Acceptor {
   static startDrag(Block firstBlock, DraggableEvent startEvent) {
     DragAcceptor.sourceContainerId = firstBlock.workspace.containerId;
     DragAcceptor.dragStartOffset = startEvent.startPosition - DragImage.getOffsetToRoot(startEvent.draggableElement);
-    DragAcceptor.isDragStarter = firstBlock.isRequired;
+    DragAcceptor.canBeChild = firstBlock.canBeChild;
     DragAcceptor.wasHandled = false;
   }
 
@@ -51,6 +51,6 @@ class DragAcceptor extends Acceptor {
 
   @override
   bool accepts(Element draggableElement, int draggableId, Element dropzoneElement) {
-    return !DragAcceptor.wasHandled && this.containerId == DragAcceptor.sourceContainerId && (this.allowStarters || !DragAcceptor.isDragStarter);
+    return !DragAcceptor.wasHandled && this.containerId == DragAcceptor.sourceContainerId && (this.allowStarters || DragAcceptor.canBeChild);
   }
 }

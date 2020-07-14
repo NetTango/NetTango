@@ -29,8 +29,7 @@ class Chain extends BlockCollection {
   DivElement fragmentDiv;
   bool isDragOver = false;
 
-  // TODO: Starter/Fragment should really be explicit values in the data model
-  bool get isFragment => blocks.isEmpty || !blocks[0].isRequired;
+  bool get isFragment => blocks.isEmpty || !blocks[0].canBeStarter;
 
   Chain(CodeWorkspace this.workspace);
 
@@ -104,7 +103,7 @@ class Chain extends BlockCollection {
 
   static void redrawChain(DivElement div, List<Block> blocks, bool useClones, {DivElement fragmentDiv = null}) {
     div.innerHtml = "";
-    if (blocks.first.isRequired) {
+    if (blocks.first.canBeStarter) {
       div.classes.add("nt-chain-starter");
       div.classes.remove("nt-chain-fragment");
     } else {

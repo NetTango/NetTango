@@ -16,6 +16,8 @@
 
 part of NetTango;
 
+enum BlockPlacement { starter, child, anywhere }
+
 /**
  * Visual programming block
  */
@@ -62,6 +64,11 @@ class Block {
   /// Tells a code formatter that at least one block of this type is required
   bool isRequired = false;
 
+  /// Restrict block placement
+  BlockPlacement allowedPlacement = BlockPlacement.child;
+  bool get canBeChild   => allowedPlacement == BlockPlacement.child   || allowedPlacement == BlockPlacement.anywhere;
+  bool get canBeStarter => allowedPlacement == BlockPlacement.starter || allowedPlacement == BlockPlacement.anywhere;
+
   /// link back to the main workspace
   CodeWorkspace workspace;
 
@@ -101,6 +108,7 @@ class Block {
     other.borderColor = borderColor;
     other.font = font;
     other.isRequired = isRequired;
+    other.allowedPlacement = allowedPlacement;
     for (Attribute param in params.values) {
       Attribute otherParam = param.clone(other, isSlotBlock);
       other.params[otherParam.id] = otherParam;
@@ -156,7 +164,7 @@ class Block {
   }
 
   String getStyleClass() {
-    if (isRequired) {
+    if (canBeStarter) {
       return "${workspace.containerId}-block-starter";
     }
     if (children != null || clauses != null) {

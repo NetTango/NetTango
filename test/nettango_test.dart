@@ -312,6 +312,7 @@ void main() {
         {
           "id": 23,
           "action": "wolf actions",
+          "allowedPlacement": 0,
           "type": "nlogo:procedure",
           "limit": 1,
           "format": "to wolf-actions",
@@ -321,6 +322,7 @@ void main() {
         {
           "id": 24,
           "action": "forward",
+          "allowedPlacement": 1,
           "format": "forward 10",
           "type": "nlogo:command",
           "required": false,
@@ -334,6 +336,7 @@ void main() {
               "id": 23,
               "instanceId": 0,
               "action": "wolf actions",
+              "allowedPlacement": 0,
               "type": "nlogo:procedure",
               "format": "to wolf-actions",
               "blockColor": "#bb5555",
@@ -343,6 +346,7 @@ void main() {
               "id": 24,
               "instanceId": 1,
               "action": "forward",
+              "allowedPlacement": 1,
               "type": "nlogo:command",
               "format": "forward 10",
               "required": false
@@ -367,12 +371,15 @@ void main() {
     model["version"] = VersionManager.VERSION;
     model["width"] = CodeWorkspace.DEFAULT_WIDTH;
     model["height"] = CodeWorkspace.DEFAULT_HEIGHT;
+    model["blocks"][0]["allowedPlacement"] = BlockPlacement.starter.index;
     model["blocks"][1]["required"] = false;
+    model["blocks"][1]["allowedPlacement"] = BlockPlacement.child.index;
     model["blocks"][1]["params"][0].remove("unit");
     model["blocks"][1]["params"][0].remove("value");
     model["blocks"][1]["properties"][0].remove("name");
     model["blocks"][1]["properties"][0].remove("unit");
     model["blocks"][1]["properties"][0].remove("value");
+    model["blocks"][2]["allowedPlacement"] = BlockPlacement.starter.index;
 
     // TODO: This is getting out of hand.  Probably a better way is to have unit tests for each update
     // as we do in the version-manager_test.dart tests,  and then to use the actual update code from
@@ -384,13 +391,20 @@ void main() {
 
     model["program"]["chains"][0]["blocks"][0]["blockColor"] = "#bb5555";
     model["program"]["chains"][0]["blocks"][0]["instanceId"] = 0;
+    model["program"]["chains"][0]["blocks"][0]["allowedPlacement"] = BlockPlacement.starter.index;
+
     model["program"]["chains"][0]["blocks"][1]["instanceId"] = 1;
+    model["program"]["chains"][0]["blocks"][1]["allowedPlacement"] = BlockPlacement.child.index;
     model["program"]["chains"][0]["blocks"][1]["params"][0].remove("unit");
     model["program"]["chains"][0]["blocks"][1]["properties"][0].remove("name");
     model["program"]["chains"][0]["blocks"][1]["properties"][0].remove("unit");
+
     model["program"]["chains"][1]["blocks"][0]["instanceId"] = 2;
     model["program"]["chains"][1]["blocks"][0]["blockColor"] = "#bb5555";
+    model["program"]["chains"][1]["blocks"][0]["allowedPlacement"] = BlockPlacement.starter.index;
+
     model["program"]["chains"][1]["blocks"][1]["instanceId"] = 3;
+    model["program"]["chains"][1]["blocks"][1]["allowedPlacement"] = BlockPlacement.child.index;
     model["program"]["chains"][1]["blocks"][1]["params"][0].remove("unit");
     model["program"]["chains"][1]["blocks"][1]["properties"][0].remove("name");
     model["program"]["chains"][1]["blocks"][1]["properties"][0].remove("unit");
@@ -433,16 +447,25 @@ void main() {
 
     print(jsonEncode(result));
 
+    proc["allowedPlacement"] = BlockPlacement.starter.index;
+    chance["allowedPlacement"] = BlockPlacement.child.index;
+    forward["allowedPlacement"] = BlockPlacement.child.index;
+    wiggle["allowedPlacement"] = BlockPlacement.child.index;
+
     var forwardExp = copyJson(forwardInst);
     forwardExp["instanceId"] = 2;
+    forwardExp["allowedPlacement"] = BlockPlacement.child.index;
     var wiggleExp = copyJson(wiggleInst);
     wiggleExp["instanceId"] = 3;
+    wiggleExp["allowedPlacement"] = BlockPlacement.child.index;
     var chanceExp = copyJson(chanceInst);
     chanceExp["instanceId"] = 1;
     chanceExp["children"] = [ forwardExp ];
     chanceExp["clauses"] = [ { "children": [ wiggleExp ] } ];
+    chanceExp["allowedPlacement"] = BlockPlacement.child.index;
     var procExp = copyJson(procInst);
     procExp["instanceId"] = 0;
+    procExp["allowedPlacement"] = BlockPlacement.starter.index;
 
     var expected = {
       "version": VersionManager.VERSION,
@@ -487,6 +510,7 @@ void main() {
         "id": 0,
         "action": "sheep actions",
         "required": false,
+        "allowedPlacement": 1,
         "params": [ { "id": 0, "type": "int", "default": 10, "step": 1 } ],
         "properties": [ { "id": 1, "type": "int", "default": 9, "step": 1 } ],
         "propertiesDisplay": "shown"
@@ -498,6 +522,7 @@ void main() {
           "instanceId": 0,
           "action": "sheep actions",
           "required": false,
+          "allowedPlacement": 1,
           "params": [ { "id": 0, "type": "int", "default": 10, "value": 10, "step": 1 } ],
           "properties": [ { "id": 1, "type": "int", "default": 9, "value": 9, "step": 1 } ],
           "propertiesDisplay": "shown"
@@ -513,14 +538,14 @@ void main() {
       "version": VersionManager.VERSION, "width": 300, "height": 300,
       "blocks": [ {
           "id": 0,
-          "action": "sheep actions", "required": true,
+          "action": "sheep actions", "required": true, "allowedPlacement": BlockPlacement.starter.index,
           "params": [ { "id": 0, "type": "int", "default": 10, "step": 2 } ],
           "properties": [ { "id": 1, "type": "int", "default": 9, "step": 1 } ],
           "propertiesDisplay": "shown"
         },
         {
           "id": 0,
-          "action": "wolf actions", "required": true,
+          "action": "wolf actions", "required": true, "allowedPlacement": BlockPlacement.starter.index,
           "params": [ { "id": 0, "type": "int", "default": 10, "step": 2 } ],
           "properties": [ { "id": 1, "type": "int", "default": 9, "step": 1 } ],
           "propertiesDisplay": "shown"
@@ -557,7 +582,7 @@ void main() {
       "version": VersionManager.VERSION, "height": CodeWorkspace.DEFAULT_HEIGHT, "width": CodeWorkspace.DEFAULT_WIDTH,
       "blocks": [ {
         "id": 0,
-        "action": "sheep actions", "required": true,
+        "action": "sheep actions", "required": true, "allowedPlacement": BlockPlacement.starter.index,
         "params": [ { "id": 0, "type": "int", "default": 10, "step": 1 } ],
         "properties": [ { "id": 1, "type": "int", "default": 9, "step": 1 } ],
         "propertiesDisplay": "shown"
@@ -646,9 +671,13 @@ void main() {
     expected["version"] = VersionManager.VERSION;
     versionFourChainUpdates(expected["program"]);
     expected["blocks"][0]["propertiesDisplay"] = "shown";
+    expected["blocks"][0]["allowedPlacement"] = BlockPlacement.starter.index;
     expected["blocks"][1]["propertiesDisplay"] = "shown";
+    expected["blocks"][1]["allowedPlacement"] = BlockPlacement.child.index;
     expected["program"]["chains"][0]["blocks"][0]["instanceId"] = 0;
+    expected["program"]["chains"][0]["blocks"][0]["allowedPlacement"] = BlockPlacement.starter.index;
     expected["program"]["chains"][0]["blocks"][1]["instanceId"] = 1;
+    expected["program"]["chains"][0]["blocks"][1]["allowedPlacement"] = BlockPlacement.child.index;
 
     expect(result, equals(expected));
   });

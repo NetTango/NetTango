@@ -89,9 +89,10 @@ js.JsObject encodeBlockStyle(BlockStyle style) {
 
 js.JsObject encodeBlock(Block block, int limit) {
   var blockEnc = js.JsObject.jsify({
-    "id":       block.id,
-    "action":   block.action,
-    "required": block.isRequired
+    "id":               block.id,
+    "action":           block.action,
+    "required":         block.isRequired,
+    "allowedPlacement": block.allowedPlacement.index
   });
   setIfNotNull(blockEnc, "instanceId", block.instanceId);
   setIfNotNullOrEmpty(blockEnc, "type", block.type);

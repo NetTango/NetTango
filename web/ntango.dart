@@ -28,6 +28,7 @@ part "versions/version-1.dart";
 part "versions/version-2.dart";
 part "versions/version-3.dart";
 part "versions/version-4.dart";
+part "versions/version-5.dart";
 part "versions/version-manager.dart";
 
 //part "utils/sounds.dart";
