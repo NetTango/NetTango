@@ -8,7 +8,7 @@ class TestUtils {
     }
 
     if (value is JsObject) {
-      // What's that?  This is the dumbest thing you've ever seen?
+      // What is that?  This is the dumbest thing you have ever seen?
       // Thank you.  Thank you very much.
       // (I cannot find another way to quickly convert JsObjects to Maps)
       String json = context['JSON'].callMethod('stringify', [value]);

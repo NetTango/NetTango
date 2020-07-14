@@ -1,4 +1,0 @@
-webdev build
-mkdir build/lib
-cat build/dart/ntango.dart.js web/js/ntango.js > web/lib/ntango.js
-cat build/dart/ntango.dart.js web/js/ntango.js > build/lib/ntango.js

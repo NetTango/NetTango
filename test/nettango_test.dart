@@ -6,7 +6,7 @@ import "package:test/test.dart";
 
 import "dart:convert";
 
-import "../web/dart/ntango.dart";
+import "../web/ntango.dart";
 
 const NETLOGO_MODEL_1 = {
   "version": 1,
@@ -360,7 +360,7 @@ void main() {
     final testCanavsID = "nt-canvas";
     final model = copyJson(NETLOGO_MODEL_1);
 
-    // load and then save out the result to make sure it's correct
+    // load and then save out the result to make sure it is correct
     JSInitWorkspace("NetLogo", testCanavsID, JsObject.jsify(model), formatAttribute);
     final result = jsonDecode(JSSaveWorkspace(testCanavsID));
 
@@ -376,7 +376,7 @@ void main() {
 
     // TODO: This is getting out of hand.  Probably a better way is to have unit tests for each update
     // as we do in the version-manager_test.dart tests,  and then to use the actual update code from
-    // the version manager to do the changes so we don't maintain these separate version.
+    // the version manager to do the changes so we do not maintain these separate version.
     versionThreeChainsCoordinates(model["program"]["chains"]);
     versionThreePropertiesDisplayUpdates(model["blocks"]);
     versionThreePropertiesDisplayUpdates(model["program"]["chains"][0]);

@@ -6,7 +6,7 @@ import "package:test/test.dart";
 
 //import "dart:convert";
 
-import "../web/dart/ntango.dart";
+import "../web/ntango.dart";
 import "./test-utils.dart";
 
 void main() {
