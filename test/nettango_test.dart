@@ -257,7 +257,6 @@ void main() {
           "action": "forward",
           "format": "forward 10",
           "type": "nlogo:command",
-          "control": false,
           "clauses": null,
           "params": [],
           "properties": []
@@ -460,8 +459,8 @@ void main() {
     wiggleExp["allowedPlacement"] = BlockPlacement.child.index;
     var chanceExp = copyJson(chanceInst);
     chanceExp["instanceId"] = 1;
-    chanceExp["children"] = [ forwardExp ];
-    chanceExp["clauses"] = [ { "children": [ wiggleExp ] } ];
+    chanceExp.remove("children");
+    chanceExp["clauses"] = [ { "children": [ forwardExp ] }, { "children": [ wiggleExp ] } ];
     chanceExp["allowedPlacement"] = BlockPlacement.child.index;
     var procExp = copyJson(procInst);
     procExp["instanceId"] = 0;

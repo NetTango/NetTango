@@ -262,12 +262,6 @@ class CodeWorkspace {
         }
         break;
 
-      case "block-children":
-        draggingBlocks = chains[blockData.chainIndex]
-          .getBlockInstance(blockData.parentInstanceId)
-          .children.removeBlocks(blockData.blockIndex);
-        break;
-
       case "block-clause":
         draggingBlocks = chains[blockData.chainIndex]
           .getBlockInstance(blockData.parentInstanceId)

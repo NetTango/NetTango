@@ -67,7 +67,7 @@ void main() {
         { "id": 0, "action": "wolf actions", "allowedPlacement": BlockPlacement.child.index },
         { "id": 1, "action": "forward 10", "allowedPlacement": BlockPlacement.child.index }
       ],
-      "program": { "chains": [ { "x": 0, "y": 0, "blocks": [ { "id": 0, "action": "wolf actions", "allowedPlacement": BlockPlacement.child.index, "children": [ { "id": 1, "action": "forward 10", "allowedPlacement": BlockPlacement.child.index } ] } ] } ] }
+      "program": { "chains": [ { "x": 0, "y": 0, "blocks": [ { "id": 0, "action": "wolf actions", "allowedPlacement": BlockPlacement.child.index, "clauses": [ { "children": [ { "id": 1, "action": "forward 10", "allowedPlacement": BlockPlacement.child.index } ] } ] } ] } ] }
     };
 
     VersionManager.updateWorkspace(model);

@@ -24,7 +24,7 @@ class Clause extends BlockCollection {
   bool isDragOver = false;
   bool isDragHeaderOver = false;
 
-  Clause(this.owner, {this.clauseIndex = null}) {}
+  Clause(this.owner, this.clauseIndex) {}
 
   DivElement draw(DragImage dragImage, DivElement headerDiv) {
     _div = new DivElement();
@@ -48,7 +48,7 @@ class Clause extends BlockCollection {
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks[i];
       final siblings = blocks.skip(i + 1);
-      final dragData = BlockDragData.blockOwned(owner._dragData.chainIndex, i, owner.instanceId, siblings, clauseIndex: clauseIndex);
+      final dragData = BlockDragData.blockOwned(owner._dragData.chainIndex, i, owner.instanceId, siblings, clauseIndex);
       block.draw(dragImage, dragData);
     }
 
@@ -74,7 +74,7 @@ class Clause extends BlockCollection {
   void resetOwned() {
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks[i];
-      block._dragData.resetBlockOwned(owner._dragData.chainIndex, i, owner.instanceId, blocks.skip(i + 1), clauseIndex: clauseIndex);
+      block._dragData.resetBlockOwned(owner._dragData.chainIndex, i, owner.instanceId, blocks.skip(i + 1), clauseIndex);
       block.resetOwnedBlocksDragData();
     }
   }
@@ -91,7 +91,7 @@ class Clause extends BlockCollection {
 
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks[i];
-      block._dragData.resetBlockOwned(owner._dragData.chainIndex, i, owner.instanceId, blocks.skip(i + 1), clauseIndex: clauseIndex);
+      block._dragData.resetBlockOwned(owner._dragData.chainIndex, i, owner.instanceId, blocks.skip(i + 1), clauseIndex);
       block.resetOwnedBlocksDragData();
     }
 

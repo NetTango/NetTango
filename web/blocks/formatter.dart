@@ -144,15 +144,8 @@ class PlainFormatter extends CodeFormatter {
 
   void formatBlocks(StringBuffer out, List<Block> blocks, int indent) {
     for (Block block in blocks) {
-      if (block.children != null) {
-        formatBlocks(out, block.children.blocks, indent + 1);
-      }
-      if (block.clauses != null) {
-        for (Clause clause in block.clauses) {
-          if (clause.blocks != null) {
-            formatBlocks(out, clause.blocks, indent + 1);
-          }
-        }
+      for (Clause clause in block.clauses) {
+        formatBlocks(out, clause.blocks, indent + 1);
       }
     }
   }
@@ -202,13 +195,8 @@ class NetLogoFormatter extends CodeFormatter {
 
   void formatBlock(StringBuffer out, Block block, int indent) {
     super.formatBlock(out, block, indent);
-    if (block.children != null) {
-      formatClause(out, block.children, indent);
-    }
-    if (block.clauses != null) {
-      for (Clause clause in block.clauses) {
-        formatClause(out, clause, indent);
-      }
+    for (Clause clause in block.clauses) {
+      formatClause(out, clause, indent);
     }
   }
 

@@ -119,8 +119,8 @@ Block restoreMenuBlock(CodeWorkspace workspace, js.JsObject blockEnc) {
   return block;
 }
 
-Clause restoreClause(CodeWorkspace workspace, Block block, js.JsObject clauseEnc, int index) {
-  Clause clause = new Clause(block, clauseIndex: index);
+Clause restoreClause(CodeWorkspace workspace, Block block, js.JsObject clauseEnc, int clauseIndex) {
+  Clause clause = new Clause(block, clauseIndex);
   if (clauseEnc["children"] is js.JsArray) {
     clause.blocks = restoreBlocks(workspace, clauseEnc["children"]);
   }
@@ -254,23 +254,13 @@ Block restoreChainBlock(CodeWorkspace workspace, js.JsObject blockEnc) {
   restoreChainBlockAttributes(block.params, blockEnc["params"]);
   restoreChainBlockAttributes(block.properties, blockEnc["properties"]);
 
-  if (blockEnc["children"] is js.JsArray) {
-    block.children = new Clause(block);
-    for (js.JsObject childEnc in blockEnc["children"]) {
-      Block child = restoreChainBlock(workspace, childEnc);
-      if (child != null) {
-        block.children.blocks.add(child);
-      }
-    }
-  }
-
   if (blockEnc["clauses"] is js.JsArray) {
     block.clauses = new List<Clause>();
     int clauseIndex = 0;
     for (js.JsObject clauseEnc in blockEnc["clauses"]) {
       if (clauseEnc["children"] is! js.JsArray) { continue; }
 
-      Clause clause = new Clause(block, clauseIndex: clauseIndex);
+      Clause clause = new Clause(block, clauseIndex);
       block.clauses.add(clause);
       for (js.JsObject childJson in clauseEnc["children"]) {
         Block child = restoreChainBlock(workspace, childJson);

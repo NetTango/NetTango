@@ -42,6 +42,10 @@ class VersionUtils {
 
           blockInstanceHandler(b);
 
+          // the `children` property was removed in version 5, but this should be harmless to
+          // leave in as it checks the existence of the property first.  This block can be
+          // removed the next time a big structure change requires changing `updateBlocks()`.
+          // -Jeremy B July 2020
           if (b.hasProperty("children") && b["children"] is js.JsArray) {
             for (js.JsObject child in b["children"]) {
               blockInstanceHandler(child);

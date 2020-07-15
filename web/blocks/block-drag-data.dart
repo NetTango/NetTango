@@ -55,19 +55,19 @@ class BlockDragData {
     return dragData;
   }
 
-  void resetBlockOwned(int chainIndex, int blockIndex, int parentInstanceId, Iterable<Block> siblings, {int clauseIndex = null}) {
+  void resetBlockOwned(int chainIndex, int blockIndex, int parentInstanceId, Iterable<Block> siblings, int clauseIndex) {
     reset();
     this.chainIndex       = chainIndex;
-    this.parentType       = (clauseIndex == null) ? "block-children": "block-clause";
+    this.parentType       = "block-clause";
     this.parentInstanceId = parentInstanceId;
     this.blockIndex       = blockIndex;
     this.clauseIndex      = clauseIndex;
     this.siblings         = siblings;
   }
 
-  static BlockDragData blockOwned(int chainIndex, int blockIndex, int parentInstanceId, Iterable<Block> siblings, {int clauseIndex = null}) {
+  static BlockDragData blockOwned(int chainIndex, int blockIndex, int parentInstanceId, Iterable<Block> siblings, int clauseIndex) {
     BlockDragData dragData = new BlockDragData();
-    dragData.resetBlockOwned(chainIndex, blockIndex, parentInstanceId, siblings, clauseIndex: clauseIndex);
+    dragData.resetBlockOwned(chainIndex, blockIndex, parentInstanceId, siblings, clauseIndex);
     return dragData;
   }
 }

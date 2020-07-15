@@ -104,15 +104,7 @@ js.JsObject encodeBlock(Block block, int limit) {
   setIfNotNullOrEmpty(blockEnc, "borderColor", block.borderColor);
   setIfNotNullOrEmpty(blockEnc, "font", block.font);
 
-  if (block.children != null) {
-    final children = blockEnc["children"] = js.JsArray.from([]);
-    for (Block child in block.children.blocks) {
-      final childEnc = encodeBlock(child, null);
-      children.add(childEnc);
-    }
-  }
-
-  if (block.clauses != null) {
+  if (block.hasClauses) {
     final clauses = blockEnc["clauses"] = js.JsArray.from([]);
     for (Clause clause in block.clauses) {
       final clauseEnc = encodeClause(clause);

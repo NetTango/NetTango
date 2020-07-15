@@ -19,6 +19,7 @@ part of NetTango;
 class Version5 {
 
   static void update(js.JsObject json) {
+    VersionUtils.updateBlocks(json, moveChildrenToClauses, moveChildrenToClauses);
     VersionUtils.updateBlocks(json, addBlockPlacements, addBlockPlacements);
   }
 
@@ -28,6 +29,29 @@ class Version5 {
       b["allowedPlacement"] = BlockPlacement.starter.index;
     } else {
       b["allowedPlacement"] = BlockPlacement.child.index;
+    }
+  }
+
+  static void moveChildrenToClauses(js.JsObject b) {
+    if (b.hasProperty("children")) {
+      final blocks = b["children"];
+      b.deleteProperty("children");
+      final firstClause = js.JsObject.jsify({});
+      firstClause["children"] = blocks;
+      if (b.hasProperty("clauses")) {
+        if (b["clauses"] is js.JsArray) {
+          b["clauses"].insert(0, firstClause);
+        } else {
+          // uhhh... some messed up data?
+          print("Found a block with clauses that was not an array?  Block ID: ${b["id"]}.  Replacing value.");
+          b["clauses"] = js.JsArray.from([]);
+          b["clauses"].add(firstClause);
+        }
+      } else {
+        // no property
+        b["clauses"] = js.JsArray.from([]);
+        b["clauses"].add(firstClause);
+      }
     }
   }
 }

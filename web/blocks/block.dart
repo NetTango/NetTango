@@ -50,11 +50,13 @@ class Block {
   /// properties are just named parameters that get listed vertically
   Map<int, Attribute> properties = new Map<int, Attribute>();
   String propertiesDisplay = "shown";
+  bool get hasParams => params.isNotEmpty;
+  bool get hasProperties => properties.isNotEmpty;
 
   int nextParamId = 0;
 
-  Clause children = null;
-  List<Clause> clauses = null;
+  List<Clause> clauses = new List<Clause>();
+  bool get hasClauses => clauses.isNotEmpty;
 
   String blockColor;
   String textColor;
@@ -71,10 +73,6 @@ class Block {
 
   /// link back to the main workspace
   CodeWorkspace workspace;
-
-  bool get hasParams => params.isNotEmpty;
-
-  bool get hasProperties => properties.isNotEmpty;
 
   DragImage _dragImage;
   BlockDragData _dragData;
@@ -122,14 +120,8 @@ class Block {
 
   static Block cloneSlotForChain(Block block) {
     final newBlock = block.clone(false);
-    if (block.clauses != null) {
-      newBlock.children = new Clause(newBlock);
-      if (block.clauses.length > 0) {
-        newBlock.clauses = new List<Clause>();
-        for (int i = 0; i < block.clauses.length; i++) {
-          newBlock.clauses.add(new Clause(newBlock, clauseIndex: i));
-        }
-      }
+    for (int clauseIndex = 0; clauseIndex < block.clauses.length; clauseIndex++) {
+      newBlock.clauses.add(new Clause(newBlock, clauseIndex));
     }
     return newBlock;
   }
@@ -137,10 +129,7 @@ class Block {
   int getBlockCount(int id) {
     int count = 0;
     if (this.id == id) { count++; }
-    if (this.children != null) {
-      count = count + children.getBlockCount(id);
-    }
-    if (this.clauses != null && this.clauses.isNotEmpty) {
+    if (this.hasClauses) {
       count = count + this.clauses.map( (clause) => clause.getBlockCount(id) ).reduce( (a, b) => a + b );
     }
     return count;
@@ -150,15 +139,9 @@ class Block {
     if (this.instanceId == instanceId) {
       return this;
     }
-    if (children != null) {
-      final block = children.getBlockInstance(instanceId);
-      if (block != null) { return block; }
-    }
-    if (clauses != null) {
-      for (Clause clause in clauses) {
-        final block = clause.getBlockInstance(instanceId);
-        if (block != null) { return block; }
-      }
+    for (Clause clause in clauses) {
+      final clauseBlock = clause.getBlockInstance(instanceId);
+      if (clauseBlock != null) { return clauseBlock; }
     }
     return null;
   }
@@ -167,7 +150,7 @@ class Block {
     if (canBeStarter) {
       return "${workspace.containerId}-block-starter";
     }
-    if (children != null || clauses != null) {
+    if (hasClauses) {
       return "${workspace.containerId}-block-container";
     }
     return "${workspace.containerId}-block-command";
@@ -181,7 +164,7 @@ class Block {
     _blockDiv.classes.add("nt-block");
     final styleClass = getStyleClass();
     _blockDiv.classes.add(styleClass);
-    if (children != null || clauses != null) {
+    if (hasClauses) {
       _blockDiv.classes.add("nt-block-with-clauses");
     }
 
@@ -200,10 +183,10 @@ class Block {
     DivElement headerNode = new DivElement();
     headerNode.classes.add("$styleClass-color");
     maybeSetColorOverride(this.blockColor, headerNode);
-    if (children == null) {
-      headerNode.classes.add("nt-block-header");
-    } else {
+    if (hasClauses) {
       headerNode.classes.add("nt-block-clause-header");
+    } else {
+      headerNode.classes.add("nt-block-header");
     }
     _blockDiv.append(headerNode);
 
@@ -243,25 +226,23 @@ class Block {
       propertiesDiv.append(propertyDiv);
     }
 
-    if (children != null) {
-      DivElement childrenDiv = children.draw(_dragImage, headerNode);
-      _blockDiv.append(childrenDiv);
+    if (hasClauses) {
+      final firstClause = clauses[0];
+      DivElement firstClauseDiv = firstClause.draw(_dragImage, headerNode);
+      _blockDiv.append(firstClauseDiv);
     }
 
-    if (clauses != null) {
-      for (int i = 0; i < clauses.length; i++) {
-        DivElement clauseDivider = new DivElement();
-        clauseDivider.classes.add("nt-clause-divider");
-        clauseDivider.classes.add("$styleClass-color");
-        maybeSetColorOverride(this.blockColor, clauseDivider);
-        _blockDiv.append(clauseDivider);
-        Clause clause = clauses[i];
-        DivElement clauseDiv = clause.draw(_dragImage, clauseDivider);
-        _blockDiv.append(clauseDiv);
-      }
+    for (Clause clause in clauses.skip(1)) {
+      DivElement clauseDivider = new DivElement();
+      clauseDivider.classes.add("nt-clause-divider");
+      clauseDivider.classes.add("$styleClass-color");
+      maybeSetColorOverride(this.blockColor, clauseDivider);
+      _blockDiv.append(clauseDivider);
+      DivElement clauseDiv = clause.draw(_dragImage, clauseDivider);
+      _blockDiv.append(clauseDiv);
     }
 
-    if (children != null || clauses != null) {
+    if (hasClauses) {
       DivElement footer = new DivElement();
       footer.classes.add("nt-clause-footer");
       footer.classes.add("$styleClass-color");
@@ -329,14 +310,9 @@ class Block {
     _blockDiv.classes.remove("nt-drag-over");
     _blockDiv.classes.remove("nt-block-clause-drag-over");
     bool isHighlightHandled = false;
-    if (children != null) {
-      isHighlightHandled = children.updateDragOver();
-    }
-    if (clauses != null) {
-      for (Clause clause in clauses) {
-        final clauseResult = clause.updateDragOver();
-        isHighlightHandled = isHighlightHandled || clauseResult;
-      }
+    for (Clause clause in clauses) {
+      final clauseResult = clause.updateDragOver();
+      isHighlightHandled = isHighlightHandled || clauseResult;
     }
     if ((isDragOver || isDragNotchOver) && !isHighlightHandled) {
       isHighlightHandled = true;
@@ -350,13 +326,8 @@ class Block {
     _blockDiv.classes.remove("nt-block-clause-drag-over");
     isDragOver = false;
     isDragNotchOver = false;
-    if (children != null) {
-       children.clearDragOver();
-    }
-    if (clauses != null) {
-      for (Clause clause in clauses) {
-        clause.clearDragOver();
-      }
+    for (Clause clause in clauses) {
+      clause.clearDragOver();
     }
   }
 
@@ -396,11 +367,6 @@ class Block {
         }
         break;
 
-      case "block-children":
-        final parentBlock = workspace.chains[_dragData.chainIndex].getBlockInstance(_dragData.parentInstanceId);
-        parentBlock.children.insertBlocks(_dragData.blockIndex, newBlocks);
-        break;
-
       case "block-clause":
         final parentBlock = workspace.chains[_dragData.chainIndex].getBlockInstance(_dragData.parentInstanceId);
         parentBlock.clauses[_dragData.clauseIndex].insertBlocks(_dragData.blockIndex, newBlocks);
@@ -420,11 +386,6 @@ class Block {
         workspace.chains[_dragData.chainIndex].insertBlocks(_dragData.blockIndex + 1, newBlocks);
         break;
 
-      case "block-children":
-        final parentBlock = workspace.chains[_dragData.chainIndex].getBlockInstance(_dragData.parentInstanceId);
-        parentBlock.children.insertBlocks(_dragData.blockIndex + 1, newBlocks);
-        break;
-
       case "block-clause":
         final parentBlock = workspace.chains[_dragData.chainIndex].getBlockInstance(_dragData.parentInstanceId);
         parentBlock.clauses[_dragData.clauseIndex].insertBlocks(_dragData.blockIndex + 1, newBlocks);
@@ -438,14 +399,8 @@ class Block {
   }
 
   void resetOwnedBlocksDragData() {
-    if (children != null) {
-      children.resetOwned();
-    }
-    if (clauses != null) {
-      for (int clauseIndex = 0; clauseIndex < clauses.length; clauseIndex++) {
-        Clause clause = clauses[clauseIndex];
-        clause.resetOwned();
-      }
+    for (Clause clause in clauses) {
+      clause.resetOwned();
     }
   }
 
@@ -455,16 +410,9 @@ class Block {
     if (_propertiesToggle != null) {
       _actionDiv.append(_propertiesToggle.div);
     }
-    if (children != null) {
-      for (Block block in children.blocks) {
+    for (Clause clause in clauses) {
+      for (Block block in clause.blocks) {
         block.resetBlockActionText();
-      }
-    }
-    if (clauses != null) {
-      for (Clause clause in clauses) {
-        for (Block block in clause.blocks) {
-          block.resetBlockActionText();
-        }
       }
     }
   }
