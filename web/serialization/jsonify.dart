@@ -92,7 +92,7 @@ js.JsObject encodeBlock(Block block, int limit) {
     "id":               block.id,
     "action":           block.action,
     "required":         block.isRequired,
-    "allowedPlacement": block.allowedPlacement.index
+    "placement": block.placement.index
   });
   setIfNotNull(blockEnc, "instanceId", block.instanceId);
   setIfNotNullOrEmpty(blockEnc, "type", block.type);

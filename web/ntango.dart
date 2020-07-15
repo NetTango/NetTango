@@ -169,6 +169,11 @@ String JSSaveAllWorkspaces() {
 
 /// Expose core API functions to Javascript
 void main() {
+  js.context["NetTango_blockPlacementOptions"] = js.JsObject.jsify({
+    "starter": BlockPlacement.starter.index,
+    "child": BlockPlacement.child.index,
+    "anywhere": BlockPlacement.anywhere.index
+  });
   js.context["NetTango_InitWorkspace"] = JSInitWorkspaceJS;
   js.context["NetTango_InitAllWorkspaces"] = JSInitAllWorkspacesJS;
   js.context["NetTango_ExportCode"] = JSExportCode;

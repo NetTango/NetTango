@@ -95,7 +95,7 @@ Block restoreMenuBlock(CodeWorkspace workspace, js.JsObject blockEnc) {
   block.borderColor = toStr(blockEnc["borderColor"], null);
   block.font = toStr(blockEnc["font"], null);
   block.isRequired = toBool(blockEnc["required"], block.isRequired);
-  block.allowedPlacement = BlockPlacement.values[toInt(blockEnc["allowedPlacement"], block.allowedPlacement.index)];
+  block.placement = BlockPlacement.values[toInt(blockEnc["placement"], block.placement.index)];
 
   if (blockEnc["params"] is js.JsArray) {
     for (js.JsObject p in blockEnc["params"]) {

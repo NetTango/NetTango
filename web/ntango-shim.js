@@ -20,6 +20,8 @@
  */
 var NetTango = {
 
+  blockPlacementOptions: NetTango_blockPlacementOptions,
+
   /// Call init to instantiate a workspace associated with an HTML canvas.
   /// TODO: Document JSON specification format--for now see README.md
   init : function(language, canvasId, json, formatAttributeJS) {

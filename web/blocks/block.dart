@@ -67,9 +67,9 @@ class Block {
   bool isRequired = false;
 
   /// Restrict block placement
-  BlockPlacement allowedPlacement = BlockPlacement.child;
-  bool get canBeChild   => allowedPlacement == BlockPlacement.child   || allowedPlacement == BlockPlacement.anywhere;
-  bool get canBeStarter => allowedPlacement == BlockPlacement.starter || allowedPlacement == BlockPlacement.anywhere;
+  BlockPlacement placement = BlockPlacement.child;
+  bool get canBeChild   => placement == BlockPlacement.child   || placement == BlockPlacement.anywhere;
+  bool get canBeStarter => placement == BlockPlacement.starter || placement == BlockPlacement.anywhere;
 
   /// link back to the main workspace
   CodeWorkspace workspace;
@@ -106,7 +106,7 @@ class Block {
     other.borderColor = borderColor;
     other.font = font;
     other.isRequired = isRequired;
-    other.allowedPlacement = allowedPlacement;
+    other.placement = placement;
     for (Attribute param in params.values) {
       Attribute otherParam = param.clone(other, isSlotBlock);
       other.params[otherParam.id] = otherParam;

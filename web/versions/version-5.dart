@@ -26,9 +26,9 @@ class Version5 {
   static void addBlockPlacements(js.JsObject b) {
     if (b.hasProperty("required") && b["required"]) {
       // prior to version 5, `required` also indicated a starter block
-      b["allowedPlacement"] = BlockPlacement.starter.index;
+      b["placement"] = BlockPlacement.starter.index;
     } else {
-      b["allowedPlacement"] = BlockPlacement.child.index;
+      b["placement"] = BlockPlacement.child.index;
     }
   }
 
@@ -51,6 +51,12 @@ class Version5 {
         // no property
         b["clauses"] = js.JsArray.from([]);
         b["clauses"].add(firstClause);
+      }
+    } else {
+      // no children field, but if a `clauses` array exists, that means there is a phantom clause needed
+      if (b.hasProperty("clauses") && b["clauses"] is js.JsArray) {
+        final firstClause = js.JsObject.jsify({ "children": [] });
+        b["clauses"].insert(0, firstClause);
       }
     }
   }
