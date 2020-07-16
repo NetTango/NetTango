@@ -311,7 +311,7 @@ void main() {
         {
           "id": 23,
           "action": "wolf actions",
-          "placement": 0,
+          "placement": BlockPlacement.starter,
           "type": "nlogo:procedure",
           "limit": 1,
           "format": "to wolf-actions",
@@ -321,7 +321,7 @@ void main() {
         {
           "id": 24,
           "action": "forward",
-          "placement": 1,
+          "placement": BlockPlacement.child,
           "format": "forward 10",
           "type": "nlogo:command",
           "required": false,
@@ -335,7 +335,7 @@ void main() {
               "id": 23,
               "instanceId": 0,
               "action": "wolf actions",
-              "placement": 0,
+              "placement": BlockPlacement.child,
               "type": "nlogo:procedure",
               "format": "to wolf-actions",
               "blockColor": "#bb5555",
@@ -345,7 +345,7 @@ void main() {
               "id": 24,
               "instanceId": 1,
               "action": "forward",
-              "placement": 1,
+              "placement": BlockPlacement.child,
               "type": "nlogo:command",
               "format": "forward 10",
               "required": false
@@ -509,7 +509,7 @@ void main() {
         "id": 0,
         "action": "sheep actions",
         "required": false,
-        "placement": 1,
+        "placement": BlockPlacement.child,
         "params": [ { "id": 0, "type": "int", "default": 10, "step": 1 } ],
         "properties": [ { "id": 1, "type": "int", "default": 9, "step": 1 } ],
         "propertiesDisplay": "shown"
@@ -521,7 +521,7 @@ void main() {
           "instanceId": 0,
           "action": "sheep actions",
           "required": false,
-          "placement": 1,
+          "placement": BlockPlacement.child,
           "params": [ { "id": 0, "type": "int", "default": 10, "value": 10, "step": 1 } ],
           "properties": [ { "id": 1, "type": "int", "default": 9, "value": 9, "step": 1 } ],
           "propertiesDisplay": "shown"

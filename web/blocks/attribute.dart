@@ -409,6 +409,7 @@ class ExpressionParameter extends Attribute {
       backdrop.classes.remove("show");
       acceptCallback();
       block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.expressionValue));
+      return false;
     });
 
     querySelectorAll(".nt-param-confirm").onMouseDown.listen((e) {

@@ -50,10 +50,11 @@ class Block {
   /// properties are just named parameters that get listed vertically
   Map<int, Attribute> properties = new Map<int, Attribute>();
   String propertiesDisplay = "shown";
-  bool get hasParams => params.isNotEmpty;
-  bool get hasProperties => properties.isNotEmpty;
 
   int nextParamId = 0;
+
+  bool get hasParams     => params.isNotEmpty;
+  bool get hasProperties => properties.isNotEmpty;
 
   List<Clause> clauses = new List<Clause>();
   bool get hasClauses => clauses.isNotEmpty;

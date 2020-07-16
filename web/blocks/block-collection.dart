@@ -30,6 +30,7 @@ abstract class BlockCollection {
       return blocks.map( (b) => b.getBlockCount(id) ).reduce( (a, b) => a + b );
     } catch (ex) {
       print("here is the fail ${ex.toString()}");
+      rethrow;
     }
   }
 

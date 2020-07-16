@@ -48,12 +48,12 @@ class Version5 {
           b["clauses"].add(firstClause);
         }
       } else {
-        // no property
+        // no `clauses` property
         b["clauses"] = js.JsArray.from([]);
         b["clauses"].add(firstClause);
       }
     } else {
-      // no children field, but if a `clauses` array exists, that means there is a phantom clause needed
+      // no `children` field, but if a `clauses` array exists, that means there is a phantom clause needed
       if (b.hasProperty("clauses") && b["clauses"] is js.JsArray) {
         final firstClause = js.JsObject.jsify({ "children": [] });
         b["clauses"].insert(0, firstClause);
