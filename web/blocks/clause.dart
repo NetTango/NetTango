@@ -20,11 +20,13 @@ class Clause extends BlockCollection {
 
   final Block owner;
   final int clauseIndex;
+  final String open;
+  final String close;
 
   bool isDragOver = false;
   bool isDragHeaderOver = false;
 
-  Clause(this.owner, this.clauseIndex) {}
+  Clause(this.owner, this.clauseIndex, this.open, this.close);
 
   DivElement draw(DragImage dragImage, DivElement headerDiv) {
     _div = new DivElement();
@@ -55,6 +57,11 @@ class Clause extends BlockCollection {
     BlockCollection.appendBlocks(_div, blocks, "nt-block-clause");
 
     return _div;
+  }
+
+  Clause cloneForChain(Block newBlock) {
+    final clause = new Clause(newBlock, this.clauseIndex, this.open, this.close);
+    return clause;
   }
 
   void setEmpty() {

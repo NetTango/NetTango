@@ -77,7 +77,7 @@ class Slot {
       out.writeln(this.block.note);
       out.writeln();
     }
-    workspace.formatter.formatBlock(out, sampleBlock, 0);
+    workspace.formatter.formatBlock(out, 0, sampleBlock);
     final value = out.toString().trim();
     final escapedValue = (new HtmlEscape()).convert(value);
     return escapedValue;

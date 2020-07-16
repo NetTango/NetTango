@@ -29,6 +29,9 @@ class CodeWorkspace {
 
   CodeFormatter formatter;
 
+  String chainOpen;
+  String chainClose;
+
   List<Chain> chains = new List<Chain>();
 
   int nextBlockId = 0;

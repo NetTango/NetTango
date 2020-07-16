@@ -25,6 +25,9 @@ CodeWorkspace restoreWorkspace(String containerId, js.JsObject workspaceEnc, Cod
   workspace.height = workspaceEnc["height"] is int ? workspaceEnc["height"] : CodeWorkspace.DEFAULT_HEIGHT;
   workspace.width  = workspaceEnc["width"]  is int ? workspaceEnc["width"]  : CodeWorkspace.DEFAULT_WIDTH;
 
+  workspace.chainOpen  = toStr(workspaceEnc["chainOpen"],  null);
+  workspace.chainClose = toStr(workspaceEnc["chainClose"], null);
+
   if (workspaceEnc.hasProperty("blockStyles")) {
     workspace.starterBlockStyle   = restoreBlockStyle(workspaceEnc["blockStyles"]["starterBlockStyle"],   BlockStyle.DEFAULT_STARTER_COLOR);
     workspace.containerBlockStyle = restoreBlockStyle(workspaceEnc["blockStyles"]["containerBlockStyle"], BlockStyle.DEFAULT_CONTAINER_COLOR);
@@ -120,7 +123,9 @@ Block restoreMenuBlock(CodeWorkspace workspace, js.JsObject blockEnc) {
 }
 
 Clause restoreClause(CodeWorkspace workspace, Block block, js.JsObject clauseEnc, int clauseIndex) {
-  Clause clause = new Clause(block, clauseIndex);
+  final open  = toStr(clauseEnc["open"],  null);
+  final close = toStr(clauseEnc["close"], null);
+  Clause clause = new Clause(block, clauseIndex, open, close);
   if (clauseEnc["children"] is js.JsArray) {
     clause.blocks = restoreBlocks(workspace, clauseEnc["children"]);
   }
@@ -260,7 +265,9 @@ Block restoreChainBlock(CodeWorkspace workspace, js.JsObject blockEnc) {
     for (js.JsObject clauseEnc in blockEnc["clauses"]) {
       if (clauseEnc["children"] is! js.JsArray) { continue; }
 
-      Clause clause = new Clause(block, clauseIndex);
+      final open  = toStr(clauseEnc["open"],  null);
+      final close = toStr(clauseEnc["close"], null);
+      Clause clause = new Clause(block, clauseIndex, open, close);
       block.clauses.add(clause);
       for (js.JsObject childJson in clauseEnc["children"]) {
         Block child = restoreChainBlock(workspace, childJson);

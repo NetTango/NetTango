@@ -46,7 +46,7 @@ part "blocks/chain.dart";
 part "blocks/clause.dart";
 part "blocks/expression-definition.dart";
 part "blocks/expression.dart";
-part "blocks/formatter.dart";
+part 'blocks/code-formatter.dart';
 part "blocks/slot.dart";
 part "blocks/menu.dart";
 part "blocks/attribute.dart";
@@ -77,16 +77,7 @@ void _initializeJS(String language, js.JsFunction formatAttributeJS, String cont
 void _initialize(String language, Function formatAttribute, String containerId, js.JsObject definition) {
   VersionManager.updateWorkspace(definition);
 
-  CodeFormatter formatter;
-  switch (language) {
-    case "NetLogo":
-      formatter = new NetLogoFormatter(formatAttribute, containerId);
-      break;
-
-    default:
-      formatter = new PlainFormatter(formatAttribute, containerId);
-      break;
-  }
+  CodeFormatter formatter = new CodeFormatter(language, formatAttribute, containerId);
 
   try {
     if (_workspaces.containsKey(containerId)) {

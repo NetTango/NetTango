@@ -121,9 +121,7 @@ class Block {
 
   static Block cloneSlotForChain(Block block) {
     final newBlock = block.clone(false);
-    for (int clauseIndex = 0; clauseIndex < block.clauses.length; clauseIndex++) {
-      newBlock.clauses.add(new Clause(newBlock, clauseIndex));
-    }
+    block.clauses.forEach( (clause) => newBlock.clauses.add( clause.cloneForChain(newBlock) ));
     return newBlock;
   }
 
@@ -294,13 +292,13 @@ class Block {
     }
     if (_dragData.parentType == "workspace-chain" && _dragData.blockIndex == 0) {
       final chain = workspace.chains[_dragData.chainIndex];
-      workspace.formatter.formatBlocks(out, chain.blocks, 0);
+      workspace.formatter.formatBlocks(out, 0, chain.blocks);
       // if this block isn't a valid chain starter, nothing may have been written
       if (out.isEmpty) {
-        workspace.formatter.formatBlock(out, this, 0);
+        workspace.formatter.formatBlock(out, 0, this);
       }
     } else {
-      workspace.formatter.formatBlock(out, this, 0);
+      workspace.formatter.formatBlock(out, 0, this);
     }
     final value = out.toString().trim();
     final escapedValue = (new HtmlEscape()).convert(value);

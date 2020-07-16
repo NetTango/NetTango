@@ -31,6 +31,9 @@ js.JsObject encodeWorkspace(CodeWorkspace workspace) {
     }
   });
 
+  setIfNotNull(workspaceEnc, "chainOpen",  workspace.chainOpen);
+  setIfNotNull(workspaceEnc, "chainClose", workspace.chainClose);
+
   // block styles
   if (workspace.starterBlockStyle != BlockStyle.DEFAULT_STARTER_STYLE || workspace.containerBlockStyle != BlockStyle.DEFAULT_CONTAINER_STYLE || workspace.commandBlockStyle != BlockStyle.DEFAULT_COMMAND_STYLE) {
     workspaceEnc["blockStyles"] = js.JsObject.jsify({});
@@ -136,6 +139,10 @@ js.JsObject encodeClause(Clause clause) {
   final clauseEnc = js.JsObject.jsify({
     "children": []
   });
+
+  setIfNotNull(clauseEnc, "open",  clause.open);
+  setIfNotNull(clauseEnc, "close", clause.close);
+
   final children = clauseEnc["children"];
   for (Block block in clause.blocks) {
     final blockEnc = encodeBlock(block, null);
