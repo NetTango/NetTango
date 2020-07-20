@@ -49,7 +49,12 @@ part "blocks/expression.dart";
 part 'blocks/code-formatter.dart';
 part "blocks/slot.dart";
 part "blocks/menu.dart";
-part "blocks/attribute.dart";
+part 'blocks/attributes/attribute.dart';
+part 'blocks/attributes/expression-attribute.dart';
+part 'blocks/attributes/int-attribute.dart';
+part 'blocks/attributes/num-attribute.dart';
+part 'blocks/attributes/range-attribute.dart';
+part 'blocks/attributes/select-attribute.dart';
 part "blocks/program-changed-event.dart";
 part "blocks/workspace.dart";
 
