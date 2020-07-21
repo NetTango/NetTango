@@ -34,6 +34,7 @@ part "versions/version-manager.dart";
 //part "utils/sounds.dart";
 part "utils/utils.dart";
 
+part "blocks/external-storage.dart";
 part "blocks/drag-acceptor.dart";
 part "blocks/drag-image.dart";
 part "blocks/toggle.dart";

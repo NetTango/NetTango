@@ -18,6 +18,8 @@ part of NetTango;
 
 class Clause extends BlockCollection {
 
+  final storage = new ExternalStorage(["children", "open", "close"]);
+
   final Block owner;
   final int clauseIndex;
   final String open;

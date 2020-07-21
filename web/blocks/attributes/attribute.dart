@@ -19,6 +19,8 @@ part of NetTango;
 /// Represents the paramter or property options for a block
 abstract class Attribute {
 
+  final storage = new ExternalStorage(["id", "type", "name", "unit", "value", "default", "quoteValues", "values", "step", "random", "min", "max", "expressionValue"]);
+
   /// parameter id - unique per block
   int id;
 

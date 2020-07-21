@@ -22,6 +22,8 @@ CodeWorkspace restoreWorkspace(String containerId, js.JsObject workspaceEnc, Cod
   }
 
   final workspace = new CodeWorkspace(containerId, formatter);
+  workspace.storage.set(workspaceEnc);
+
   workspace.height = workspaceEnc["height"] is int ? workspaceEnc["height"] : CodeWorkspace.DEFAULT_HEIGHT;
   workspace.width  = workspaceEnc["width"]  is int ? workspaceEnc["width"]  : CodeWorkspace.DEFAULT_WIDTH;
 
@@ -79,6 +81,7 @@ Block restoreMenuBlock(CodeWorkspace workspace, js.JsObject blockEnc) {
   String action = toStr(blockEnc["action"]);
   int id = blockEnc["id"];
   Block block = new Block(workspace, id, action, true);
+  block.storage.set(blockEnc);
   blockEnc["id"] = block.id;
 
   if (blockEnc["clauses"] is js.JsArray) {
@@ -126,6 +129,8 @@ Clause restoreClause(CodeWorkspace workspace, Block block, js.JsObject clauseEnc
   final open  = toStr(clauseEnc["open"],  null);
   final close = toStr(clauseEnc["close"], null);
   Clause clause = new Clause(block, clauseIndex, open, close);
+  clause.storage.set(clauseEnc);
+
   if (clauseEnc["children"] is js.JsArray) {
     clause.blocks = restoreBlocks(workspace, clauseEnc["children"]);
   }
@@ -195,6 +200,7 @@ Attribute restoreAttribute(Block block, js.JsObject attributeEnc) {
   attribute.unit = toStr(attributeEnc["unit"], "");
   attribute.setDefaultValue(toStr(attributeEnc["default"], ""));
 
+  attribute.storage.set(attributeEnc);
   return attribute;
 }
 
@@ -227,6 +233,7 @@ void restoreProgram(CodeWorkspace workspace, js.JsObject programEnc) {
 
 void restoreChain(CodeWorkspace workspace, js.JsObject chainEnc) {
   Chain chain = new Chain(workspace);
+  chain.storage.set(chainEnc);
 
   if (chainEnc["x"] is num && chainEnc["y"] is num) {
     chain.x = chainEnc["x"].floor();
@@ -255,6 +262,7 @@ Block restoreChainBlock(CodeWorkspace workspace, js.JsObject blockEnc) {
   }
 
   Block block = proto.clone(false);
+  block.storage.set(blockEnc);
 
   block.propertiesDisplay = toStr(blockEnc["propertiesDisplay"], "shown");
   restoreChainBlockAttributeValues(block.params, blockEnc["params"]);
@@ -269,7 +277,9 @@ Block restoreChainBlock(CodeWorkspace workspace, js.JsObject blockEnc) {
       final open  = toStr(clauseEnc["open"],  null);
       final close = toStr(clauseEnc["close"], null);
       Clause clause = new Clause(block, clauseIndex, open, close);
+      clause.storage.set(clauseEnc);
       block.clauses.add(clause);
+
       for (js.JsObject childJson in clauseEnc["children"]) {
         Block child = restoreChainBlock(workspace, childJson);
         if (child != null) {
@@ -292,11 +302,17 @@ void restoreChainBlockAttributeValues(Map<int, Attribute> blockAttributes, js.Js
 
   for (js.JsObject attributeEnc in attributeEncs) {
 
-    if (!attributeEnc.hasProperty('id') || attributeEnc["value"] == null || !blockAttributes.containsKey(attributeEnc["id"])) {
+    if (!attributeEnc.hasProperty('id') || !blockAttributes.containsKey(attributeEnc["id"])) {
       continue;
     }
 
     final blockAttribute = blockAttributes[attributeEnc["id"]];
+    blockAttribute.storage.set(attributeEnc);
+
+    if (attributeEnc["value"] == null) {
+      continue;
+    }
+
     if ([ "bool", "num" ].contains(blockAttribute.type)) {
       if (blockAttribute is! ExpressionAttribute) {
         throw new Exception("A non-expression attribute cannot have a type of 'num' or 'bool'.");

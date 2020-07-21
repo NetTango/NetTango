@@ -30,6 +30,7 @@ js.JsObject encodeWorkspace(CodeWorkspace workspace) {
       "chains": []
     }
   });
+  workspace.storage.restore(workspaceEnc);
 
   setIfNotNull(workspaceEnc, "chainOpen",  workspace.chainOpen);
   setIfNotNull(workspaceEnc, "chainClose", workspace.chainClose);
@@ -69,6 +70,8 @@ js.JsObject encodeWorkspace(CodeWorkspace workspace) {
       "x": chain.x, "y": chain.y,
       "blocks": []
     });
+    chain.storage.restore(chainEnc);
+
     for (Block block in chain.blocks) {
       final blockEnc = encodeBlock(block, null);
       chainEnc["blocks"].add(blockEnc);
@@ -97,6 +100,8 @@ js.JsObject encodeBlock(Block block, int limit) {
     "required":         block.isRequired,
     "placement": block.placement.index
   });
+  block.storage.restore(blockEnc);
+
   setIfNotNull(blockEnc, "instanceId", block.instanceId);
   setIfNotNullOrEmpty(blockEnc, "type", block.type);
   setIfNotNullOrEmpty(blockEnc, "format", block.format);
@@ -139,6 +144,7 @@ js.JsObject encodeClause(Clause clause) {
   final clauseEnc = js.JsObject.jsify({
     "children": []
   });
+  clause.storage.restore(clauseEnc);
 
   setIfNotNull(clauseEnc, "open",  clause.open);
   setIfNotNull(clauseEnc, "close", clause.close);
@@ -168,6 +174,7 @@ js.JsObject encodeAttribute(Attribute attribute) {
     "id" :      attribute.id,
     "type" :    attribute.type,
   });
+  attribute.storage.restore(attributeEnc);
 
   setIfNotNullOrEmpty(attributeEnc, "name", attribute.name);
   setIfNotNullOrEmpty(attributeEnc, "unit", attribute.unit);

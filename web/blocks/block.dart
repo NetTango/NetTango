@@ -23,6 +23,8 @@ enum BlockPlacement { starter, child, anywhere }
  */
 class Block {
 
+  final storage = new ExternalStorage(["id", "action", "required", "placement", "instanceId", "type", "format", "limit", "note", "blockColor", "textColor", "borderColor", "font", "clauses", "params", "properties", "propertiesDisplay"]);
+
   /// unique block ID number per workspace
   int id;
 

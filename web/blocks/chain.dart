@@ -18,6 +18,8 @@ part of NetTango;
 
 class Chain extends BlockCollection {
 
+  final storage = new ExternalStorage(["x", "y", "blocks"]);
+
   static final FRAGMENT_HEIGHT = 40;
 
   int x = 0, y = 0;

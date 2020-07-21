@@ -18,6 +18,8 @@ part of NetTango;
 
 class CodeWorkspace {
 
+  final storage = new ExternalStorage(["version", "height", "width", "blocks", "program", "chainOpen", "chainClose", "blockStyles", "variables", "expressions"]);
+
   static int DEFAULT_HEIGHT = 600;
   static int DEFAULT_WIDTH = 450;
 

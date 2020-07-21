@@ -1,6 +1,8 @@
 import 'dart:js';
 import 'dart:convert';
 
+import "../web/ntango.dart";
+
 class TestUtils {
   static dynamic dartify(dynamic value) {
     if (value is JsArray) {
@@ -16,5 +18,11 @@ class TestUtils {
     }
 
     return value;
+  }
+
+  static CodeFormatter createTestFormatter(String containerId) {
+    String formatAttribute(containerId, blockId, instanceId, attributeId, value, attributeType) => value.toString();
+    CodeFormatter formatter = new CodeFormatter("NetLogo", formatAttribute, containerId);
+    return formatter;
   }
 }
