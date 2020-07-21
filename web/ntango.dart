@@ -55,6 +55,7 @@ part 'blocks/attributes/int-attribute.dart';
 part 'blocks/attributes/num-attribute.dart';
 part 'blocks/attributes/range-attribute.dart';
 part 'blocks/attributes/select-attribute.dart';
+part 'blocks/attributes/text-attribute.dart';
 part "blocks/program-changed-event.dart";
 part "blocks/workspace.dart";
 
@@ -68,11 +69,11 @@ CodeWorkspace GetWorkspace(String containerId) {
 }
 
 void _initializeJS(String language, js.JsFunction formatAttributeJS, String containerId, js.JsObject definition) {
-  String formatAttribute(containerId, blockId, instanceId, attributeId, value) {
+  String formatAttribute(containerId, blockId, instanceId, attributeId, value, attributeType) {
     if (formatAttributeJS == null) {
       return value.toString();
     } else {
-      return formatAttributeJS.apply([containerId, blockId, instanceId, attributeId, value]);
+      return formatAttributeJS.apply([containerId, blockId, instanceId, attributeId, value, attributeType]);
     }
   }
 
@@ -127,11 +128,11 @@ void JSInitAllWorkspacesJS(String language, String jsonString, js.JsFunction for
 String JSExportCode(String containerId, js.JsFunction formatAttributeJS) {
   if (_workspaces.containsKey(containerId)) {
     if (formatAttributeJS != null) {
-      String formatAttribute(containerId, blockId, instanceId, attributeId, value) {
+      String formatAttribute(containerId, blockId, instanceId, attributeId, value, attributeType) {
         if (formatAttributeJS == null) {
           return value.toString();
         } else {
-          return formatAttributeJS.apply([containerId, blockId, instanceId, attributeId, value]);
+          return formatAttributeJS.apply([containerId, blockId, instanceId, attributeId, value, attributeType]);
         }
       }
 
@@ -141,6 +142,16 @@ String JSExportCode(String containerId, js.JsFunction formatAttributeJS) {
     }
   }
   return null;
+}
+
+String JSFormatAttributeValue(String containerId, int instanceId, int attributeId) {
+  if (!_workspaces.containsKey(containerId)) {
+    throw new Exception("Unknown container ID: ${containerId}");
+  }
+  final workspace = _workspaces[containerId];
+  final block     = workspace.getBlockInstance(instanceId);
+  final attribute = block.getAttribute(attributeId);
+  return CodeFormatter.formatAttributeValue(attribute);
 }
 
 /// Javascript hook to export the entire state of a workspace
@@ -173,6 +184,7 @@ void main() {
   js.context["NetTango_InitWorkspace"] = JSInitWorkspaceJS;
   js.context["NetTango_InitAllWorkspaces"] = JSInitAllWorkspacesJS;
   js.context["NetTango_ExportCode"] = JSExportCode;
+  js.context["NetTango_FormatAttributeValue"] = JSFormatAttributeValue;
   js.context["NetTango_Save"] = JSSaveWorkspace;
   js.context["NetTango_SaveAll"] = JSSaveAllWorkspaces;
 }

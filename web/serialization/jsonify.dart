@@ -168,40 +168,61 @@ js.JsObject encodeAttribute(Attribute attribute) {
     "id" :      attribute.id,
     "type" :    attribute.type,
   });
-  setIfNotNull(attributeEnc, "value", attribute.value);
-  setIfNotNull(attributeEnc, "default", attribute.defaultValue);
+
   setIfNotNullOrEmpty(attributeEnc, "name", attribute.name);
   setIfNotNullOrEmpty(attributeEnc, "unit", attribute.unit);
 
-  if (attribute is NumParameter) {
-    setIfNotNull(attributeEnc, "random", attribute.random);
-    attributeEnc["step"] = attribute.stepSize;
-  }
+  switch (attribute.type) {
+    case "text":
+      setIfNotNullOrEmpty(attributeEnc, "value", attribute.getValue());
+      setIfNotNullOrEmpty(attributeEnc, "default", attribute.getDefaultValue());
+      break;
 
-  if (attribute is RangeParameter) {
-    attributeEnc["min"] = attribute.minValue;
-    attributeEnc["max"] = attribute.maxValue;
-  }
-
-  if (attribute is SelectParameter) {
-    final values = attributeEnc["values"] = js.JsArray.from([]);
-    for (final value in attribute.values) {
-      final valueEnc = js.JsObject.jsify({ "actual": value.actual, "display": value.display });
-      values.add(valueEnc);
-    }
-  }
-
-  if (attribute is ExpressionParameter) {
-    if (attribute.builder.root != null && !attribute.builder.root.isEmpty) {
-      // this is to maintain the same structure as versions prior to 4.  It could be
-      // switched out to only use the encoded expression at some point.
-      if (attribute.builder.root.children.isEmpty) {
-        attributeEnc["value"] = attribute.expressionValue;
-      } else {
-        attributeEnc["value"] = encodeExpression(attribute.builder.root);
-        attributeEnc["expressionValue"] = attribute.expressionValue;
+    case "select":
+      final selectAttribute = attribute as SelectAttribute;
+      setIfNotNullOrEmpty(attributeEnc, "quoteValues", selectAttribute.quoteValues);
+      setIfNotNullOrEmpty(attributeEnc, "value", attribute.getValue());
+      setIfNotNullOrEmpty(attributeEnc, "default", attribute.getDefaultValue());
+      final values = attributeEnc["values"] = js.JsArray.from([]);
+      for (final value in selectAttribute.values) {
+        final valueEnc = js.JsObject.jsify({ "actual": value.actual, "display": value.display });
+        values.add(valueEnc);
       }
-    }
+      break;
+
+    case "int":
+    case "range":
+      final numAttribute = attribute as NumAttribute;
+      attributeEnc["step"] = numAttribute.stepSize;
+      setIfNotNull(attributeEnc, "random", numAttribute.random);
+      setIfNotNull(attributeEnc, "value", numAttribute.value);
+      setIfNotNull(attributeEnc, "default", numAttribute.defaultValue);
+      if (numAttribute is RangeAttribute) {
+        attributeEnc["min"] = numAttribute.minValue;
+        attributeEnc["max"] = numAttribute.maxValue;
+      }
+      break;
+
+    case "num":
+    case "bool":
+      final expAttribute = attribute as ExpressionAttribute;
+      setIfNotNullOrEmpty(attributeEnc, "default", attribute.getDefaultValue());
+
+      if (expAttribute.builder.root != null && !expAttribute.builder.root.isEmpty) {
+        // this is to maintain the same structure as versions prior to 4.  It could be
+        // switched out to only use the encoded expression at some point.
+        if (expAttribute.builder.root.children.isEmpty) {
+          attributeEnc["value"] = attribute.getValue();
+        } else {
+          attributeEnc["value"] = encodeExpression(expAttribute.builder.root);
+          attributeEnc["expressionValue"] = attribute.getValue();
+        }
+      }
+      break;
+
+    default:
+      throw new Exception("Unknown attribute type ${attribute.type}");
+
   }
 
   return attributeEnc;

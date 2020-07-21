@@ -16,45 +16,39 @@
 
 part of NetTango;
 
-//-------------------------------------------------------------------------
-/// Represents a number parameter
-//-------------------------------------------------------------------------
-abstract class NumAttribute extends Attribute {
+/// Represents the paramter or property options for a block
+class TextAttribute extends Attribute {
 
-  num value = null;
-  num defaultValue = null;
+  String get type => "text";
 
-  String getValue() {
-    if (value == null) { return ""; }
-    String valueString = (value != null ? value : 0).toStringAsFixed(1);
-    return (valueString.endsWith('.0')) ? valueString.substring(0, valueString.length - 2) : valueString;
+  String value = "";
+  String defaultValue = "";
+
+  String getValue() => value == null ? "" : value;
+  void setValue(String valueString) {
+    this.value = valueString;
   }
-  void setValue(String valueString) => value = toNum(valueString, 0.0);
 
-  String getDefaultValue() => defaultValue == null ? "" : defaultValue.toString();
-  void setDefaultValue(String valueString) => defaultValue = toNum(valueString, null);
+  String getDefaultValue() => defaultValue;
+  void setDefaultValue(String defaultString) {
+    this.defaultValue = defaultString;
+  }
 
-  /// represents a random number?
-  bool random = null;
+  TextAttribute(Block block, int id) : super(block, id);
 
-  /// step interval for selections (for numbers and range)
-  num stepSize = 1;
-
-  // Perhaps surprisingly, this class does *not* correspond to the `"num"` attribute `type`.
-  // That type is for the `ExpressionAttribute`.  This class can be `int` or `range`.
-  // -Jeremy B July 2020
-  NumAttribute(Block block, int id) : super(block, id);
-
-  NumAttribute.clone(Block block, NumAttribute source, bool isSlotBlock) : super.clone(block, source, isSlotBlock) {
-    this.random = source.random;
-    this.stepSize = source.stepSize;
+  TextAttribute.clone(Block block, TextAttribute source, bool isSlotBlock) : super.clone(block, source, isSlotBlock) {
     this.defaultValue = source.defaultValue;
     if (!isSlotBlock) {
-      this.value = (source.value == null) ? this.defaultValue : source.value;
+      this.value = (source.value == null || source.value == "") ? this.defaultValue : source.value;
     }
   }
 
-  bool shouldQuote() { return false; }
+  // just so we can clone without knowing the type
+  TextAttribute clone(Block block, bool isSlotBlock) {
+    return TextAttribute.clone(block, this, isSlotBlock);
+  }
+
+  bool shouldQuote() { return true; }
 
   void showParameterDialog(int x, int y, Function acceptCallback) {
     final backdrop = block.workspace.backdrop;
@@ -79,7 +73,7 @@ abstract class NumAttribute extends Attribute {
 
     querySelectorAll(".nt-param-confirm").onClick.listen((e) {
       if (input != null) {
-        setValue(input.value);
+        value = input.value;
       }
       backdrop.classes.remove("show");
       acceptCallback();
@@ -99,12 +93,11 @@ abstract class NumAttribute extends Attribute {
   }
 
   String buildHTMLInput() {
+    final htmlValue = (new HtmlEscape()).convert(getValue());
     return """
-      <div class="nt-param-name">${name}</div>
-      <div class="nt-param-value">
-        <input class="nt-param-input" id="nt-param-${uniqueId}" type="number" step="${stepSize}" value="${value}">
-        <span class="nt-param-unit">${unit}</span>
-      </div>
+      <input class="nt-param-input" id="nt-param-${uniqueId}" type="text" value="${htmlValue}">
+      <span class="nt-param-unit">${unit}</span>
     """;
   }
+
 }

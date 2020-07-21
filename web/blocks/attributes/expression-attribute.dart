@@ -21,27 +21,58 @@ part of NetTango;
 //-------------------------------------------------------------------------
 class ExpressionAttribute extends Attribute {
 
+  // must be "num" or "bool"
+  String _type;
+  String get type => _type;
+
   ExpressionBuilder builder;
 
-  String get displayValue => (builder != null) ? builder.toString() : "";
+  String defaultValue = "";
 
-  String get expressionValue => CodeFormatter.formatExpression(builder.root);
+  String getValue() => CodeFormatter.formatExpression(this.builder.root);
+  void setValue(String valueString) {
+    if (valueString == null) {
+      this.builder = new ExpressionBuilder(block.workspace, type);
+    }
+    if (num.tryParse(valueString) == null && !["true", "false"].contains(valueString)) {
+      // not a number or boolean, do not use value
+      throw new ArgumentError.value(valueString, "valueString", "Expression values can only be set to numbers or booleans.");
+    }
+    this.builder = new ExpressionBuilder(block.workspace, type);
+    final expression = new Expression(builder, type);
+    expression.name = valueString;
+    this.builder.root = expression;
+  }
+
+  String getDefaultValue() => defaultValue;
+  void setDefaultValue(String defaultString) {
+    this.defaultValue = defaultString;
+  }
 
   ExpressionAttribute(Block block, int id, String type) : super(block, id) {
+    if (!["num", "bool"].contains(type)) {
+      throw new ArgumentError.value(type, "type", "The expression type can only be num or bool");
+    }
     this.builder = new ExpressionBuilder(block.workspace, type);
-    this.type = type;
+    this._type = type;
   }
 
   ExpressionAttribute.clone(Block block, ExpressionAttribute source, bool isSlotBlock) : super.clone(block, source, isSlotBlock) {
-    this.type = source.type;
+    this.defaultValue = source.defaultValue;
+    this._type = source._type;
     this.builder = ExpressionBuilder.clone(source.builder);
+    if (!isSlotBlock) {
+      this.setValue(this.defaultValue);
+    }
   }
 
   Attribute clone(Block block, bool isSlotBlock) {
     return ExpressionAttribute.clone(block, this, isSlotBlock);
   }
 
-  void _showParameterDialog(int x, int y, Function acceptCallback) {
+  bool shouldQuote() { return false; }
+
+  void showParameterDialog(int x, int y, Function acceptCallback) {
     final backdrop = block.workspace.backdrop;
     backdrop.classes.add("show");
     final dialog = block.workspace.dialog;
@@ -72,7 +103,8 @@ class ExpressionAttribute extends Attribute {
       pulldownCloserStream.cancel();
       backdrop.classes.remove("show");
       acceptCallback();
-      block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.expressionValue));
+      final formattedValue = CodeFormatter.formatAttributeValue(this);
+      block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.type, this.getValue(), formattedValue));
       return false;
     });
 

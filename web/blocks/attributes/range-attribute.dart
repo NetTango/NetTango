@@ -21,7 +21,7 @@ part of NetTango;
 //-------------------------------------------------------------------------
 class RangeAttribute extends NumAttribute {
 
-  String type = "range";
+  String get type => "range";
 
   /// lowest possible value that the user can select (for numbers and range)
   num minValue = 0;
@@ -40,7 +40,7 @@ class RangeAttribute extends NumAttribute {
     return RangeAttribute.clone(block, this, isSlotBlock);
   }
 
-  void _showParameterDialog(int x, int y, Function acceptCallback) {
+  void showParameterDialog(int x, int y, Function acceptCallback) {
     final backdrop = block.workspace.backdrop;
     backdrop.classes.add("show");
     final dialog = block.workspace.dialog;
@@ -71,10 +71,11 @@ class RangeAttribute extends NumAttribute {
     InputElement input = querySelector("#nt-param-$uniqueId");
     if (input != null && label != null) {
       input.onChange.listen((e) {
-        value = input.value;
+        setValue(input.value);
         backdrop.classes.remove("show");
         acceptCallback();
-        block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.value));
+        final formattedValue = CodeFormatter.formatAttributeValue(this);
+        block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.type, this.value, formattedValue));
         e.stopPropagation();
       });
       input.onInput.listen((e) { label.innerHtml = input.value; });

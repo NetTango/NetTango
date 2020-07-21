@@ -21,7 +21,7 @@ part of NetTango;
 //-------------------------------------------------------------------------
 class IntAttribute extends NumAttribute {
 
-  String type = "int";
+  String get type => "int";
 
   IntAttribute(Block block, int id) : super(block, id) { stepSize = 1; }
 

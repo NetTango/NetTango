@@ -156,8 +156,8 @@ class CodeFormatter  {
 
   String replaceAttribute(String code, String placeholder, Block block, Attribute attribute) {
     assert (attribute != null);
-    var valToPass = (attribute is ExpressionParameter) ? attribute.expressionValue : attribute.value;
-    String replacement = this.formatAttribute(this.containerId, block.id, block.instanceId, attribute.id, valToPass);
+    final formattedValue = CodeFormatter.formatAttributeValue(attribute);
+    final replacement = this.formatAttribute(this.containerId, block.id, block.instanceId, attribute.id, formattedValue, attribute.type);
     return code.replaceAll(placeholder, replacement);
   }
 
@@ -174,9 +174,14 @@ class CodeFormatter  {
     if (option != null && option != "") { writeIndentedLine(out, indent, option); }
   }
 
-  static String formatExpression(Expression expression) {
-    String name = toStr(expression.name);
+  static String formatAttributeValue(Attribute attribute) {
+    final value = toStr(attribute.getValue(), "");
+    final quoteIt = attribute.shouldQuote();
+    final formatValue = quoteIt ? "\"$value\"" : value;
+    return formatValue;
+  }
 
+  static String formatExpression(Expression expression) {
     if (expression.format != null) {
       String format = expression.format;
       for (int i = 0; i < expression.children.length; i++) {
@@ -185,13 +190,13 @@ class CodeFormatter  {
       return format;
     }
     else if (expression.children.length == 1) {
-      return "($name ${formatExpression(expression.children[0])})";
+      return "(${expression.name} ${formatExpression(expression.children[0])})";
     }
     else if (expression.children.length == 2) {
-      return "(${formatExpression(expression.children[0])} $name ${formatExpression(expression.children[1])})";
+      return "(${formatExpression(expression.children[0])} ${expression.name} ${formatExpression(expression.children[1])})";
     }
     else {
-      return name;
+      return expression.name;
     }
   }
 

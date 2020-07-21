@@ -149,21 +149,21 @@ Attribute restoreAttribute(Block block, js.JsObject attributeEnc) {
   switch(toStr(attributeEnc["type"], "num")) {
 
     case "int":
-      IntParameter a = attribute = new IntParameter(block, id);
+      IntAttribute a = attribute = new IntAttribute(block, id);
       a.random   = toBool(attributeEnc["random"], null);
       a.stepSize = toNum(attributeEnc["step"], a.stepSize);
       break;
 
     case "num":
-      attribute = new ExpressionParameter(block, id, "num");
+      attribute = new ExpressionAttribute(block, id, "num");
       break;
 
     case "bool":
-      attribute = new ExpressionParameter(block, id, "bool");
+      attribute = new ExpressionAttribute(block, id, "bool");
       break;
 
     case "range":
-      RangeParameter a = attribute = new RangeParameter(block, id);
+      RangeAttribute a = attribute = new RangeAttribute(block, id);
       a.random   = toBool(attributeEnc["random"], false);
       a.stepSize = toNum(attributeEnc["step"], a.stepSize);
       a.minValue = toNum(attributeEnc["min"], a.minValue);
@@ -171,7 +171,8 @@ Attribute restoreAttribute(Block block, js.JsObject attributeEnc) {
       break;
 
     case "select":
-      SelectParameter a = attribute = new SelectParameter(block, id);
+      SelectAttribute a = attribute = new SelectAttribute(block, id);
+      a.quoteValues = toStr(attributeEnc["quoteValues"], null);
       if (attributeEnc["values"] is js.JsArray && attributeEnc["values"].length > 0) {
         for (final valueEnc in attributeEnc["values"]) {
           final value = new Option(valueEnc["actual"], valueEnc["display"]);
@@ -181,18 +182,18 @@ Attribute restoreAttribute(Block block, js.JsObject attributeEnc) {
       break;
 
     case "text":
-      attribute = new Attribute(block, id);
+      attribute = new TextAttribute(block, id);
       break;
 
     default:
-      attribute = new Attribute(block, id);
+      attribute = new TextAttribute(block, id);
       break;
 
   }
 
   attribute.name = toStr(attributeEnc["name"], "");
   attribute.unit = toStr(attributeEnc["unit"], "");
-  attribute.defaultValue = attributeEnc["default"];
+  attribute.setDefaultValue(toStr(attributeEnc["default"], ""));
 
   return attribute;
 }
@@ -256,8 +257,8 @@ Block restoreChainBlock(CodeWorkspace workspace, js.JsObject blockEnc) {
   Block block = proto.clone(false);
 
   block.propertiesDisplay = toStr(blockEnc["propertiesDisplay"], "shown");
-  restoreChainBlockAttributes(block.params, blockEnc["params"]);
-  restoreChainBlockAttributes(block.properties, blockEnc["properties"]);
+  restoreChainBlockAttributeValues(block.params, blockEnc["params"]);
+  restoreChainBlockAttributeValues(block.properties, blockEnc["properties"]);
 
   if (blockEnc["clauses"] is js.JsArray) {
     block.clauses = new List<Clause>();
@@ -282,22 +283,25 @@ Block restoreChainBlock(CodeWorkspace workspace, js.JsObject blockEnc) {
   return block;
 }
 
-void restoreChainBlockAttributes(Map<int, Attribute> blockAttributes, js.JsArray attributeEncs) {
+// we trust the `attribute.clone()` that made each chain block attribute instance got the rest of the properties
+// this just puts the values back in place.
+void restoreChainBlockAttributeValues(Map<int, Attribute> blockAttributes, js.JsArray attributeEncs) {
   if (attributeEncs == null) {
     return;
   }
 
   for (js.JsObject attributeEnc in attributeEncs) {
-    if (!attributeEnc.hasProperty('id') || !attributeEnc.hasProperty('value') || !blockAttributes.containsKey(attributeEnc["id"])) {
+
+    if (!attributeEnc.hasProperty('id') || attributeEnc["value"] == null || !blockAttributes.containsKey(attributeEnc["id"])) {
       continue;
     }
 
     final blockAttribute = blockAttributes[attributeEnc["id"]];
     if ([ "bool", "num" ].contains(blockAttribute.type)) {
-      if (blockAttribute is! ExpressionParameter) {
+      if (blockAttribute is! ExpressionAttribute) {
         throw new Exception("A non-expression attribute cannot have a type of 'num' or 'bool'.");
       }
-      final expressionAttibute = blockAttribute as ExpressionParameter;
+      final expressionAttibute = blockAttribute as ExpressionAttribute;
       if (attributeEnc["value"] is js.JsObject) {
         final builder = restoreExpressionBuilder(expressionAttibute.block.workspace, expressionAttibute.type, attributeEnc["value"]);
         expressionAttibute.builder = builder;
@@ -308,9 +312,9 @@ void restoreChainBlockAttributes(Map<int, Attribute> blockAttributes, js.JsArray
     } else {
       if (attributeEnc["value"] is js.JsObject) {
         // only expressions can have an object as a value, so...
-        blockAttribute.value = blockAttribute.defaultValue;
+        blockAttribute.setValue(toStr(attributeEnc["defaultValue"], ""));
       } else {
-        blockAttribute.value = attributeEnc["value"];
+        blockAttribute.setValue(toStr(attributeEnc["value"], ""));
       }
     }
   }

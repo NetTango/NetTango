@@ -222,7 +222,7 @@ void versionFourChainUpdates(Map program) {
   program["chains"] = chains;
 }
 
-String formatAttribute(containerId, blockId, instanceId, attributeId, value) {
+String formatAttribute(containerId, blockId, instanceId, attributeId, value, attributeType) {
   return "__${containerId}_${blockId}_${instanceId}_${attributeId}";
 }
 

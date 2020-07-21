@@ -44,9 +44,11 @@ class AttributeChangedEvent extends ProgramChangedEvent {
   final int blockId;
   final int instanceId;
   final int attributeId;
+  final String attributeType;
   final dynamic value;
+  final String formattedValue;
 
-  AttributeChangedEvent(int this.blockId, int this.instanceId, int this.attributeId, dynamic this.value);
+  AttributeChangedEvent(int this.blockId, int this.instanceId, int this.attributeId, String this.attributeType, dynamic this.value, String this.formattedValue);
 
   dynamic toJS() {
     return js.JsObject.jsify({
@@ -54,7 +56,9 @@ class AttributeChangedEvent extends ProgramChangedEvent {
       "blockId": blockId,
       "instanceId": instanceId,
       "attributeId": attributeId,
-      "value": value
+      "attributeType": attributeType,
+      "value": value,
+      "formattedValue": formattedValue
     });
   }
 

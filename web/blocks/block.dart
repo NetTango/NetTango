@@ -145,6 +145,16 @@ class Block {
     return null;
   }
 
+  Attribute getAttribute(int attributeId) {
+    if (this.params.containsKey(attributeId)) {
+      return this.params[attributeId];
+    }
+    if (this.properties.containsKey(attributeId)) {
+      return this.properties[attributeId];
+    }
+    throw new Exception("Attribute with given ID not found on block: ${attributeId}");
+  }
+
   String getStyleClass() {
     if (canBeStarter) {
       return "${workspace.containerId}-block-starter";

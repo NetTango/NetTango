@@ -20,7 +20,7 @@ class Option {
   final String actual;
   final String display;
 
-  get displayValue {
+  String get displayValue {
     return this.display == null || this.display == "" ? this.actual : this.display;
   }
 
@@ -32,7 +32,24 @@ class Option {
 //-------------------------------------------------------------------------
 class SelectAttribute extends Attribute {
 
-  String type = "select";
+  String get type => "select";
+
+  String value;
+  String defaultValue = "";
+  // can be "always-quote", "never-quote", or "smart-quote"
+  String quoteValues = "smart-quote";
+
+  String getValue() => value == null ? "" : value;
+  void setValue(String valueString) {
+    this.value = valueString;
+  }
+
+  String getDefaultValue() => defaultValue;
+  void setDefaultValue(String defaultString) {
+    this.defaultValue = defaultString;
+  }
+
+  String getDisplayValue() => "$selectedDisplay$unit \u25BE";
 
   /// list of possible values for select type
   final values = new List<Option>();
@@ -45,19 +62,38 @@ class SelectAttribute extends Attribute {
     }
   }
 
-  String get displayValue => "$selectedDisplay$unit \u25BE";
-
   SelectAttribute(Block block, int id) : super(block, id);
 
   SelectAttribute.clone(Block block, SelectAttribute source, bool isSlotBlock) : super.clone(block, source, isSlotBlock) {
+    this.defaultValue = source.defaultValue;
+    this.quoteValues = source.quoteValues;
     source.values.forEach( (option) => this.values.add( option ) );
+    if (!isSlotBlock) {
+      this.value = (source.value == null) ? this.defaultValue : source.value;
+    }
   }
 
   Attribute clone(Block block, bool isSlotBlock) {
     return SelectAttribute.clone(block, this, isSlotBlock);
   }
 
-  void _showParameterDialog(int x, int y, Function acceptCallback) {
+  bool shouldQuote() {
+    switch (this.quoteValues) {
+
+      case "always-quote":
+        return true;
+
+      case "never-quote":
+        return false;
+
+      case "smart-quote":
+      default:
+        return (num.tryParse(value) == null && !["true","false"].contains(value));
+
+    }
+  }
+
+  void showParameterDialog(int x, int y, Function acceptCallback) {
     final backdrop = block.workspace.backdrop;
     backdrop.classes.add("show");
     final dialog = block.workspace.dialog;
@@ -78,7 +114,8 @@ class SelectAttribute extends Attribute {
         value = v.actual;
         backdrop.classes.remove("show");
         acceptCallback();
-        block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.value));
+        final formattedValue = CodeFormatter.formatAttributeValue(this);
+        block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.type, this.value, formattedValue));
         e.stopPropagation();
       });
       row.append(opt);

@@ -131,6 +131,16 @@ class CodeWorkspace {
     return chains.map( (c) => c.getBlockCount(id) ).reduce( (a, b) => a + b );
   }
 
+  Block getBlockInstance(int instanceId) {
+    for (Chain chain in chains) {
+      final block = chain.getBlockInstance(instanceId);
+      if (block != null) {
+        return block;
+      }
+    }
+    throw new Exception("Block with given instance ID not found in workspace: ${instanceId}");
+  }
+
   void draw() {
     String styleId = "$containerId-styles";
     StyleElement style = document.getElementById(styleId);
