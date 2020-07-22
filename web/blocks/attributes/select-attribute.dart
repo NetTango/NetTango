@@ -16,6 +16,12 @@
 
 part of NetTango;
 
+class QuoteOptions {
+  static final SMART_QUOTE  = "smart-quote";
+  static final ALWAYS_QUOTE = "always-quote";
+  static final NEVER_QUOTE  = "never-quote";
+}
+
 class Option {
   final String actual;
   final String display;
@@ -36,8 +42,7 @@ class SelectAttribute extends Attribute {
 
   String value;
   String defaultValue = "";
-  // can be "always-quote", "never-quote", or "smart-quote"
-  String quoteValues = "smart-quote";
+  String quoteValues = QuoteOptions.SMART_QUOTE;
 
   String getValue() => value == null ? "" : value;
   void setValue(String valueString) {

@@ -178,9 +178,14 @@ String JSSaveAllWorkspaces() {
 /// Expose core API functions to Javascript
 void main() {
   js.context["NetTango_blockPlacementOptions"] = js.JsObject.jsify({
-    "starter": BlockPlacement.starter.index,
-    "child": BlockPlacement.child.index,
-    "anywhere": BlockPlacement.anywhere.index
+    "starter": BlockPlacement.STARTER,
+    "child": BlockPlacement.CHILD,
+    "anywhere": BlockPlacement.ANYWHERE
+  });
+  js.context["NetTango_selectQuoteOptions"] = js.JsObject.jsify({
+    "always": QuoteOptions.ALWAYS_QUOTE,
+    "never": QuoteOptions.NEVER_QUOTE,
+    "smart": QuoteOptions.SMART_QUOTE
   });
   js.context["NetTango_InitWorkspace"] = JSInitWorkspaceJS;
   js.context["NetTango_InitAllWorkspaces"] = JSInitAllWorkspacesJS;

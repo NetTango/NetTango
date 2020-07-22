@@ -95,10 +95,10 @@ js.JsObject encodeBlockStyle(BlockStyle style) {
 
 js.JsObject encodeBlock(Block block, int limit) {
   var blockEnc = js.JsObject.jsify({
-    "id":               block.id,
-    "action":           block.action,
-    "required":         block.isRequired,
-    "placement": block.placement.index
+    "id":        block.id,
+    "action":    block.action,
+    "required":  block.isRequired,
+    "placement": block.placement
   });
   block.storage.restore(blockEnc);
 

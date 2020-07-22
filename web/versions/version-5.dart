@@ -26,9 +26,9 @@ class Version5 {
   static void addBlockPlacements(js.JsObject b) {
     if (b.hasProperty("required") && b["required"]) {
       // prior to version 5, `required` also indicated a starter block
-      b["placement"] = BlockPlacement.starter.index;
+      b["placement"] = BlockPlacement.STARTER;
     } else {
-      b["placement"] = BlockPlacement.child.index;
+      b["placement"] = BlockPlacement.CHILD;
     }
   }
 

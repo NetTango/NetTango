@@ -21,6 +21,7 @@
 var NetTango = {
 
   blockPlacementOptions: NetTango_blockPlacementOptions,
+  selectQuoteOptions: NetTango_selectQuoteOptions,
 
   /// Call init to instantiate a workspace associated with an HTML canvas.
   /// TODO: Document JSON specification format--for now see README.md

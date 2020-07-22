@@ -16,7 +16,11 @@
 
 part of NetTango;
 
-enum BlockPlacement { starter, child, anywhere }
+class BlockPlacement {
+  static final STARTER = "starter";
+  static final CHILD = "child";
+  static final ANYWHERE = "anywhere";
+}
 
 /**
  * Visual programming block
@@ -70,9 +74,9 @@ class Block {
   bool isRequired = false;
 
   /// Restrict block placement
-  BlockPlacement placement = BlockPlacement.child;
-  bool get canBeChild   => placement == BlockPlacement.child   || placement == BlockPlacement.anywhere;
-  bool get canBeStarter => placement == BlockPlacement.starter || placement == BlockPlacement.anywhere;
+  String placement = BlockPlacement.CHILD;
+  bool get canBeChild   => placement == BlockPlacement.CHILD   || placement == BlockPlacement.ANYWHERE;
+  bool get canBeStarter => placement == BlockPlacement.STARTER || placement == BlockPlacement.ANYWHERE;
 
   /// link back to the main workspace
   CodeWorkspace workspace;
