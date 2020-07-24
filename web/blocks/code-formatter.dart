@@ -146,6 +146,10 @@ class CodeFormatter  {
     for (Clause clause in block.clauses) {
       formatClause(out, clause, indent);
     }
+
+    if (block.closeClauses != null && block.closeClauses != "") {
+      writeIndentedLine(out, indent, block.closeClauses);
+    }
   }
 
   void formatClause(StringBuffer out, Clause clause, int indent) {

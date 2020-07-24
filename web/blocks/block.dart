@@ -46,6 +46,9 @@ class Block {
   /// "if random 100 > {0}"
   String format;
 
+  /// code to be inserted after all clauses
+  String closeClauses;
+
   /// extra text to include in the code tip info of a block
   String note;
 
@@ -107,6 +110,7 @@ class Block {
     other.action = action;
     other.type = type;
     other.format = format;
+    other.closeClauses = closeClauses;
     other.note = note;
     other.blockColor = blockColor;
     other.textColor = textColor;

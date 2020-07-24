@@ -105,6 +105,7 @@ js.JsObject encodeBlock(Block block, int limit) {
   setIfNotNull(blockEnc, "instanceId", block.instanceId);
   setIfNotNullOrEmpty(blockEnc, "type", block.type);
   setIfNotNullOrEmpty(blockEnc, "format", block.format);
+  setIfNotNullOrEmpty(blockEnc, "closeClauses", block.closeClauses);
   setIfNotNull(blockEnc, "limit", limit);
   setIfNotNullOrEmpty(blockEnc, "note", block.note);
   setIfNotNullOrEmpty(blockEnc, "blockColor", block.blockColor);
