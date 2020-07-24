@@ -22,13 +22,14 @@ class Clause extends BlockCollection {
 
   final Block owner;
   final int clauseIndex;
+  final String action;
   final String open;
   final String close;
 
   bool isDragOver = false;
   bool isDragHeaderOver = false;
 
-  Clause(this.owner, this.clauseIndex, this.open, this.close);
+  Clause(this.owner, this.clauseIndex, this.action, this.open, this.close);
 
   DivElement draw(DragImage dragImage, DivElement headerDiv) {
     _div = new DivElement();
@@ -62,7 +63,7 @@ class Clause extends BlockCollection {
   }
 
   Clause clone(Block newBlock) {
-    final clause = new Clause(newBlock, this.clauseIndex, this.open, this.close);
+    final clause = new Clause(newBlock, this.clauseIndex, this.action, this.open, this.close);
     return clause;
   }
 

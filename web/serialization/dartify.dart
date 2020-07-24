@@ -127,9 +127,10 @@ Block restoreMenuBlock(CodeWorkspace workspace, js.JsObject blockEnc) {
 }
 
 Clause restoreClause(CodeWorkspace workspace, Block block, js.JsObject clauseEnc, int clauseIndex) {
-  final open  = toStr(clauseEnc["open"],  null);
-  final close = toStr(clauseEnc["close"], null);
-  Clause clause = new Clause(block, clauseIndex, open, close);
+  final open    = toStr(clauseEnc["open"],   null);
+  final close   = toStr(clauseEnc["close"],  null);
+  final action  = toStr(clauseEnc["action"], null);
+  Clause clause = new Clause(block, clauseIndex, action, open, close);
   clause.storage.set(clauseEnc);
 
   if (clauseEnc["children"] is js.JsArray) {

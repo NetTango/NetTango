@@ -252,6 +252,11 @@ class Block {
       DivElement clauseDivider = new DivElement();
       clauseDivider.classes.add("nt-clause-divider");
       clauseDivider.classes.add("$styleClass-color");
+
+      final dividerText = toStrNotEmpty(clause.action, toStr(clause.open, ""));
+      if (isNotNullOrEmpty(dividerText.trim())) {
+        clauseDivider.innerHtml = dividerText;
+      }
       maybeSetColorOverride(this.blockColor, clauseDivider);
       _blockDiv.append(clauseDivider);
       DivElement clauseDiv = clause.draw(_dragImage, clauseDivider);

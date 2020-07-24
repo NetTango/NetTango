@@ -343,6 +343,18 @@ String toStr(var o, [ String defaultValue = "" ]) {
   return (o == null) ? defaultValue : o.toString();
 }
 
+String toStrNotEmpty(String s, String defaultValue) {
+  return isNullOrEmpty(s) ? defaultValue : s;
+}
+
+bool isNullOrEmpty(String s) {
+  return s == null || s == "";
+}
+
+bool isNotNullOrEmpty(String s) {
+  return !isNullOrEmpty(s);
+}
+
 
 /**
  * Returns a random normally distributed number (mean = 0; SD = 1)

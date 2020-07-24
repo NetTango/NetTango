@@ -245,10 +245,14 @@
 }
 
 .nt-clause-divider {
-  height: 0.6em;
+  min-height: 0.6em;
   border-right: 1px solid;
   border-color: inherit;
   grid-column: 2;
+}
+
+.nt-clause-divider:not(:empty) {
+  padding: 0.6em;
 }
 
 .nt-block-left-bar {
