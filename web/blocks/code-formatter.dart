@@ -101,10 +101,10 @@ class CodeFormatter  {
     var first = blocks[0];
     if (!first.canBeStarter) { return; }
 
-    writeFormatOption(out, 0, this.formatOptions.chainOpen, chainOpen);
+    writeFormatOption(out, null, 0, this.formatOptions.chainOpen, chainOpen);
     formatBlock(out, 0, first);
     formatBlocks(out, 1, blocks.skip(1).toList());
-    writeFormatOption(out, 0, this.formatOptions.chainClose, chainClose);
+    writeFormatOption(out, null, 0, this.formatOptions.chainClose, chainClose);
     out.writeln();
   }
 
@@ -129,33 +129,39 @@ class CodeFormatter  {
       }
     }
 
-    int i = 0;
-    for (int key in block.params.keys) {
-      format = replaceAttribute(format, "{$i}", block, block.params[key]);
-      i++;
-    }
-
-    i = 0;
-    for (int key in block.properties.keys) {
-      format = replaceAttribute(format, "{P$i}", block, block.properties[key]);
-      i++;
-    }
+    format = replaceParamsAndProps(format, block);
 
     writeIndentedLine(out, indent, format);
 
     for (Clause clause in block.clauses) {
-      formatClause(out, clause, indent);
+      formatClause(out, block, clause, indent);
     }
 
-    if (block.closeClauses != null && block.closeClauses != "") {
-      writeIndentedLine(out, indent, block.closeClauses);
+    if (isNotNullOrEmpty(block.closeClauses)) {
+      final closeFormat = replaceParamsAndProps(block.closeClauses, block);
+      writeIndentedLine(out, indent, closeFormat);
     }
   }
 
-  void formatClause(StringBuffer out, Clause clause, int indent) {
-    writeFormatOption(out, indent, this.formatOptions.clauseOpen, clause.open);
+  String replaceParamsAndProps(String format, Block block) {
+    format = replaceAttributes(format, block, block.params, "");
+    format = replaceAttributes(format, block, block.properties, "P");
+    return format;
+  }
+
+  String replaceAttributes(String format, Block block, Map<int, Attribute> attributes, String placeholder) {
+    int i = 0;
+    for (int key in attributes.keys) {
+      format = replaceAttribute(format, "{$placeholder$i}", block, attributes[key]);
+      i++;
+    }
+    return format;
+  }
+
+  void formatClause(StringBuffer out, Block block, Clause clause, int indent) {
+    writeFormatOption(out, block, indent, this.formatOptions.clauseOpen, clause.open);
     formatBlocks(out, indent + 1, clause.blocks);
-    writeFormatOption(out, indent, this.formatOptions.clauseClose, clause.close);
+    writeFormatOption(out, block, indent, this.formatOptions.clauseClose, clause.close);
   }
 
   String replaceAttribute(String code, String placeholder, Block block, Attribute attribute) {
@@ -173,9 +179,12 @@ class CodeFormatter  {
     out.writeln(indentedPost);
   }
 
-  void writeFormatOption(StringBuffer out, int indent, String formatOption, String override) {
-    final option = (override != null) ? override : formatOption;
-    if (option != null && option != "") { writeIndentedLine(out, indent, option); }
+  void writeFormatOption(StringBuffer out, Block block, int indent, String formatOption, String override) {
+    final option = toStr(override, formatOption);
+    if (isNotNullOrEmpty(option)) {
+      final optionFormat = block == null ? option : replaceParamsAndProps(option, block);
+      writeIndentedLine(out, indent, optionFormat);
+    }
   }
 
   static String formatAttributeValue(Attribute attribute) {

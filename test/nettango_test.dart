@@ -222,13 +222,18 @@ void versionFourChainUpdates(Map program) {
   program["chains"] = chains;
 }
 
-String formatAttribute(containerId, blockId, instanceId, attributeId, value, attributeType) {
+String formatAttributeForNetTangoExtension(containerId, blockId, instanceId, attributeId, value, attributeType) {
   return "__${containerId}_${blockId}_${instanceId}_${attributeId}";
 }
 
+String formatAttributeAsValue(containerId, blockId, instanceId, attributeId, value, attributeType) {
+  return value.toString();
+}
+
+
 void main() {
   test("Smoke test of NetTango init and save", () {
-    JSInitWorkspace("NetLogo", "nt-canvas", JsObject.jsify({}), formatAttribute);
+    JSInitWorkspace("NetLogo", "nt-canvas", JsObject.jsify({}), formatAttributeForNetTangoExtension);
     var result = JSSaveWorkspace("nt-canvas");
     var expected = jsonEncode({
       "version": VersionManager.VERSION,
@@ -302,7 +307,7 @@ void main() {
         ]
       }
     });
-    JSInitWorkspace("NetLogo", "nt-canvas", json, formatAttribute);
+    JSInitWorkspace("NetLogo", "nt-canvas", json, formatAttributeForNetTangoExtension);
     var result = jsonDecode(JSSaveWorkspace("nt-canvas"));
     var expected = {
       "version": VersionManager.VERSION,
@@ -364,7 +369,7 @@ void main() {
     final model = copyJson(NETLOGO_MODEL_1);
 
     // load and then save out the result to make sure it is correct
-    JSInitWorkspace("NetLogo", testCanavsID, JsObject.jsify(model), formatAttribute);
+    JSInitWorkspace("NetLogo", testCanavsID, JsObject.jsify(model), formatAttributeForNetTangoExtension);
     final result = jsonDecode(JSSaveWorkspace(testCanavsID));
 
     model["version"] = VersionManager.VERSION;
@@ -441,13 +446,14 @@ void main() {
 
     print(jsonEncode(model));
 
-    JSInitWorkspace("NetLogo", "nt-canvas", JsObject.jsify(model), formatAttribute);
+    JSInitWorkspace("NetLogo", "nt-canvas", JsObject.jsify(model), formatAttributeForNetTangoExtension);
     var result = jsonDecode(JSSaveWorkspace("nt-canvas"));
 
     print(jsonEncode(result));
 
     proc["placement"] = BlockPlacement.STARTER;
     chance["placement"] = BlockPlacement.CHILD;
+    chance["clauses"] = [ { "children": [] }, { "children": [] } ];
     forward["placement"] = BlockPlacement.CHILD;
     wiggle["placement"] = BlockPlacement.CHILD;
 
@@ -500,7 +506,7 @@ void main() {
       "program": { "chains": [ [ block ] ] }
     };
 
-    JSInitWorkspace("NetLogo", "nt-canvas", JsObject.jsify(model), formatAttribute);
+    JSInitWorkspace("NetLogo", "nt-canvas", JsObject.jsify(model), formatAttributeForNetTangoExtension);
     var result = jsonDecode(JSSaveWorkspace("nt-canvas"));
 
     final expected = {
@@ -555,7 +561,7 @@ void main() {
     final expected = copyJson(model);
     expected["blocks"][1]["id"] = 1;
 
-    JSInitWorkspace("NetLogo", "nt-canvas", JsObject.jsify(model), formatAttribute);
+    JSInitWorkspace("NetLogo", "nt-canvas", JsObject.jsify(model), formatAttributeForNetTangoExtension);
     final result = jsonDecode(JSSaveWorkspace("nt-canvas"));
 
     expect(result, equals(expected));
@@ -574,7 +580,7 @@ void main() {
       "version": 1
     };
 
-    JSInitWorkspace("NetLogo", "nt-canvas", JsObject.jsify(model), formatAttribute);
+    JSInitWorkspace("NetLogo", "nt-canvas", JsObject.jsify(model), formatAttributeForNetTangoExtension);
     var result = jsonDecode(JSSaveWorkspace("nt-canvas"));
 
     Map<String, Object> expected = {
@@ -663,7 +669,7 @@ void main() {
   }
 };
 
-    JSInitWorkspace("NetLogo", "nt-canvas", JsObject.jsify(model), formatAttribute);
+    JSInitWorkspace("NetLogo", "nt-canvas", JsObject.jsify(model), formatAttributeForNetTangoExtension);
     final result = jsonDecode(JSSaveWorkspace("nt-canvas"));
 
     final expected = copyJson(model);
@@ -681,4 +687,81 @@ void main() {
     expect(result, equals(expected));
   });
 
+  test("Model uses custom clause open and close formats correctly", () {
+    final model = {
+      "version": VersionManager.VERSION, "height": 600, "width": 450,
+      "blocks": [{
+        "id": 0,
+        "action": "to sheep-actions",
+        "required": true,
+        "placement": BlockPlacement.STARTER
+      },{
+        "id": 1,
+        "action": "ifelses",
+        "required": false,
+        "format": "(ifelse", "closeClauses": ") ; {0}",
+        "placement": BlockPlacement.CHILD,
+        "clauses": [
+          { "children": [], "open": "random {0} > 10 [" },
+          { "children": [], "open": "random {0} > 20 [", "close": "] ; {0}" },
+          { "children": [] }
+        ],
+        "params": [ { "id": 0, "type": "int", "name": "sample", "step": 1, "default": 10 } ]
+      },
+      { "id": 2, "action": "show \"hello!\"", "required": false, "placement": BlockPlacement.CHILD }
+      ],
+      "program": {
+        "chains": [{
+          "x": 10, "y": 10,
+          "blocks": [{
+            "id": 0,
+            "instanceId": 0,
+            "action": "to sheep-actions",
+            "required": true,
+            "placement": BlockPlacement.STARTER
+          },{
+            "id": 1,
+            "instanceId": 1,
+            "action": "ifelses",
+            "required": false,
+            "format": "(ifelse", "closeClauses": ") ; {0}",
+            "placement": BlockPlacement.CHILD,
+            "clauses": [
+              { "open": "random {0} > 10 [", "children": [{ "id": 2, "instanceId": 2, "action": "show \"hello!\"", "required": false, "placement": BlockPlacement.CHILD }]},
+              { "open": "random {0} > 20 [", "close": "] ; {0}", "children": [{ "id": 2, "instanceId": 3, "action": "show \"hello!\"", "required": false, "placement": BlockPlacement.CHILD} ] },
+              { "children": [{ "id": 2, "instanceId": 4, "action": "show \"hello!\"", "required": false, "placement": BlockPlacement.CHILD }] }
+            ],
+            "params": [ { "id": 0, "type": "int", "name": "sample", "step": 1, "default": 10, "value": 15 } ]
+          }]
+        }]
+      }
+    };
+
+    final containerId = "nt-canvas";
+    JSInitWorkspace("NetLogo", containerId, JsObject.jsify(model), formatAttributeAsValue);
+    final result = jsonDecode(JSSaveWorkspace(containerId));
+
+    final expected = copyJson(model);
+    expect(result, equals(expected));
+
+    final codeResult = JSExportCode(containerId, null);
+    final expectedCode =
+"""
+to sheep-actions
+  (ifelse
+  random 15 > 10 [
+    show "hello!"
+  ]
+  random 15 > 20 [
+    show "hello!"
+  ] ; 15
+  [
+    show "hello!"
+  ]
+  ) ; 15
+end
+
+""";
+    expect(codeResult, equals(expectedCode));
+  });
 }

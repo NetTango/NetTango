@@ -147,9 +147,9 @@ js.JsObject encodeClause(Clause clause) {
   });
   clause.storage.restore(clauseEnc);
 
-  setIfNotNull(clauseEnc, "action", clause.action);
-  setIfNotNull(clauseEnc, "open",   clause.open);
-  setIfNotNull(clauseEnc, "close",  clause.close);
+  setIfNotNullOrEmpty(clauseEnc, "action", clause.action);
+  setIfNotNullOrEmpty(clauseEnc, "open",   clause.open);
+  setIfNotNullOrEmpty(clauseEnc, "close",  clause.close);
 
   final children = clauseEnc["children"];
   for (Block block in clause.blocks) {
