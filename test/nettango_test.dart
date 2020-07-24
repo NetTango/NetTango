@@ -422,7 +422,7 @@ void main() {
     var proc    = { "id": 4, "action": "wolf actions", "format": "to wolf", "type": "nlogo:procedure", "required": true };
     var forward = { "id": 1, "action": "forward", "format": "forward 1", "required": false };
     var wiggle  = { "id": 2, "action": "wiggle", "format": "left random 360", "required": false };
-    var chance  = { "id": 0, "action": "chance", "format": "ifelse random 100 < 20", "type": "nlogo:ifelse", "required": false };
+    var chance  = { "id": 0, "action": "chance", "format": "ifelse random 100 < 20", "type": "nlogo:ifelse", "required": false, "clauses": [ { "children": [] } ] };
     var forwardInst = copyJson(forward);
     forwardInst["instanceId"] = 1;
     var wiggleInst = copyJson(wiggle);

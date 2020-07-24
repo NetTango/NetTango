@@ -114,6 +114,9 @@ class Block {
     other.font = font;
     other.isRequired = isRequired;
     other.placement = placement;
+
+    this.clauses.forEach( (clause) => other.clauses.add( clause.clone(other) ));
+
     for (Attribute param in params.values) {
       Attribute otherParam = param.clone(other, isSlotBlock);
       other.params[otherParam.id] = otherParam;
@@ -123,12 +126,6 @@ class Block {
       other.properties[otherProp.id] = otherProp;
     }
     return other;
-  }
-
-  static Block cloneSlotForChain(Block block) {
-    final newBlock = block.clone(false);
-    block.clauses.forEach( (clause) => newBlock.clauses.add( clause.cloneForChain(newBlock) ));
-    return newBlock;
   }
 
   int getBlockCount(int id) {

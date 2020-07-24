@@ -269,16 +269,14 @@ Block restoreChainBlock(CodeWorkspace workspace, js.JsObject blockEnc) {
   restoreChainBlockAttributeValues(block.properties, blockEnc["properties"]);
 
   if (blockEnc["clauses"] is js.JsArray) {
-    block.clauses = new List<Clause>();
     int clauseIndex = 0;
     for (js.JsObject clauseEnc in blockEnc["clauses"]) {
+      if (clauseIndex >= block.clauses.length) {
+        break;
+      }
       if (clauseEnc["children"] is! js.JsArray) { continue; }
-
-      final open  = toStr(clauseEnc["open"],  null);
-      final close = toStr(clauseEnc["close"], null);
-      Clause clause = new Clause(block, clauseIndex, open, close);
+      Clause clause = block.clauses[clauseIndex];
       clause.storage.set(clauseEnc);
-      block.clauses.add(clause);
 
       for (js.JsObject childJson in clauseEnc["children"]) {
         Block child = restoreChainBlock(workspace, childJson);

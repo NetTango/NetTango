@@ -47,7 +47,7 @@ class Slot {
     _slotDiv.classes.add(styleClass);
     _slotDiv.classes.add("$styleClass-color");
 
-    final sampleBlock = Block.cloneSlotForChain(this.block);
+    final sampleBlock = this.block.clone(false);
     final codeTip = formatCodeTip(sampleBlock);
     _slotDiv.appendHtml("""<span title="$codeTip">${block.action}</span>""");
 
@@ -92,7 +92,7 @@ class Slot {
   }
 
   void startDrag(DraggableEvent event) {
-    _newBlockInstance = Block.cloneSlotForChain(this.block);
+    _newBlockInstance = this.block.clone(false);
     BlockDragData dragData = BlockDragData.newBlock(_slotIndex);
     _newBlockInstance.draw(_dragImage, dragData);
 

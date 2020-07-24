@@ -61,7 +61,7 @@ class Clause extends BlockCollection {
     return _div;
   }
 
-  Clause cloneForChain(Block newBlock) {
+  Clause clone(Block newBlock) {
     final clause = new Clause(newBlock, this.clauseIndex, this.open, this.close);
     return clause;
   }
