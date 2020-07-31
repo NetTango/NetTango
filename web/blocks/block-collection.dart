@@ -45,14 +45,14 @@ abstract class BlockCollection {
   static void appendBlock(DivElement div, DivElement blockDiv, String newPosition, {bool useClones = false}) {
     final DivElement appendDiv = useClones ? blockDiv.clone(true) : blockDiv;
     appendDiv.classes.removeAll([
-      "nt-block-starter",
-      "nt-block-ender",
+      "nt-block-first",
+      "nt-block-last",
       "nt-block-standalone",
       "nt-block-middle",
-      "nt-block-clause-starter",
+      "nt-block-clause-first",
+      "nt-block-clause-last",
       "nt-block-clause-standalone",
-      "nt-block-clause-middle",
-      "nt-block-clause-ender"
+      "nt-block-clause-middle"
     ]);
     appendDiv.classes.add(newPosition);
     div.append(appendDiv);
@@ -66,11 +66,11 @@ abstract class BlockCollection {
     if (blocks.length == 1) {
       BlockCollection.appendBlock(div, blocks.first._blockDiv, "$classPrefix-standalone", useClones: useClones);
     } else {
-      BlockCollection.appendBlock(div, blocks.first._blockDiv, "$classPrefix-starter", useClones: useClones);
+      BlockCollection.appendBlock(div, blocks.first._blockDiv, "$classPrefix-first", useClones: useClones);
       for (int i = 1; i < (blocks.length - 1); i++) {
         BlockCollection.appendBlock(div, blocks[i]._blockDiv, "$classPrefix-middle", useClones: useClones);
       }
-      BlockCollection.appendBlock(div, blocks.last._blockDiv, "$classPrefix-ender", useClones: useClones);
+      BlockCollection.appendBlock(div, blocks.last._blockDiv, "$classPrefix-last", useClones: useClones);
     }
   }
 }
