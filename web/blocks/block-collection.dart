@@ -22,6 +22,8 @@ abstract class BlockCollection {
 
   DivElement _div;
 
+  void redrawBlocks();
+
   int getBlockCount(int id) {
     try {
       if (this.blocks.isEmpty) {
@@ -40,6 +42,21 @@ abstract class BlockCollection {
       if (block != null) { return block; }
     }
     return null;
+  }
+
+  void insertBlocks(int blockIndex, Iterable<Block> newBlocks) {
+    blocks.insertAll(blockIndex, newBlocks);
+    if (newBlocks.length > 0 && !newBlocks.last.isAttachable) {
+      blocks = blocks.take(blockIndex + newBlocks.length).toList();
+    }
+    redrawBlocks();
+  }
+
+  Iterable<Block> removeBlocks(int blockIndex) {
+    final removed = blocks.skip(blockIndex);
+    blocks = blocks.take(blockIndex).toList();
+    redrawBlocks();
+    return removed;
   }
 
   static void appendBlock(DivElement div, DivElement blockDiv, String newPosition, {bool useClones = false}) {

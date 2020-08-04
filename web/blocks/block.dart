@@ -27,7 +27,7 @@ class BlockPlacement {
  */
 class Block {
 
-  final storage = new ExternalStorage(["id", "action", "required", "placement", "instanceId", "type", "format", "limit", "note", "blockColor", "textColor", "borderColor", "font", "clauses", "params", "properties", "propertiesDisplay"]);
+  final storage = new ExternalStorage(["id", "action", "required", "isAttachable", "placement", "instanceId", "type", "format", "limit", "note", "blockColor", "textColor", "borderColor", "font", "clauses", "params", "properties", "propertiesDisplay"]);
 
   /// unique block ID number per workspace
   int id;
@@ -76,6 +76,12 @@ class Block {
   /// Tells a code formatter that at least one block of this type is required
   bool isRequired = false;
 
+  /// Can this block accept subsequent peer blocks in the chain/clause?
+  /// Split as a property so we can omit during serialization
+  bool _isAttachable = null;
+  bool get isAttachable => (this._isAttachable == null ? true : this._isAttachable);
+  set isAttachable(bool v) => this._isAttachable = v;
+
   /// Restrict block placement
   String placement = BlockPlacement.CHILD;
   bool get canBeChild   => placement == BlockPlacement.CHILD   || placement == BlockPlacement.ANYWHERE;
@@ -117,6 +123,7 @@ class Block {
     other.borderColor = borderColor;
     other.font = font;
     other.isRequired = isRequired;
+    other.isAttachable = isAttachable;
     other.placement = placement;
 
     this.clauses.forEach( (clause) => other.clauses.add( clause.clone(other) ));
@@ -308,7 +315,7 @@ class Block {
       final clauseResult = clause.updateDragOver();
       isHighlightHandled = isHighlightHandled || clauseResult;
     }
-    if ((isDragOver || isDragNotchOver) && !isHighlightHandled) {
+    if (isAttachable && (isDragOver || isDragNotchOver) && !isHighlightHandled) {
       isHighlightHandled = true;
       _blockDiv.classes.add("nt-drag-over");
     }
@@ -370,6 +377,10 @@ class Block {
   }
 
   void drop(DropzoneEvent event) {
+    if (!this.isAttachable) {
+      return;
+    }
+
     DragAcceptor.wasHandled = true;
 
     final newBlocks = workspace.consumeDraggingBlocks();
@@ -410,5 +421,4 @@ class Block {
       }
     }
   }
-
 }

@@ -182,16 +182,4 @@ class Clause extends BlockCollection {
     owner.workspace.programChanged(new BlockChangedEvent(changedBlock));
   }
 
-  void insertBlocks(int blockIndex, Iterable<Block> newBlocks) {
-    blocks.insertAll(blockIndex, newBlocks);
-    redrawBlocks();
-  }
-
-  Iterable<Block> removeBlocks(int blockIndex) {
-    final removed = blocks.skip(blockIndex);
-    blocks = blocks.take(blockIndex).toList();
-    redrawBlocks();
-    return removed;
-  }
-
 }

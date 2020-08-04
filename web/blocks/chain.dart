@@ -124,8 +124,13 @@ class Chain extends BlockCollection {
 
     BlockCollection.appendBlocks(div, blocks, "nt-block", useClones: useClones);
 
-    final bottomNotch = Notch.draw(false, blocks.last);
-    div.append(bottomNotch);
+    if (blocks.last.isAttachable) {
+      final bottomNotch = Notch.draw(false, blocks.last);
+      div.append(bottomNotch);
+    } else {
+      final bottomCap = Cap.draw(false, blocks.last);
+      div.append(bottomCap);
+    }
   }
 
   void redrawBlocks() {
@@ -137,20 +142,8 @@ class Chain extends BlockCollection {
     Chain.redrawChain(_div, blocks, false, fragmentDiv: fragmentDiv);
   }
 
-  Iterable<Block> removeBlocks(int blockIndex) {
-    final removedBlocks = blocks.skip(blockIndex);
-    blocks = blocks.take(blockIndex).toList();
-    redrawBlocks();
-    return removedBlocks;
-  }
-
   void addBlocks(Iterable<Block> newBlocks) {
     insertBlocks(blocks.length, newBlocks);
-  }
-
-  void insertBlocks(int blockIndex, Iterable<Block> newBlocks) {
-    blocks.insertAll(blockIndex, newBlocks);
-    redrawBlocks();
   }
 
   void enableTopDropZone() {

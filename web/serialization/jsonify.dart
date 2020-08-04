@@ -105,6 +105,9 @@ js.JsObject encodeBlock(Block block, int limit) {
   setIfNotNull(blockEnc, "instanceId", block.instanceId);
   setIfNotNullOrEmpty(blockEnc, "type", block.type);
   setIfNotNullOrEmpty(blockEnc, "format", block.format);
+  // using the backing field for `isAttachable` is intentional,
+  // to get the underlying `null` value, if that's what it's set to.
+  setIfNotNull(blockEnc, "isAttachable", block._isAttachable);
   setIfNotNullOrEmpty(blockEnc, "closeClauses", block.closeClauses);
   setIfNotNull(blockEnc, "limit", limit);
   setIfNotNullOrEmpty(blockEnc, "note", block.note);
