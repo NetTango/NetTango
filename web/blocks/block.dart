@@ -49,7 +49,7 @@ class Block {
   /// code to be inserted after all clauses
   String closeClauses;
 
-  /// code to be inserted if the block is a starter
+  /// code to be inserted after all attached blocks in a chain if the block is a starter
   String closeStarter;
 
   /// extra text to include in the code tip info of a block
@@ -80,10 +80,8 @@ class Block {
   bool isRequired = false;
 
   /// Can this block accept subsequent peer blocks in the chain/clause?
-  /// Split as a property so we can omit during serialization
-  bool _isAttachable = null;
-  bool get isAttachable => (this._isAttachable == null ? true : this._isAttachable);
-  set isAttachable(bool v) => this._isAttachable = v;
+  bool isTerminal;
+  bool get isAttachable => isTerminal == null ? true : !isTerminal;
 
   /// Restrict block placement
   String placement = BlockPlacement.CHILD;
@@ -127,7 +125,7 @@ class Block {
     other.borderColor = borderColor;
     other.font = font;
     other.isRequired = isRequired;
-    other.isAttachable = isAttachable;
+    other.isTerminal = isTerminal;
     other.placement = placement;
 
     this.clauses.forEach( (clause) => other.clauses.add( clause.clone(other) ));
