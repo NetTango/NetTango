@@ -17,6 +17,7 @@
 part of NetTango;
 
 class Notch {
+
   static DivElement draw(bool isTop, Block block) {
     DivElement div = new DivElement();
     div.classes.add("nt-notch");
@@ -75,4 +76,5 @@ class Notch {
 
     return div;
   }
+
 }

@@ -29,16 +29,42 @@ class Clause extends BlockCollection {
   bool isDragOver = false;
   bool isDragHeaderOver = false;
 
+  DivElement _divider, _leftBar, _blocks;
+
   Clause(this.owner, this.clauseIndex, this.action, this.open, this.close);
 
-  DivElement draw(DragImage dragImage, DivElement headerDiv) {
+  DivElement draw(DragImage dragImage, Block container, DivElement extraDropDiv) {
     _div = new DivElement();
     _div.classes.add("nt-clause");
 
-    final headerDropzone = Dropzone(headerDiv, acceptor: owner.workspace.blockAcceptor);
-    headerDropzone.onDrop.listen(drop);
-    headerDropzone.onDragEnter.listen( (e) => isDragHeaderOver = true );
-    headerDropzone.onDragLeave.listen( (e) => isDragHeaderOver = false );
+    if (extraDropDiv != null) {
+      final extraDropzone = Dropzone(extraDropDiv, acceptor: owner.workspace.blockAcceptor);
+      extraDropzone.onDrop.listen(drop);
+      extraDropzone.onDragEnter.listen( (e) => isDragHeaderOver = true );
+      extraDropzone.onDragLeave.listen( (e) => isDragHeaderOver = false );
+    }
+
+    final styleClass = container.getStyleClass();
+
+    _leftBar = new DivElement();
+    _leftBar.classes.add("nt-clause-left-bar");
+    _leftBar.classes.add("$styleClass-color");
+    Block.maybeSetColorOverride(container.blockColor, _leftBar);
+    _div.append(_leftBar);
+
+    _divider = new DivElement();
+    _divider.classes.add("nt-clause-divider");
+    _divider.classes.add("$styleClass-color");
+    Block.maybeSetColorOverride(container.blockColor, _divider);
+    _div.append(_divider);
+
+    _blocks = new DivElement();
+    _blocks.classes.add("nt-clause-blocks");
+
+    final dividerText = toStrNotEmpty(this.action, toStr(this.open, ""));
+    if (isNotNullOrEmpty(dividerText.trim())) {
+      _divider.innerHtml = dividerText;
+    }
 
     final dropzone = Dropzone(_div, acceptor: owner.workspace.blockAcceptor);
     dropzone.onDrop.listen(drop);
@@ -50,6 +76,8 @@ class Clause extends BlockCollection {
       return _div;
     }
 
+    _div.append(_blocks);
+
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks[i];
       final siblings = blocks.skip(i + 1);
@@ -57,7 +85,7 @@ class Clause extends BlockCollection {
       block.draw(dragImage, dragData);
     }
 
-    BlockCollection.appendBlocks(_div, blocks, "nt-block-clause");
+    BlockCollection.appendBlocks(_blocks, blocks, "nt-block-clause");
 
     return _div;
   }
@@ -91,6 +119,9 @@ class Clause extends BlockCollection {
 
   void redrawBlocks() {
     _div.innerHtml = "";
+    _blocks.innerHtml = "";
+    _div.append(_leftBar);
+    _div.append(_divider);
 
     if (blocks.isEmpty) {
       setEmpty();
@@ -99,13 +130,15 @@ class Clause extends BlockCollection {
 
     setNonEmpty();
 
+    _div.append(_blocks);
+
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks[i];
       block._dragData.resetBlockOwned(owner._dragData.chainIndex, i, owner.instanceId, blocks.skip(i + 1), clauseIndex);
       block.resetOwnedBlocksDragData();
     }
 
-    BlockCollection.appendBlocks(_div, blocks, "nt-block-clause");
+    BlockCollection.appendBlocks(_blocks, blocks, "nt-block-clause");
   }
 
   bool updateDragOver() {

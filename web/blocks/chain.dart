@@ -108,6 +108,10 @@ class Chain extends BlockCollection {
     if (blocks.first.canBeStarter) {
       div.classes.add("nt-chain-starter");
       div.classes.remove("nt-chain-fragment");
+
+      final topCap = Cap.draw(true, blocks.first);
+      div.append(topCap);
+
     } else {
       div.classes.remove("nt-chain-starter");
       div.classes.add("nt-chain-fragment");

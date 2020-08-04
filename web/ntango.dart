@@ -42,6 +42,7 @@ part "blocks/block-style.dart";
 part "blocks/block-drag-data.dart";
 part "blocks/block.dart";
 part "blocks/block-collection.dart";
+part "blocks/cap.dart";
 part "blocks/notch.dart";
 part "blocks/chain.dart";
 part "blocks/clause.dart";
@@ -63,7 +64,7 @@ part "blocks/workspace.dart";
 part "serialization/dartify.dart";
 part "serialization/jsonify.dart";
 
-Map<String, CodeWorkspace> _workspaces = { };
+Map<String, CodeWorkspace> _workspaces = {};
 
 CodeWorkspace GetWorkspace(String containerId) {
   return _workspaces[containerId];

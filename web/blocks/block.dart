@@ -186,34 +186,20 @@ class Block {
 
     applyStyleOverrides(this, this._blockDiv);
 
-    DivElement leftBar = new DivElement();
-    leftBar.classes.add("nt-block-left-bar");
-    leftBar.classes.add("$styleClass-color");
-    maybeSetColorOverride(this.blockColor, leftBar);
-    // This is pretty gross, but there isn't a way I have found using plain CSS
-    // to auto-clear a grid-positioned element to the last row when the number of
-    // rows is auto-generated.  -Jeremy B January 2020
-    leftBar.style.gridRowEnd = "${4 + properties.length + (clauses != null ? clauses.length * 2 : 0)}";
-    _blockDiv.append(leftBar);
-
-    DivElement headerNode = new DivElement();
-    headerNode.classes.add("$styleClass-color");
-    maybeSetColorOverride(this.blockColor, headerNode);
-    if (hasClauses) {
-      headerNode.classes.add("nt-block-clause-header");
-    } else {
-      headerNode.classes.add("nt-block-header");
-    }
-    _blockDiv.append(headerNode);
+    DivElement headerDiv = new DivElement();
+    headerDiv.classes.add("$styleClass-color");
+    maybeSetColorOverride(this.blockColor, headerDiv);
+    headerDiv.classes.add("nt-block-header");
+    _blockDiv.append(headerDiv);
 
     _actionDiv = new DivElement();
     updateActionText();
     _actionDiv.classes.add("nt-block-action");
-    headerNode.append(_actionDiv);
+    headerDiv.append(_actionDiv);
 
     final paramDiv = new DivElement();
     paramDiv.classes.add("nt-block-params");
-    headerNode.append(paramDiv);
+    headerDiv.append(paramDiv);
 
     for (Attribute attribute in params.values) {
       paramDiv.append(attribute.drawParameter());
@@ -221,7 +207,7 @@ class Block {
 
     final propertiesDiv = new DivElement();
     propertiesDiv.classes.add("nt-block-properties");
-    headerNode.append(propertiesDiv);
+    headerDiv.append(propertiesDiv);
 
     if (properties.length > 0) {
       _propertiesToggle = new Toggle(propertiesDisplay != "hidden", (bool isOn) {
@@ -243,32 +229,19 @@ class Block {
     }
 
     if (hasClauses) {
-      final firstClause = clauses[0];
-      DivElement firstClauseDiv = firstClause.draw(_dragImage, headerNode);
+      final firstClauseDiv = clauses[0].draw(_dragImage, this, headerDiv);
       _blockDiv.append(firstClauseDiv);
-    }
 
-    for (Clause clause in clauses.skip(1)) {
-      DivElement clauseDivider = new DivElement();
-      clauseDivider.classes.add("nt-clause-divider");
-      clauseDivider.classes.add("$styleClass-color");
-
-      final dividerText = toStrNotEmpty(clause.action, toStr(clause.open, ""));
-      if (isNotNullOrEmpty(dividerText.trim())) {
-        clauseDivider.innerHtml = dividerText;
+      for (Clause clause in clauses.skip(1)) {
+        final clauseDiv = clause.draw(_dragImage, this, null);
+        _blockDiv.append(clauseDiv);
       }
-      maybeSetColorOverride(this.blockColor, clauseDivider);
-      _blockDiv.append(clauseDivider);
-      DivElement clauseDiv = clause.draw(_dragImage, clauseDivider);
-      _blockDiv.append(clauseDiv);
-    }
 
-    if (hasClauses) {
-      DivElement footer = new DivElement();
-      footer.classes.add("nt-clause-footer");
-      footer.classes.add("$styleClass-color");
-      maybeSetColorOverride(this.blockColor, footer);
-      _blockDiv.append(footer);
+      final clauseFooter = new DivElement();
+      clauseFooter.classes.add("nt-clause-footer");
+      clauseFooter.classes.add("$styleClass-color");
+      maybeSetColorOverride(this.blockColor, clauseFooter);
+      _blockDiv.append(clauseFooter);
     }
 
     Block.wireDragEvents(this, _blockDiv, (isOver) => this.isDragOver = isOver );
