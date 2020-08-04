@@ -104,7 +104,8 @@ class CodeFormatter  {
     writeFormatOption(out, null, 0, this.formatOptions.chainOpen, chainOpen);
     formatBlock(out, 0, first);
     formatBlocks(out, 1, blocks.skip(1).toList());
-    writeFormatOption(out, null, 0, this.formatOptions.chainClose, chainClose);
+    final override = toStrNotEmpty(blocks.first.closeStarter, chainClose);
+    writeFormatOption(out, null, 0, this.formatOptions.chainClose, override);
     out.writeln();
   }
 

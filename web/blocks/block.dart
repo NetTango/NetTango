@@ -27,7 +27,7 @@ class BlockPlacement {
  */
 class Block {
 
-  final storage = new ExternalStorage(["id", "action", "required", "isAttachable", "placement", "instanceId", "type", "format", "limit", "note", "blockColor", "textColor", "borderColor", "font", "clauses", "params", "properties", "propertiesDisplay"]);
+  final storage = new ExternalStorage(["id", "action", "required", "isAttachable", "placement", "instanceId", "type", "format", "closeClauses", "closeStarter", "limit", "note", "blockColor", "textColor", "borderColor", "font", "clauses", "params", "properties", "propertiesDisplay"]);
 
   /// unique block ID number per workspace
   int id;
@@ -48,6 +48,9 @@ class Block {
 
   /// code to be inserted after all clauses
   String closeClauses;
+
+  /// code to be inserted if the block is a starter
+  String closeStarter;
 
   /// extra text to include in the code tip info of a block
   String note;
@@ -117,6 +120,7 @@ class Block {
     other.type = type;
     other.format = format;
     other.closeClauses = closeClauses;
+    other.closeStarter = closeStarter;
     other.note = note;
     other.blockColor = blockColor;
     other.textColor = textColor;

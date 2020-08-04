@@ -18,7 +18,7 @@ part of NetTango;
 
 class Clause extends BlockCollection {
 
-  final storage = new ExternalStorage(["children", "open", "close"]);
+  final storage = new ExternalStorage(["children", "action", "open", "close"]);
 
   final Block owner;
   final int clauseIndex;

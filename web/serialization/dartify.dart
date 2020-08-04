@@ -96,6 +96,7 @@ Block restoreMenuBlock(CodeWorkspace workspace, js.JsObject blockEnc) {
   block.type = toStr(blockEnc["type"]);
   block.format = toStr(blockEnc["format"], null);
   block.closeClauses = toStr(blockEnc["closeClauses"], null);
+  block.closeStarter = toStr(blockEnc["closeStarter"], null);
   block.note = toStr(blockEnc["note"], null);
   block.blockColor = toStr(blockEnc["blockColor"], null);
   block.textColor = toStr(blockEnc["textColor"], null);

@@ -109,6 +109,7 @@ js.JsObject encodeBlock(Block block, int limit) {
   // to get the underlying `null` value, if that's what it's set to.
   setIfNotNull(blockEnc, "isAttachable", block._isAttachable);
   setIfNotNullOrEmpty(blockEnc, "closeClauses", block.closeClauses);
+  setIfNotNullOrEmpty(blockEnc, "closeStarter", block.closeStarter);
   setIfNotNull(blockEnc, "limit", limit);
   setIfNotNullOrEmpty(blockEnc, "note", block.note);
   setIfNotNullOrEmpty(blockEnc, "blockColor", block.blockColor);
