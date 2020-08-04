@@ -381,7 +381,7 @@
 .nt-block-clause-first.nt-drag-over > :last-child,
 .nt-block-clause-standalone.nt-drag-over > :last-child,
 .nt-block-clause-middle.nt-drag-over > :last-child,
-.nt-block-clause-ender.nt-drag-over > :last-child,
+.nt-block-clause-last.nt-drag-over > :last-child,
 .nt-block-first.nt-drag-over > :last-child,
 .nt-block-middle.nt-drag-over > :last-child {
   border-bottom: 3px solid cyan !important;
