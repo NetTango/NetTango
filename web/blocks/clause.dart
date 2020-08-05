@@ -61,7 +61,7 @@ class Clause extends BlockCollection {
     _blocks = new DivElement();
     _blocks.classes.add("nt-clause-blocks");
 
-    final dividerText = toStrNotEmpty(this.action, toStr(this.open, ""));
+    final dividerText = toStrNotEmpty(this.action, "");
     if (isNotNullOrEmpty(dividerText.trim())) {
       _divider.innerHtml = dividerText;
     }
