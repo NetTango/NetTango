@@ -70,8 +70,8 @@ abstract class NumAttribute extends Attribute {
       <div class="nt-param-table">
         <div class="nt-param-row">${inputCode}</div>
       </div>
-      <button class="nt-param-confirm">OK</button>
-      <button class="nt-param-cancel">Cancel</button>
+      <button class="nt-param-confirm" type="button">OK</button>
+      <button class="nt-param-cancel" type="button">Cancel</button>
     """);
 
     HtmlElement label = querySelector("#nt-param-label-$uniqueId");

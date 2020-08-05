@@ -89,8 +89,8 @@ class ExpressionAttribute extends Attribute {
           <div id="nt-expression-${uniqueId}" class="nt-expression-root"></div>
         </div>
       </div>
-      <button class="nt-param-confirm">OK</button>
-      <button class="nt-param-cancel">Cancel</button>
+      <button class="nt-param-confirm" type="button">OK</button>
+      <button class="nt-param-cancel" type="button">Cancel</button>
     """);
 
     final pulldownCloserStream = dialog.onClick.listen((e) {
