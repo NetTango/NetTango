@@ -25,6 +25,7 @@ class Cap {
     div.classes.addAll([blockStyle, "$blockStyle-color"]);
 
     Block.applyStyleOverrides(block, div);
+    Block.maybeSetColorOverride(block.blockColor, div);
 
     if (isTop) {
       div.classes.add("nt-cap-top");
