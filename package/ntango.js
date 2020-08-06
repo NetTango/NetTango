@@ -2543,15 +2543,17 @@ t=Z.ci(b,a.id.r1)
 t.gap(t).u(a.ga0())
 t.gan(t).u(new U.hm(c))
 t.gao(t).u(new U.hn(c))},
-lo:function(a,b){var t,s=document.createElement("div")
-s.classList.add("nt-cap")
+lo:function(a,b){var t,s,r,q=document.createElement("div")
+q.classList.add("nt-cap")
 t=b.ah()
-W.kL(s,u.t.a(H.h([t,t+"-color"],u.s)))
-U.hg(b,s)
-if(a)s.classList.add("nt-cap-top")
-else s.classList.add("nt-cap-bottom")
-U.kB(b,s,new U.hp(b))
-return s},
+W.kL(q,u.t.a(H.h([t,t+"-color"],u.s)))
+U.hg(b,q)
+s=b.db
+if(s!=null){r=q.style
+r.backgroundColor=s}if(a)q.classList.add("nt-cap-top")
+else q.classList.add("nt-cap-bottom")
+U.kB(b,q,new U.hp(b))
+return q},
 hs:function(a,b,c,d){var t
 a.toString
 C.b.F(a,"")
@@ -7083,7 +7085,7 @@ s=""+b+"px"
 j.top=s
 t.classList.remove("small")
 C.b.F(t,"")
-C.b.a4(t,'      <div class="nt-param-table">\n        <div class="nt-param-row">\n          <div class="nt-param-label">'+H.a(n.d)+':</div>\n        </div>\n        <div class="nt-param-row">\n          <div id="nt-expression-'+n.gU()+'" class="nt-expression-root"></div>\n        </div>\n      </div>\n      <button class="nt-param-confirm">OK</button>\n      <button class="nt-param-cancel">Cancel</button>\n    ')
+C.b.a4(t,'      <div class="nt-param-table">\n        <div class="nt-param-row">\n          <div class="nt-param-label">'+H.a(n.d)+':</div>\n        </div>\n        <div class="nt-param-row">\n          <div id="nt-expression-'+n.gU()+'" class="nt-expression-root"></div>\n        </div>\n      </div>\n      <button class="nt-param-confirm" type="button">OK</button>\n      <button class="nt-param-cancel" type="button">Cancel</button>\n    ')
 j=u.C
 s=j.i("~(1)").a(new U.ia())
 u.M.a(null)
@@ -7191,7 +7193,7 @@ s=""+b+"px"
 k.top=s
 t.classList.remove("small")
 C.b.F(t,"")
-C.b.a4(t,'      <div class="nt-param-table">\n        <div class="nt-param-row">'+('      <div class="nt-param-name">'+H.a(m.d)+'</div>\n      <div class="nt-param-value">\n        <input class="nt-param-input" id="nt-param-'+m.gU()+'" type="number" step="'+H.a(m.y)+'" value="'+H.a(m.f)+'">\n        <span class="nt-param-unit">'+H.a(m.e)+"</span>\n      </div>\n    ")+'</div>\n      </div>\n      <button class="nt-param-confirm">OK</button>\n      <button class="nt-param-cancel">Cancel</button>\n    ')
+C.b.a4(t,'      <div class="nt-param-table">\n        <div class="nt-param-row">'+('      <div class="nt-param-name">'+H.a(m.d)+'</div>\n      <div class="nt-param-value">\n        <input class="nt-param-input" id="nt-param-'+m.gU()+'" type="number" step="'+H.a(m.y)+'" value="'+H.a(m.f)+'">\n        <span class="nt-param-unit">'+H.a(m.e)+"</span>\n      </div>\n    ")+'</div>\n      </div>\n      <button class="nt-param-confirm" type="button">OK</button>\n      <button class="nt-param-cancel" type="button">Cancel</button>\n    ')
 k="#nt-param-label-"+m.gU()
 s=document
 r=u.a.a(s.querySelector(k))
@@ -7376,7 +7378,7 @@ C.b.F(t,"")
 j=l.f
 if(j==null)j=""
 r=new P.cj().dA(j)
-C.b.a4(t,'      <div class="nt-param-table">\n        <div class="nt-param-row">'+('      <input class="nt-param-input" id="nt-param-'+l.gU()+'" type="text" value="'+r+'">\n      <span class="nt-param-unit">'+H.a(l.e)+"</span>\n    ")+'</div>\n      </div>\n      <button class="nt-param-confirm">OK</button>\n      <button class="nt-param-cancel">Cancel</button>\n    ')
+C.b.a4(t,'      <div class="nt-param-table">\n        <div class="nt-param-row">'+('      <input class="nt-param-input" id="nt-param-'+l.gU()+'" type="text" value="'+r+'">\n      <span class="nt-param-unit">'+H.a(l.e)+"</span>\n    ")+'</div>\n      </div>\n      <button class="nt-param-confirm" type="button">OK</button>\n      <button class="nt-param-cancel" type="button">Cancel</button>\n    ')
 j="#nt-param-label-"+l.gU()
 s=document
 q=u.a.a(s.querySelector(j))
@@ -7824,65 +7826,63 @@ $1:function(a){u.k.a(a)
 return this.a.y=!1},
 $S:7}
 U.aM.prototype={
-dD:function(a,b,c){var t,s,r,q,p,o,n,m,l,k,j,i,h,g=this,f=document,e=f.createElement("div")
-g.b=e
-e.classList.add("nt-clause")
-if(c!=null){t=Z.ci(c,g.d.id.r1)
-t.gap(t).u(g.ga0())
-t.gan(t).u(new U.ht(g))
-t.gao(t).u(new U.hu(g))}s=b.ah()
-e=f.createElement("div")
-g.ch=e
-e.classList.add("nt-clause-left-bar")
-e=g.ch
+dD:function(a,b,c){var t,s,r,q,p,o,n,m,l,k,j,i,h=this,g=document,f=g.createElement("div")
+h.b=f
+f.classList.add("nt-clause")
+if(c!=null){t=Z.ci(c,h.d.id.r1)
+t.gap(t).u(h.ga0())
+t.gan(t).u(new U.ht(h))
+t.gao(t).u(new U.hu(h))}s=b.ah()
+f=g.createElement("div")
+h.ch=f
+f.classList.add("nt-clause-left-bar")
+f=h.ch
 r=s+"-color"
-e.classList.add(r)
+f.classList.add(r)
 r=b.db
-e=g.ch
-if(r!=null){e=e.style
-e.backgroundColor=r}g.b.appendChild(g.ch)
-e=f.createElement("div")
-g.Q=e
-e.classList.add("nt-clause-divider")
-e=g.Q
+f=h.ch
+if(r!=null){f=f.style
+f.backgroundColor=r}h.b.appendChild(h.ch)
+f=g.createElement("div")
+h.Q=f
+f.classList.add("nt-clause-divider")
+f=h.Q
 r=s+"-color"
-e.classList.add(r)
+f.classList.add(r)
 r=b.db
-e=g.Q
-if(r!=null){e=e.style
-e.backgroundColor=r}g.b.appendChild(g.Q)
-f=f.createElement("div")
-g.cx=f
-f.classList.add("nt-clause-blocks")
-q=g.f
-f=g.r
-p=f==null?"":f
-if(q==null||q==="")q=p
-f=J.h1(q)
-if(f!==""){f=g.Q
-f.toString
-C.b.F(f,q)}f=g.d
-o=Z.ci(g.b,f.id.r1)
-o.gap(o).u(g.ga0())
-o.gan(o).u(new U.hv(g))
-o.gao(o).u(new U.hw(g))
-if(g.a.length===0){g.cw()
-return g.b}g.b.appendChild(g.cx)
-for(e=g.e,r=u.i,n=0;m=g.a,n<m.length;n=k){l=m[n]
-k=n+1
-j=H.al(m,k,null,H.C(m).c)
-m=f.k2.a
-i=f.c
-h=new U.cX()
-r.a(j)
-h.a=m
-h.b="block-clause"
-h.c=i
-h.e=n
-h.d=e
-h.sav(j)
-l.aC(a,h)}U.kz(g.cx,m,"nt-block-clause",!1)
-return g.b},
+f=h.Q
+if(r!=null){f=f.style
+f.backgroundColor=r}h.b.appendChild(h.Q)
+g=g.createElement("div")
+h.cx=g
+g.classList.add("nt-clause-blocks")
+q=h.f
+if(q==null||q==="")q=""
+g=J.h1(q)
+if(g!==""){g=h.Q
+g.toString
+C.b.F(g,q)}g=h.d
+p=Z.ci(h.b,g.id.r1)
+p.gap(p).u(h.ga0())
+p.gan(p).u(new U.hv(h))
+p.gao(p).u(new U.hw(h))
+if(h.a.length===0){h.cw()
+return h.b}h.b.appendChild(h.cx)
+for(f=h.e,r=u.i,o=0;n=h.a,o<n.length;o=l){m=n[o]
+l=o+1
+k=H.al(n,l,null,H.C(n).c)
+n=g.k2.a
+j=g.c
+i=new U.cX()
+r.a(k)
+i.a=n
+i.b="block-clause"
+i.c=j
+i.e=o
+i.d=f
+i.sav(k)
+m.aC(a,i)}U.kz(h.cx,n,"nt-block-clause",!1)
+return h.b},
 cw:function(){var t,s=this
 s.b.classList.add("nt-clause-empty")
 s.b.appendChild(U.lS(!1,s))

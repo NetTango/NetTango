@@ -557,6 +557,7 @@
   margin-top: 12px;
   margin-right: 5px;
   padding: 8px 15px;
+  border-radius: 5px;
 }
 
 .nt-param-confirm:active { color: #ccc; }
@@ -568,6 +569,7 @@
   color: white;
   margin-top: 12px;
   padding: 8px 15px;
+  border-radius: 5px;
 }
 
 .nt-select-option {
