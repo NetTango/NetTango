@@ -21,7 +21,69 @@ class Version5 {
   static void update(js.JsObject json) {
     VersionUtils.updateBlocks(json, moveChildrenToClauses, moveChildrenToClauses);
     VersionUtils.updateBlocks(json, addBlockPlacements, addBlockPlacements);
+    VersionUtils.updateBlocks(json, updateNetLogoColorsAttributes, updateNetLogoColorsAttributes);
   }
+
+  // NetTango is meant to be language-agnostic, and because this is NetLogo-specific,
+  // it shouldn't really live here. But I can't come up wiht a better place without
+  // reinventing all the version update code we already have, and NetLogo is the only
+  // actual use-case, so here it goes.  If we give users the ability to provide language-
+  // specific code formatters, that'd be a good time to also allow language-specific
+  // updaters to be provided as well.  -Jeremy B August 2020
+  static void updateNetLogoColorsAttributes(js.JsObject b) {
+    if (b.hasProperty("params")) {
+      if (b["params"] is js.JsArray) {
+        js.JsArray params = b["params"];
+        params.forEach( (param) { if (param["type"] == "select") { updateNetLogoColorsAttribute(param); } } );
+      }
+    }
+    if (b.hasProperty("properties")) {
+      if (b["properties"] is js.JsArray) {
+        js.JsArray props = b["properties"];
+        props.forEach( (prop) { if (prop["type"] == "select") { updateNetLogoColorsAttribute(prop); } } );
+      }
+    }
+  }
+
+  static void updateNetLogoColorsAttribute(js.JsObject a) {
+    if (!a.hasProperty("values")) {
+      return;
+    }
+    if (a["values"] is! js.JsArray) {
+      return;
+    }
+
+    js.JsArray values = a["values"];
+    final areUnquoted = values.map( (v) =>
+      v.hasProperty("actual") &&
+      v["actual"] is String &&
+      NETLOGO_COLORS.contains(v["actual"].trim().toLowerCase())
+    );
+
+    final needsUpdate = areUnquoted.reduce( (bool a, bool b) => a && b );
+    if (!needsUpdate) {
+      return;
+    }
+
+    a["quoteValues"] = "never-quote";
+  }
+
+  static final NETLOGO_COLORS = [
+    "gray",
+    "red",
+    "orange",
+    "brown",
+    "yellow",
+    "green",
+    "lime",
+    "turquoise",
+    "cyan",
+    "sky",
+    "blue",
+    "violet",
+    "magenta",
+    "pink"
+  ];
 
   static void addBlockPlacements(js.JsObject b) {
     if (b.hasProperty("required") && b["required"]) {

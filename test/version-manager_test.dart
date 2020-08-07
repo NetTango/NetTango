@@ -223,4 +223,31 @@ void main() {
     expect(TestUtils.dartify(model), equals(expected));
   });
 
+  test("Version5 - select with unquoted values gets `never-quote` set", () {
+    final model = JsObject.jsify({
+      "version": 4,
+      "blocks": [ { "id": 0, "action": "act1", "params": [ {
+        "id": 0,
+        "type": "select",
+        "name": "color",
+        "default": "red",
+        "values": [ { "actual": "red", "display": "" }, { "actual": "blue", "display": "" }, { "actual": "green", "display": "" } ]
+      } ] } ]
+    });
+
+    VersionManager.updateWorkspace(model);
+
+    final expected = {
+      "version": VersionManager.VERSION,
+      "blocks": [ { "id": 0, "action": "act1", "placement": BlockPlacement.CHILD, "params": [ {
+        "id": 0,
+        "type": "select",
+        "name": "color",
+        "default": "red",
+        "quoteValues": "never-quote",
+        "values": [ { "actual": "red", "display": "" }, { "actual": "blue", "display": "" }, { "actual": "green", "display": "" } ]
+      } ] } ]
+    };
+    expect(TestUtils.dartify(model), equals(expected));
+  });
 }
