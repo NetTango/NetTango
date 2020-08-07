@@ -27,7 +27,7 @@ class BlockPlacement {
  */
 class Block {
 
-  final storage = new ExternalStorage(["id", "action", "required", "isAttachable", "placement", "instanceId", "type", "format", "closeClauses", "closeStarter", "limit", "note", "blockColor", "textColor", "borderColor", "font", "clauses", "params", "properties", "propertiesDisplay"]);
+  final storage = new ExternalStorage(["id", "action", "required", "isTerminal", "placement", "instanceId", "type", "format", "closeClauses", "closeStarter", "limit", "note", "blockColor", "textColor", "borderColor", "font", "clauses", "params", "properties", "propertiesDisplay"]);
 
   /// unique block ID number per workspace
   int id;
