@@ -66,7 +66,7 @@ class BlockMenu {
       _menuDiv.append(slot.draw(dragImage, i));
     }
 
-    final dropZone = Dropzone(_menuDiv, acceptor: workspace.workspaceAcceptor);
+    final dropZone = Dropzone(_menuDiv, acceptor: workspace.acceptor);
     dropZone.onDragEnter.listen( (e) {
       DragManager.currentDrag.isOverMenu = true;
       this.updateDragOver();

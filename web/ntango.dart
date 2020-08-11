@@ -36,7 +36,8 @@ part "utils/utils.dart";
 
 part "blocks/external-storage.dart";
 part 'blocks/drag-drop/drag-manager.dart';
-part 'blocks/drag-drop/drag-acceptor.dart';
+part 'blocks/drag-drop/workspace-acceptor.dart';
+part 'blocks/drag-drop/block-acceptor.dart';
 part 'blocks/drag-drop/drag-image.dart';
 part 'blocks/drag-drop/block-drag-data.dart';
 part "blocks/toggle.dart";

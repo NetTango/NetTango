@@ -92,6 +92,7 @@ class Block {
   CodeWorkspace workspace;
 
   DragImage _dragImage;
+  BlockAcceptor acceptor;
   BlockDragData _dragData;
   bool isDragOver = false;
   bool isDragNotchOver = false;
@@ -184,6 +185,7 @@ class Block {
   DivElement draw(DragImage dragImage, BlockDragData dragData) {
     this._dragData = dragData;
     this._dragImage = dragImage;
+    this.acceptor = new BlockAcceptor(this);
 
     _blockDiv = new DivElement();
     _blockDiv.classes.add("nt-block");
@@ -277,7 +279,7 @@ class Block {
     final draggable = Draggable(div, avatarHandler: block._dragImage, draggingClass: "nt-block-dragging");
     draggable.onDragStart.listen(block.startDrag);
     draggable.onDragEnd.listen(block.endDrag);
-    final dropzone = Dropzone(div, acceptor: block.workspace.blockAcceptor);
+    final dropzone = Dropzone(div, acceptor: block.acceptor);
     dropzone.onDrop.listen(block.drop);
     dropzone.onDragEnter.listen( (e) => setOver(true) );
     dropzone.onDragLeave.listen( (e) => setOver(false) );
@@ -335,7 +337,7 @@ class Block {
   }
 
   void startDrag(DraggableEvent event) {
-    workspace.dragManager.startDrag(this, event);
+    workspace.dragManager.startDrag(this._dragData, event);
 
     final blocks = new List<Block>() ..
       add(this) ..

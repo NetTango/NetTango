@@ -16,19 +16,18 @@
 
 part of NetTango;
 
-class DragAcceptor extends Acceptor {
+class BlockAcceptor extends Acceptor {
 
-  final String containerId;
-  final bool allowStarters;
+  final Block block;
 
-  DragAcceptor(this.containerId, this.allowStarters);
+  BlockAcceptor(this.block);
 
   @override
   bool accepts(Element draggableElement, int draggableId, Element dropzoneElement) {
     return
       !DragManager.currentDrag.wasHandled &&
-      this.containerId == DragManager.currentDrag.workspace.containerId &&
-      (this.allowStarters || DragManager.currentDrag.canBeChild);
+      this.block.workspace.containerId == DragManager.currentDrag.workspace.containerId &&
+      DragManager.currentDrag.canBeChild;
   }
 
 }

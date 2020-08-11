@@ -26,7 +26,6 @@ class DragManager {
   final CodeWorkspace workspace;
 
   Point dragStartOffset;
-  bool canBeChild = false;
   bool wasHandled = false;
   bool isOverMenu = false;
   bool isOverWorkspace = false;
@@ -39,16 +38,17 @@ class DragManager {
   set draggingBlocks(Iterable<Block> v) => _draggingBlocks = v;
   bool get hasDraggingBlocks => _draggingBlocks != null;
 
+  bool get canBeChild => draggingBlocks.first.canBeChild;
+
   DragManager(this.workspace);
 
-  void startDrag(Block firstBlock, DraggableEvent startEvent) {
+  void startDrag(BlockDragData dragData, DraggableEvent startEvent) {
     DragManager.currentDrag = this;
 
-    this.canBeChild = firstBlock.canBeChild;
     this.dragStartOffset = startEvent.startPosition - DragImage.getOffsetToRoot(startEvent.draggableElement);
     this.wasHandled = false;
 
-    this.removeBlocksForDrag(firstBlock._dragData);
+    this.removeBlocksForDrag(dragData);
     this.workspace.enableTopDropZones();
   }
 

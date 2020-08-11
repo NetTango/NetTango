@@ -40,7 +40,7 @@ class Chain extends BlockCollection {
 
     fragmentDiv = new DivElement();
     fragmentDiv.classes.add("nt-fragment");
-    final fragmentDropzone = Dropzone(fragmentDiv, acceptor: this.workspace.workspaceAcceptor);
+    final fragmentDropzone = Dropzone(fragmentDiv, acceptor: this.workspace.acceptor);
     fragmentDropzone.onDrop.listen(drop);
     fragmentDropzone.onDragEnter.listen( (e) => isDragOver = true );
     fragmentDropzone.onDragLeave.listen( (e) => isDragOver = false );

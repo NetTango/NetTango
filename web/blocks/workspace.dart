@@ -70,7 +70,7 @@ class CodeWorkspace {
 
   DragImage dragImage;
   DragManager dragManager;
-  DragAcceptor workspaceAcceptor, blockAcceptor;
+  WorkspaceAcceptor acceptor;
   Dropzone containerDropzone;
 
   CodeWorkspace(this.containerId, this.formatter) {
@@ -80,11 +80,10 @@ class CodeWorkspace {
     container.setInnerHtml("");
     container.classes.add("nt-container");
 
-    this.dragManager       = DragManager(this);
-    this.workspaceAcceptor = DragAcceptor(this.containerId, true);
-    this.blockAcceptor     = DragAcceptor(this.containerId, false);
+    this.dragManager = DragManager(this);
+    this.acceptor    = WorkspaceAcceptor(this.containerId);
 
-    containerDropzone = Dropzone(container, acceptor: this.workspaceAcceptor);
+    containerDropzone = Dropzone(container, acceptor: this.acceptor);
     containerDropzone.onDrop.listen(containerDrop);
 
     starterBlockStyle   = BlockStyle.DEFAULT_STARTER_STYLE;
@@ -188,7 +187,7 @@ class CodeWorkspace {
     menuDiv.style.maxHeight = "${height}px";
     wrapper.append(menuDiv);
 
-    final spaceDropzone = Dropzone(spaceDiv, acceptor: this.workspaceAcceptor);
+    final spaceDropzone = Dropzone(spaceDiv, acceptor: this.acceptor);
     spaceDropzone.onDragEnter.listen( (e) {
       DragManager.currentDrag.isOverWorkspace = true;
       menu.updateDragOver();

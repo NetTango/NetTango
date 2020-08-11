@@ -38,7 +38,7 @@ class Clause extends BlockCollection {
     _div.classes.add("nt-clause");
 
     if (extraDropDiv != null) {
-      final extraDropzone = Dropzone(extraDropDiv, acceptor: owner.workspace.blockAcceptor);
+      final extraDropzone = Dropzone(extraDropDiv, acceptor: owner.acceptor);
       extraDropzone.onDrop.listen(drop);
       extraDropzone.onDragEnter.listen( (e) => isDragHeaderOver = true );
       extraDropzone.onDragLeave.listen( (e) => isDragHeaderOver = false );
@@ -66,7 +66,7 @@ class Clause extends BlockCollection {
       _divider.innerHtml = dividerText;
     }
 
-    final dropzone = Dropzone(_div, acceptor: owner.workspace.blockAcceptor);
+    final dropzone = Dropzone(_div, acceptor: owner.acceptor);
     dropzone.onDrop.listen(drop);
     dropzone.onDragEnter.listen( (e) => isDragOver = true );
     dropzone.onDragLeave.listen( (e) => isDragOver = false );
