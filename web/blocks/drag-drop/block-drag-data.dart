@@ -26,6 +26,22 @@ class BlockDragData {
   Block newInstance;
   Iterable<Block> siblings;
 
+  bool get isLastInCollection {
+    switch (this.parentType) {
+
+      case "new-block":
+        return true;
+
+      case "workspace-chain":
+      case "block-clause":
+        return this.siblings.isEmpty;
+
+      default:
+        throw new Exception("Unknown block removal type: ${this.parentType}");
+
+    }
+  }
+
   void reset() {
     chainIndex       = null;
     parentType       = null;

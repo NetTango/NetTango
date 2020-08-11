@@ -34,11 +34,13 @@ class Clause extends BlockCollection {
   Clause(this.owner, this.clauseIndex, this.action, this.open, this.close);
 
   DivElement draw(DragImage dragImage, Block container, DivElement extraDropDiv) {
+    final acceptor = new ClauseAcceptor(this);
+
     div = new DivElement();
     div.classes.add("nt-clause");
 
     if (extraDropDiv != null) {
-      final extraDropzone = Dropzone(extraDropDiv, acceptor: owner.acceptor);
+      final extraDropzone = Dropzone(extraDropDiv, acceptor: acceptor);
       extraDropzone.onDrop.listen(drop);
       extraDropzone.onDragEnter.listen( (e) => isDragHeaderOver = true );
       extraDropzone.onDragLeave.listen( (e) => isDragHeaderOver = false );
@@ -66,7 +68,7 @@ class Clause extends BlockCollection {
       divider.innerHtml = dividerText;
     }
 
-    final dropzone = Dropzone(div, acceptor: owner.acceptor);
+    final dropzone = Dropzone(div, acceptor: acceptor);
     dropzone.onDrop.listen(drop);
     dropzone.onDragEnter.listen( (e) => isDragOver = true );
     dropzone.onDragLeave.listen( (e) => isDragOver = false );

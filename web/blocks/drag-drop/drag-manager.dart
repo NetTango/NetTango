@@ -39,6 +39,7 @@ class DragManager {
   bool get hasDraggingBlocks => _draggingBlocks != null;
 
   bool get canBeChild => draggingBlocks.first.canBeChild;
+  bool get isInsertable => draggingBlocks.last.isAttachable;
 
   DragManager(this.workspace);
 

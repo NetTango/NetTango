@@ -183,8 +183,8 @@ class Block {
   }
 
   DivElement draw(DragImage dragImage, BlockDragData dragData) {
-    this.dragData = dragData;
     this.dragImage = dragImage;
+    this.dragData = dragData;
     this.acceptor = new BlockAcceptor(this);
 
     blockDiv = new DivElement();
@@ -319,7 +319,7 @@ class Block {
       final clauseResult = clause.updateDragOver();
       isHighlightHandled = isHighlightHandled || clauseResult;
     }
-    if (isAttachable && (isDragOver || isDragNotchOver) && !isHighlightHandled) {
+    if ((isDragOver || isDragNotchOver) && !isHighlightHandled) {
       isHighlightHandled = true;
       blockDiv.classes.add("nt-drag-over");
     }
@@ -375,10 +375,6 @@ class Block {
   }
 
   void drop(DropzoneEvent event) {
-    if (!this.isAttachable) {
-      return;
-    }
-
     DragManager.currentDrag.wasHandled = true;
 
     final newBlocks = workspace.dragManager.consumeDraggingBlocks();

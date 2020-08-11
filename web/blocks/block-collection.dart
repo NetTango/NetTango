@@ -46,9 +46,6 @@ abstract class BlockCollection {
 
   void insertBlocks(int blockIndex, Iterable<Block> newBlocks) {
     blocks.insertAll(blockIndex, newBlocks);
-    if (newBlocks.length > 0 && !newBlocks.last.isAttachable) {
-      blocks = blocks.take(blockIndex + newBlocks.length).toList();
-    }
     redrawBlocks();
   }
 

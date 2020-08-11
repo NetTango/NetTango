@@ -16,20 +16,19 @@
 
 part of NetTango;
 
-class BlockAcceptor extends Acceptor {
+class ClauseAcceptor extends Acceptor {
 
-  final Block block;
+  final Clause clause;
 
-  BlockAcceptor(this.block);
+  ClauseAcceptor(this.clause);
 
   @override
   bool accepts(Element draggableElement, int draggableId, Element dropzoneElement) {
     return
       !DragManager.currentDrag.wasHandled &&
-      this.block.workspace.containerId == DragManager.currentDrag.workspace.containerId &&
+      this.clause.owner.workspace.containerId == DragManager.currentDrag.workspace.containerId &&
       DragManager.currentDrag.canBeChild &&
-      this.block.isAttachable &&
-      (this.block.dragData.isLastInCollection || DragManager.currentDrag.isInsertable);
+      (this.clause.blocks.isEmpty || DragManager.currentDrag.isInsertable);
   }
 
 }
