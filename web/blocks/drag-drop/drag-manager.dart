@@ -90,9 +90,8 @@ class DragManager {
           .clauses[blockData.clauseIndex].removeBlocks(blockData.blockIndex);
         break;
 
-      case "default":
+      default:
         throw new Exception("Unknown block removal type: ${blockData.parentType}");
-        break;
 
     }
 
