@@ -74,6 +74,7 @@ class CodeWorkspace {
   set draggingBlocks(Iterable<Block> v) => _draggingBlocks = v;
   bool get hasDraggingBlocks => _draggingBlocks != null;
 
+  DragManager dragManager;
   DragAcceptor workspaceAcceptor, blockAcceptor;
   Dropzone containerDropzone;
 
@@ -84,6 +85,7 @@ class CodeWorkspace {
     container.setInnerHtml("");
     container.classes.add("nt-container");
 
+    this.dragManager       = DragManager(this);
     this.workspaceAcceptor = DragAcceptor(this.containerId, true);
     this.blockAcceptor     = DragAcceptor(this.containerId, false);
 
@@ -198,30 +200,44 @@ class CodeWorkspace {
     wrapper.append(menuDiv);
 
     final spaceDropzone = Dropzone(spaceDiv, acceptor: this.workspaceAcceptor);
-    spaceDropzone.onDragEnter.listen( (e) { DragAcceptor.isOverWorkspace = true; menu.updateDragOver(); } );
+    spaceDropzone.onDragEnter.listen( (e) {
+      DragManager.currentDrag.isOverWorkspace = true;
+      menu.updateDragOver();
+    });
     spaceDropzone.onDragOver.listen( (e) => this.updateDragOver() );
-    spaceDropzone.onDragLeave.listen( (e) { DragAcceptor.isOverWorkspace = false; this.updateDragOver(); menu.updateDragOver(); } );
+    spaceDropzone.onDragLeave.listen( (e) {
+      DragManager.currentDrag.isOverWorkspace = false;
+      this.updateDragOver();
+      menu.updateDragOver();
+    });
     spaceDropzone.onDrop.listen(drop);
-    containerDropzone.onDragEnter.listen( (e) { DragAcceptor.isOverContainer = true; menu.updateDragOver(); }  );
-    containerDropzone.onDragLeave.listen( (e) { DragAcceptor.isOverContainer = false; menu.updateDragOver(); } );
+
+    containerDropzone.onDragEnter.listen( (e) {
+      DragManager.currentDrag.isOverContainer = true;
+      menu.updateDragOver();
+    });
+    containerDropzone.onDragLeave.listen( (e) {
+      DragManager.currentDrag.isOverContainer = false;
+      menu.updateDragOver();
+    });
 
     updateWorkspaceHeight();
   }
 
   void drop(DropzoneEvent event) {
-    DragAcceptor.wasHandled = true;
+    DragManager.currentDrag.wasHandled = true;
     disableTopDropZones();
 
     final blocks = consumeDraggingBlocks();
     final offset = DragImage.getOffsetToRoot(this.chainsDiv);
-    final dropLocation = event.position - offset - DragAcceptor.dragStartOffset;
+    final dropLocation = event.position - offset - DragManager.currentDrag.dragStartOffset;
     createChain(blocks, max(0, dropLocation.x.floor()), max(0, dropLocation.y.floor()));
     Block changedBlock = blocks.elementAt(0);
     programChanged(new BlockChangedEvent(changedBlock));
   }
 
   void containerDrop(DropzoneEvent event) {
-    DragAcceptor.wasHandled = true;
+    DragManager.currentDrag.wasHandled = true;
     disableTopDropZones();
 
     final oldBlocks = consumeDraggingBlocks();
@@ -247,8 +263,8 @@ class CodeWorkspace {
 
   Iterable<Block> removeChainForDrag(int chainIndex) {
     Chain oldChain = chains[chainIndex];
-    DragAcceptor.oldChainX = oldChain.x;
-    DragAcceptor.oldChainY = oldChain.y;
+    this.dragManager.oldChainX = oldChain.x;
+    this.dragManager.oldChainY = oldChain.y;
     final blocks = oldChain.blocks;
     chains.removeAt(chainIndex);
     oldChain._div.remove();

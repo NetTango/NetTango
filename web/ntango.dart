@@ -35,11 +35,12 @@ part "versions/version-manager.dart";
 part "utils/utils.dart";
 
 part "blocks/external-storage.dart";
-part "blocks/drag-acceptor.dart";
-part "blocks/drag-image.dart";
+part 'blocks/drag-drop/drag-manager.dart';
+part 'blocks/drag-drop/drag-acceptor.dart';
+part 'blocks/drag-drop/drag-image.dart';
+part 'blocks/drag-drop/block-drag-data.dart';
 part "blocks/toggle.dart";
 part "blocks/block-style.dart";
-part "blocks/block-drag-data.dart";
 part "blocks/block.dart";
 part "blocks/block-collection.dart";
 part "blocks/cap.dart";

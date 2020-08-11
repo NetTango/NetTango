@@ -335,23 +335,17 @@ class Block {
   }
 
   void startDrag(DraggableEvent event) {
-    DragAcceptor.startDrag(this, event);
+    workspace.dragManager.startDrag(this, event);
 
     final blocks = new List<Block>() ..
       add(this) ..
       addAll(this._dragData.siblings);
 
     Chain.redrawChain(this._dragImage.element, blocks, true);
-
-    workspace.removeBlocksForDrag(this._dragData);
-    workspace.enableTopDropZones();
   }
 
   void endDrag(DraggableEvent event) {
-    DragAcceptor.endDrag();
-
-    workspace.disableTopDropZones();
-    workspace.clearDragOver();
+    workspace.dragManager.endDrag();
 
     if (!workspace.hasDraggingBlocks) {
       return;
@@ -364,7 +358,7 @@ class Block {
       case "workspace-chain":
         if (_dragData.blockIndex == 0) {
           // new chain, we deleted the old one
-          workspace.createChain(newBlocks, DragAcceptor.oldChainX, DragAcceptor.oldChainY);
+          workspace.createChain(newBlocks, DragManager.currentDrag.oldChainX, DragManager.currentDrag.oldChainY);
         } else {
           workspace.chains[_dragData.chainIndex].insertBlocks(_dragData.blockIndex, newBlocks);
         }
@@ -383,7 +377,7 @@ class Block {
       return;
     }
 
-    DragAcceptor.wasHandled = true;
+    DragManager.currentDrag.wasHandled = true;
 
     final newBlocks = workspace.consumeDraggingBlocks();
 

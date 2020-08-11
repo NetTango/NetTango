@@ -96,19 +96,13 @@ class Slot {
     BlockDragData dragData = BlockDragData.newBlock(_slotIndex);
     _newBlockInstance.draw(_dragImage, dragData);
 
-    DragAcceptor.startDrag(_newBlockInstance, event);
+    workspace.dragManager.startDrag(_newBlockInstance, event);
     Chain.redrawChain(_dragImage.element, [_newBlockInstance], false);
-
-    workspace.removeBlocksForDrag(dragData);
-    workspace.enableTopDropZones();
   }
 
   void endDrag(DraggableEvent event) {
-    DragAcceptor.endDrag();
-
+    workspace.dragManager.endDrag();
     _newBlockInstance = null;
-    workspace.disableTopDropZones();
-    workspace.clearDragOver();
   }
 
   void raiseDoubleClick(Event e) {

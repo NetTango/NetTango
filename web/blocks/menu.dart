@@ -67,8 +67,14 @@ class BlockMenu {
     }
 
     final dropZone = Dropzone(_menuDiv, acceptor: workspace.workspaceAcceptor);
-    dropZone.onDragEnter.listen( (e) { DragAcceptor.isOverMenu = true; this.updateDragOver(); } );
-    dropZone.onDragLeave.listen( (e) { DragAcceptor.isOverMenu = false; this.updateDragOver(); } );
+    dropZone.onDragEnter.listen( (e) {
+      DragManager.currentDrag.isOverMenu = true;
+      this.updateDragOver();
+    });
+    dropZone.onDragLeave.listen( (e) {
+      DragManager.currentDrag.isOverMenu = false;
+      this.updateDragOver();
+    });
     dropZone.onDrop.listen(drop);
 
     updateLimits();
@@ -83,7 +89,7 @@ class BlockMenu {
   }
 
   void updateDragOver() {
-    if (DragAcceptor.isOverMenu || (DragAcceptor.isOverContainer && !DragAcceptor.isOverWorkspace)) {
+    if (DragManager.currentDrag.isOverMenu || (DragManager.currentDrag.isOverContainer && !DragManager.currentDrag.isOverWorkspace)) {
       _menuDiv.classes.add("nt-menu-drag-over");
     } else {
       _menuDiv.classes.remove("nt-menu-drag-over");
@@ -91,7 +97,7 @@ class BlockMenu {
   }
 
   void drop(DropzoneEvent event) {
-    DragAcceptor.wasHandled = true;
+    DragManager.currentDrag.wasHandled = true;
 
     final oldBlocks = workspace.consumeDraggingBlocks();
     Block changedBlock = oldBlocks.elementAt(0);
