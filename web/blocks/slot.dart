@@ -25,9 +25,9 @@ class Slot {
 
   int limit = -1;
 
-  int _slotIndex;
-  DivElement _slotDiv;
-  DragImage _dragImage;
+  int slotIndex;
+  DivElement slotDiv;
+  DragImage dragImage;
   bool isAtLimit = false;
 
   Slot(this.block, this.workspace, this.limit);
@@ -37,37 +37,37 @@ class Slot {
     return (limit <= 0 || free > 0);
   }
 
-  DivElement draw(DragImage dragImage, int slotIndex) {
-    _dragImage = dragImage;
-    _slotIndex = slotIndex;
-    _slotDiv = new DivElement();
-    _slotDiv.classes.add("nt-menu-slot");
+  DivElement draw(DragImage dragImage, int index) {
+    this.dragImage = dragImage;
+    this.slotIndex = index;
+    slotDiv = new DivElement();
+    slotDiv.classes.add("nt-menu-slot");
     final styleClass = block.getStyleClass();
-    _slotDiv.classes.add(styleClass);
-    _slotDiv.classes.add("$styleClass-color");
+    slotDiv.classes.add(styleClass);
+    slotDiv.classes.add("$styleClass-color");
 
     final sampleBlock = this.block.clone(false);
     final codeTip = formatCodeTip(sampleBlock);
-    _slotDiv.appendHtml("""<span title="$codeTip">${block.action}</span>""");
+    slotDiv.appendHtml("""<span title="$codeTip">${block.action}</span>""");
 
-    if (block.blockColor != null)  { _slotDiv.style.backgroundColor = block.blockColor; }
-    if (block.borderColor != null) { _slotDiv.style.borderColor     = block.borderColor; }
-    if (block.textColor != null)   { _slotDiv.style.color           = block.textColor; }
+    if (block.blockColor != null)  { slotDiv.style.backgroundColor = block.blockColor; }
+    if (block.borderColor != null) { slotDiv.style.borderColor     = block.borderColor; }
+    if (block.textColor != null)   { slotDiv.style.color           = block.textColor; }
     if (block.font != null) {
       // lineHeight gets reset by the `font` property
-      final lineHeight          = _slotDiv.style.lineHeight;
-      _slotDiv.style.font       = block.font;
-      _slotDiv.style.lineHeight = lineHeight;
+      final lineHeight          = slotDiv.style.lineHeight;
+      slotDiv.style.font       = block.font;
+      slotDiv.style.lineHeight = lineHeight;
     }
 
-    final slotDrag = Draggable(_slotDiv, avatarHandler: _dragImage, draggingClass: "nt-block-dragging", cancel: ".nt-menu-slot-at-limit");
+    final slotDrag = Draggable(slotDiv, avatarHandler: dragImage, draggingClass: "nt-block-dragging", cancel: ".nt-menu-slot-at-limit");
     slotDrag.onDragStart.listen(startDrag);
     slotDrag.onDragEnd.listen(endDrag);
 
-    _slotDiv.onDoubleClick.listen( raiseDoubleClick );
-    _slotDiv.onContextMenu.listen( raiseContextMenu );
+    slotDiv.onDoubleClick.listen( raiseDoubleClick );
+    slotDiv.onContextMenu.listen( raiseContextMenu );
     updateForLimit();
-    return _slotDiv;
+    return slotDiv;
   }
 
   String formatCodeTip(Block sampleBlock) {
@@ -84,19 +84,19 @@ class Slot {
 
   void updateForLimit() {
     if (isAvailable()) {
-      _slotDiv.classes.remove("nt-menu-slot-at-limit");
+      slotDiv.classes.remove("nt-menu-slot-at-limit");
     } else {
-      _slotDiv.classes.add("nt-menu-slot-at-limit");
+      slotDiv.classes.add("nt-menu-slot-at-limit");
     }
   }
 
   void startDrag(DraggableEvent event) {
     final newInstance = this.block.clone(false);
-    BlockDragData dragData = BlockDragData.newBlock(newInstance, _slotIndex);
-    newInstance.draw(_dragImage, dragData);
+    BlockDragData dragData = BlockDragData.newBlock(newInstance, this.slotIndex);
+    newInstance.draw(dragImage, dragData);
 
     workspace.dragManager.startDrag(dragData, event);
-    Chain.redrawChain(_dragImage.element, [newInstance], false);
+    Chain.redrawChain(dragImage.element, [newInstance], false);
   }
 
   void endDrag(DraggableEvent event) {

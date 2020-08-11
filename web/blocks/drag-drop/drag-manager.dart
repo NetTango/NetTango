@@ -70,7 +70,7 @@ class DragManager {
 
       case "new-block":
         final slot = this.workspace.menu.slots[blockData.slotIndex];
-        slot._slotDiv.classes.remove("nt-block-dragging");
+        slot.slotDiv.classes.remove("nt-block-dragging");
         final instance = blockData.newInstance;
         this.draggingBlocks = [instance];
         break;

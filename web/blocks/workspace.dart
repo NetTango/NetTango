@@ -246,7 +246,7 @@ class CodeWorkspace {
   void removeChain(int chainIndex) {
     Chain chain = this.chains[chainIndex];
     this.chains.removeAt(chainIndex);
-    chain._div.remove();
+    chain.div.remove();
 
     for (int i = 0; i < this.chains.length; i++) {
       Chain chain = this.chains[i];
@@ -259,7 +259,7 @@ class CodeWorkspace {
     sortedChains.sort((c1, c2) => c1.y.compareTo(c2.y));
     chainsDiv.innerHtml = "";
     for (Chain chain in sortedChains) {
-      chainsDiv.append(chain._div);
+      chainsDiv.append(chain.div);
     }
   }
 
@@ -298,7 +298,7 @@ class CodeWorkspace {
     int maxHeight = height; // start with the minimum height from the model
     final containerRect = container.getBoundingClientRect();
     for (Chain chain in chains) {
-      final rect = chain._div.getBoundingClientRect();
+      final rect = chain.div.getBoundingClientRect();
       final childHeight = (rect.bottom - containerRect.top).ceil();
       if (childHeight > maxHeight) {
         maxHeight = childHeight;
@@ -307,7 +307,7 @@ class CodeWorkspace {
     currentHeight = maxHeight + 1;
     final newHeight = "${currentHeight}px";
     spaceDiv.style.minHeight = newHeight;
-    menu._menuDiv.style.maxHeight = newHeight;
+    menu.menuDiv.style.maxHeight = newHeight;
   }
 
   void resetBlockActionText() {

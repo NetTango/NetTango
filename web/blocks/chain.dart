@@ -45,11 +45,11 @@ class Chain extends BlockCollection {
     fragmentDropzone.onDragEnter.listen( (e) => isDragOver = true );
     fragmentDropzone.onDragLeave.listen( (e) => isDragOver = false );
 
-    _div = new DivElement();
-    _div.classes.add("nt-chain");
+    div = new DivElement();
+    div.classes.add("nt-chain");
 
     if (blocks.isEmpty) {
-      return _div;
+      return div;
     }
 
     for (int i = 0; i < blocks.length; i++) {
@@ -58,25 +58,25 @@ class Chain extends BlockCollection {
       block.draw(dragImage, dragData);
     }
 
-    Chain.redrawChain(_div, blocks, false, fragmentDiv: fragmentDiv);
+    Chain.redrawChain(div, blocks, false, fragmentDiv: fragmentDiv);
 
     updatePosition(this.x, this.y);
 
-    return _div;
+    return div;
   }
 
   void updatePosition(int x, int y) {
     this.x = x;
     this.y = y;
-    _div.style.left = "${x}px";
-    _div.style.top  = "${y}px";
+    div.style.left = "${x}px";
+    div.style.top  = "${y}px";
   }
 
   void resetDragData(int newChainIndex) {
     this.chainIndex = newChainIndex;
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks[i];
-      block._dragData.resetWorkspaceChain(chainIndex, i, blocks.skip(i + 1));
+      block.dragData.resetWorkspaceChain(chainIndex, i, blocks.skip(i + 1));
       block.resetOwnedBlocksDragData();
     }
   }
@@ -136,10 +136,10 @@ class Chain extends BlockCollection {
   void redrawBlocks() {
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks[i];
-      block._dragData.resetWorkspaceChain(chainIndex, i, blocks.skip(i + 1));
+      block.dragData.resetWorkspaceChain(chainIndex, i, blocks.skip(i + 1));
       block.resetOwnedBlocksDragData();
     }
-    Chain.redrawChain(_div, blocks, false, fragmentDiv: fragmentDiv);
+    Chain.redrawChain(div, blocks, false, fragmentDiv: fragmentDiv);
   }
 
   void addBlocks(Iterable<Block> newBlocks) {
@@ -152,13 +152,13 @@ class Chain extends BlockCollection {
     }
     fragmentDiv.classes.add("show");
     final top = this.y.round() - FRAGMENT_HEIGHT;
-    _div.style.top = "${top}px";
+    div.style.top = "${top}px";
   }
 
   void disableTopDropZone() {
     fragmentDiv.classes.remove("show");
     final top = this.y.round();
-    _div.style.top = "${top}px";
+    div.style.top = "${top}px";
   }
 
   void drop(DropzoneEvent event) {
@@ -166,7 +166,7 @@ class Chain extends BlockCollection {
 
     final newBlocks = workspace.dragManager.consumeDraggingBlocks();
     final newFirst  = newBlocks.elementAt(0);
-    final offset = DragImage.getOffsetToRoot(this._div);
+    final offset = DragImage.getOffsetToRoot(this.div);
     final dropLocation = event.position - offset;
     this.y = this.y - FRAGMENT_HEIGHT + dropLocation.y.floor();
     insertBlocks(0, newBlocks);

@@ -29,13 +29,13 @@ class Clause extends BlockCollection {
   bool isDragOver = false;
   bool isDragHeaderOver = false;
 
-  DivElement _divider, _leftBar, _blocks;
+  DivElement divider, leftBar, blocksDiv;
 
   Clause(this.owner, this.clauseIndex, this.action, this.open, this.close);
 
   DivElement draw(DragImage dragImage, Block container, DivElement extraDropDiv) {
-    _div = new DivElement();
-    _div.classes.add("nt-clause");
+    div = new DivElement();
+    div.classes.add("nt-clause");
 
     if (extraDropDiv != null) {
       final extraDropzone = Dropzone(extraDropDiv, acceptor: owner.acceptor);
@@ -46,48 +46,48 @@ class Clause extends BlockCollection {
 
     final styleClass = container.getStyleClass();
 
-    _leftBar = new DivElement();
-    _leftBar.classes.add("nt-clause-left-bar");
-    _leftBar.classes.add("$styleClass-color");
-    Block.maybeSetColorOverride(container.blockColor, _leftBar);
-    _div.append(_leftBar);
+    this.leftBar = new DivElement();
+    leftBar.classes.add("nt-clause-left-bar");
+    leftBar.classes.add("$styleClass-color");
+    Block.maybeSetColorOverride(container.blockColor, leftBar);
+    div.append(leftBar);
 
-    _divider = new DivElement();
-    _divider.classes.add("nt-clause-divider");
-    _divider.classes.add("$styleClass-color");
-    Block.maybeSetColorOverride(container.blockColor, _divider);
-    _div.append(_divider);
+    this.divider = new DivElement();
+    divider.classes.add("nt-clause-divider");
+    divider.classes.add("$styleClass-color");
+    Block.maybeSetColorOverride(container.blockColor, divider);
+    div.append(divider);
 
-    _blocks = new DivElement();
-    _blocks.classes.add("nt-clause-blocks");
+    this.blocksDiv = new DivElement();
+    blocksDiv.classes.add("nt-clause-blocks");
 
     final dividerText = toStrNotEmpty(this.action, "");
     if (isNotNullOrEmpty(dividerText.trim())) {
-      _divider.innerHtml = dividerText;
+      divider.innerHtml = dividerText;
     }
 
-    final dropzone = Dropzone(_div, acceptor: owner.acceptor);
+    final dropzone = Dropzone(div, acceptor: owner.acceptor);
     dropzone.onDrop.listen(drop);
     dropzone.onDragEnter.listen( (e) => isDragOver = true );
     dropzone.onDragLeave.listen( (e) => isDragOver = false );
 
     if (blocks.isEmpty) {
       setEmpty();
-      return _div;
+      return div;
     }
 
-    _div.append(_blocks);
+    div.append(blocksDiv);
 
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks[i];
       final siblings = blocks.skip(i + 1);
-      final dragData = BlockDragData.blockOwned(owner._dragData.chainIndex, i, owner.instanceId, siblings, clauseIndex);
+      final dragData = BlockDragData.blockOwned(owner.dragData.chainIndex, i, owner.instanceId, siblings, clauseIndex);
       block.draw(dragImage, dragData);
     }
 
-    BlockCollection.appendBlocks(_blocks, blocks, "nt-block-clause");
+    BlockCollection.appendBlocks(blocksDiv, blocks, "nt-block-clause");
 
-    return _div;
+    return div;
   }
 
   Clause clone(Block newBlock) {
@@ -96,32 +96,32 @@ class Clause extends BlockCollection {
   }
 
   void setEmpty() {
-    _div.classes.add("nt-clause-empty");
-    _div.append(Notch.drawClause(false, this));
+    div.classes.add("nt-clause-empty");
+    div.append(Notch.drawClause(false, this));
 
     final dropElement = new DivElement() .. className = "nt-clause-drop";
-    _div.append(dropElement);
+    div.append(dropElement);
 
-    _div.append(Notch.drawClause(true,  this));
+    div.append(Notch.drawClause(true,  this));
   }
 
   void setNonEmpty() {
-    _div.classes.remove("nt-clause-empty");
+    div.classes.remove("nt-clause-empty");
   }
 
   void resetOwned() {
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks[i];
-      block._dragData.resetBlockOwned(owner._dragData.chainIndex, i, owner.instanceId, blocks.skip(i + 1), clauseIndex);
+      block.dragData.resetBlockOwned(owner.dragData.chainIndex, i, owner.instanceId, blocks.skip(i + 1), clauseIndex);
       block.resetOwnedBlocksDragData();
     }
   }
 
   void redrawBlocks() {
-    _div.innerHtml = "";
-    _blocks.innerHtml = "";
-    _div.append(_leftBar);
-    _div.append(_divider);
+    div.innerHtml = "";
+    this.blocksDiv.innerHtml = "";
+    div.append(this.leftBar);
+    div.append(this.divider);
 
     if (blocks.isEmpty) {
       setEmpty();
@@ -130,20 +130,20 @@ class Clause extends BlockCollection {
 
     setNonEmpty();
 
-    _div.append(_blocks);
+    div.append(blocksDiv);
 
     for (int i = 0; i < blocks.length; i++) {
       Block block = blocks[i];
-      block._dragData.resetBlockOwned(owner._dragData.chainIndex, i, owner.instanceId, blocks.skip(i + 1), clauseIndex);
+      block.dragData.resetBlockOwned(owner.dragData.chainIndex, i, owner.instanceId, blocks.skip(i + 1), clauseIndex);
       block.resetOwnedBlocksDragData();
     }
 
-    BlockCollection.appendBlocks(_blocks, blocks, "nt-block-clause");
+    BlockCollection.appendBlocks(blocksDiv, blocks, "nt-block-clause");
   }
 
   bool updateDragOver() {
-    _div.classes.remove("nt-block-clause-drag-over");
-    if (blocks.isNotEmpty) { blocks[0]._blockDiv.classes.remove("nt-block-clause-drag-over"); }
+    div.classes.remove("nt-block-clause-drag-over");
+    if (blocks.isNotEmpty) { blocks[0].blockDiv.classes.remove("nt-block-clause-drag-over"); }
     bool isHighlightHandled = false;
     for (Block block in blocks) {
       final blockResult = block.updateDragOver();
@@ -152,17 +152,17 @@ class Clause extends BlockCollection {
     if ((isDragOver || isDragHeaderOver) && !isHighlightHandled) {
       isHighlightHandled = true;
       if (blocks.isEmpty) {
-        _div.classes.add("nt-block-clause-drag-over");
+        div.classes.add("nt-block-clause-drag-over");
       } else {
-        blocks[0]._blockDiv.classes.add("nt-block-clause-drag-over");
+        blocks[0].blockDiv.classes.add("nt-block-clause-drag-over");
       }
     }
     return isHighlightHandled;
   }
 
   void clearDragOver() {
-    _div.classes.remove("nt-block-clause-drag-over");
-    if (blocks.isNotEmpty) { blocks[0]._blockDiv.classes.remove("nt-block-clause-drag-over"); }
+    div.classes.remove("nt-block-clause-drag-over");
+    if (blocks.isNotEmpty) { blocks[0].blockDiv.classes.remove("nt-block-clause-drag-over"); }
     isDragOver = false;
     isDragHeaderOver = false;
     for (Block block in blocks) {
@@ -176,7 +176,7 @@ class Clause extends BlockCollection {
     final newBlocks = owner.workspace.dragManager.consumeDraggingBlocks();
 
     insertBlocks(0, newBlocks);
-    _div.classes.remove("nt-clause-empty");
+    div.classes.remove("nt-clause-empty");
 
     Block changedBlock = newBlocks.elementAt(0);
     owner.workspace.programChanged(new BlockChangedEvent(changedBlock));

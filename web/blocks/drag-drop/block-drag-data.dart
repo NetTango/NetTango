@@ -36,10 +36,10 @@ class BlockDragData {
     newInstance      = null;
   }
 
-  static BlockDragData newBlock(Block newInstance, int slotIndex) {
+  static BlockDragData newBlock(Block newInstance, int index) {
     final dragData = new BlockDragData();
     dragData.parentType  = "new-block";
-    dragData.slotIndex   = slotIndex;
+    dragData.slotIndex   = index;
     dragData.newInstance = newInstance;
     return dragData;
   }

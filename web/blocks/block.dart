@@ -91,14 +91,14 @@ class Block {
   /// link back to the main workspace
   CodeWorkspace workspace;
 
-  DragImage _dragImage;
+  DragImage dragImage;
   BlockAcceptor acceptor;
-  BlockDragData _dragData;
+  BlockDragData dragData;
   bool isDragOver = false;
   bool isDragNotchOver = false;
-  DivElement _blockDiv;
-  DivElement _actionDiv;
-  Toggle _propertiesToggle;
+  DivElement blockDiv;
+  DivElement actionDiv;
+  Toggle propertiesToggle;
 
   Block(this.workspace, this.id, this.action, bool isSlotBlock) {
     if (this.id == null) {
@@ -183,30 +183,30 @@ class Block {
   }
 
   DivElement draw(DragImage dragImage, BlockDragData dragData) {
-    this._dragData = dragData;
-    this._dragImage = dragImage;
+    this.dragData = dragData;
+    this.dragImage = dragImage;
     this.acceptor = new BlockAcceptor(this);
 
-    _blockDiv = new DivElement();
-    _blockDiv.classes.add("nt-block");
+    blockDiv = new DivElement();
+    blockDiv.classes.add("nt-block");
     final styleClass = getStyleClass();
-    _blockDiv.classes.add(styleClass);
+    blockDiv.classes.add(styleClass);
     if (hasClauses) {
-      _blockDiv.classes.add("nt-block-with-clauses");
+      blockDiv.classes.add("nt-block-with-clauses");
     }
 
-    applyStyleOverrides(this, this._blockDiv);
+    applyStyleOverrides(this, this.blockDiv);
 
     DivElement headerDiv = new DivElement();
     headerDiv.classes.add("$styleClass-color");
     maybeSetColorOverride(this.blockColor, headerDiv);
     headerDiv.classes.add("nt-block-header");
-    _blockDiv.append(headerDiv);
+    blockDiv.append(headerDiv);
 
-    _actionDiv = new DivElement();
+    actionDiv = new DivElement();
     updateActionText();
-    _actionDiv.classes.add("nt-block-action");
-    headerDiv.append(_actionDiv);
+    actionDiv.classes.add("nt-block-action");
+    headerDiv.append(actionDiv);
 
     final paramDiv = new DivElement();
     paramDiv.classes.add("nt-block-params");
@@ -221,7 +221,7 @@ class Block {
     headerDiv.append(propertiesDiv);
 
     if (properties.length > 0) {
-      _propertiesToggle = new Toggle(propertiesDisplay != "hidden", (bool isOn) {
+      propertiesToggle = new Toggle(propertiesDisplay != "hidden", (bool isOn) {
         propertiesDisplay = isOn ? "shown" : "hidden";
         propertiesDiv.classes.toggle("nt-block-properties-hidden");
         workspace.programChanged(new BlockChangedEvent(this));
@@ -229,7 +229,7 @@ class Block {
       if (propertiesDisplay == "hidden") {
         propertiesDiv.classes.add("nt-block-properties-hidden");
       }
-      _actionDiv.append(_propertiesToggle.div);
+      actionDiv.append(propertiesToggle.div);
     }
 
     for (Attribute attribute in properties.values) {
@@ -240,24 +240,24 @@ class Block {
     }
 
     if (hasClauses) {
-      final firstClauseDiv = clauses[0].draw(_dragImage, this, headerDiv);
-      _blockDiv.append(firstClauseDiv);
+      final firstClauseDiv = clauses[0].draw(dragImage, this, headerDiv);
+      blockDiv.append(firstClauseDiv);
 
       for (Clause clause in clauses.skip(1)) {
-        final clauseDiv = clause.draw(_dragImage, this, null);
-        _blockDiv.append(clauseDiv);
+        final clauseDiv = clause.draw(dragImage, this, null);
+        blockDiv.append(clauseDiv);
       }
 
       final clauseFooter = new DivElement();
       clauseFooter.classes.add("nt-clause-footer");
       clauseFooter.classes.add("$styleClass-color");
       maybeSetColorOverride(this.blockColor, clauseFooter);
-      _blockDiv.append(clauseFooter);
+      blockDiv.append(clauseFooter);
     }
 
-    Block.wireDragEvents(this, _blockDiv, (isOver) => this.isDragOver = isOver );
+    Block.wireDragEvents(this, blockDiv, (isOver) => this.isDragOver = isOver );
 
-    return _blockDiv;
+    return blockDiv;
   }
 
   static void maybeSetColorOverride(String backgroundColor, DivElement div) {
@@ -276,7 +276,7 @@ class Block {
   }
 
   static void wireDragEvents(Block block, DivElement div, void setOver(bool isOver)) {
-    final draggable = Draggable(div, avatarHandler: block._dragImage, draggingClass: "nt-block-dragging");
+    final draggable = Draggable(div, avatarHandler: block.dragImage, draggingClass: "nt-block-dragging");
     draggable.onDragStart.listen(block.startDrag);
     draggable.onDragEnd.listen(block.endDrag);
     final dropzone = Dropzone(div, acceptor: block.acceptor);
@@ -287,7 +287,7 @@ class Block {
 
   void updateActionText() {
     final codeTip = formatCodeTip();
-    _actionDiv.appendHtml("""<span title="$codeTip">$action</span>""");
+    actionDiv.appendHtml("""<span title="$codeTip">$action</span>""");
   }
 
   String formatCodeTip() {
@@ -296,8 +296,8 @@ class Block {
       out.writeln(this.note);
       out.writeln();
     }
-    if (_dragData.parentType == "workspace-chain" && _dragData.blockIndex == 0) {
-      final chain = workspace.chains[_dragData.chainIndex];
+    if (dragData.parentType == "workspace-chain" && dragData.blockIndex == 0) {
+      final chain = workspace.chains[dragData.chainIndex];
       workspace.formatter.formatBlocks(out, 0, chain.blocks);
       // if this block isn't a valid chain starter, nothing may have been written
       if (out.isEmpty) {
@@ -312,8 +312,8 @@ class Block {
   }
 
   bool updateDragOver() {
-    _blockDiv.classes.remove("nt-drag-over");
-    _blockDiv.classes.remove("nt-block-clause-drag-over");
+    blockDiv.classes.remove("nt-drag-over");
+    blockDiv.classes.remove("nt-block-clause-drag-over");
     bool isHighlightHandled = false;
     for (Clause clause in clauses) {
       final clauseResult = clause.updateDragOver();
@@ -321,14 +321,14 @@ class Block {
     }
     if (isAttachable && (isDragOver || isDragNotchOver) && !isHighlightHandled) {
       isHighlightHandled = true;
-      _blockDiv.classes.add("nt-drag-over");
+      blockDiv.classes.add("nt-drag-over");
     }
     return isHighlightHandled;
   }
 
   void clearDragOver() {
-    _blockDiv.classes.remove("nt-drag-over");
-    _blockDiv.classes.remove("nt-block-clause-drag-over");
+    blockDiv.classes.remove("nt-drag-over");
+    blockDiv.classes.remove("nt-block-clause-drag-over");
     isDragOver = false;
     isDragNotchOver = false;
     for (Clause clause in clauses) {
@@ -337,13 +337,13 @@ class Block {
   }
 
   void startDrag(DraggableEvent event) {
-    workspace.dragManager.startDrag(this._dragData, event);
+    workspace.dragManager.startDrag(this.dragData, event);
 
     final blocks = new List<Block>() ..
       add(this) ..
-      addAll(this._dragData.siblings);
+      addAll(this.dragData.siblings);
 
-    Chain.redrawChain(this._dragImage.element, blocks, true);
+    Chain.redrawChain(this.dragImage.element, blocks, true);
   }
 
   void endDrag(DraggableEvent event) {
@@ -355,20 +355,20 @@ class Block {
 
     // our blocks weren't dropped anywhere, so reset
     final newBlocks = workspace.dragManager.consumeDraggingBlocks();
-    switch (_dragData.parentType) {
+    switch (dragData.parentType) {
 
       case "workspace-chain":
-        if (_dragData.blockIndex == 0) {
+        if (dragData.blockIndex == 0) {
           // new chain, we deleted the old one
           workspace.createChain(newBlocks, DragManager.currentDrag.oldChainX, DragManager.currentDrag.oldChainY);
         } else {
-          workspace.chains[_dragData.chainIndex].insertBlocks(_dragData.blockIndex, newBlocks);
+          workspace.chains[dragData.chainIndex].insertBlocks(dragData.blockIndex, newBlocks);
         }
         break;
 
       case "block-clause":
-        final parentBlock = workspace.chains[_dragData.chainIndex].getBlockInstance(_dragData.parentInstanceId);
-        parentBlock.clauses[_dragData.clauseIndex].insertBlocks(_dragData.blockIndex, newBlocks);
+        final parentBlock = workspace.chains[dragData.chainIndex].getBlockInstance(dragData.parentInstanceId);
+        parentBlock.clauses[dragData.clauseIndex].insertBlocks(dragData.blockIndex, newBlocks);
         break;
 
     }
@@ -383,15 +383,15 @@ class Block {
 
     final newBlocks = workspace.dragManager.consumeDraggingBlocks();
 
-    switch (_dragData.parentType) {
+    switch (dragData.parentType) {
 
       case "workspace-chain":
-        workspace.chains[_dragData.chainIndex].insertBlocks(_dragData.blockIndex + 1, newBlocks);
+        workspace.chains[dragData.chainIndex].insertBlocks(dragData.blockIndex + 1, newBlocks);
         break;
 
       case "block-clause":
-        final parentBlock = workspace.chains[_dragData.chainIndex].getBlockInstance(_dragData.parentInstanceId);
-        parentBlock.clauses[_dragData.clauseIndex].insertBlocks(_dragData.blockIndex + 1, newBlocks);
+        final parentBlock = workspace.chains[dragData.chainIndex].getBlockInstance(dragData.parentInstanceId);
+        parentBlock.clauses[dragData.clauseIndex].insertBlocks(dragData.blockIndex + 1, newBlocks);
         break;
 
     }
@@ -407,10 +407,10 @@ class Block {
   }
 
   void resetBlockActionText() {
-    _actionDiv.innerHtml = "";
+    actionDiv.innerHtml = "";
     updateActionText();
-    if (_propertiesToggle != null) {
-      _actionDiv.append(_propertiesToggle.div);
+    if (propertiesToggle != null) {
+      actionDiv.append(propertiesToggle.div);
     }
     for (Clause clause in clauses) {
       for (Block block in clause.blocks) {

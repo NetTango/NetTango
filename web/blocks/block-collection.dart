@@ -20,7 +20,7 @@ abstract class BlockCollection {
 
   List<Block> blocks = new List<Block>();
 
-  DivElement _div;
+  DivElement div;
 
   void redrawBlocks();
 
@@ -81,13 +81,13 @@ abstract class BlockCollection {
     }
 
     if (blocks.length == 1) {
-      BlockCollection.appendBlock(div, blocks.first._blockDiv, "$classPrefix-standalone", useClones: useClones);
+      BlockCollection.appendBlock(div, blocks.first.blockDiv, "$classPrefix-standalone", useClones: useClones);
     } else {
-      BlockCollection.appendBlock(div, blocks.first._blockDiv, "$classPrefix-first", useClones: useClones);
+      BlockCollection.appendBlock(div, blocks.first.blockDiv, "$classPrefix-first", useClones: useClones);
       for (int i = 1; i < (blocks.length - 1); i++) {
-        BlockCollection.appendBlock(div, blocks[i]._blockDiv, "$classPrefix-middle", useClones: useClones);
+        BlockCollection.appendBlock(div, blocks[i].blockDiv, "$classPrefix-middle", useClones: useClones);
       }
-      BlockCollection.appendBlock(div, blocks.last._blockDiv, "$classPrefix-last", useClones: useClones);
+      BlockCollection.appendBlock(div, blocks.last.blockDiv, "$classPrefix-last", useClones: useClones);
     }
   }
 }

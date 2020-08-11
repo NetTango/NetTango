@@ -30,7 +30,7 @@ class BlockMenu {
   /// Menu background color
   String color = "rgba(0,0,0, 0.2)";
 
-  DivElement _menuDiv;
+  DivElement menuDiv;
 
   BlockMenu(this.workspace);
 
@@ -58,15 +58,15 @@ class BlockMenu {
   }
 
   DivElement draw(DragImage dragImage) {
-    _menuDiv = new DivElement() .. id = "${workspace.containerId}-menu";
-    _menuDiv.classes.add("nt-menu");
+    menuDiv = new DivElement() .. id = "${workspace.containerId}-menu";
+    menuDiv.classes.add("nt-menu");
 
     for (int i = 0; i < slots.length; i++) {
       Slot slot = slots[i];
-      _menuDiv.append(slot.draw(dragImage, i));
+      menuDiv.append(slot.draw(dragImage, i));
     }
 
-    final dropZone = Dropzone(_menuDiv, acceptor: workspace.acceptor);
+    final dropZone = Dropzone(menuDiv, acceptor: workspace.acceptor);
     dropZone.onDragEnter.listen( (e) {
       DragManager.currentDrag.isOverMenu = true;
       this.updateDragOver();
@@ -79,7 +79,7 @@ class BlockMenu {
 
     updateLimits();
 
-    return _menuDiv;
+    return menuDiv;
   }
 
   void updateLimits() {
@@ -90,9 +90,9 @@ class BlockMenu {
 
   void updateDragOver() {
     if (DragManager.currentDrag != null && (DragManager.currentDrag.isOverMenu || (DragManager.currentDrag.isOverContainer && !DragManager.currentDrag.isOverWorkspace))) {
-      _menuDiv.classes.add("nt-menu-drag-over");
+      menuDiv.classes.add("nt-menu-drag-over");
     } else {
-      _menuDiv.classes.remove("nt-menu-drag-over");
+      menuDiv.classes.remove("nt-menu-drag-over");
     }
   }
 
