@@ -26,7 +26,6 @@ class Slot {
   int limit = -1;
 
   int _slotIndex;
-  Block _newBlockInstance;
   DivElement _slotDiv;
   DragImage _dragImage;
   bool isAtLimit = false;
@@ -92,17 +91,16 @@ class Slot {
   }
 
   void startDrag(DraggableEvent event) {
-    _newBlockInstance = this.block.clone(false);
-    BlockDragData dragData = BlockDragData.newBlock(_slotIndex);
-    _newBlockInstance.draw(_dragImage, dragData);
+    final newInstance = this.block.clone(false);
+    BlockDragData dragData = BlockDragData.newBlock(newInstance, _slotIndex);
+    newInstance.draw(_dragImage, dragData);
 
     workspace.dragManager.startDrag(dragData, event);
-    Chain.redrawChain(_dragImage.element, [_newBlockInstance], false);
+    Chain.redrawChain(_dragImage.element, [newInstance], false);
   }
 
   void endDrag(DraggableEvent event) {
     workspace.dragManager.endDrag();
-    _newBlockInstance = null;
   }
 
   void raiseDoubleClick(Event e) {

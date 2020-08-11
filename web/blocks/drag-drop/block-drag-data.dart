@@ -23,6 +23,7 @@ class BlockDragData {
   int clauseIndex;
   int blockIndex;
   int slotIndex;
+  Block newInstance;
   Iterable<Block> siblings;
 
   void reset() {
@@ -32,12 +33,14 @@ class BlockDragData {
     clauseIndex      = null;
     blockIndex       = null;
     slotIndex        = null;
+    newInstance      = null;
   }
 
-  static BlockDragData newBlock(int slotIndex) {
-    BlockDragData dragData = new BlockDragData();
-    dragData.parentType = "new-block";
-    dragData.slotIndex = slotIndex;
+  static BlockDragData newBlock(Block newInstance, int slotIndex) {
+    final dragData = new BlockDragData();
+    dragData.parentType  = "new-block";
+    dragData.slotIndex   = slotIndex;
+    dragData.newInstance = newInstance;
     return dragData;
   }
 
