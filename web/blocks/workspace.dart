@@ -214,21 +214,21 @@ class CodeWorkspace {
 
   void drop(DropzoneEvent event) {
     DragManager.currentDrag.wasHandled = true;
-    disableTopDropZones();
 
     final blocks = this.dragManager.consumeDraggingBlocks();
     final offset = DragImage.getOffsetToRoot(this.chainsDiv);
     final dropLocation = event.position - offset - DragManager.currentDrag.dragStartOffset;
     createChain(blocks, max(0, dropLocation.x.floor()), max(0, dropLocation.y.floor()));
+
     Block changedBlock = blocks.elementAt(0);
     programChanged(new BlockChangedEvent(changedBlock));
   }
 
   void containerDrop(DropzoneEvent event) {
     DragManager.currentDrag.wasHandled = true;
-    disableTopDropZones();
 
     final oldBlocks = this.dragManager.consumeDraggingBlocks();
+
     Block changedBlock = oldBlocks.elementAt(0);
     programChanged(new BlockChangedEvent(changedBlock));
   }

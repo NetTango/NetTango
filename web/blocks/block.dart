@@ -398,7 +398,6 @@ class Block {
 
     Block changedBlock = newBlocks.elementAt(0);
     workspace.programChanged(new BlockChangedEvent(changedBlock));
-    workspace.disableTopDropZones();
   }
 
   void resetOwnedBlocksDragData() {

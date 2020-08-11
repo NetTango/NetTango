@@ -45,10 +45,10 @@ class DragManager {
   void startDrag(BlockDragData dragData, DraggableEvent startEvent) {
     DragManager.currentDrag = this;
 
-    this.dragStartOffset = startEvent.startPosition - DragImage.getOffsetToRoot(startEvent.draggableElement);
     this.wasHandled = false;
-
+    this.dragStartOffset = startEvent.startPosition - DragImage.getOffsetToRoot(startEvent.draggableElement);
     this.removeBlocksForDrag(dragData);
+
     this.workspace.enableTopDropZones();
   }
 

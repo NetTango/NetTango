@@ -172,7 +172,6 @@ class Chain extends BlockCollection {
     insertBlocks(0, newBlocks);
 
     workspace.programChanged(new BlockChangedEvent(newFirst));
-    workspace.disableTopDropZones();
   }
 
 }

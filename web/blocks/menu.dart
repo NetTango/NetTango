@@ -89,7 +89,7 @@ class BlockMenu {
   }
 
   void updateDragOver() {
-    if (DragManager.currentDrag.isOverMenu || (DragManager.currentDrag.isOverContainer && !DragManager.currentDrag.isOverWorkspace)) {
+    if (DragManager.currentDrag != null && (DragManager.currentDrag.isOverMenu || (DragManager.currentDrag.isOverContainer && !DragManager.currentDrag.isOverWorkspace))) {
       _menuDiv.classes.add("nt-menu-drag-over");
     } else {
       _menuDiv.classes.remove("nt-menu-drag-over");
@@ -102,6 +102,5 @@ class BlockMenu {
     final oldBlocks = workspace.dragManager.consumeDraggingBlocks();
     Block changedBlock = oldBlocks.elementAt(0);
     workspace.programChanged(new BlockChangedEvent(changedBlock));
-    workspace.disableTopDropZones();
   }
 }
