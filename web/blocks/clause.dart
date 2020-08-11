@@ -173,7 +173,7 @@ class Clause extends BlockCollection {
   void drop(DropzoneEvent event) {
     DragManager.currentDrag.wasHandled = true;
 
-    final newBlocks = owner.workspace.consumeDraggingBlocks();
+    final newBlocks = owner.workspace.dragManager.consumeDraggingBlocks();
 
     insertBlocks(0, newBlocks);
     _div.classes.remove("nt-clause-empty");

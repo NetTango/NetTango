@@ -164,7 +164,7 @@ class Chain extends BlockCollection {
   void drop(DropzoneEvent event) {
     DragManager.currentDrag.wasHandled = true;
 
-    final newBlocks = workspace.consumeDraggingBlocks();
+    final newBlocks = workspace.dragManager.consumeDraggingBlocks();
     final newFirst  = newBlocks.elementAt(0);
     final offset = DragImage.getOffsetToRoot(this._div);
     final dropLocation = event.position - offset;

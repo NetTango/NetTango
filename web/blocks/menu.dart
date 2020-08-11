@@ -99,7 +99,7 @@ class BlockMenu {
   void drop(DropzoneEvent event) {
     DragManager.currentDrag.wasHandled = true;
 
-    final oldBlocks = workspace.consumeDraggingBlocks();
+    final oldBlocks = workspace.dragManager.consumeDraggingBlocks();
     Block changedBlock = oldBlocks.elementAt(0);
     workspace.programChanged(new BlockChangedEvent(changedBlock));
     workspace.disableTopDropZones();

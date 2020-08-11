@@ -347,12 +347,12 @@ class Block {
   void endDrag(DraggableEvent event) {
     workspace.dragManager.endDrag();
 
-    if (!workspace.hasDraggingBlocks) {
+    if (!workspace.dragManager.hasDraggingBlocks) {
       return;
     }
 
     // our blocks weren't dropped anywhere, so reset
-    final newBlocks = workspace.consumeDraggingBlocks();
+    final newBlocks = workspace.dragManager.consumeDraggingBlocks();
     switch (_dragData.parentType) {
 
       case "workspace-chain":
@@ -379,7 +379,7 @@ class Block {
 
     DragManager.currentDrag.wasHandled = true;
 
-    final newBlocks = workspace.consumeDraggingBlocks();
+    final newBlocks = workspace.dragManager.consumeDraggingBlocks();
 
     switch (_dragData.parentType) {
 

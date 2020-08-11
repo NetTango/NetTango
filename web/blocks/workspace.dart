@@ -68,12 +68,7 @@ class CodeWorkspace {
   BlockStyle containerBlockStyle;
   BlockStyle commandBlockStyle;
 
-  DragImage _dragImage;
-  Iterable<Block> _draggingBlocks;
-  Iterable<Block> get draggingBlocks => _draggingBlocks;
-  set draggingBlocks(Iterable<Block> v) => _draggingBlocks = v;
-  bool get hasDraggingBlocks => _draggingBlocks != null;
-
+  DragImage dragImage;
   DragManager dragManager;
   DragAcceptor workspaceAcceptor, blockAcceptor;
   Dropzone containerDropzone;
@@ -104,16 +99,10 @@ class CodeWorkspace {
 
   }
 
-/**
- * Detaches this workspace object from the canvas
- */
   void unload() {
     chains.clear();
   }
 
-/**
- * Callback when blocks of a program have changed
- */
   void programChanged(ProgramChangedEvent event) {
     try {
       _updateWorkspaceForChanges();
@@ -181,7 +170,7 @@ class CodeWorkspace {
     spaceDiv = new DivElement() .. id = "$containerId-space";
     spaceDiv.classes.add("nt-workspace");
 
-    _dragImage = new DragImage(drag);
+    dragImage = new DragImage(drag);
 
     wrapper.append(spaceDiv);
 
@@ -190,12 +179,12 @@ class CodeWorkspace {
 
     for (int i = 0; i < chains.length; i++) {
       Chain chain = chains[i];
-      chain.draw(_dragImage, i);
+      chain.draw(dragImage, i);
     }
 
     redrawChains();
 
-    final menuDiv = menu.draw(_dragImage);
+    final menuDiv = menu.draw(dragImage);
     menuDiv.style.maxHeight = "${height}px";
     wrapper.append(menuDiv);
 
@@ -228,7 +217,7 @@ class CodeWorkspace {
     DragManager.currentDrag.wasHandled = true;
     disableTopDropZones();
 
-    final blocks = consumeDraggingBlocks();
+    final blocks = this.dragManager.consumeDraggingBlocks();
     final offset = DragImage.getOffsetToRoot(this.chainsDiv);
     final dropLocation = event.position - offset - DragManager.currentDrag.dragStartOffset;
     createChain(blocks, max(0, dropLocation.x.floor()), max(0, dropLocation.y.floor()));
@@ -240,69 +229,29 @@ class CodeWorkspace {
     DragManager.currentDrag.wasHandled = true;
     disableTopDropZones();
 
-    final oldBlocks = consumeDraggingBlocks();
+    final oldBlocks = this.dragManager.consumeDraggingBlocks();
     Block changedBlock = oldBlocks.elementAt(0);
     programChanged(new BlockChangedEvent(changedBlock));
-  }
-
-  Iterable<Block> consumeDraggingBlocks() {
-    final blocks = draggingBlocks;
-    draggingBlocks = null;
-    return blocks;
   }
 
   void createChain(Iterable<Block> newBlocks, int x, int y) {
     Chain newChain = new Chain(this);
     int newChainIndex = chains.length;
     chains.add(newChain);
-    DivElement chainDiv = newChain.draw(_dragImage, newChainIndex);
+    DivElement chainDiv = newChain.draw(dragImage, newChainIndex);
     spaceDiv.append(chainDiv);
     newChain.addBlocks(newBlocks);
     newChain.updatePosition(x, y);
   }
 
-  Iterable<Block> removeChainForDrag(int chainIndex) {
-    Chain oldChain = chains[chainIndex];
-    this.dragManager.oldChainX = oldChain.x;
-    this.dragManager.oldChainY = oldChain.y;
-    final blocks = oldChain.blocks;
-    chains.removeAt(chainIndex);
-    oldChain._div.remove();
-    for (int i = 0; i < chains.length; i++) {
-      Chain chain = chains[i];
+  void removeChain(int chainIndex) {
+    Chain chain = this.chains[chainIndex];
+    this.chains.removeAt(chainIndex);
+    chain._div.remove();
+
+    for (int i = 0; i < this.chains.length; i++) {
+      Chain chain = this.chains[i];
       chain.resetDragData(i);
-    }
-    return blocks;
-  }
-
-  void removeBlocksForDrag(BlockDragData blockData) {
-    switch (blockData.parentType) {
-
-      case "new-block":
-        final slot = menu.slots[blockData.slotIndex];
-        slot._slotDiv.classes.remove("nt-block-dragging");
-        final instance = slot._newBlockInstance;
-        draggingBlocks = [instance];
-        break;
-
-      case "workspace-chain":
-        if (blockData.blockIndex == 0) {
-          draggingBlocks = removeChainForDrag(blockData.chainIndex);
-        } else {
-          draggingBlocks = chains[blockData.chainIndex].removeBlocks(blockData.blockIndex);
-        }
-        break;
-
-      case "block-clause":
-        draggingBlocks = chains[blockData.chainIndex]
-          .getBlockInstance(blockData.parentInstanceId)
-          .clauses[blockData.clauseIndex].removeBlocks(blockData.blockIndex);
-        break;
-
-      case "default":
-        throw new Exception("Unknown block removal type: ${blockData.parentType}");
-        break;
-
     }
   }
 
