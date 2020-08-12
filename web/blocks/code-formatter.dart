@@ -182,7 +182,7 @@ class CodeFormatter  {
 
   void writeFormatOption(StringBuffer out, Block block, int indent, String formatOption, String override) {
     final option = toStr(override, formatOption);
-    if (isNotNullOrEmpty(option)) {
+    if (isNotNullOrEmpty(option) && option.trim() != "") {
       final optionFormat = block == null ? option : replaceParamsAndProps(option, block);
       writeIndentedLine(out, indent, optionFormat);
     }
