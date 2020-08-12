@@ -16,17 +16,23 @@
 
 part of NetTango;
 
-class WorkspaceAcceptor extends Acceptor {
+class TagChecker {
 
-  final String containerId;
+  static bool containsAny(List<String> allowedTags, List<String> tags) {
+    for (String tag in tags) {
+      if (allowedTags.contains(tag)) {
+        return true;
+      }
+    }
+    return false;
+  }
 
-  WorkspaceAcceptor(this.containerId);
-
-  @override
-  bool accepts(Element draggableElement, int draggableId, Element dropzoneElement) {
-    return
-      !DragManager.current.wasHandled &&
-      this.containerId == DragManager.current.workspace.containerId;
+  static bool isSatisfied(List<String> allowedTags, Iterable<Block> blocks) {
+    if (allowedTags.isEmpty) {
+      return true;
+    }
+    final areBlocksAllowed = blocks.map( (block) => containsAny(allowedTags, block.tags) );
+    return areBlocksAllowed.reduce( (a, b) => a && b );
   }
 
 }

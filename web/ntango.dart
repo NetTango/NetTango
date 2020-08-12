@@ -35,6 +35,7 @@ part "versions/version-manager.dart";
 part "utils/utils.dart";
 
 part "blocks/external-storage.dart";
+part "blocks/drag-drop/tag-checker.dart";
 part 'blocks/drag-drop/drag-manager.dart';
 part 'blocks/drag-drop/workspace-acceptor.dart';
 part 'blocks/drag-drop/clause-acceptor.dart';

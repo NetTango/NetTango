@@ -106,6 +106,18 @@ Block restoreMenuBlock(CodeWorkspace workspace, js.JsObject blockEnc) {
   block.isTerminal = toBool(blockEnc["isTerminal"], block.isTerminal);
   block.placement = toStr(blockEnc["placement"], block.placement);
 
+  if (blockEnc["allowedTags"] is js.JsArray) {
+    for (String tag in blockEnc["allowedTags"]) {
+      block.allowedTags.add(tag);
+    }
+  }
+
+  if (blockEnc["tags"] is js.JsArray) {
+    for (String tag in blockEnc["tags"]) {
+      block.tags.add(tag);
+    }
+  }
+
   if (blockEnc["params"] is js.JsArray) {
     for (js.JsObject p in blockEnc["params"]) {
       Attribute param = restoreAttribute(block, p);
@@ -135,9 +147,16 @@ Clause restoreClause(CodeWorkspace workspace, Block block, js.JsObject clauseEnc
   Clause clause = new Clause(block, clauseIndex, action, open, close);
   clause.storage.set(clauseEnc);
 
+  if (clauseEnc["allowedTags"] is js.JsArray) {
+    for (String allowedTag in clauseEnc["allowedTags"]) {
+      clause.allowedTags.add(allowedTag);
+    }
+  }
+
   if (clauseEnc["children"] is js.JsArray) {
     clause.blocks = restoreBlocks(workspace, clauseEnc["children"]);
   }
+
   return clause;
 }
 

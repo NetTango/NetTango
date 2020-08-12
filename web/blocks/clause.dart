@@ -18,13 +18,15 @@ part of NetTango;
 
 class Clause extends BlockCollection {
 
-  final storage = new ExternalStorage(["children", "action", "open", "close"]);
+  final storage = new ExternalStorage(["children", "action", "open", "close", "allowedTags"]);
 
   final Block owner;
   final int clauseIndex;
   final String action;
   final String open;
   final String close;
+
+  final List<String> allowedTags = new List<String>();
 
   bool isDragOver = false;
   bool isDragHeaderOver = false;
@@ -94,6 +96,7 @@ class Clause extends BlockCollection {
 
   Clause clone(Block newBlock) {
     final clause = new Clause(newBlock, this.clauseIndex, this.action, this.open, this.close);
+    clause.allowedTags.addAll(this.allowedTags);
     return clause;
   }
 
@@ -173,7 +176,7 @@ class Clause extends BlockCollection {
   }
 
   void drop(DropzoneEvent event) {
-    DragManager.currentDrag.wasHandled = true;
+    DragManager.current.wasHandled = true;
 
     final newBlocks = owner.workspace.dragManager.consumeDraggingBlocks();
 

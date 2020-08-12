@@ -115,6 +115,14 @@ js.JsObject encodeBlock(Block block, int limit) {
   setIfNotNullOrEmpty(blockEnc, "borderColor", block.borderColor);
   setIfNotNullOrEmpty(blockEnc, "font", block.font);
 
+  if (block.allowedTags.isNotEmpty) {
+    blockEnc["allowedTags"] = js.JsArray.from(block.allowedTags);
+  }
+
+  if (block.tags.isNotEmpty) {
+    blockEnc["tags"] = js.JsArray.from(block.tags);
+  }
+
   if (block.hasClauses) {
     final clauses = blockEnc["clauses"] = js.JsArray.from([]);
     for (Clause clause in block.clauses) {
@@ -152,6 +160,10 @@ js.JsObject encodeClause(Clause clause) {
   setIfNotNullOrEmpty(clauseEnc, "action", clause.action);
   setIfNotNullOrEmpty(clauseEnc, "open",   clause.open);
   setIfNotNullOrEmpty(clauseEnc, "close",  clause.close);
+
+  if (clause.allowedTags.isNotEmpty) {
+    clauseEnc["allowedTags"] = js.JsArray.from(clause.allowedTags);
+  }
 
   final children = clauseEnc["children"];
   for (Block block in clause.blocks) {

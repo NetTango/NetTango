@@ -162,7 +162,7 @@ class Chain extends BlockCollection {
   }
 
   void drop(DropzoneEvent event) {
-    DragManager.currentDrag.wasHandled = true;
+    DragManager.current.wasHandled = true;
 
     final newBlocks = workspace.dragManager.consumeDraggingBlocks();
     final newFirst  = newBlocks.elementAt(0);

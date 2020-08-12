@@ -189,23 +189,23 @@ class CodeWorkspace {
 
     final spaceDropzone = Dropzone(spaceDiv, acceptor: this.acceptor);
     spaceDropzone.onDragEnter.listen( (e) {
-      DragManager.currentDrag.isOverWorkspace = true;
+      DragManager.current.isOverWorkspace = true;
       menu.updateDragOver();
     });
     spaceDropzone.onDragOver.listen( (e) => this.updateDragOver() );
     spaceDropzone.onDragLeave.listen( (e) {
-      DragManager.currentDrag.isOverWorkspace = false;
+      DragManager.current.isOverWorkspace = false;
       this.updateDragOver();
       menu.updateDragOver();
     });
     spaceDropzone.onDrop.listen(drop);
 
     containerDropzone.onDragEnter.listen( (e) {
-      DragManager.currentDrag.isOverContainer = true;
+      DragManager.current.isOverContainer = true;
       menu.updateDragOver();
     });
     containerDropzone.onDragLeave.listen( (e) {
-      DragManager.currentDrag.isOverContainer = false;
+      DragManager.current.isOverContainer = false;
       menu.updateDragOver();
     });
 
@@ -213,11 +213,11 @@ class CodeWorkspace {
   }
 
   void drop(DropzoneEvent event) {
-    DragManager.currentDrag.wasHandled = true;
+    DragManager.current.wasHandled = true;
 
     final blocks = this.dragManager.consumeDraggingBlocks();
     final offset = DragImage.getOffsetToRoot(this.chainsDiv);
-    final dropLocation = event.position - offset - DragManager.currentDrag.dragStartOffset;
+    final dropLocation = event.position - offset - DragManager.current.dragStartOffset;
     createChain(blocks, max(0, dropLocation.x.floor()), max(0, dropLocation.y.floor()));
 
     Block changedBlock = blocks.elementAt(0);
@@ -225,7 +225,7 @@ class CodeWorkspace {
   }
 
   void containerDrop(DropzoneEvent event) {
-    DragManager.currentDrag.wasHandled = true;
+    DragManager.current.wasHandled = true;
 
     final oldBlocks = this.dragManager.consumeDraggingBlocks();
 

@@ -21,7 +21,7 @@ class DragManager {
   // Ideally this would not be a static/global value, but for now this works for a single drag at a time.
   // If we ever want to support multi-drag, some way of associating each drag with its drag state would
   // have to be implemented.  -Jeremy B April 2020
-  static DragManager currentDrag;
+  static DragManager current;
 
   final CodeWorkspace workspace;
 
@@ -44,7 +44,7 @@ class DragManager {
   DragManager(this.workspace);
 
   void startDrag(BlockDragData dragData, DraggableEvent startEvent) {
-    DragManager.currentDrag = this;
+    DragManager.current = this;
 
     this.wasHandled = false;
     this.dragStartOffset = startEvent.startPosition - DragImage.getOffsetToRoot(startEvent.draggableElement);
@@ -54,7 +54,7 @@ class DragManager {
   }
 
   void endDrag() {
-    DragManager.currentDrag = null;
+    DragManager.current = null;
 
     this.wasHandled = true;
     this.isOverMenu = false;

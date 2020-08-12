@@ -25,10 +25,11 @@ class ClauseAcceptor extends Acceptor {
   @override
   bool accepts(Element draggableElement, int draggableId, Element dropzoneElement) {
     return
-      !DragManager.currentDrag.wasHandled &&
-      this.clause.owner.workspace.containerId == DragManager.currentDrag.workspace.containerId &&
-      DragManager.currentDrag.canBeChild &&
-      (this.clause.blocks.isEmpty || DragManager.currentDrag.isInsertable);
+      !DragManager.current.wasHandled &&
+      this.clause.owner.workspace.containerId == DragManager.current.workspace.containerId &&
+      DragManager.current.canBeChild &&
+      TagChecker.isSatisfied(this.clause.allowedTags, DragManager.current.draggingBlocks) &&
+      (this.clause.blocks.isEmpty || DragManager.current.isInsertable);
   }
 
 }
