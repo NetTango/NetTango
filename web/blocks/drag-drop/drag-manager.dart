@@ -25,8 +25,9 @@ class DragManager {
 
   final CodeWorkspace workspace;
 
-  Point dragStartOffset;
   bool wasHandled = false;
+  BlockDragData dragData;
+  Point dragStartOffset;
   bool isOverMenu = false;
   bool isOverWorkspace = false;
   bool isOverContainer = false;
@@ -47,8 +48,9 @@ class DragManager {
     DragManager.current = this;
 
     this.wasHandled = false;
+    this.dragData = dragData;
     this.dragStartOffset = startEvent.startPosition - DragImage.getOffsetToRoot(startEvent.draggableElement);
-    this.removeBlocksForDrag(dragData);
+    this.draggingBlocks = this.removeBlocksForDrag();
 
     this.workspace.enableTopDropZones();
   }
@@ -63,35 +65,64 @@ class DragManager {
 
     this.workspace.disableTopDropZones();
     this.workspace.clearDragOver();
-  }
 
-  void removeBlocksForDrag(BlockDragData blockData) {
+    if (!this.hasDraggingBlocks) {
+      this.dragData = null;
+      return;
+    }
 
-    switch (blockData.parentType) {
+    // our blocks weren't dropped anywhere, so reset
+    final newBlocks = this.consumeDraggingBlocks();
+    switch (this.dragData.parentType) {
 
       case "new-block":
-        final slot = this.workspace.menu.slots[blockData.slotIndex];
-        slot.slotDiv.classes.remove("nt-block-dragging");
-        final instance = blockData.newInstance;
-        this.draggingBlocks = [instance];
+        // nothing to do with a new block, just drop the consumed dragging blocks
         break;
 
       case "workspace-chain":
-        if (blockData.blockIndex == 0) {
-          this.draggingBlocks = this.removeChainForDrag(blockData.chainIndex);
+        if (this.dragData.blockIndex == 0) {
+          // new chain, we deleted the old one
+          workspace.createChain(newBlocks, this.oldChainX, this.oldChainY);
         } else {
-          this.draggingBlocks = this.workspace.chains[blockData.chainIndex].removeBlocks(blockData.blockIndex);
+          workspace.chains[this.dragData.chainIndex].insertBlocks(this.dragData.blockIndex, newBlocks);
         }
         break;
 
       case "block-clause":
-        this.draggingBlocks = this.workspace.chains[blockData.chainIndex]
-          .getBlockInstance(blockData.parentInstanceId)
-          .clauses[blockData.clauseIndex].removeBlocks(blockData.blockIndex);
+        final parentBlock = workspace.chains[this.dragData.chainIndex].getBlockInstance(this.dragData.parentInstanceId);
+        parentBlock.clauses[this.dragData.clauseIndex].insertBlocks(this.dragData.blockIndex, newBlocks);
         break;
 
       default:
-        throw new Exception("Unknown block removal type: ${blockData.parentType}");
+        throw new Exception("Unknown block removal type: ${this.dragData.parentType}");
+
+    }
+
+    this.dragData = null;
+  }
+
+  Iterable<Block> removeBlocksForDrag() {
+
+    switch (this.dragData.parentType) {
+
+      case "new-block":
+        final slot = this.workspace.menu.slots[this.dragData.slotIndex];
+        slot.slotDiv.classes.remove("nt-block-dragging");
+        final instance = this.dragData.newInstance;
+        return [instance];
+
+      case "workspace-chain":
+        return (this.dragData.blockIndex == 0)
+          ? this.removeChainForDrag(this.dragData.chainIndex)
+          : this.workspace.chains[this.dragData.chainIndex].removeBlocks(this.dragData.blockIndex);
+
+      case "block-clause":
+        return this.workspace.chains[this.dragData.chainIndex]
+          .getBlockInstance(this.dragData.parentInstanceId)
+          .clauses[this.dragData.clauseIndex].removeBlocks(this.dragData.blockIndex);
+
+      default:
+        throw new Exception("Unknown block removal type: ${this.dragData.parentType}");
 
     }
 
@@ -110,7 +141,6 @@ class DragManager {
   Iterable<Block> consumeDraggingBlocks() {
     final blocks = this.draggingBlocks;
     this.draggingBlocks = null;
-
     return blocks;
   }
 

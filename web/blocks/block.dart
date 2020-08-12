@@ -356,30 +356,6 @@ class Block {
 
   void endDrag(DraggableEvent event) {
     workspace.dragManager.endDrag();
-
-    if (!workspace.dragManager.hasDraggingBlocks) {
-      return;
-    }
-
-    // our blocks weren't dropped anywhere, so reset
-    final newBlocks = workspace.dragManager.consumeDraggingBlocks();
-    switch (dragData.parentType) {
-
-      case "workspace-chain":
-        if (dragData.blockIndex == 0) {
-          // new chain, we deleted the old one
-          workspace.createChain(newBlocks, DragManager.current.oldChainX, DragManager.current.oldChainY);
-        } else {
-          workspace.chains[dragData.chainIndex].insertBlocks(dragData.blockIndex, newBlocks);
-        }
-        break;
-
-      case "block-clause":
-        final parentBlock = workspace.chains[dragData.chainIndex].getBlockInstance(dragData.parentInstanceId);
-        parentBlock.clauses[dragData.clauseIndex].insertBlocks(dragData.blockIndex, newBlocks);
-        break;
-
-    }
   }
 
   void drop(DropzoneEvent event) {
