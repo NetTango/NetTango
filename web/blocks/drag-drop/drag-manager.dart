@@ -66,39 +66,39 @@ class DragManager {
     this.workspace.disableTopDropZones();
     this.workspace.clearDragOver();
 
+    final finishedDrag = this.dragData;
+    this.dragData = null;
+
     if (!this.hasDraggingBlocks) {
-      this.dragData = null;
       return;
     }
 
     // our blocks weren't dropped anywhere, so reset
     final newBlocks = this.consumeDraggingBlocks();
-    switch (this.dragData.parentType) {
+    switch (finishedDrag.parentType) {
 
       case "new-block":
         // nothing to do with a new block, just drop the consumed dragging blocks
         break;
 
       case "workspace-chain":
-        if (this.dragData.blockIndex == 0) {
+        if (finishedDrag.blockIndex == 0) {
           // new chain, we deleted the old one
           workspace.createChain(newBlocks, this.oldChainX, this.oldChainY);
         } else {
-          workspace.chains[this.dragData.chainIndex].insertBlocks(this.dragData.blockIndex, newBlocks);
+          workspace.chains[finishedDrag.chainIndex].insertBlocks(finishedDrag.blockIndex, newBlocks);
         }
         break;
 
       case "block-clause":
-        final parentBlock = workspace.chains[this.dragData.chainIndex].getBlockInstance(this.dragData.parentInstanceId);
-        parentBlock.clauses[this.dragData.clauseIndex].insertBlocks(this.dragData.blockIndex, newBlocks);
+        final parentBlock = workspace.chains[finishedDrag.chainIndex].getBlockInstance(finishedDrag.parentInstanceId);
+        parentBlock.clauses[finishedDrag.clauseIndex].insertBlocks(finishedDrag.blockIndex, newBlocks);
         break;
 
       default:
-        throw new Exception("Unknown block removal type: ${this.dragData.parentType}");
+        throw new Exception("Unknown block removal type: ${finishedDrag.parentType}");
 
     }
-
-    this.dragData = null;
   }
 
   Iterable<Block> removeBlocksForDrag() {
