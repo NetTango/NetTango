@@ -24,7 +24,7 @@ class BlockDragData {
   int blockIndex;
   int slotIndex;
   Block newInstance;
-  Iterable<Block> siblings;
+  Iterable<Block> siblings = new List<Block>();
 
   bool get isLastInCollection {
     switch (this.parentType) {
@@ -50,6 +50,7 @@ class BlockDragData {
     blockIndex       = null;
     slotIndex        = null;
     newInstance      = null;
+    siblings         = new List<Block>();
   }
 
   static BlockDragData newBlock(Block newInstance, int index) {

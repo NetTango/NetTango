@@ -68,7 +68,7 @@ class CodeWorkspace {
   BlockStyle containerBlockStyle;
   BlockStyle commandBlockStyle;
 
-  DragImage dragImage;
+  final DragImage dragImage = new DragImage();
   DragManager dragManager;
   WorkspaceAcceptor acceptor;
   Dropzone containerDropzone;
@@ -80,7 +80,7 @@ class CodeWorkspace {
     container.setInnerHtml("");
     container.classes.add("nt-container");
 
-    this.dragManager = DragManager(this);
+    this.dragManager = DragManager(this, this.dragImage);
     this.acceptor    = WorkspaceAcceptor(this.containerId);
 
     containerDropzone = Dropzone(container, acceptor: this.acceptor);
@@ -154,7 +154,7 @@ class CodeWorkspace {
     wrapper.classes.add("nt-workspace-wrapper");
     container.append(wrapper);
 
-    final drag = new DivElement();
+    final drag = dragImage.element;
     drag.classes.add("nt-block-drag");
     drag.classes.add("nt-chain");
     wrapper.append(drag);
@@ -168,8 +168,6 @@ class CodeWorkspace {
 
     spaceDiv = new DivElement() .. id = "$containerId-space";
     spaceDiv.classes.add("nt-workspace");
-
-    dragImage = new DragImage(drag);
 
     wrapper.append(spaceDiv);
 

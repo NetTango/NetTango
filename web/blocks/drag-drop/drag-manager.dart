@@ -25,6 +25,8 @@ class DragManager {
 
   final CodeWorkspace workspace;
 
+  final DragImage dragImage;
+
   bool wasHandled = false;
   BlockDragData dragData;
   Point dragStartOffset;
@@ -42,9 +44,9 @@ class DragManager {
   bool get canBeChild => draggingBlocks.first.canBeChild;
   bool get isInsertable => draggingBlocks.last.isAttachable;
 
-  DragManager(this.workspace);
+  DragManager(this.workspace, this.dragImage);
 
-  void startDrag(BlockDragData dragData, DraggableEvent startEvent) {
+  void startDrag(Block block, BlockDragData dragData, DraggableEvent startEvent, bool useClones) {
     DragManager.current = this;
 
     this.wasHandled = false;
@@ -53,6 +55,12 @@ class DragManager {
     this.draggingBlocks = this.removeBlocksForDrag();
 
     this.workspace.enableDropZones();
+
+    final blocks = new List<Block>() ..
+      add(block) ..
+      addAll(this.dragData.siblings);
+
+    Chain.redrawChain(this.dragImage.element, blocks, useClones);
   }
 
   void endDrag() {

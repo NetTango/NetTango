@@ -350,13 +350,7 @@ class Block {
   }
 
   void startDrag(DraggableEvent event) {
-    workspace.dragManager.startDrag(this.dragData, event);
-
-    final blocks = new List<Block>() ..
-      add(this) ..
-      addAll(this.dragData.siblings);
-
-    Chain.redrawChain(this.dragImage.element, blocks, true);
+    workspace.dragManager.startDrag(this, this.dragData, event, true);
   }
 
   void endDrag(DraggableEvent event) {

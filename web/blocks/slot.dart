@@ -95,8 +95,7 @@ class Slot {
     BlockDragData dragData = BlockDragData.newBlock(newInstance, this.slotIndex);
     newInstance.draw(dragImage, dragData);
 
-    workspace.dragManager.startDrag(dragData, event);
-    Chain.redrawChain(dragImage.element, [newInstance], false);
+    workspace.dragManager.startDrag(newInstance, dragData, event, false);
   }
 
   void endDrag(DraggableEvent event) {

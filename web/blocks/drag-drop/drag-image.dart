@@ -17,11 +17,7 @@
 part of NetTango;
 
 class DragImage extends AvatarHandler {
-  DivElement element;
-
-  DragImage(DivElement drag) {
-    element = drag;
-  }
+  DivElement element = new DivElement();
 
   @override
   void dragStart(Element draggable, Point startPosition) {
