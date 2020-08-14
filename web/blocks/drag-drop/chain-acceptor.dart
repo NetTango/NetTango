@@ -29,10 +29,12 @@ class ChainAcceptor extends Acceptor {
 
   // the only "landing spot" for a chain is the top section
   static bool isLandingSpot(final Chain chain) {
-    return chain.workspace.containerId == DragManager.current.workspace.containerId &&
-      DragManager.current.canBeChild &&
+    return
+      chain.workspace.containerId == DragManager.current.workspace.containerId &&
       !chain.blocks.first.canBeStarter &&
-      DragManager.current.isInsertable;
+      DragManager.current.isInsertable &&
+      // not if you're dropping a starter that cannot contain some of my blocks
+      TagChecker.isSatisfied(DragManager.current.draggingBlocks.first.allowedTags, chain.blocks);
   }
 
 }
