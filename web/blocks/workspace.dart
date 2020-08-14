@@ -263,15 +263,15 @@ class CodeWorkspace {
     }
   }
 
-  void enableTopDropZones() {
+  void enableDropZones() {
     for (Chain chain in chains) {
-      chain.enableTopDropZone();
+      chain.enableDropZones();
     }
   }
 
-  void disableTopDropZones() {
+  void disableDropZones() {
     for (Chain chain in chains) {
-      chain.disableTopDropZone();
+      chain.disableDropZones();
     }
   }
 

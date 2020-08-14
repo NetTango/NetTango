@@ -62,18 +62,27 @@ class Clause extends BlockCollection {
     Block.maybeSetColorOverride(container.blockColor, divider);
     div.append(divider);
 
-    this.blocksDiv = new DivElement();
-    blocksDiv.classes.add("nt-clause-blocks");
-
     final dividerText = toStrNotEmpty(this.action, "");
     if (isNotNullOrEmpty(dividerText.trim())) {
-      divider.innerHtml = dividerText;
+      final dividerTextDiv = new DivElement();
+      dividerTextDiv.classes.add("nt-clause-divider-text");
+      dividerTextDiv.innerText = dividerText;
+      divider.append(dividerTextDiv);
     }
+    // I would much prefer to just put the arrow in the clause directly, but it gets a little
+    // tricky to figure out where to place it veritically with dividers, empty clauses, etc.
+    // So this makes this mildly easier, but still a little hacky (see the CSS file for more).
+    // -Jeremy B August 2020
+    final arrow = Arrow.draw();
+    divider.append(arrow);
 
     final dropzone = Dropzone(div, acceptor: acceptor);
     dropzone.onDrop.listen(drop);
     dropzone.onDragEnter.listen( (e) => isDragOver = true );
     dropzone.onDragLeave.listen( (e) => isDragOver = false );
+
+    this.blocksDiv = new DivElement();
+    blocksDiv.classes.add("nt-clause-blocks");
 
     if (blocks.isEmpty) {
       setEmpty();
@@ -125,6 +134,7 @@ class Clause extends BlockCollection {
   void redrawBlocks() {
     div.innerHtml = "";
     this.blocksDiv.innerHtml = "";
+
     div.append(this.leftBar);
     div.append(this.divider);
 
@@ -144,6 +154,24 @@ class Clause extends BlockCollection {
     }
 
     BlockCollection.appendBlocks(blocksDiv, blocks, "nt-block-clause");
+  }
+
+  void enableDropZones() {
+    if (ClauseAcceptor.isLandingSpot(this)) {
+      this.div.classes.add("nt-allowed-drop");
+    }
+
+    for (final block in this.blocks) {
+      block.enableDropZones();
+    }
+  }
+
+  void disableDropZones() {
+    this.div.classes.remove("nt-allowed-drop");
+
+    for (final block in this.blocks) {
+      block.disableDropZones();
+    }
   }
 
   bool updateDragOver() {

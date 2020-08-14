@@ -195,7 +195,7 @@ class Block {
     this.dragData = dragData;
     this.acceptor = new BlockAcceptor(this);
 
-    blockDiv = new DivElement();
+    this.blockDiv = new DivElement();
     blockDiv.classes.add("nt-block");
     final styleClass = getStyleClass();
     blockDiv.classes.add(styleClass);
@@ -211,7 +211,7 @@ class Block {
     headerDiv.classes.add("nt-block-header");
     blockDiv.append(headerDiv);
 
-    actionDiv = new DivElement();
+    this.actionDiv = new DivElement();
     updateActionText();
     actionDiv.classes.add("nt-block-action");
     headerDiv.append(actionDiv);
@@ -261,6 +261,11 @@ class Block {
       clauseFooter.classes.add("$styleClass-color");
       maybeSetColorOverride(this.blockColor, clauseFooter);
       blockDiv.append(clauseFooter);
+    }
+
+    if (this.isAttachable) {
+      final arrow = Arrow.draw();
+      blockDiv.append(arrow);
     }
 
     Block.wireDragEvents(this, blockDiv, (isOver) => this.isDragOver = isOver );
@@ -380,8 +385,26 @@ class Block {
     workspace.programChanged(new BlockChangedEvent(changedBlock));
   }
 
+  void enableDropZones() {
+    if (BlockAcceptor.isLandingSpot(this)) {
+      this.blockDiv.classes.add("nt-allowed-drop");
+    }
+
+    for (final clause in this.clauses) {
+      clause.enableDropZones();
+    }
+  }
+
+  void disableDropZones() {
+    this.blockDiv.classes.remove("nt-allowed-drop");
+
+    for (final clause in this.clauses) {
+      clause.disableDropZones();
+    }
+  }
+
   void resetOwnedBlocksDragData() {
-    for (Clause clause in clauses) {
+    for (final clause in this.clauses) {
       clause.resetOwned();
     }
   }
@@ -392,8 +415,8 @@ class Block {
     if (propertiesToggle != null) {
       actionDiv.append(propertiesToggle.div);
     }
-    for (Clause clause in clauses) {
-      for (Block block in clause.blocks) {
+    for (final clause in this.clauses) {
+      for (final block in clause.blocks) {
         block.resetBlockActionText();
       }
     }

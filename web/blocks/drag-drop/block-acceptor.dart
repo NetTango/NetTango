@@ -22,33 +22,36 @@ class BlockAcceptor extends Acceptor {
 
   BlockAcceptor(this.block);
 
-  List<String> getAllowedTags() {
-    switch (this.block.dragData.parentType) {
+  @override
+  bool accepts(Element draggableElement, int draggableId, Element dropzoneElement) {
+    return !DragManager.current.wasHandled && isLandingSpot(block);
+  }
+
+  static bool isLandingSpot(final Block block) {
+    return
+      block.workspace.containerId == DragManager.current.workspace.containerId &&
+      DragManager.current.canBeChild &&
+      block.isAttachable &&
+      TagChecker.isSatisfied(BlockAcceptor.getAllowedTags(block), DragManager.current.draggingBlocks) &&
+      (block.dragData.isLastInCollection || DragManager.current.isInsertable);
+  }
+
+  static List<String> getAllowedTags(final Block block) {
+    switch (block.dragData.parentType) {
 
       case "new-block":
         throw new Exception("Should not have a new block accepting drags, they are unplaced blocks from menu slots.");
 
       case "workspace-chain":
-        return this.block.workspace.chains[this.block.dragData.chainIndex].blocks.first.allowedTags;
+        return block.workspace.chains[block.dragData.chainIndex].blocks.first.allowedTags;
 
       case "block-clause":
-        return this.block.workspace.getBlockInstance(this.block.dragData.parentInstanceId).clauses[this.block.dragData.clauseIndex].allowedTags;
+        return block.workspace.getBlockInstance(block.dragData.parentInstanceId).clauses[block.dragData.clauseIndex].allowedTags;
 
       default:
-        throw new Exception("Unknown block removal type: ${this.block.dragData.parentType}");
+        throw new Exception("Unknown block removal type: ${block.dragData.parentType}");
 
     }
-  }
-
-  @override
-  bool accepts(Element draggableElement, int draggableId, Element dropzoneElement) {
-    return
-      !DragManager.current.wasHandled &&
-      this.block.workspace.containerId == DragManager.current.workspace.containerId &&
-      DragManager.current.canBeChild &&
-      this.block.isAttachable &&
-      TagChecker.isSatisfied(this.getAllowedTags(), DragManager.current.draggingBlocks) &&
-      (this.block.dragData.isLastInCollection || DragManager.current.isInsertable);
   }
 
 }

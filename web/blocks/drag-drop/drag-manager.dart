@@ -52,7 +52,7 @@ class DragManager {
     this.dragStartOffset = startEvent.startPosition - DragImage.getOffsetToRoot(startEvent.draggableElement);
     this.draggingBlocks = this.removeBlocksForDrag();
 
-    this.workspace.enableTopDropZones();
+    this.workspace.enableDropZones();
   }
 
   void endDrag() {
@@ -63,7 +63,7 @@ class DragManager {
     this.isOverContainer = false;
     this.isOverWorkspace = false;
 
-    this.workspace.disableTopDropZones();
+    this.workspace.disableDropZones();
     this.workspace.clearDragOver();
 
     final finishedDrag = this.dragData;

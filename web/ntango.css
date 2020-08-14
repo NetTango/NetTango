@@ -59,6 +59,62 @@
   grid-column: 2;
 }
 
+.nt-arrow {
+  display: none;
+  color: grey;
+  background: transparent;
+  min-height: 6px;
+  min-width: 6px;
+  position: absolute;
+  right: -15px;
+  margin-top: -8px;
+  font-size: 15px;
+  transform: rotate(180deg);
+}
+
+.nt-block-standalone > .nt-arrow,
+.nt-block-last > .nt-arrow {
+  margin-top: 0;
+}
+
+/* top of chain arrow */
+.nt-chain > .nt-arrow {
+  margin-top: -16px;
+}
+
+/* empty clause arrow without divider text */
+.nt-clause-empty > .nt-clause-divider > .nt-arrow {
+  margin-top: 22px;
+}
+
+/* block's first clause is empty arrow */
+.nt-block-header + .nt-clause-empty > .nt-clause-divider > .nt-arrow {
+  margin-top: 15px;
+}
+
+/* empty clause arrow with divider text */
+.nt-clause-empty > .nt-clause-divider > .nt-clause-divider-text + .nt-arrow {
+  margin-top: 15px;
+}
+
+.nt-allowed-drop > .nt-arrow,
+.nt-allowed-drop > .nt-clause-divider > .nt-arrow {
+  display: block;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    color: #3AA;
+  }
+  50% {
+    color: #1DD;
+  }
+  100% {
+    color: #3AA;
+  }
+}
+
 .nt-cap-top {
   border-left: 1px solid;
   border-top: 1px solid;
@@ -246,7 +302,7 @@
   min-height: 0;
 }
 
-.nt-clause-divider:not(:empty) {
+.nt-clause-divider-text:not(:empty) {
   padding: 0.4em;
 }
 
@@ -261,13 +317,6 @@
 .nt-clause-blocks {
   grid-row: 2 / 5;
   grid-column: 2 / 3;
-}
-
-.nt-clause-blocks > .nt-block > :last-child,
-.nt-block-first > :last-child,
-.nt-block-middle > :last-child {
-  border-bottom: 1px solid;
-  border-color: inherit;
 }
 
 .nt-fragment {
@@ -295,6 +344,13 @@
   white-space: nowrap;
   min-width: 10em;
   height: fit-content;
+}
+
+.nt-clause-blocks > .nt-block,
+.nt-block-first,
+.nt-block-middle {
+  border-bottom: 1px solid;
+  border-color: inherit;
 }
 
 .nt-block-clause-standalone,
@@ -378,12 +434,12 @@
   opacity: 0.25;
 }
 
-.nt-block-clause-first.nt-drag-over > :last-child,
-.nt-block-clause-standalone.nt-drag-over > :last-child,
-.nt-block-clause-middle.nt-drag-over > :last-child,
-.nt-block-clause-last.nt-drag-over > :last-child,
-.nt-block-first.nt-drag-over > :last-child,
-.nt-block-middle.nt-drag-over > :last-child {
+.nt-block-clause-first.nt-drag-over,
+.nt-block-clause-standalone.nt-drag-over,
+.nt-block-clause-middle.nt-drag-over,
+.nt-block-clause-last.nt-drag-over,
+.nt-block-first.nt-drag-over,
+.nt-block-middle.nt-drag-over {
   border-bottom: 3px solid cyan !important;
 }
 

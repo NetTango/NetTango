@@ -16,22 +16,23 @@
 
 part of NetTango;
 
-class ClauseAcceptor extends Acceptor {
+class ChainAcceptor extends Acceptor {
 
-  final Clause clause;
+  final Chain chain;
 
-  ClauseAcceptor(this.clause);
+  ChainAcceptor(this.chain);
 
   @override
   bool accepts(Element draggableElement, int draggableId, Element dropzoneElement) {
-    return !DragManager.current.wasHandled && isLandingSpot(this.clause);
+    return !DragManager.current.wasHandled && isLandingSpot(this.chain);
   }
 
-  static bool isLandingSpot(final Clause clause) {
-    return clause.owner.workspace.containerId == DragManager.current.workspace.containerId &&
+  // the only "landing spot" for a chain is the top section
+  static bool isLandingSpot(final Chain chain) {
+    return chain.workspace.containerId == DragManager.current.workspace.containerId &&
       DragManager.current.canBeChild &&
-      TagChecker.isSatisfied(clause.allowedTags, DragManager.current.draggingBlocks) &&
-      (clause.blocks.isEmpty || DragManager.current.isInsertable);
+      !chain.blocks.first.canBeStarter &&
+      DragManager.current.isInsertable;
   }
 
 }

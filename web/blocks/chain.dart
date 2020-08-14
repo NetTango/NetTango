@@ -40,7 +40,7 @@ class Chain extends BlockCollection {
 
     fragmentDiv = new DivElement();
     fragmentDiv.classes.add("nt-fragment");
-    final fragmentDropzone = Dropzone(fragmentDiv, acceptor: this.workspace.acceptor);
+    final fragmentDropzone = Dropzone(fragmentDiv, acceptor: new ChainAcceptor(this));
     fragmentDropzone.onDrop.listen(drop);
     fragmentDropzone.onDragEnter.listen( (e) => isDragOver = true );
     fragmentDropzone.onDragLeave.listen( (e) => isDragOver = false );
@@ -105,6 +105,7 @@ class Chain extends BlockCollection {
 
   static void redrawChain(DivElement div, List<Block> blocks, bool useClones, {DivElement fragmentDiv = null}) {
     div.innerHtml = "";
+
     if (blocks.first.canBeStarter) {
       div.classes.add("nt-chain-starter");
       div.classes.remove("nt-chain-fragment");
@@ -115,11 +116,16 @@ class Chain extends BlockCollection {
     } else {
       div.classes.remove("nt-chain-starter");
       div.classes.add("nt-chain-fragment");
+
       if (fragmentDiv != null) {
         div.append(fragmentDiv);
       }
+
       final topNotch = Notch.draw(true, blocks.first);
       div.append(topNotch);
+
+      final arrow = Arrow.draw();
+      div.append(arrow);
     }
 
     BlockCollection.appendBlocks(div, blocks, "nt-block", useClones: useClones);
@@ -146,19 +152,32 @@ class Chain extends BlockCollection {
     insertBlocks(blocks.length, newBlocks);
   }
 
-  void enableTopDropZone() {
-    if (!isFragment) {
-      return;
+  void enableDropZones() {
+    if (ChainAcceptor.isLandingSpot(this)) {
+      this.div.classes.add("nt-allowed-drop");
     }
-    fragmentDiv.classes.add("show");
-    final top = this.y.round() - FRAGMENT_HEIGHT;
-    div.style.top = "${top}px";
+
+    if (isFragment) {
+      fragmentDiv.classes.add("show");
+      final top = this.y.round() - FRAGMENT_HEIGHT;
+      div.style.top = "${top}px";
+    }
+
+    for (final block in this.blocks) {
+      block.enableDropZones();
+    }
   }
 
-  void disableTopDropZone() {
+  void disableDropZones() {
+    this.div.classes.remove("nt-allowed-drop");
+
     fragmentDiv.classes.remove("show");
     final top = this.y.round();
     div.style.top = "${top}px";
+
+    for (final block in this.blocks) {
+      block.disableDropZones();
+    }
   }
 
   void drop(DropzoneEvent event) {
