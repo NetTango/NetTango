@@ -32,7 +32,10 @@ part "versions/version-5.dart";
 part "versions/version-manager.dart";
 
 //part "utils/sounds.dart";
-part "utils/utils.dart";
+part 'utils/bool-utils.dart';
+part 'utils/list-utils.dart';
+part 'utils/num-utils.dart';
+part 'utils/string-utils.dart';
 
 part "blocks/external-storage.dart";
 part "blocks/drag-drop/drag-manager.dart";

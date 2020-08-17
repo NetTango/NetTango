@@ -62,8 +62,8 @@ class Clause extends BlockCollection {
     Block.maybeSetColorOverride(container.blockColor, divider);
     div.append(divider);
 
-    final dividerText = toStrNotEmpty(this.action, "");
-    if (isNotNullOrEmpty(dividerText.trim())) {
+    final dividerText = StringUtils.toStrNotEmpty(this.action, "");
+    if (StringUtils.isNotNullOrEmpty(dividerText.trim())) {
       final dividerTextDiv = new DivElement();
       dividerTextDiv.classes.add("nt-clause-divider-text");
       dividerTextDiv.innerText = dividerText;

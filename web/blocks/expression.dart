@@ -136,7 +136,7 @@ class Expression {
   }
 
   void appendNumber(DivElement parent) {
-    name = toNum(name, 0).toString();
+    name = NumUtils.toNum(name, 0).toString();
     NumberInputElement input = new NumberInputElement()
       .. className = "nt-number-input"
       .. value = name

@@ -29,10 +29,10 @@ abstract class NumAttribute extends Attribute {
     String valueString = (value != null ? value : 0).toStringAsFixed(1);
     return (valueString.endsWith(".0")) ? valueString.substring(0, valueString.length - 2) : valueString;
   }
-  void setValue(String valueString) => value = toNum(valueString, 0.0);
+  void setValue(String valueString) => value = NumUtils.toNum(valueString, 0.0);
 
   String getDefaultValue() => defaultValue == null ? "" : defaultValue.toString();
-  void setDefaultValue(String valueString) => defaultValue = toNum(valueString, null);
+  void setDefaultValue(String valueString) => defaultValue = NumUtils.toNum(valueString, null);
 
   /// represents a random number?
   bool random = null;

@@ -104,7 +104,7 @@ class CodeFormatter  {
     writeFormatOption(out, null, 0, this.formatOptions.chainOpen, chainOpen);
     formatBlock(out, 0, first);
     formatBlocks(out, 1, blocks.skip(1).toList());
-    final override = toStrNotEmpty(blocks.first.closeStarter, chainClose);
+    final override = StringUtils.toStrNotEmpty(blocks.first.closeStarter, chainClose);
     writeFormatOption(out, null, 0, this.formatOptions.chainClose, override);
     out.writeln();
   }
@@ -138,7 +138,7 @@ class CodeFormatter  {
       formatClause(out, block, clause, indent);
     }
 
-    if (isNotNullOrEmpty(block.closeClauses)) {
+    if (StringUtils.isNotNullOrEmpty(block.closeClauses)) {
       final closeFormat = replaceParamsAndProps(block.closeClauses, block);
       writeIndentedLine(out, indent, closeFormat);
     }
@@ -181,15 +181,15 @@ class CodeFormatter  {
   }
 
   void writeFormatOption(StringBuffer out, Block block, int indent, String formatOption, String override) {
-    final option = toStr(override, formatOption);
-    if (isNotNullOrEmpty(option) && option.trim() != "") {
+    final option = StringUtils.toStr(override, formatOption);
+    if (StringUtils.isNotNullOrEmpty(option) && option.trim() != "") {
       final optionFormat = block == null ? option : replaceParamsAndProps(option, block);
       writeIndentedLine(out, indent, optionFormat);
     }
   }
 
   static String formatAttributeValue(Attribute attribute) {
-    final value = toStr(attribute.getValue(), "");
+    final value = StringUtils.toStr(attribute.getValue(), "");
     final quoteIt = attribute.shouldQuote();
     final formatValue = quoteIt ? "\"$value\"" : value;
     return formatValue;

@@ -27,8 +27,8 @@ CodeWorkspace restoreWorkspace(String containerId, js.JsObject workspaceEnc, Cod
   workspace.height = workspaceEnc["height"] is int ? workspaceEnc["height"] : CodeWorkspace.DEFAULT_HEIGHT;
   workspace.width  = workspaceEnc["width"]  is int ? workspaceEnc["width"]  : CodeWorkspace.DEFAULT_WIDTH;
 
-  workspace.chainOpen  = toStr(workspaceEnc["chainOpen"],  null);
-  workspace.chainClose = toStr(workspaceEnc["chainClose"], null);
+  workspace.chainOpen  = StringUtils.toStr(workspaceEnc["chainOpen"],  null);
+  workspace.chainClose = StringUtils.toStr(workspaceEnc["chainClose"], null);
 
   if (workspaceEnc.hasProperty("blockStyles")) {
     workspace.starterBlockStyle   = restoreBlockStyle(workspaceEnc["blockStyles"]["starterBlockStyle"],   BlockStyle.DEFAULT_STARTER_COLOR);
@@ -72,13 +72,13 @@ void restoreMenuBlocks(CodeWorkspace workspace, js.JsArray blockEncs) {
       block = block.clone(true);
       b["id"] = block.id;
     }
-    int limit = toInt(b["limit"], -1);
+    int limit = NumUtils.toInt(b["limit"], -1);
     workspace.menu.addBlock(block, limit);
   }
 }
 
 Block restoreMenuBlock(CodeWorkspace workspace, js.JsObject blockEnc) {
-  String action = toStr(blockEnc["action"]);
+  String action = StringUtils.toStr(blockEnc["action"]);
   int id = blockEnc["id"];
   Block block = new Block(workspace, id, action, true);
   block.storage.set(blockEnc);
@@ -93,18 +93,18 @@ Block restoreMenuBlock(CodeWorkspace workspace, js.JsObject blockEnc) {
     }
   }
 
-  block.type = toStr(blockEnc["type"]);
-  block.format = toStr(blockEnc["format"], null);
-  block.closeClauses = toStr(blockEnc["closeClauses"], null);
-  block.closeStarter = toStr(blockEnc["closeStarter"], null);
-  block.note = toStr(blockEnc["note"], null);
-  block.blockColor = toStr(blockEnc["blockColor"], null);
-  block.textColor = toStr(blockEnc["textColor"], null);
-  block.borderColor = toStr(blockEnc["borderColor"], null);
-  block.font = toStr(blockEnc["font"], null);
-  block.isRequired = toBool(blockEnc["required"], block.isRequired);
-  block.isTerminal = toBool(blockEnc["isTerminal"], block.isTerminal);
-  block.placement = toStr(blockEnc["placement"], block.placement);
+  block.type = StringUtils.toStr(blockEnc["type"]);
+  block.format = StringUtils.toStr(blockEnc["format"], null);
+  block.closeClauses = StringUtils.toStr(blockEnc["closeClauses"], null);
+  block.closeStarter = StringUtils.toStr(blockEnc["closeStarter"], null);
+  block.note = StringUtils.toStr(blockEnc["note"], null);
+  block.blockColor = StringUtils.toStr(blockEnc["blockColor"], null);
+  block.textColor = StringUtils.toStr(blockEnc["textColor"], null);
+  block.borderColor = StringUtils.toStr(blockEnc["borderColor"], null);
+  block.font = StringUtils.toStr(blockEnc["font"], null);
+  block.isRequired = BoolUtils.toBool(blockEnc["required"], block.isRequired);
+  block.isTerminal = BoolUtils.toBool(blockEnc["isTerminal"], block.isTerminal);
+  block.placement = StringUtils.toStr(blockEnc["placement"], block.placement);
 
   if (blockEnc["allowedTags"] != null) {
     block.allowedTags = restoreConcreteTags(blockEnc["allowedTags"]);
@@ -132,16 +132,16 @@ Block restoreMenuBlock(CodeWorkspace workspace, js.JsObject blockEnc) {
         block.properties[prop.id] = prop;
       }
     }
-    block.propertiesDisplay = toStr(blockEnc["propertiesDisplay"], "shown");
+    block.propertiesDisplay = StringUtils.toStr(blockEnc["propertiesDisplay"], "shown");
   }
 
   return block;
 }
 
 Clause restoreClause(CodeWorkspace workspace, Block block, js.JsObject clauseEnc, int clauseIndex) {
-  final open    = toStr(clauseEnc["open"],   null);
-  final close   = toStr(clauseEnc["close"],  null);
-  final action  = toStr(clauseEnc["action"], null);
+  final open    = StringUtils.toStr(clauseEnc["open"],   null);
+  final close   = StringUtils.toStr(clauseEnc["close"],  null);
+  final action  = StringUtils.toStr(clauseEnc["action"], null);
   Clause clause = new Clause(block, clauseIndex, action, open, close);
   clause.storage.set(clauseEnc);
 
@@ -170,12 +170,12 @@ Attribute restoreAttribute(Block block, js.JsObject attributeEnc) {
 
   int id = attributeEnc["id"];
 
-  switch(toStr(attributeEnc["type"], "num")) {
+  switch(StringUtils.toStr(attributeEnc["type"], "num")) {
 
     case "int":
       IntAttribute a = attribute = new IntAttribute(block, id);
-      a.random   = toBool(attributeEnc["random"], null);
-      a.stepSize = toNum(attributeEnc["step"], a.stepSize);
+      a.random   = BoolUtils.toBool(attributeEnc["random"], null);
+      a.stepSize = NumUtils.toNum(attributeEnc["step"], a.stepSize);
       break;
 
     case "num":
@@ -188,15 +188,15 @@ Attribute restoreAttribute(Block block, js.JsObject attributeEnc) {
 
     case "range":
       RangeAttribute a = attribute = new RangeAttribute(block, id);
-      a.random   = toBool(attributeEnc["random"], false);
-      a.stepSize = toNum(attributeEnc["step"], a.stepSize);
-      a.minValue = toNum(attributeEnc["min"], a.minValue);
-      a.maxValue = toNum(attributeEnc["max"], a.maxValue);
+      a.random   = BoolUtils.toBool(attributeEnc["random"], false);
+      a.stepSize = NumUtils.toNum(attributeEnc["step"], a.stepSize);
+      a.minValue = NumUtils.toNum(attributeEnc["min"], a.minValue);
+      a.maxValue = NumUtils.toNum(attributeEnc["max"], a.maxValue);
       break;
 
     case "select":
       SelectAttribute a = attribute = new SelectAttribute(block, id);
-      a.quoteValues = toStr(attributeEnc["quoteValues"], null);
+      a.quoteValues = StringUtils.toStr(attributeEnc["quoteValues"], null);
       if (attributeEnc["values"] is js.JsArray && attributeEnc["values"].length > 0) {
         for (final valueEnc in attributeEnc["values"]) {
           final value = new Option(valueEnc["actual"], valueEnc["display"]);
@@ -215,9 +215,9 @@ Attribute restoreAttribute(Block block, js.JsObject attributeEnc) {
 
   }
 
-  attribute.name = toStr(attributeEnc["name"], "");
-  attribute.unit = toStr(attributeEnc["unit"], "");
-  attribute.setDefaultValue(toStr(attributeEnc["default"], ""));
+  attribute.name = StringUtils.toStr(attributeEnc["name"], "");
+  attribute.unit = StringUtils.toStr(attributeEnc["unit"], "");
+  attribute.setDefaultValue(StringUtils.toStr(attributeEnc["default"], ""));
 
   attribute.storage.set(attributeEnc);
   return attribute;
@@ -283,7 +283,7 @@ Block restoreChainBlock(CodeWorkspace workspace, js.JsObject blockEnc) {
   Block block = proto.clone(false);
   block.storage.set(blockEnc);
 
-  block.propertiesDisplay = toStr(blockEnc["propertiesDisplay"], "shown");
+  block.propertiesDisplay = StringUtils.toStr(blockEnc["propertiesDisplay"], "shown");
   restoreChainBlockAttributeValues(block.params, blockEnc["params"]);
   restoreChainBlockAttributeValues(block.properties, blockEnc["properties"]);
 
@@ -345,9 +345,9 @@ void restoreChainBlockAttributeValues(Map<int, Attribute> blockAttributes, js.Js
     } else {
       if (attributeEnc["value"] is js.JsObject) {
         // only expressions can have an object as a value, so...
-        blockAttribute.setValue(toStr(attributeEnc["defaultValue"], ""));
+        blockAttribute.setValue(StringUtils.toStr(attributeEnc["defaultValue"], ""));
       } else {
-        blockAttribute.setValue(toStr(attributeEnc["value"], ""));
+        blockAttribute.setValue(StringUtils.toStr(attributeEnc["value"], ""));
       }
     }
   }
@@ -371,7 +371,7 @@ ExpressionBuilder restoreExpressionBuilder(CodeWorkspace workspace, String type,
 
 Expression restoreExpression(ExpressionBuilder builder, String type, js.JsObject expressionEnc) {
   final expression = new Expression(builder, type);
-  expression.name = toStr(expressionEnc["name"]);
+  expression.name = StringUtils.toStr(expressionEnc["name"]);
   if (expressionEnc["format"] != null) {
     expression.format = expressionEnc["format"];
   }
@@ -390,12 +390,12 @@ BlockStyle restoreBlockStyle(js.JsObject styleEnc, String blockColorDefault) {
     return new BlockStyle() .. blockColor = blockColorDefault;
   }
   return new BlockStyle() ..
-    blockColor  = toStr(styleEnc["blockColor"],  blockColorDefault)    ..
-    textColor   = toStr(styleEnc["textColor"],   BlockStyle.DEFAULT_TEXT_COLOR)   ..
-    borderColor = toStr(styleEnc["borderColor"], BlockStyle.DEFAULT_BORDER_COLOR) ..
-    fontWeight  = toStr(styleEnc["fontWeight"],  "") ..
-    fontSize    = toStr(styleEnc["fontSize"],    "") ..
-    fontFace    = toStr(styleEnc["fontFace"],    "");
+    blockColor  = StringUtils.toStr(styleEnc["blockColor"],  blockColorDefault)    ..
+    textColor   = StringUtils.toStr(styleEnc["textColor"],   BlockStyle.DEFAULT_TEXT_COLOR)   ..
+    borderColor = StringUtils.toStr(styleEnc["borderColor"], BlockStyle.DEFAULT_BORDER_COLOR) ..
+    fontWeight  = StringUtils.toStr(styleEnc["fontWeight"],  "") ..
+    fontSize    = StringUtils.toStr(styleEnc["fontSize"],    "") ..
+    fontFace    = StringUtils.toStr(styleEnc["fontFace"],    "");
 }
 
 AllowedTags restoreAllowedTags(Clause clause, js.JsObject allowedTagsEnc) {
