@@ -24,11 +24,12 @@ class ClauseAcceptor extends Acceptor {
 
   @override
   bool accepts(Element draggableElement, int draggableId, Element dropzoneElement) {
-    return !DragManager.current.wasHandled && isLandingSpot(this.clause);
+    return !DragManager.current.wasHandled && ClauseAcceptor.isLandingSpot(this.clause);
   }
 
   static bool isLandingSpot(final Clause clause) {
-    return clause.owner.workspace.containerId == DragManager.current.workspace.containerId &&
+    return
+      clause.owner.workspace.containerId == DragManager.current.workspace.containerId &&
       DragManager.current.canBeChild &&
       clause.allowedTags.check(DragManager.current.draggingBlocks) &&
       (clause.blocks.isEmpty || DragManager.current.isInsertable);

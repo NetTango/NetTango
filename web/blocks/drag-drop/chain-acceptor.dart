@@ -24,7 +24,7 @@ class ChainAcceptor extends Acceptor {
 
   @override
   bool accepts(Element draggableElement, int draggableId, Element dropzoneElement) {
-    return !DragManager.current.wasHandled && isLandingSpot(this.chain);
+    return !DragManager.current.wasHandled && ChainAcceptor.isLandingSpot(this.chain);
   }
 
   // the only "landing spot" for a chain is the top section

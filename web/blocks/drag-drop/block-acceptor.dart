@@ -24,7 +24,7 @@ class BlockAcceptor extends Acceptor {
 
   @override
   bool accepts(Element draggableElement, int draggableId, Element dropzoneElement) {
-    return !DragManager.current.wasHandled && isLandingSpot(block);
+    return !DragManager.current.wasHandled && BlockAcceptor.isLandingSpot(block);
   }
 
   static bool isLandingSpot(final Block block) {

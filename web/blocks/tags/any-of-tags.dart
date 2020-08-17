@@ -31,8 +31,23 @@ class AnyOfTags extends ConcreteTags {
   }
 
   bool check(Iterable<Block> blocks) {
-    final areBlocksAllowed = blocks.map( (block) => ListUtils.containsAny(this.tags, block.tags) );
-    return areBlocksAllowed.reduce( (a, b) => a && b );
+    final areBlocksAllowed = blocks.map(checkBlock);
+    return BoolUtils.allAreTrue( areBlocksAllowed );
   }
 
+  bool checkBlock(Block block) {
+    if (!ListUtils.containsAny(this.tags, block.tags)) {
+      return false;
+    }
+    if (block.clauses.isEmpty) {
+      return true;
+    }
+    final areClausesAllowed = block.clauses.map( (clause) {
+      if (clause.allowedTags is! InheritTags) {
+        return true;
+      }
+      return this.check(clause.blocks);
+    });
+    return BoolUtils.allAreTrue( areClausesAllowed );
+  }
 }

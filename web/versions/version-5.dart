@@ -60,7 +60,7 @@ class Version5 {
       NETLOGO_COLORS.contains(v["actual"].trim().toLowerCase())
     );
 
-    final needsUpdate = areUnquoted.reduce( (bool a, bool b) => a && b );
+    final needsUpdate = BoolUtils.allAreTrue(areUnquoted);
     if (!needsUpdate) {
       return;
     }
