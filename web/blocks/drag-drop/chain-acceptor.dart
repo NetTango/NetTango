@@ -34,7 +34,7 @@ class ChainAcceptor extends Acceptor {
       !chain.blocks.first.canBeStarter &&
       DragManager.current.isInsertable &&
       // not if you're dropping a starter that cannot contain some of my blocks
-      TagChecker.isSatisfied(DragManager.current.draggingBlocks.first.allowedTags, chain.blocks);
+      DragManager.current.draggingBlocks.first.allowedTags.check(chain.blocks);
   }
 
 }

@@ -26,7 +26,7 @@ class Clause extends BlockCollection {
   final String open;
   final String close;
 
-  final List<String> allowedTags = new List<String>();
+  AllowedTags allowedTags = new AllTags();
 
   bool isDragOver = false;
   bool isDragHeaderOver = false;
@@ -105,7 +105,16 @@ class Clause extends BlockCollection {
 
   Clause clone(Block newBlock) {
     final clause = new Clause(newBlock, this.clauseIndex, this.action, this.open, this.close);
-    clause.allowedTags.addAll(this.allowedTags);
+    if (this.allowedTags is ConcreteTags) {
+      final ConcreteTags allowed = this.allowedTags;
+      clause.allowedTags = allowed.clone();
+    }
+    else if (this.allowedTags is InheritTags) {
+      final InheritTags allowed = this.allowedTags;
+      clause.allowedTags = allowed.clone(clause);
+    } else {
+      throw new Exception("Unknown AllowedTags type for clause cloning");
+    }
     return clause;
   }
 

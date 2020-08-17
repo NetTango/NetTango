@@ -369,3 +369,12 @@ double nextGaussian() {
   c = sqrt(-2 * log(rad) / rad);
   return x1 * c;
 }
+
+bool containsAny(List<String> allowedTags, List<String> tags) {
+  for (String tag in tags) {
+    if (allowedTags.contains(tag)) {
+      return true;
+    }
+  }
+  return false;
+}

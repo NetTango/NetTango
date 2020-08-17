@@ -106,10 +106,8 @@ Block restoreMenuBlock(CodeWorkspace workspace, js.JsObject blockEnc) {
   block.isTerminal = toBool(blockEnc["isTerminal"], block.isTerminal);
   block.placement = toStr(blockEnc["placement"], block.placement);
 
-  if (blockEnc["allowedTags"] is js.JsArray) {
-    for (String tag in blockEnc["allowedTags"]) {
-      block.allowedTags.add(tag);
-    }
+  if (blockEnc["allowedTags"] != null) {
+    block.allowedTags = restoreConcreteTags(blockEnc["allowedTags"]);
   }
 
   if (blockEnc["tags"] is js.JsArray) {
@@ -147,10 +145,8 @@ Clause restoreClause(CodeWorkspace workspace, Block block, js.JsObject clauseEnc
   Clause clause = new Clause(block, clauseIndex, action, open, close);
   clause.storage.set(clauseEnc);
 
-  if (clauseEnc["allowedTags"] is js.JsArray) {
-    for (String allowedTag in clauseEnc["allowedTags"]) {
-      clause.allowedTags.add(allowedTag);
-    }
+  if (clauseEnc["allowedTags"] != null) {
+    clause.allowedTags = restoreAllowedTags(clause, clauseEnc["allowedTags"]);
   }
 
   if (clauseEnc["children"] is js.JsArray) {
@@ -400,4 +396,29 @@ BlockStyle restoreBlockStyle(js.JsObject styleEnc, String blockColorDefault) {
     fontWeight  = toStr(styleEnc["fontWeight"],  "") ..
     fontSize    = toStr(styleEnc["fontSize"],    "") ..
     fontFace    = toStr(styleEnc["fontFace"],    "");
+}
+
+AllowedTags restoreAllowedTags(Clause clause, js.JsObject allowedTagsEnc) {
+  final String type = allowedTagsEnc["type"];
+  switch (type) {
+
+    case "inherit":
+      return new InheritTags(clause);
+
+    case "any-of":
+    case "all":
+      return restoreConcreteTags(allowedTagsEnc);
+
+    default:
+      throw new Exception("Unknown AllowedTags type: ${type}, cannot restore.");
+  }
+}
+
+ConcreteTags restoreConcreteTags(js.JsObject concreteTags) {
+  if (concreteTags["tags"] == null || concreteTags["tags"] is! js.JsArray) {
+    return new AllTags();
+  }
+  final Iterable<String> tags = (concreteTags["tags"] as js.JsArray).map( (t) => t as String );
+  final anyOf = new AnyOfTags(tags);
+  return anyOf;
 }

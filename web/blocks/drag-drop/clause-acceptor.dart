@@ -30,7 +30,7 @@ class ClauseAcceptor extends Acceptor {
   static bool isLandingSpot(final Clause clause) {
     return clause.owner.workspace.containerId == DragManager.current.workspace.containerId &&
       DragManager.current.canBeChild &&
-      TagChecker.isSatisfied(clause.allowedTags, DragManager.current.draggingBlocks) &&
+      clause.allowedTags.check(DragManager.current.draggingBlocks) &&
       (clause.blocks.isEmpty || DragManager.current.isInsertable);
   }
 

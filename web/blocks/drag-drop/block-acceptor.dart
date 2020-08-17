@@ -32,11 +32,11 @@ class BlockAcceptor extends Acceptor {
       block.workspace.containerId == DragManager.current.workspace.containerId &&
       DragManager.current.canBeChild &&
       block.isAttachable &&
-      TagChecker.isSatisfied(BlockAcceptor.getAllowedTags(block), DragManager.current.draggingBlocks) &&
+      BlockAcceptor.getAllowedTags(block).check(DragManager.current.draggingBlocks) &&
       (block.dragData.isLastInCollection || DragManager.current.isInsertable);
   }
 
-  static List<String> getAllowedTags(final Block block) {
+  static AllowedTags getAllowedTags(final Block block) {
     switch (block.dragData.parentType) {
 
       case "new-block":

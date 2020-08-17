@@ -88,8 +88,8 @@ class Block {
   bool get canBeChild   => placement == BlockPlacement.CHILD   || placement == BlockPlacement.ANYWHERE;
   bool get canBeStarter => placement == BlockPlacement.STARTER || placement == BlockPlacement.ANYWHERE;
 
-  // if this is a non-terminal starter, these are the allowed tags for blocks to add to it
-  final List<String> allowedTags = new List<String>();
+  // If this is a non-terminal starter, these are the allowed tags for blocks to add to it.
+  ConcreteTags allowedTags = new AllTags();
 
   // these are the tags for this block when being added to a clause or chain
   final List<String> tags = new List<String>();
@@ -134,7 +134,7 @@ class Block {
     other.isRequired = isRequired;
     other.isTerminal = isTerminal;
     other.placement = placement;
-    other.allowedTags.addAll(allowedTags);
+    other.allowedTags = allowedTags.clone();
     other.tags.addAll(tags);
 
     this.clauses.forEach( (clause) => other.clauses.add( clause.clone(other) ));

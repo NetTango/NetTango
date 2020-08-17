@@ -16,22 +16,22 @@
 
 part of NetTango;
 
-class TagChecker {
+// For now we're just doing this basic AnyOf implementation, but we could split this out into
+// a few different subclasses with AllOf, NotOneOf, NotAllOf, etc, or even a fancier full-blown
+// logic operator version.  -Jeremy B August 2020
+class AnyOfTags extends ConcreteTags {
+  final List<String> tags = new List<String>();
 
-  static bool containsAny(List<String> allowedTags, List<String> tags) {
-    for (String tag in tags) {
-      if (allowedTags.contains(tag)) {
-        return true;
-      }
-    }
-    return false;
+  AnyOfTags(Iterable<String> tags) {
+    this.tags.addAll(tags);
   }
 
-  static bool isSatisfied(List<String> allowedTags, Iterable<Block> blocks) {
-    if (allowedTags.isEmpty) {
-      return true;
-    }
-    final areBlocksAllowed = blocks.map( (block) => containsAny(allowedTags, block.tags) );
+  ConcreteTags clone() {
+    return new AnyOfTags(this.tags);
+  }
+
+  bool check(Iterable<Block> blocks) {
+    final areBlocksAllowed = blocks.map( (block) => containsAny(this.tags, block.tags) );
     return areBlocksAllowed.reduce( (a, b) => a && b );
   }
 

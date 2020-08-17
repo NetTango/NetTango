@@ -115,8 +115,8 @@ js.JsObject encodeBlock(Block block, int limit) {
   setIfNotNullOrEmpty(blockEnc, "borderColor", block.borderColor);
   setIfNotNullOrEmpty(blockEnc, "font", block.font);
 
-  if (block.allowedTags.isNotEmpty) {
-    blockEnc["allowedTags"] = js.JsArray.from(block.allowedTags);
+  if (block.allowedTags is! AllTags) {
+    blockEnc["allowedTags"] = encodeAllowedTags(block.allowedTags);
   }
 
   if (block.tags.isNotEmpty) {
@@ -161,8 +161,8 @@ js.JsObject encodeClause(Clause clause) {
   setIfNotNullOrEmpty(clauseEnc, "open",   clause.open);
   setIfNotNullOrEmpty(clauseEnc, "close",  clause.close);
 
-  if (clause.allowedTags.isNotEmpty) {
-    clauseEnc["allowedTags"] = js.JsArray.from(clause.allowedTags);
+  if (clause.allowedTags is! AllTags) {
+    clauseEnc["allowedTags"] = encodeAllowedTags(clause.allowedTags);
   }
 
   final children = clauseEnc["children"];
@@ -280,4 +280,19 @@ js.JsObject encodeExpressionDefinition(ExpressionDefinition definition) {
     definitionEnc["format"] = definition.format;
   }
   return definitionEnc;
+}
+
+js.JsObject encodeAllowedTags(AllowedTags allowedTags) {
+  if (allowedTags is InheritTags) {
+    return js.JsObject.jsify({ "type": "inherit" });
+  }
+  if (allowedTags is AllTags) {
+    return js.JsObject.jsify({ "type": "all" });
+  }
+  if (allowedTags is AnyOfTags) {
+    final allowedTagsEnc = js.JsObject.jsify({ "type": "any-of" });
+    allowedTagsEnc["tags"] = js.JsArray.from(allowedTags.tags);
+    return allowedTagsEnc;
+  }
+  throw new Exception("Unknown AllowedTags type, cannot encode it.");
 }
