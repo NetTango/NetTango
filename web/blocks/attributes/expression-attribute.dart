@@ -94,7 +94,7 @@ class ExpressionAttribute extends Attribute {
     """);
 
     final pulldownCloserStream = dialog.onClick.listen((e) {
-      querySelectorAll('.nt-pulldown-menu').forEach((el) => el.remove());
+      querySelectorAll(".nt-pulldown-menu").forEach((el) => el.remove());
     });
 
     querySelectorAll(".nt-param-confirm").onClick.listen((e) {
@@ -109,10 +109,10 @@ class ExpressionAttribute extends Attribute {
     });
 
     querySelectorAll(".nt-param-confirm").onMouseDown.listen((e) {
-      querySelectorAll(".nt-expression.empty").forEach((el) => el.classes.add('warn'));
+      querySelectorAll(".nt-expression.empty").forEach((el) => el.classes.add("warn"));
     });
     querySelectorAll(".nt-param-confirm").onMouseUp.listen((e) {
-      querySelectorAll(".nt-expression.empty").forEach((el) => el.classes.remove('warn'));
+      querySelectorAll(".nt-expression.empty").forEach((el) => el.classes.remove("warn"));
     });
     querySelectorAll(".nt-param-cancel").onClick.listen((e) {
       pulldownCloserStream.cancel();

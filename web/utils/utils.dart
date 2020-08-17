@@ -245,7 +245,7 @@ void drawLineArrow(CanvasRenderingContext2D ctx,
     ctx.moveTo(x0, y0);
     ctx.lineTo(x1, y1);
     ctx.lineWidth = width;
-    ctx.lineCap = 'butt';
+    ctx.lineCap = "butt";
     ctx.stroke();
 
     double theta = atan2(x1 - x0, y1 - y0);

@@ -18,8 +18,8 @@
 // the improrts to avoid extra errors by tooling.  -Jeremy B 2019-12
 
 //part of NetTango;
-import 'dart:web_audio';
-import 'dart:html';
+import "dart:web_audio";
+import "dart:html";
 
 class Sounds {
 

@@ -27,7 +27,7 @@ abstract class NumAttribute extends Attribute {
   String getValue() {
     if (value == null) { return ""; }
     String valueString = (value != null ? value : 0).toStringAsFixed(1);
-    return (valueString.endsWith('.0')) ? valueString.substring(0, valueString.length - 2) : valueString;
+    return (valueString.endsWith(".0")) ? valueString.substring(0, valueString.length - 2) : valueString;
   }
   void setValue(String valueString) => value = toNum(valueString, 0.0);
 

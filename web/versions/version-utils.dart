@@ -91,7 +91,7 @@ class VersionUtils {
       if (b.hasProperty("clauses") && b["clauses"] is js.JsArray) {
         for (js.JsObject clause in b["clauses"]) {
           if (clause.hasProperty("children") && clause["children"] is js.JsArray) {
-            for (js.JsObject child in clause['children']) {
+            for (js.JsObject child in clause["children"]) {
               blockInstanceHandler(child);
             }
           }

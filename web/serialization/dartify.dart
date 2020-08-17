@@ -323,7 +323,7 @@ void restoreChainBlockAttributeValues(Map<int, Attribute> blockAttributes, js.Js
 
   for (js.JsObject attributeEnc in attributeEncs) {
 
-    if (!attributeEnc.hasProperty('id') || !blockAttributes.containsKey(attributeEnc["id"])) {
+    if (!attributeEnc.hasProperty("id") || !blockAttributes.containsKey(attributeEnc["id"])) {
       continue;
     }
 
@@ -381,7 +381,7 @@ Expression restoreExpression(ExpressionBuilder builder, String type, js.JsObject
   }
 
   if (expressionEnc["children"] is js.JsArray) {
-    for (js.JsObject childEnc in expressionEnc['children']) {
+    for (js.JsObject childEnc in expressionEnc["children"]) {
       Expression child = restoreExpression(builder, type, childEnc);
       expression.children.add(child);
     }
