@@ -29,7 +29,7 @@ abstract class BlockCollection {
       if (this.blocks.isEmpty) {
         return 0;
       }
-      return blocks.map( (b) => b.getBlockCount(id) ).reduce( (a, b) => a + b );
+      return NumUtils.sum(blocks.map( (b) => b.getBlockCount(id) ));
     } catch (ex) {
       print("here is the fail ${ex.toString()}");
       rethrow;

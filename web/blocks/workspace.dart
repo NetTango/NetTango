@@ -120,7 +120,7 @@ class CodeWorkspace {
     if (chains.isEmpty) {
       return 0;
     }
-    return chains.map( (c) => c.getBlockCount(id) ).reduce( (a, b) => a + b );
+    return NumUtils.sum(chains.map( (c) => c.getBlockCount(id) ));
   }
 
   Block getBlockInstance(int instanceId) {

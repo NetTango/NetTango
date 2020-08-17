@@ -154,7 +154,7 @@ class Block {
     int count = 0;
     if (this.id == id) { count++; }
     if (this.hasClauses) {
-      count = count + this.clauses.map( (clause) => clause.getBlockCount(id) ).reduce( (a, b) => a + b );
+      count = count + NumUtils.sum(this.clauses.map( (clause) => clause.getBlockCount(id) ));
     }
     return count;
   }

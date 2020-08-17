@@ -52,4 +52,8 @@ class NumUtils {
     return defalutValue;
   }
 
+  static int sum(Iterable<int> values) {
+    return values.reduce( (a, b) => a + b );
+  }
+
 }
