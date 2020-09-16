@@ -89,7 +89,7 @@ class Block {
   bool get canBeStarter => placement == BlockPlacement.STARTER || placement == BlockPlacement.ANYWHERE;
 
   // If this is a non-terminal starter, these are the allowed tags for blocks to add to it.
-  ConcreteTags allowedTags = new AllTags();
+  ConcreteTags allowedTags = new UnrestrictedTags();
 
   // these are the tags for this block when being added to a clause or chain
   final List<String> tags = new List<String>();

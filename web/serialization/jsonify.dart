@@ -115,7 +115,7 @@ js.JsObject encodeBlock(Block block, int limit) {
   setIfNotNullOrEmpty(blockEnc, "borderColor", block.borderColor);
   setIfNotNullOrEmpty(blockEnc, "font", block.font);
 
-  if (block.allowedTags is! AllTags) {
+  if (block.allowedTags is! UnrestrictedTags) {
     blockEnc["allowedTags"] = encodeAllowedTags(block.allowedTags);
   }
 
@@ -161,7 +161,7 @@ js.JsObject encodeClause(Clause clause) {
   setIfNotNullOrEmpty(clauseEnc, "open",   clause.open);
   setIfNotNullOrEmpty(clauseEnc, "close",  clause.close);
 
-  if (clause.allowedTags is! AllTags) {
+  if (clause.allowedTags is! UnrestrictedTags) {
     clauseEnc["allowedTags"] = encodeAllowedTags(clause.allowedTags);
   }
 
@@ -286,8 +286,8 @@ js.JsObject encodeAllowedTags(AllowedTags allowedTags) {
   if (allowedTags is InheritTags) {
     return js.JsObject.jsify({ "type": "inherit" });
   }
-  if (allowedTags is AllTags) {
-    return js.JsObject.jsify({ "type": "all" });
+  if (allowedTags is UnrestrictedTags) {
+    return js.JsObject.jsify({ "type": "unrestricted" });
   }
   if (allowedTags is AnyOfTags) {
     final allowedTagsEnc = js.JsObject.jsify({ "type": "any-of" });

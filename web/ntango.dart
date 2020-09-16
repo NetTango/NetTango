@@ -49,7 +49,7 @@ part "blocks/toggle.dart";
 part 'blocks/tags/allowed-tags.dart';
 part 'blocks/tags/concrete-tags.dart';
 part 'blocks/tags/inherit-tags.dart';
-part 'blocks/tags/all-tags.dart';
+part 'blocks/tags/unrestricted-tags.dart';
 part 'blocks/tags/any-of-tags.dart';
 part "blocks/block-style.dart";
 part "blocks/block.dart";

@@ -16,7 +16,7 @@
 
 part of NetTango;
 
-class AllTags extends ConcreteTags {
+class UnrestrictedTags extends ConcreteTags {
   ConcreteTags clone() {
     return this;
   }

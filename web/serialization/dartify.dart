@@ -406,7 +406,7 @@ AllowedTags restoreAllowedTags(Clause clause, js.JsObject allowedTagsEnc) {
       return new InheritTags(clause);
 
     case "any-of":
-    case "all":
+    case "unrestricted":
       return restoreConcreteTags(allowedTagsEnc);
 
     default:
@@ -416,7 +416,7 @@ AllowedTags restoreAllowedTags(Clause clause, js.JsObject allowedTagsEnc) {
 
 ConcreteTags restoreConcreteTags(js.JsObject concreteTags) {
   if (concreteTags["tags"] == null || concreteTags["tags"] is! js.JsArray) {
-    return new AllTags();
+    return new UnrestrictedTags();
   }
   final Iterable<String> tags = (concreteTags["tags"] as js.JsArray).map( (t) => t as String );
   final anyOf = new AnyOfTags(tags);

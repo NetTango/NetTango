@@ -26,7 +26,7 @@ class Clause extends BlockCollection {
   final String open;
   final String close;
 
-  AllowedTags allowedTags = new AllTags();
+  AllowedTags allowedTags = new UnrestrictedTags();
 
   bool isDragOver = false;
   bool isDragHeaderOver = false;
