@@ -43,7 +43,7 @@ class AnyOfTags extends ConcreteTags {
       return true;
     }
     final areClausesAllowed = block.clauses.map( (clause) {
-      if (clause.allowedTags is! InheritTags) {
+      if (clause.allowedTags is! InheritTags || clause.blocks.isEmpty) {
         return true;
       }
       return this.check(clause.blocks);
