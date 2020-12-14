@@ -1,18 +1,4 @@
-/*
- * NetTango
- * Copyright (c) 2020 Michael S. Horn, Uri Wilensky, and Corey Brady
- *
- * Northwestern University
- * 2120 Campus Drive
- * Evanston, IL 60613
- * http://tidal.northwestern.edu
- * http://ccl.northwestern.edu
-
- * This project was funded in part by the National Science Foundation.
- * Any opinions, findings and conclusions or recommendations expressed in this
- * material are those of the author(s) and do not necessarily reflect the views
- * of the National Science Foundation (NSF).
- */
+// NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
 // At the moment this file isn't used by NetTango, so removed from the library and added
 // the improrts to avoid extra errors by tooling.  -Jeremy B 2019-12
