@@ -7,8 +7,13 @@ class NumUtils {
   }
 
   static toNum(d: any, defaultValue: number = 0): number {
+    const maybeNum = NumUtils.toNumOrNull(d)
+    return (maybeNum === null) ? defaultValue : maybeNum
+  }
+
+  static toNumOrNull(d: any) {
     if (d === null) {
-      return defaultValue
+      return null
     }
     switch (typeof(d)) {
 
@@ -18,15 +23,14 @@ class NumUtils {
       case "string":
         const result = Number.parseFloat(d)
         if (Number.isNaN(result)) {
-          return defaultValue
+          return null
         }
         return result
 
       default:
-        return defaultValue
+        return null
 
     }
-
   }
 
   static sum(values: number[]): number {

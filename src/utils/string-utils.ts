@@ -32,4 +32,22 @@ class StringUtils {
     return !StringUtils.isNullOrEmpty(s)
   }
 
+  // Taken from Mustache.js: https://github.com/janl/mustache.js/blob/16ffa430a111dc293cd9ed899ecf9da3729f58bd/mustache.js#L62
+  static readonly entityMap: any = Object.freeze({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': '&quot;',
+    "'": '&#39;',
+    "/": '&#x2F;'
+  })
+
+  static escapeHtml(s: string) {
+    return s.replace(/[&<>"'\/]/g, (s) => StringUtils.entityMap[s])
+  }
+
+  static replaceAll(s: string, find: string, replace: string) {
+    return s.split(find).join(replace)
+  }
+
 }
