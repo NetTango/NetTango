@@ -2,7 +2,7 @@
 
 class BoolUtils {
 
-  static toBool(b: any, defaultValue: Boolean = false): Boolean {
+  static toBool(b: any, defaultValue: boolean = false): boolean {
     if (b === null) {
       return defaultValue
     }
@@ -27,7 +27,7 @@ class BoolUtils {
     }
   }
 
-  static allAreTrue(values: Boolean[]) {
+  static allAreTrue(values: boolean[]) {
     return values.reduce( (a, b) => a && b )
   }
 

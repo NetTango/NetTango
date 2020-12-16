@@ -74,18 +74,18 @@ class Block {
     return this.placement === BlockPlacement.STARTER || this.placement === BlockPlacement.ANYWHERE
   }
 
-  // // If this is a non-terminal starter, these are the allowed tags for blocks to add to it.
-  // ConcreteTags allowedTags = new UnrestrictedTags()
+  // If this is a non-terminal starter, these are the allowed tags for blocks to add to it.
+  allowedTags: ConcreteTags = new UnrestrictedTags()
 
-  // // these are the tags for this block when being added to a clause or chain
-  // final List<String> tags = new List<String>()
+  // these are the tags for this block when being added to a clause or chain
+  readonly tags: string[] = []
 
   /// link back to the main workspace
   workspace: CodeWorkspace
 
   // DragImage dragImage
   // BlockAcceptor acceptor
-  // BlockDragData dragData
+  dragData: BlockDragData | null = null
   // bool isDragOver = false
   isDragNotchOver = false
   // DivElement blockDiv
