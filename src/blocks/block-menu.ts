@@ -11,76 +11,77 @@ class BlockMenu {
   /// Slots for programming blocks
   slots: Slot[] = []
 
-//   /// Menu background color
-//   String color = "rgba(0,0,0, 0.2)"
+  /// Menu background color
+  color = "rgba(0, 0, 0, 0.2)"
 
-//   DivElement menuDiv
+  menuDiv = new HTMLDivElement()
 
   constructor(workspace: CodeWorkspace) {
     this.workspace = workspace
   }
 
-//   void addBlock(Block block, int count) {
-//     Block match = getBlockById(block.id)
-//     if (match != null) {
-//       throw new FormatException(
-// """Cannot add a block with the same ID as an existing block
-//   Adding: (${block.id}: ${block.action})
-//   Existing: (${match.id}: ${match.action})"""
-//       )
-//     }
+  addBlock(block: Block, limit: number): void {
+    const match = this.getBlockById(block.id)
+    if (match !== null) {
+      throw new Error(`
+Cannot add a block with the same ID as an existing block
+  Adding: (${block.id}: ${block.action})
+  Existing: (${match.id}: ${match.action})`
+      )
+    }
 
-//     slots.add(new Slot(block, workspace, count))
-//   }
+    this.slots.push(new Slot(block, this.workspace, limit, this.slots.length))
+  }
 
-//   Block getBlockById(int id) {
-//     var matches = slots.where( (s) {
-//       return s.block.id == id
-//     })
-//     if (matches.length == 1) {
-//       return matches.first.block
-//     }
-//     return null
-//   }
+  getBlockById(id: number): Block | null {
+    var matches = this.slots.filter( (s) => {
+      return s.block.id === id
+    })
+    if (matches.length > 0) {
+      return matches[0].block
+    }
+    return null
+  }
 
-//   DivElement draw(DragImage dragImage) {
-//     menuDiv = new DivElement() .. id = "${workspace.containerId}-menu"
-//     menuDiv.classes.add("nt-menu")
+  draw(dragImage: DragImage): HTMLDivElement {
+    this.menuDiv = new HTMLDivElement()
+    this.menuDiv.id = `${this.workspace.containerId}-menu`
+    this.menuDiv.classList.add("nt-menu")
 
-//     for (int i = 0; i < slots.length; i++) {
-//       Slot slot = slots[i]
-//       menuDiv.append(slot.draw(dragImage, i))
-//     }
+    for (var i = 0; i < this.slots.length; i++) {
+      const slot = this.slots[i]
+      this.menuDiv.append(slot.draw(dragImage, i))
+    }
 
-//     final dropZone = Dropzone(menuDiv, acceptor: workspace.acceptor)
-//     dropZone.onDragEnter.listen( (e) {
-//       DragManager.current.isOverMenu = true
-//       this.updateDragOver()
-//     })
-//     dropZone.onDragLeave.listen( (e) {
-//       DragManager.current.isOverMenu = false
-//       this.updateDragOver()
-//     })
-//     dropZone.onDrop.listen(drop)
+    // final dropZone = Dropzone(menuDiv, acceptor: workspace.acceptor)
+    // dropZone.onDragEnter.listen( (e) {
+    //   DragManager.current.isOverMenu = true
+    //   this.updateDragOver()
+    // })
+    // dropZone.onDragLeave.listen( (e) {
+    //   DragManager.current.isOverMenu = false
+    //   this.updateDragOver()
+    // })
+    // dropZone.onDrop.listen(drop)
 
-//     updateLimits()
+    this.updateLimits()
 
-//     return menuDiv
-//   }
+    return this.menuDiv
+  }
 
-//   void updateLimits() {
-//     for (Slot slot in slots) {
-//       slot.updateForLimit()
-//     }
-//   }
+  updateLimits(): void {
+    for (var slot of this.slots) {
+      slot.updateForLimit()
+    }
+  }
 
-//   void updateDragOver() {
-//     if (DragManager.current != null && (DragManager.current.isOverMenu || (DragManager.current.isOverContainer && !DragManager.current.isOverWorkspace))) {
-//       menuDiv.classes.add("nt-menu-drag-over")
-//     } else {
-//       menuDiv.classes.remove("nt-menu-drag-over")
-//     }
-//   }
+  updateDragOver(): void {
+    // if (DragManager.current != null && (DragManager.current.isOverMenu || (DragManager.current.isOverContainer && !DragManager.current.isOverWorkspace))) {
+    //   menuDiv.classes.add("nt-menu-drag-over")
+    // } else {
+    //   menuDiv.classes.remove("nt-menu-drag-over")
+    // }
+  }
 
 //   void drop(DropzoneEvent event) {
 //     DragManager.current.wasHandled = true

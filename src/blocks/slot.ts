@@ -9,74 +9,75 @@ class Slot {
 
   limit = -1
 
-  // int slotIndex
-  // DivElement slotDiv
-  // DragImage dragImage
-  // bool isAtLimit = false
+  slotIndex: number
+  slotDiv: HTMLDivElement = new HTMLDivElement()
+  dragImage: DragImage | null = null
+  isAtLimit = false
 
-  constructor(block: Block, workspace: CodeWorkspace, limit: number) {
+  constructor(block: Block, workspace: CodeWorkspace, limit: number, slotIndex: number) {
     this.block = block
     this.workspace = workspace
     this.limit = limit
+    this.slotIndex = slotIndex
   }
 
-  // bool isAvailable() {
-  //   int free = limit - workspace.getBlockCount(block.id)
-  //   return (limit <= 0 || free > 0)
-  // }
+  isAvailable(): boolean {
+    const free = this.limit - this.workspace.getBlockCount(this.block.id)
+    return (this.limit <= 0 || free > 0)
+  }
 
-  // DivElement draw(DragImage dragImage, int index) {
-  //   this.dragImage = dragImage
-  //   this.slotIndex = index
-  //   slotDiv = new DivElement()
-  //   slotDiv.classes.add("nt-menu-slot")
-  //   final styleClass = block.getStyleClass()
-  //   slotDiv.classes.add(styleClass)
-  //   slotDiv.classes.add("$styleClass-color")
+  draw(dragImage: DragImage, index: number): HTMLDivElement {
+    this.dragImage = dragImage
+    this.slotIndex = index
+    this.slotDiv = new HTMLDivElement()
+    this.slotDiv.classList.add("nt-menu-slot")
+    const styleClass = this.block.getStyleClass()
+    this.slotDiv.classList.add(styleClass)
+    this.slotDiv.classList.add(`${styleClass}-color`)
 
-  //   final sampleBlock = this.block.clone(false)
-  //   final codeTip = formatCodeTip(sampleBlock)
-  //   slotDiv.appendHtml("""<span title="$codeTip">${block.action}</span>""")
+    const sampleBlock = this.block.clone(false)
+    const codeTip = this.formatCodeTip(sampleBlock)
+    this.slotDiv.insertAdjacentHTML("afterend", `<span title="${codeTip}">${this.block.action}</span>`)
 
-  //   if (block.blockColor != null)  { slotDiv.style.backgroundColor = block.blockColor; }
-  //   if (block.borderColor != null) { slotDiv.style.borderColor     = block.borderColor; }
-  //   if (block.textColor != null)   { slotDiv.style.color           = block.textColor; }
-  //   if (block.font != null) {
-  //     // lineHeight gets reset by the `font` property
-  //     final lineHeight          = slotDiv.style.lineHeight
-  //     slotDiv.style.font       = block.font
-  //     slotDiv.style.lineHeight = lineHeight
-  //   }
+    if (this.block.blockColor !== null)  { this.slotDiv.style.backgroundColor = this.block.blockColor }
+    if (this.block.borderColor !== null) { this.slotDiv.style.borderColor     = this.block.borderColor }
+    if (this.block.textColor !== null)   { this.slotDiv.style.color           = this.block.textColor }
+    if (this.block.font !== null) {
+      // lineHeight gets reset by the `font` property
+      const lineHeight = this.slotDiv.style.lineHeight
+      this.slotDiv.style.font       = this.block.font
+      this.slotDiv.style.lineHeight = lineHeight
+    }
 
-  //   final slotDrag = Draggable(slotDiv, avatarHandler: dragImage, draggingClass: "nt-block-dragging", cancel: ".nt-menu-slot-at-limit")
-  //   slotDrag.onDragStart.listen(startDrag)
-  //   slotDrag.onDragEnd.listen(endDrag)
+    // final slotDrag = Draggable(slotDiv, avatarHandler: dragImage, draggingClass: "nt-block-dragging", cancel: ".nt-menu-slot-at-limit")
+    // slotDrag.onDragStart.listen(startDrag)
+    // slotDrag.onDragEnd.listen(endDrag)
 
-  //   slotDiv.onDoubleClick.listen( raiseDoubleClick )
-  //   slotDiv.onContextMenu.listen( raiseContextMenu )
-  //   updateForLimit()
-  //   return slotDiv
-  // }
+    this.slotDiv.addEventListener("doubleclick", this.raiseDoubleClick)
+    this.slotDiv.addEventListener("contextmenu", this.raiseContextMenu)
+    this.updateForLimit()
+    return this.slotDiv
+  }
 
-  // String formatCodeTip(Block sampleBlock) {
-  //   final out = new StringBuffer()
-  //   if (this.block.note != null && this.block.note.trimLeft().isNotEmpty) {
-  //     out.writeln(this.block.note)
-  //     out.writeln()
-  //   }
-  //   workspace.formatter.formatBlock(out, 0, sampleBlock)
-  //   final value = out.toString().trim()
-  //   final escapedValue = (new HtmlEscape()).convert(value)
-  //   return escapedValue
-  // }
+  formatCodeTip(sampleBlock: Block): string {
+    const out = new StringBuffer()
+    if (this.block.note !== null && StringUtils.isNotNullOrEmpty(this.block.note.trimLeft())) {
+      out.writeln(this.block.note)
+      out.writeln()
+    }
+    this.workspace.formatter.formatBlock(out, 0, sampleBlock)
+    const value = out.toString().trim()
+    const escapedValue = StringUtils.escapeHtml(value)
+    return escapedValue
+  }
 
-  // void updateForLimit() {
-  //   if (isAvailable()) {
-  //     slotDiv.classes.remove("nt-menu-slot-at-limit")
-  //   } else {
-  //     slotDiv.classes.add("nt-menu-slot-at-limit")
-  //   }
-  // }
+  updateForLimit(): void {
+    if (this.isAvailable()) {
+      this.slotDiv.classList.remove("nt-menu-slot-at-limit")
+    } else {
+      this.slotDiv.classList.add("nt-menu-slot-at-limit")
+    }
+  }
 
   // void startDrag(DraggableEvent event) {
   //   final newInstance = this.block.clone(false)
@@ -90,17 +91,17 @@ class Slot {
   //   workspace.dragManager.endDrag()
   // }
 
-  // void raiseDoubleClick(Event e) {
-  //   final event = new MenuItemClickedEvent(block.id)
-  //   workspace.programChanged(event)
-  // }
+  raiseDoubleClick(e: Event): void {
+    const event = new MenuItemClickedEvent(this.block.id)
+    this.workspace.programChanged(event)
+  }
 
-  // bool raiseContextMenu(MouseEvent e) {
-  //   e.preventDefault()
-  //   e.stopPropagation()
-  //   final event = new MenuItemContextMenuEvent(block.id, e.page.x, e.page.y)
-  //   workspace.programChanged(event)
-  //   return false
-  // }
+  raiseContextMenu(e: MouseEvent): boolean {
+    e.preventDefault()
+    e.stopPropagation()
+    const event = new MenuItemContextMenuEvent(this.block.id, e.pageX, e.pageY)
+    this.workspace.programChanged(event)
+    return false
+  }
 
 }

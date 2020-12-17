@@ -37,7 +37,7 @@ class Block {
   closeStarter: string | null = null
 
   // /// extra text to include in the code tip info of a block
-  // String note
+  note: string | null = null
 
   /// parameters for this block (optional)
   params: Map<number, Attribute> = new Map()
@@ -57,8 +57,8 @@ class Block {
 
   blockColor: string | null = null
   textColor: string | null = null
-  // String borderColor
-  // String font
+  borderColor: string | null = null
+  font: string | null = null
 
   /// Tells a code formatter that at least one block of this type is required
   isRequired: boolean = false
@@ -108,8 +108,8 @@ class Block {
     }
   }
 
-  // Block clone(bool isSlotBlock) {
-  //   Block other = new Block(workspace, id, action, isSlotBlock)
+  clone(isSlotBlock: boolean): Block {
+    const other = new Block(this.workspace, this.id, this.action, isSlotBlock)
   //   other.action = action
   //   other.type = type
   //   other.format = format
@@ -136,8 +136,8 @@ class Block {
   //     Attribute otherProp = prop.clone(other, isSlotBlock)
   //     other.properties[otherProp.id] = otherProp
   //   }
-  //   return other
-  // }
+    return other
+  }
 
   getBlockCount(id: number): number {
     var count: number = 0
