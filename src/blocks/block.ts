@@ -11,7 +11,7 @@ class BlockPlacement {
  */
 class Block {
 
-  // final storage = new ExternalStorage(["id", "action", "required", "isTerminal", "placement", "allowedTags", "tags", "instanceId", "type", "format", "closeClauses", "closeStarter", "limit", "note", "blockColor", "textColor", "borderColor", "font", "clauses", "params", "properties", "propertiesDisplay"])
+  readonly storage = new ExternalStorage(["id", "action", "required", "isTerminal", "placement", "allowedTags", "tags", "instanceId", "type", "format", "closeClauses", "closeStarter", "limit", "note", "blockColor", "textColor", "borderColor", "font", "clauses", "params", "properties", "propertiesDisplay"])
 
   /// unique block ID number per workspace
   id: number
@@ -22,8 +22,8 @@ class Block {
   /// text displayed on the block
   action: string
 
-  // /// language specific command type used by code formatters (e.g. nlogo:command)
-  // var type
+  /// language specific command type used by code formatters (e.g. nlogo:command)
+  type: string | null = null
 
   /// formatting hint to help translate the parse tree into source code.
   /// parameters can be referenced using python format syntax. e.g.
@@ -45,12 +45,12 @@ class Block {
   /// properties for this block (optional)
   /// properties are just named parameters that get listed vertically
   properties: Map<number, Attribute> = new Map()
-  // String propertiesDisplay = "shown"
+  propertiesDisplay: "shown" | "hidden" = "shown"
 
   nextParamId: number = 0
 
-  // bool get hasParams     => params.isNotEmpty
-  // bool get hasProperties => properties.isNotEmpty
+  get hasParams(): boolean { return this.params.size > 0 }
+  get hasProperties(): boolean { return this.properties.size > 0 }
 
   clauses: Clause[] = []
   get hasClauses(): boolean { return this.clauses.length > 0 }
@@ -89,8 +89,8 @@ class Block {
   isDragOver = false
   isDragNotchOver = false
   blockDiv = new HTMLDivElement()
-  // DivElement actionDiv
-  // Toggle propertiesToggle
+  actionDiv = new HTMLDivElement()
+  propertiesToggle: Toggle | null = null
 
   constructor(workspace: CodeWorkspace, id: number | null, action: string, isSlotBlock: boolean) {
     this.workspace = workspace
@@ -110,32 +110,32 @@ class Block {
 
   clone(isSlotBlock: boolean): Block {
     const other = new Block(this.workspace, this.id, this.action, isSlotBlock)
-  //   other.action = action
-  //   other.type = type
-  //   other.format = format
-  //   other.closeClauses = closeClauses
-  //   other.closeStarter = closeStarter
-  //   other.note = note
-  //   other.blockColor = blockColor
-  //   other.textColor = textColor
-  //   other.borderColor = borderColor
-  //   other.font = font
-  //   other.isRequired = isRequired
-  //   other.isTerminal = isTerminal
-  //   other.placement = placement
-  //   other.allowedTags = allowedTags.clone()
-  //   other.tags.addAll(tags)
+    other.action = this.action
+    other.type = this.type
+    other.format = this.format
+    other.closeClauses = this.closeClauses
+    other.closeStarter = this.closeStarter
+    other.note = this.note
+    other.blockColor = this.blockColor
+    other.textColor = this.textColor
+    other.borderColor = this.borderColor
+    other.font = this.font
+    other.isRequired = this.isRequired
+    other.isTerminal = this.isTerminal
+    other.placement = this.placement
+    other.allowedTags = this.allowedTags.clone()
+    other.tags.push(...this.tags)
 
-  //   this.clauses.forEach( (clause) => other.clauses.add( clause.clone(other) ))
+    this.clauses.forEach( (clause) => other.clauses.push( clause.clone(other) ))
 
-  //   for (Attribute param in params.values) {
-  //     Attribute otherParam = param.clone(other, isSlotBlock)
-  //     other.params[otherParam.id] = otherParam
-  //   }
-  //   for (Attribute prop in properties.values) {
-  //     Attribute otherProp = prop.clone(other, isSlotBlock)
-  //     other.properties[otherProp.id] = otherProp
-  //   }
+    for (var param of this.params.values()) {
+      const otherParam = param.clone(other, isSlotBlock)
+      other.params.set(otherParam.id, otherParam)
+    }
+    for (var prop of this.properties.values()) {
+      const otherProp = prop.clone(other, isSlotBlock)
+      other.properties.set(otherProp.id, otherProp)
+    }
     return other
   }
 
@@ -185,96 +185,96 @@ class Block {
   //   this.acceptor = new BlockAcceptor(this)
 
     this.blockDiv = new HTMLDivElement()
-  //   blockDiv.classes.add("nt-block")
-  //   final styleClass = getStyleClass()
-  //   blockDiv.classes.add(styleClass)
-  //   if (hasClauses) {
-  //     blockDiv.classes.add("nt-block-with-clauses")
-  //   }
+    this.blockDiv.classList.add("nt-block")
+    const styleClass = this.getStyleClass()
+    this.blockDiv.classList.add(styleClass)
+    if (this.hasClauses) {
+      this.blockDiv.classList.add("nt-block-with-clauses")
+    }
 
-  //   applyStyleOverrides(this, this.blockDiv)
+    Block.applyStyleOverrides(this, this.blockDiv)
 
-  //   DivElement headerDiv = new DivElement()
-  //   headerDiv.classes.add("$styleClass-color")
-  //   maybeSetColorOverride(this.blockColor, headerDiv)
-  //   headerDiv.classes.add("nt-block-header")
-  //   blockDiv.append(headerDiv)
+    const headerDiv = new HTMLDivElement()
+    headerDiv.classList.add(`${styleClass}-color`)
+    Block.maybeSetColorOverride(this.blockColor, headerDiv)
+    headerDiv.classList.add("nt-block-header")
+    this.blockDiv.append(headerDiv)
 
-  //   this.actionDiv = new DivElement()
-  //   updateActionText()
-  //   actionDiv.classes.add("nt-block-action")
-  //   headerDiv.append(actionDiv)
+    this.actionDiv = new HTMLDivElement()
+    this.updateActionText()
+    this.actionDiv.classList.add("nt-block-action")
+    headerDiv.append(this.actionDiv)
 
-  //   final paramDiv = new DivElement()
-  //   paramDiv.classes.add("nt-block-params")
-  //   headerDiv.append(paramDiv)
+    const paramDiv = new HTMLDivElement()
+    paramDiv.classList.add("nt-block-params")
+    headerDiv.append(paramDiv)
 
-  //   for (Attribute attribute in params.values) {
-  //     paramDiv.append(attribute.drawParameter())
-  //   }
+    for (var attribute of this.params.values()) {
+      paramDiv.append(attribute.drawParameter())
+    }
 
-  //   final propertiesDiv = new DivElement()
-  //   propertiesDiv.classes.add("nt-block-properties")
-  //   headerDiv.append(propertiesDiv)
+    const propertiesDiv = new HTMLDivElement()
+    propertiesDiv.classList.add("nt-block-properties")
+    headerDiv.append(propertiesDiv)
 
-  //   if (properties.length > 0) {
-  //     propertiesToggle = new Toggle(propertiesDisplay != "hidden", (bool isOn) {
-  //       propertiesDisplay = isOn ? "shown" : "hidden"
-  //       propertiesDiv.classes.toggle("nt-block-properties-hidden")
-  //       workspace.programChanged(new BlockChangedEvent(this))
-  //     })
-  //     if (propertiesDisplay == "hidden") {
-  //       propertiesDiv.classes.add("nt-block-properties-hidden")
-  //     }
-  //     actionDiv.append(propertiesToggle.div)
-  //   }
+    if (this.hasProperties) {
+      this.propertiesToggle = new Toggle(this.propertiesDisplay !== "hidden", (isOn) => {
+        this.propertiesDisplay = isOn ? "shown" : "hidden"
+        propertiesDiv.classList.toggle("nt-block-properties-hidden")
+        this.workspace.programChanged(new BlockChangedEvent(this))
+      })
+      if (this.propertiesDisplay === "hidden") {
+        propertiesDiv.classList.add("nt-block-properties-hidden")
+      }
+      this.actionDiv.append(this.propertiesToggle.div)
+    }
 
-  //   for (Attribute attribute in properties.values) {
-  //     final propertyDiv = attribute.drawProperty()
-  //     propertyDiv.classes.add("$styleClass-color")
-  //     maybeSetColorOverride(this.blockColor, propertyDiv)
-  //     propertiesDiv.append(propertyDiv)
-  //   }
+    for (var attribute of this.properties.values()) {
+      const propertyDiv = attribute.drawProperty()
+      propertyDiv.classList.add(`${styleClass}-color`)
+      Block.maybeSetColorOverride(this.blockColor, propertyDiv)
+      propertiesDiv.append(propertyDiv)
+    }
 
-  //   if (hasClauses) {
-  //     final firstClauseDiv = clauses[0].draw(dragImage, this, headerDiv)
-  //     blockDiv.append(firstClauseDiv)
+    if (this.hasClauses) {
+      const firstClauseDiv = this.clauses[0].draw(dragImage, this, headerDiv)
+      this.blockDiv.append(firstClauseDiv)
 
-  //     for (Clause clause in clauses.skip(1)) {
-  //       final clauseDiv = clause.draw(dragImage, this, null)
-  //       blockDiv.append(clauseDiv)
-  //     }
+      for (var clause of this.clauses.slice(1)) {
+        const clauseDiv = clause.draw(dragImage, this, null)
+        this.blockDiv.append(clauseDiv)
+      }
 
-  //     final clauseFooter = new DivElement()
-  //     clauseFooter.classes.add("nt-clause-footer")
-  //     clauseFooter.classes.add("$styleClass-color")
-  //     maybeSetColorOverride(this.blockColor, clauseFooter)
-  //     blockDiv.append(clauseFooter)
-  //   }
+      const clauseFooter = new HTMLDivElement()
+      clauseFooter.classList.add("nt-clause-footer")
+      clauseFooter.classList.add(`${styleClass}-color`)
+      Block.maybeSetColorOverride(this.blockColor, clauseFooter)
+      this.blockDiv.append(clauseFooter)
+    }
 
-  //   if (this.isAttachable) {
-  //     final arrow = Arrow.draw()
-  //     blockDiv.append(arrow)
-  //   }
+    if (this.isAttachable) {
+      const arrow = Arrow.draw()
+      this.blockDiv.append(arrow)
+    }
 
-  //   Block.wireDragEvents(this, blockDiv, (isOver) => this.isDragOver = isOver )
+    Block.wireDragEvents(this, this.blockDiv, (isOver) => this.isDragOver = isOver )
 
     return this.blockDiv
   }
 
   static maybeSetColorOverride(backgroundColor: string | null, div: HTMLDivElement): void {
-    // if (backgroundColor != null) { div.style.backgroundColor = backgroundColor; }
+    if (backgroundColor !== null) { div.style.backgroundColor = backgroundColor }
   }
 
   static applyStyleOverrides(block: Block, div: HTMLDivElement): void {
-    // if (block.borderColor != null) { div.style.borderColor = block.borderColor; }
-    // if (block.textColor != null)   { div.style.color       = block.textColor; }
-    // if (block.font != null) {
-    //   // lineHeight gets reset by the `font` property
-    //   final lineHeight     = div.style.lineHeight
-    //   div.style.font       = block.font
-    //   div.style.lineHeight = lineHeight
-    // }
+    if (block.borderColor !== null) { div.style.borderColor = block.borderColor; }
+    if (block.textColor !== null)   { div.style.color       = block.textColor; }
+    if (block.font !== null) {
+      // lineHeight gets reset by the `font` property
+      const lineHeight     = div.style.lineHeight
+      div.style.font       = block.font
+      div.style.lineHeight = lineHeight
+    }
   }
 
   static wireDragEvents(block: Block, div: HTMLDivElement, setOver: (isOver: boolean) => void): void {
@@ -287,31 +287,31 @@ class Block {
     // dropzone.onDragLeave.listen( (e) => setOver(false) )
   }
 
-  // void updateActionText() {
-  //   final codeTip = formatCodeTip()
-  //   actionDiv.appendHtml("""<span title="$codeTip">$action</span>""")
-  // }
+  updateActionText(): void {
+    const codeTip = this.formatCodeTip()
+    this.actionDiv.insertAdjacentHTML("afterend", `<span title="${codeTip}">${this.action}</span>`)
+  }
 
-  // String formatCodeTip() {
-  //   final out = new StringBuffer()
-  //   if (this.note != null && this.note.trimLeft().isNotEmpty) {
-  //     out.writeln(this.note)
-  //     out.writeln()
-  //   }
-  //   if (dragData.parentType == "workspace-chain" && dragData.blockIndex == 0) {
-  //     final chain = workspace.chains[dragData.chainIndex]
-  //     workspace.formatter.formatBlocks(out, 0, chain.blocks)
-  //     // if this block isn't a valid chain starter, nothing may have been written
-  //     if (out.isEmpty) {
-  //       workspace.formatter.formatBlock(out, 0, this)
-  //     }
-  //   } else {
-  //     workspace.formatter.formatBlock(out, 0, this)
-  //   }
-  //   final value = out.toString().trim()
-  //   final escapedValue = (new HtmlEscape()).convert(value)
-  //   return escapedValue
-  // }
+  formatCodeTip(): string {
+    const out = new StringBuffer()
+    if (this.note !== null && StringUtils.isNotNullOrEmpty(this.note.trimLeft())) {
+      out.writeln(this.note)
+      out.writeln()
+    }
+    if (this.dragData.parentType === "workspace-chain" && this.dragData.blockIndex === 0 && this.dragData.chainIndex !== null) {
+      const chain = this.workspace.chains[this.dragData.chainIndex]
+      this.workspace.formatter.formatBlocks(out, 0, chain.blocks)
+      // if this block isn't a valid chain starter, nothing may have been written
+      if (out.isEmpty) {
+        this.workspace.formatter.formatBlock(out, 0, this)
+      }
+    } else {
+      this.workspace.formatter.formatBlock(out, 0, this)
+    }
+    const value = out.toString().trim()
+    const escapedValue = StringUtils.escapeHtml(value)
+    return escapedValue
+  }
 
   updateDragOver(): boolean {
     this.blockDiv.classList.remove("nt-drag-over")
@@ -368,7 +368,7 @@ class Block {
   //   workspace.programChanged(new BlockChangedEvent(changedBlock))
   // }
 
-  // void enableDropZones() {
+  enableDropZones(): void {
   //   if (BlockAcceptor.isLandingSpot(this)) {
   //     this.blockDiv.classes.add("nt-allowed-drop")
   //   }
@@ -376,15 +376,15 @@ class Block {
   //   for (final clause in this.clauses) {
   //     clause.enableDropZones()
   //   }
-  // }
+  }
 
-  // void disableDropZones() {
+  disableDropZones(): void {
   //   this.blockDiv.classes.remove("nt-allowed-drop")
 
   //   for (final clause in this.clauses) {
   //     clause.disableDropZones()
   //   }
-  // }
+  }
 
   resetOwnedBlocksDragData(): void {
     for (var clause of this.clauses) {
@@ -392,17 +392,17 @@ class Block {
     }
   }
 
-  // void resetBlockActionText() {
-  //   actionDiv.innerHtml = ""
-  //   updateActionText()
-  //   if (propertiesToggle != null) {
-  //     actionDiv.append(propertiesToggle.div)
-  //   }
-  //   for (final clause in this.clauses) {
-  //     for (final block in clause.blocks) {
-  //       block.resetBlockActionText()
-  //     }
-  //   }
-  // }
+  resetBlockActionText(): void {
+    this.actionDiv.innerHTML = ""
+    this.updateActionText()
+    if (this.propertiesToggle !== null) {
+      this.actionDiv.append(this.propertiesToggle.div)
+    }
+    for (var clause of this.clauses) {
+      for (var block of clause.blocks) {
+        block.resetBlockActionText()
+      }
+    }
+  }
 
 }

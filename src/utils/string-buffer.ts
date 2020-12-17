@@ -11,6 +11,10 @@ class StringBuffer {
     this.lines.push(this.currentLine)
   }
 
+  get isEmpty(): boolean {
+    return (this.lines.length === 1 && this.currentLine.length === 0)
+  }
+
   write(chunk: string): void {
     this.currentLine.push(chunk)
   }

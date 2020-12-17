@@ -2,18 +2,20 @@
 
 class CodeWorkspace {
 
-  // final storage = new ExternalStorage(["version", "height", "width", "blocks", "program", "chainOpen", "chainClose", "blockStyles", "variables", "expressions"])
+  static readonly DEFAULT_HEIGHT = 600
+  static readonly DEFAULT_WIDTH = 450
 
-  // static int DEFAULT_HEIGHT = 600
-  // static int DEFAULT_WIDTH = 450
+  readonly storage = new ExternalStorage(["version", "height", "width", "blocks", "program", "chainOpen", "chainClose", "blockStyles", "variables", "expressions"])
 
-  // int version = VersionManager.VERSION
+  readonly version = VersionManager.VERSION
 
   // /// HTML Canvas ID
   containerId: string
   backdrop: HTMLDivElement = new HTMLDivElement()
   dialog: HTMLDivElement = new HTMLDivElement()
-  // DivElement container, spaceDiv, chainsDiv
+  container: HTMLDivElement = new HTMLDivElement()
+  spaceDiv: HTMLDivElement = new HTMLDivElement()
+  chainsDiv: HTMLDivElement = new HTMLDivElement()
 
   formatter: CodeFormatter
 
@@ -34,27 +36,27 @@ class CodeWorkspace {
   /// list of expressions
   expressionDefinitions: ExpressionDefinition[] = []
 
-  // int _height = DEFAULT_HEIGHT
-  // int get height => _height
-  // set height(int h) {
-  //   _height = h
-  //   container.style.minHeight = "${height}px"
-  // }
-  // int currentHeight = DEFAULT_HEIGHT
+  _height = CodeWorkspace.DEFAULT_HEIGHT
+  get height(): number { return this._height }
+  set height(h: number) {
+    this._height = h
+    this.container.style.minHeight = `${this.height}px`
+  }
+  currentHeight = CodeWorkspace.DEFAULT_HEIGHT
 
-  // int _width = DEFAULT_WIDTH
-  // int get width => _width
-  // set width(int w) {
-  //   _width = w
-  //   container.style.minWidth = "${width}px"
-  //   container.style.maxWidth = "${width}px"
-  // }
+  _width = CodeWorkspace.DEFAULT_WIDTH
+  get width(): number { return this._width }
+  set width(w: number) {
+    this._width = w
+    this.container.style.minWidth = `${this.width}px`
+    this.container.style.maxWidth = `${this.width}px`
+  }
 
-  // BlockStyle starterBlockStyle
-  // BlockStyle containerBlockStyle
-  // BlockStyle commandBlockStyle
+  starterBlockStyle: BlockStyle
+  containerBlockStyle: BlockStyle
+  commandBlockStyle: BlockStyle
 
-  // final DragImage dragImage = new DragImage()
+  readonly dragImage = new DragImage()
   // DragManager dragManager
   // WorkspaceAcceptor acceptor
   // Dropzone containerDropzone
@@ -63,10 +65,11 @@ class CodeWorkspace {
     this.containerId = containerId
     this.formatter = formatter
 
-  //   container = querySelector("#${containerId}")
-  //   if (container == null) throw "No container element with ID $containerId found."
-  //   container.setInnerHtml("")
-  //   container.classes.add("nt-container")
+    const maybeContainer = document.querySelector(`#${containerId}`)
+    if (maybeContainer === null) throw new Error(`No container element with ID ${this.containerId} found.`)
+    this.container = maybeContainer as HTMLDivElement
+    this.container.innerHTML = ""
+    this.container.classList.add("nt-container")
 
   //   this.dragManager = DragManager(this, this.dragImage)
   //   this.acceptor    = WorkspaceAcceptor(this.containerId)
@@ -74,13 +77,13 @@ class CodeWorkspace {
   //   containerDropzone = Dropzone(container, acceptor: this.acceptor)
   //   containerDropzone.onDrop.listen(containerDrop)
 
-  //   starterBlockStyle   = BlockStyle.DEFAULT_STARTER_STYLE
-  //   containerBlockStyle = BlockStyle.DEFAULT_CONTAINER_STYLE
-  //   commandBlockStyle   = BlockStyle.DEFAULT_COMMAND_STYLE
+    this.starterBlockStyle   = BlockStyle.DEFAULT_STARTER_STYLE
+    this.containerBlockStyle = BlockStyle.DEFAULT_CONTAINER_STYLE
+    this.commandBlockStyle   = BlockStyle.DEFAULT_COMMAND_STYLE
 
-  //   container.style.minHeight = "${height}px"
-  //   container.style.minWidth  = "${width}px"
-  //   container.style.maxWidth  = "${width}px"
+    this.container.style.minHeight = `${this.height}px`
+    this.container.style.minWidth  = `${this.width}px`
+    this.container.style.maxWidth  = `${this.width}px`
 
     this.menu = new BlockMenu(this)
 
@@ -122,80 +125,83 @@ class CodeWorkspace {
   }
 
   draw(): void {
-  //   String styleId = "$containerId-styles"
-  //   StyleElement style = document.getElementById(styleId)
-  //   if (style == null) {
-  //     style = new StyleElement() .. id = styleId
-  //     container.append(style)
-  //   }
-  //   CssStyleSheet styleSheet = style.sheet
-  //   // the style sheet remains during a re-init of workspaces, so clear it
-  //   while (styleSheet.cssRules.length > 0) {
-  //     styleSheet.removeRule(0)
-  //   }
+    const styleId = `${this.containerId}-styles`
+    var style = document.getElementById(styleId)
+    if (style === null) {
+      style = new HTMLStyleElement()
+      style.id = styleId
+      this.container.append(style)
+    }
+    const styleSheet = (style as HTMLStyleElement).sheet!
+    // the style sheet remains during a re-init of workspaces, so clear it
+    while (styleSheet.cssRules.length > 0) {
+      styleSheet.removeRule(0)
+    }
 
-  //   starterBlockStyle.appendToSheet(styleSheet, "$containerId-block-starter")
-  //   containerBlockStyle.appendToSheet(styleSheet, "$containerId-block-container")
-  //   commandBlockStyle.appendToSheet(styleSheet, "$containerId-block-command")
+    this.starterBlockStyle.appendToSheet(styleSheet, `${this.containerId}-block-starter`)
+    this.containerBlockStyle.appendToSheet(styleSheet, `${this.containerId}-block-container`)
+    this.commandBlockStyle.appendToSheet(styleSheet, `${this.containerId}-block-command`)
 
-  //   final wrapper = new DivElement()
-  //   wrapper.classes.add("nt-workspace-wrapper")
-  //   container.append(wrapper)
+    const wrapper = new HTMLDivElement()
+    wrapper.classList.add("nt-workspace-wrapper")
+    this.container.append(wrapper)
 
-  //   final drag = dragImage.element
-  //   drag.classes.add("nt-block-drag")
-  //   drag.classes.add("nt-chain")
-  //   wrapper.append(drag)
+    const drag = this.dragImage.element
+    drag.classList.add("nt-block-drag")
+    drag.classList.add("nt-chain")
+    wrapper.append(drag)
 
     this.backdrop.className = "nt-attribute-backdrop"
-  //   backdrop.onClick.listen( (e) => backdrop.classes.remove("show") )
-  //   dialog = new DivElement() .. className = "nt-attribute-dialog"
-  //   dialog.onClick.listen( (e) => e.stopPropagation() )
-  //   backdrop.append(dialog)
-  //   container.append(backdrop)
+    this.backdrop.addEventListener("click", (e) => this.backdrop.classList.remove("show") )
+    this.dialog = new HTMLDivElement()
+    this.dialog.className = "nt-attribute-dialog"
+    this.dialog.addEventListener("click", (e) => e.stopPropagation() )
+    this.backdrop.append(this.dialog)
+    this.container.append(this.backdrop)
 
-  //   spaceDiv = new DivElement() .. id = "$containerId-space"
-  //   spaceDiv.classes.add("nt-workspace")
+    this.spaceDiv = new HTMLDivElement()
+    this.spaceDiv.id = `${this.containerId}-space`
+    this.spaceDiv.classList.add("nt-workspace")
 
-  //   wrapper.append(spaceDiv)
+    wrapper.append(this.spaceDiv)
 
-  //   chainsDiv = new DivElement()
-  //   spaceDiv.append(chainsDiv)
+    this.chainsDiv = new HTMLDivElement()
+    this.spaceDiv.append(this.chainsDiv)
 
-  //   for (int i = 0; i < chains.length; i++) {
-  //     Chain chain = chains[i]
-  //     chain.draw(dragImage, i)
-  //   }
+    for (var i = 0; i < this.chains.length; i++) {
+      const chain = this.chains[i]
+      chain.draw(this.dragImage, i)
+    }
 
-  //   redrawChains()
+    this.redrawChains()
 
-  //   final menuDiv = menu.draw(dragImage)
-  //   menuDiv.style.maxHeight = "${height}px"
-  //   wrapper.append(menuDiv)
+    const menuDiv = this.menu.draw(this.dragImage)
+    menuDiv.style.maxHeight = `${this.height}px`
+    wrapper.append(menuDiv)
 
-  //   final spaceDropzone = Dropzone(spaceDiv, acceptor: this.acceptor)
-  //   spaceDropzone.onDragEnter.listen( (e) {
-  //     DragManager.current.isOverWorkspace = true
-  //     menu.updateDragOver()
-  //   })
-  //   spaceDropzone.onDragOver.listen( (e) => this.updateDragOver() )
-  //   spaceDropzone.onDragLeave.listen( (e) {
-  //     DragManager.current.isOverWorkspace = false
-  //     this.updateDragOver()
-  //     menu.updateDragOver()
-  //   })
-  //   spaceDropzone.onDrop.listen(drop)
+    // final spaceDropzone = Dropzone(spaceDiv, acceptor: this.acceptor)
+    // spaceDropzone.onDragEnter.listen( (e) {
+    //   DragManager.current.isOverWorkspace = true
+    //   menu.updateDragOver()
+    // })
+    // spaceDropzone.onDragOver.listen( (e) => this.updateDragOver() )
+    // spaceDropzone.onDragLeave.listen( (e) {
+    //   DragManager.current.isOverWorkspace = false
+    //   this.updateDragOver()
+    //   menu.updateDragOver()
+    // })
+    // spaceDropzone.onDrop.listen(drop)
 
-  //   containerDropzone.onDragEnter.listen( (e) {
-  //     DragManager.current.isOverContainer = true
-  //     menu.updateDragOver()
-  //   })
-  //   containerDropzone.onDragLeave.listen( (e) {
-  //     DragManager.current.isOverContainer = false
-  //     menu.updateDragOver()
-  //   })
+    // containerDropzone.onDragEnter.listen( (e) {
+    //   DragManager.current.isOverContainer = true
+    //   menu.updateDragOver()
+    // })
+    // containerDropzone.onDragLeave.listen( (e) {
+    //   DragManager.current.isOverContainer = false
+    //   menu.updateDragOver()
+    // })
 
-  //   updateWorkspaceHeight()
+    this.updateWorkspaceHeight()
   }
 
   // void drop(DropzoneEvent event) {
@@ -219,90 +225,90 @@ class CodeWorkspace {
   //   programChanged(new BlockChangedEvent(changedBlock))
   // }
 
-  // void createChain(Iterable<Block> newBlocks, int x, int y) {
-  //   Chain newChain = new Chain(this)
-  //   int newChainIndex = chains.length
-  //   chains.add(newChain)
-  //   DivElement chainDiv = newChain.draw(dragImage, newChainIndex)
-  //   spaceDiv.append(chainDiv)
-  //   newChain.addBlocks(newBlocks)
-  //   newChain.updatePosition(x, y)
-  // }
-
-  // void removeChain(int chainIndex) {
-  //   Chain chain = this.chains[chainIndex]
-  //   this.chains.removeAt(chainIndex)
-  //   chain.div.remove()
-
-  //   for (int i = 0; i < this.chains.length; i++) {
-  //     Chain chain = this.chains[i]
-  //     chain.resetDragData(i)
-  //   }
-  // }
-
-  // void redrawChains() {
-  //   final sortedChains = chains.toList()
-  //   sortedChains.sort((c1, c2) => c1.y.compareTo(c2.y))
-  //   chainsDiv.innerHtml = ""
-  //   for (Chain chain in sortedChains) {
-  //     chainsDiv.append(chain.div)
-  //   }
-  // }
-
-  // void enableDropZones() {
-  //   for (Chain chain in chains) {
-  //     chain.enableDropZones()
-  //   }
-  // }
-
-  // void disableDropZones() {
-  //   for (Chain chain in chains) {
-  //     chain.disableDropZones()
-  //   }
-  // }
-
-  // void updateDragOver() {
-  //   for (Chain chain in chains) {
-  //     chain.updateDragOver()
-  //   }
-  // }
-
-  // void clearDragOver() {
-  //   for (Chain chain in chains) {
-  //     chain.clearDragOver()
-  //   }
-  //   menu.updateDragOver()
-  // }
-
-  _updateWorkspaceForChanges(): void {
-    // updateWorkspaceHeight()
-    // resetBlockActionText()
-    // this.menu.updateLimits()
+  createChain(newBlocks: Block[], x: number, y: number): void {
+    const newChainIndex = this.chains.length
+    const newChain = new Chain(this, newChainIndex)
+    this.chains.push(newChain)
+    const chainDiv = newChain.draw(this.dragImage, newChainIndex)
+    this.spaceDiv.append(chainDiv)
+    newChain.addBlocks(newBlocks)
+    newChain.updatePosition(x, y)
   }
 
-  // void updateWorkspaceHeight() {
-  //   int maxHeight = height; // start with the minimum height from the model
-  //   final containerRect = container.getBoundingClientRect()
-  //   for (Chain chain in chains) {
-  //     final rect = chain.div.getBoundingClientRect()
-  //     final childHeight = (rect.bottom - containerRect.top).ceil()
-  //     if (childHeight > maxHeight) {
-  //       maxHeight = childHeight
-  //     }
-  //   }
-  //   currentHeight = maxHeight + 1
-  //   final newHeight = "${currentHeight}px"
-  //   spaceDiv.style.minHeight = newHeight
-  //   menu.menuDiv.style.maxHeight = newHeight
-  // }
+  removeChain(chainIndex: number): void {
+    const chain = this.chains[chainIndex]
+    this.chains.splice(chainIndex, 1)
+    chain.div.remove()
 
-  // void resetBlockActionText() {
-  //   for (Chain chain in chains) {
-  //     for (Block block in chain.blocks) {
-  //       block.resetBlockActionText()
-  //     }
-  //   }
-  // }
+    for (var i = 0; i < this.chains.length; i++) {
+      const chain = this.chains[i]
+      chain.resetDragData(i)
+    }
+  }
+
+  redrawChains(): void {
+    const sortedChains = this.chains.slice(0)
+    sortedChains.sort((c1, c2) =>  c1.y - c2.y)
+    this.chainsDiv.innerHTML = ""
+    for (var chain of sortedChains) {
+      this.chainsDiv.append(chain.div)
+    }
+  }
+
+  enableDropZones(): void {
+    for (var chain of this.chains) {
+      chain.enableDropZones()
+    }
+  }
+
+  disableDropZones(): void {
+    for (var chain of this.chains) {
+      chain.disableDropZones()
+    }
+  }
+
+  updateDragOver(): void {
+    for (var chain of this.chains) {
+      chain.updateDragOver()
+    }
+  }
+
+  clearDragOver(): void {
+    for (var chain of this.chains) {
+      chain.clearDragOver()
+    }
+    this.menu.updateDragOver()
+  }
+
+  _updateWorkspaceForChanges(): void {
+    this.updateWorkspaceHeight()
+    this.resetBlockActionText()
+    this.menu.updateLimits()
+  }
+
+  updateWorkspaceHeight(): void {
+    var maxHeight = this.height; // start with the minimum height from the model
+    const containerRect = this.container.getBoundingClientRect()
+    for (var chain of this.chains) {
+      const rect = chain.div.getBoundingClientRect()
+      const childHeight = Math.ceil(rect.bottom - containerRect.top)
+      if (childHeight > maxHeight) {
+        maxHeight = childHeight
+      }
+    }
+    this.currentHeight = maxHeight + 1
+    const newHeight = `${this.currentHeight}px`
+    this.spaceDiv.style.minHeight = newHeight
+    this.menu.menuDiv.style.maxHeight = newHeight
+  }
+
+  resetBlockActionText(): void {
+    for (var chain of this.chains) {
+      for (var block of chain.blocks) {
+        block.resetBlockActionText()
+      }
+    }
+  }
 
   removeEventListeners(): void {
     // containerDropzone.destroy()

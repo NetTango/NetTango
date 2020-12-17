@@ -3,37 +3,37 @@
 class DragImage {
 
 // class DragImage extends AvatarHandler {
-  // DivElement element = new DivElement();
+  element = new HTMLDivElement()
 
   // @override
   // void dragStart(Element draggable, Point startPosition) {
-  //   avatar = element;
+  //   avatar = element
   //   // move the drag display "home" to calc the root offset
-  //   setLeftTop(Point(0, 0));
-  //   final avatarOffset = getOffsetToRoot(avatar);
-  //   final draggableOffset = getOffsetToRoot(draggable);
-  //   setLeftTop(draggableOffset - avatarOffset);
+  //   setLeftTop(Point(0, 0))
+  //   final avatarOffset = getOffsetToRoot(avatar)
+  //   final draggableOffset = getOffsetToRoot(draggable)
+  //   setLeftTop(draggableOffset - avatarOffset)
   // }
 
   // static Point getOffsetToRoot(Element element) {
   //   if (element.offsetParent == null) {
-  //     return element.offset.topLeft;
+  //     return element.offset.topLeft
   //   } else {
-  //     return element.offset.topLeft + getOffsetToRoot(element.offsetParent);
+  //     return element.offset.topLeft + getOffsetToRoot(element.offsetParent)
   //   }
   // }
 
   // @override
   // void drag(Point startPosition, Point position) {
-  //   setTranslate(position - startPosition);
-  //   avatar.style.visibility = "visible";
+  //   setTranslate(position - startPosition)
+  //   avatar.style.visibility = "visible"
   // }
 
   // @override
   // void dragEnd(Point startPosition, Point position) {
-  //   element.classes.remove("nt-chain-starter");
-  //   element.classes.remove("nt-chain-fragment");
-  //   element.style.visibility = null;
+  //   element.classes.remove("nt-chain-starter")
+  //   element.classes.remove("nt-chain-fragment")
+  //   element.style.visibility = null
   // }
 
 }
