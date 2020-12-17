@@ -2,13 +2,25 @@
 
 class StringBuffer {
 
+  private currentLine: string[]
+
   lines: string[][] = []
 
+  constructor() {
+    this.currentLine = []
+    this.lines.push(this.currentLine)
+  }
+
   write(chunk: string): void {
-    if (this.lines.length === 0) {
-      this.lines.push([])
+    this.currentLine.push(chunk)
+  }
+
+  writeln(chunk: string | null = null): void {
+    if (chunk !== null) {
+      this.write(chunk)
     }
-    this.lines[this.lines.length - 1].push(chunk)
+    this.currentLine = []
+    this.lines.push(this.currentLine)
   }
 
   toString(): string {

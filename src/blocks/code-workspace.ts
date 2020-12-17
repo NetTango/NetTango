@@ -17,16 +17,16 @@ class CodeWorkspace {
 
   formatter: CodeFormatter
 
-  // String chainOpen
-  // String chainClose
+  chainOpen: string | null = null
+  chainClose: string | null = null
 
   chains: Chain[] = []
 
   nextBlockId: number = 0
   nextBlockInstanceId: number = 0
 
-  // /// block menu
-  // BlockMenu menu
+  /// block menu
+  menu: BlockMenu
 
   /// global variable definitions and types
   variables: string[] = []
@@ -82,7 +82,7 @@ class CodeWorkspace {
   //   container.style.minWidth  = "${width}px"
   //   container.style.maxWidth  = "${width}px"
 
-  //   menu = new BlockMenu(this)
+    this.menu = new BlockMenu(this)
 
   }
 
@@ -104,12 +104,12 @@ class CodeWorkspace {
     return this.formatter.formatCode(this, true, formatAttributeOverride)
   }
 
-  // int getBlockCount(int id) {
-  //   if (chains.isEmpty) {
-  //     return 0
-  //   }
-  //   return NumUtils.sum(chains.map( (c) => c.getBlockCount(id) ))
-  // }
+  getBlockCount(id: number): number {
+    if (this.chains.length === 0) {
+      return 0
+    }
+    return NumUtils.sum(this.chains.map( (c) => c.getBlockCount(id) ))
+  }
 
   getBlockInstance(instanceId: number): Block {
     for (var chain of this.chains) {

@@ -25,16 +25,16 @@ class Block {
   // /// language specific command type used by code formatters (e.g. nlogo:command)
   // var type
 
-  // /// formatting hint to help translate the parse tree into source code.
-  // /// parameters can be referenced using python format syntax. e.g.
-  // /// "if random 100 > {0}"
-  // String format
+  /// formatting hint to help translate the parse tree into source code.
+  /// parameters can be referenced using python format syntax. e.g.
+  /// "if random 100 > {0}"
+  format: string | null = null
 
-  // /// code to be inserted after all clauses
-  // String closeClauses
+  /// code to be inserted after all clauses
+  closeClauses: string | null = null
 
-  // /// code to be inserted after all attached blocks in a chain if the block is a starter
-  // String closeStarter
+  /// code to be inserted after all attached blocks in a chain if the block is a starter
+  closeStarter: string | null = null
 
   // /// extra text to include in the code tip info of a block
   // String note
@@ -60,8 +60,8 @@ class Block {
   // String borderColor
   // String font
 
-  // /// Tells a code formatter that at least one block of this type is required
-  // bool isRequired = false
+  /// Tells a code formatter that at least one block of this type is required
+  isRequired: boolean = false
 
   // /// Can this block accept subsequent peer blocks in the chain/clause?
   // bool isTerminal
@@ -139,14 +139,14 @@ class Block {
   //   return other
   // }
 
-  // int getBlockCount(int id) {
-  //   int count = 0
-  //   if (this.id == id) { count++; }
-  //   if (this.hasClauses) {
-  //     count = count + NumUtils.sum(this.clauses.map( (clause) => clause.getBlockCount(id) ))
-  //   }
-  //   return count
-  // }
+  getBlockCount(id: number): number {
+    var count: number = 0
+    if (this.id === id) { count++ }
+    if (this.hasClauses) {
+      count = count + NumUtils.sum(this.clauses.map( (clause) => clause.getBlockCount(id) ))
+    }
+    return count
+  }
 
   getBlockInstance(instanceId: number): Block | null {
     if (this.instanceId === instanceId) {

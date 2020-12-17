@@ -8,17 +8,17 @@ abstract class BlockCollection {
 
   // void redrawBlocks()
 
-  // int getBlockCount(int id) {
-  //   try {
-  //     if (this.blocks.isEmpty) {
-  //       return 0
-  //     }
-  //     return NumUtils.sum(blocks.map( (b) => b.getBlockCount(id) ))
-  //   } catch (ex) {
-  //     print("here is the fail ${ex.toString()}")
-  //     rethrow
-  //   }
-  // }
+  getBlockCount(id: number): number {
+    try {
+      if (this.blocks.length === 0) {
+        return 0
+      }
+      return NumUtils.sum(this.blocks.map( (b) => b.getBlockCount(id) ))
+    } catch (ex) {
+      console.log(`here is the fail ${ex.toString()}`)
+      throw ex
+    }
+  }
 
   getBlockInstance(instanceId: number): Block | null {
     for (var child of this.blocks) {

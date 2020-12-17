@@ -20,15 +20,15 @@ class StringUtils {
     }
   }
 
-  static toStrNotEmpty(s: string, defaultValue: string): string {
-    return StringUtils.isNullOrEmpty(s) ? defaultValue : s
+  static toStrNotEmpty(s: string | null, defaultValue: string): string {
+    return StringUtils.isNullOrEmpty(s) ? defaultValue : s!
   }
 
-  static isNullOrEmpty(s: string): boolean {
+  static isNullOrEmpty(s: string | null): boolean {
     return s === null || s === ""
   }
 
-  static isNotNullOrEmpty(s: string): boolean {
+  static isNotNullOrEmpty(s: string | null): boolean {
     return !StringUtils.isNullOrEmpty(s)
   }
 

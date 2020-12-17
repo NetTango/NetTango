@@ -18,15 +18,15 @@ class FormatOptions {
   }
 }
 
-// int compareChainsByAction(Chain c1, Chain c2) {
-//   if (c1.blocks.length == 0 || c1.blocks[0].action == null) {
-//     return -1
-//   }
-//   if (c2.blocks.length == 0 || c2.blocks[0].action == null) {
-//     return 1
-//   }
-//   return c1.blocks[0].action.compareTo(c2.blocks[0].action)
-// }
+function compareChainsByAction(c1: Chain, c2: Chain) {
+  if (c1.blocks.length === 0 || c1.blocks[0].action === null) {
+    return -1
+  }
+  if (c2.blocks.length === 0 || c2.blocks[0].action === null) {
+    return 1
+  }
+  return c1.blocks[0].action.localeCompare(c2.blocks[0].action)
+}
 
 class CodeFormatter  {
 
@@ -52,138 +52,140 @@ class CodeFormatter  {
   }
 
   formatCode(workspace: CodeWorkspace, includeRequired: boolean, formatAttributeOverride: FormatAttributeType | null = null): string {
-  //   Function originalFormatAttribute = this.formatAttribute
-  //   if (formatAttributeOverride != null) {
-  //     this.formatAttribute = formatAttributeOverride
-  //   }
+    const originalFormatAttribute = this.formatAttribute
+    if (formatAttributeOverride !== null) {
+      this.formatAttribute = formatAttributeOverride
+    }
 
-  //   final extraChains = workspace.menu.slots
-  //     .where( (slot) => includeRequired && slot.block.isRequired && slot.block.canBeStarter && workspace.getBlockCount(slot.block.id) == 0)
-  //     .map( (slot) => new List<Block>() .. add(slot.block)).toList()
+    const extraChains = workspace.menu.slots
+      .filter( (slot) => includeRequired && slot.block.isRequired && slot.block.canBeStarter && workspace.getBlockCount(slot.block.id) === 0)
+      .map( (slot) => [slot.block] )
 
-  //   // TODO: What to do with required blocks that cannot be starters?
+    // TODO: What to do with required blocks that cannot be starters?
 
-  //   final result = formatLanguageCode(workspace, extraChains)
+    const result = this.formatLanguageCode(workspace, extraChains)
 
-  //   formatAttribute = originalFormatAttribute
+    this.formatAttribute = originalFormatAttribute
 
-  //   return result
-    return ""
+    return result
   }
 
-  // String formatLanguageCode(CodeWorkspace workspace, List<List<Block>> extraChains) {
-  //   StringBuffer out = new StringBuffer()
+  formatLanguageCode(workspace: CodeWorkspace, extraChains: Block[][]): string {
+    const out = new StringBuffer()
 
-  //   final chains = workspace.chains.toList()
-  //   chains.sort(compareChainsByAction)
-  //   for (final chain in chains) {
-  //     formatChainBlocks(out, chain.blocks, workspace.chainOpen, workspace.chainClose)
-  //   }
+    const chains = workspace.chains.slice(0)
+    chains.sort(compareChainsByAction)
+    for (var chain of chains) {
+      this.formatChainBlocks(out, chain.blocks, workspace.chainOpen, workspace.chainClose)
+    }
 
-  //   for (final blocks in extraChains) {
-  //     formatChainBlocks(out, blocks, workspace.chainOpen, workspace.chainClose)
-  //   }
+    for (var blocks of extraChains) {
+      this.formatChainBlocks(out, blocks, workspace.chainOpen, workspace.chainClose)
+    }
 
-  //   return out.toString()
-  // }
+    return out.toString()
+  }
 
-  // void formatChainBlocks(StringBuffer out, List<Block> blocks, String chainOpen, String chainClose) {
-  //   if (blocks.isEmpty) { return; }
+  formatChainBlocks(out: StringBuffer, blocks: Block[], chainOpen: string | null, chainClose: string | null): void {
+    if (blocks.length === 0) { return }
 
-  //   var first = blocks[0]
-  //   if (!first.canBeStarter) { return; }
+    var first = blocks[0]
+    if (!first.canBeStarter) { return }
 
-  //   writeFormatOption(out, null, 0, this.formatOptions.chainOpen, chainOpen)
-  //   formatBlock(out, 0, first)
-  //   formatBlocks(out, 1, blocks.skip(1).toList())
-  //   final override = StringUtils.toStrNotEmpty(blocks.first.closeStarter, chainClose)
-  //   writeFormatOption(out, null, 0, this.formatOptions.chainClose, override)
-  //   out.writeln()
-  // }
+    this.writeFormatOption(out, null, 0, this.formatOptions.chainOpen, chainOpen)
+    this.formatBlock(out, 0, first)
+    this.formatBlocks(out, 1, blocks.slice(1))
+    const override = StringUtils.toStrNotEmpty(first.closeStarter, StringUtils.toStrNotEmpty(chainClose, ""))
+    this.writeFormatOption(out, null, 0, this.formatOptions.chainClose, override)
+    out.writeln()
+  }
 
-  // void formatBlocks(StringBuffer out, int indent, List<Block> blocks) {
-  //   if (blocks.isEmpty) { return; }
+  formatBlocks(out: StringBuffer, indent: number, blocks: Block[]): void {
+    if (blocks.length === 0) { return }
 
-  //   for (var block in blocks) {
-  //     formatBlock(out, indent, block)
-  //   }
-  // }
+    for (var block of blocks) {
+      this.formatBlock(out, indent, block)
+    }
+  }
 
-  // void formatBlock(StringBuffer out, int indent, Block block) {
+  formatBlock(out: StringBuffer, indent: number, block: Block): void {
 
-  //   String format = block.format
-  //   if (format == null) {
-  //     format = "${block.action}"
-  //     for (int i = 0; i < block.params.length; i++) {
-  //       format += " {$i}"
-  //     }
-  //     for (int i = 0; i < block.properties.length; i++) {
-  //       format += " {P$i}"
-  //     }
-  //   }
+    var format = block.format
+    if (format === null) {
+      format = block.action
+      for (var i = 0; i < block.params.size; i++) {
+        format += ` {${i}}`
+      }
+      for (var i = 0; i < block.properties.size; i++) {
+        format += ` {P${i}}`
+      }
+    }
 
-  //   format = replaceParamsAndProps(format, block)
+    format = this.replaceParamsAndProps(format, block)
 
-  //   writeIndentedLine(out, indent, format)
+    this.writeIndentedLine(out, indent, format)
 
-  //   for (Clause clause in block.clauses) {
-  //     formatClause(out, block, clause, indent)
-  //   }
+    for (var clause of block.clauses) {
+      this.formatClause(out, block, clause, indent)
+    }
 
-  //   if (StringUtils.isNotNullOrEmpty(block.closeClauses)) {
-  //     final closeFormat = replaceParamsAndProps(block.closeClauses, block)
-  //     writeIndentedLine(out, indent, closeFormat)
-  //   }
-  // }
+    if (StringUtils.isNotNullOrEmpty(block.closeClauses)) {
+      const closeFormat = this.replaceParamsAndProps(block.closeClauses!, block)
+      this.writeIndentedLine(out, indent, closeFormat)
+    }
+  }
 
-  // String replaceParamsAndProps(String format, Block block) {
-  //   format = replaceAttributes(format, block, block.params, "")
-  //   format = replaceAttributes(format, block, block.properties, "P")
-  //   return format
-  // }
+  replaceParamsAndProps(format: string, block: Block): string {
+    format = this.replaceAttributes(format, block, block.params, "")
+    format = this.replaceAttributes(format, block, block.properties, "P")
+    return format
+  }
 
-  // String replaceAttributes(String format, Block block, Map<int, Attribute> attributes, String placeholder) {
-  //   int i = 0
-  //   for (int key in attributes.keys) {
-  //     format = replaceAttribute(format, "{$placeholder$i}", block, attributes[key])
-  //     i++
-  //   }
-  //   return format
-  // }
+  replaceAttributes(format: string, block: Block, attributes: Map<number, Attribute>, placeholder: string): string {
+    var i = 0
+    for (var key of attributes.keys()) {
+      format = this.replaceAttribute(format, `{${placeholder}${i}}`, block, attributes.get(key)!)
+      i++
+    }
+    return format
+  }
 
-  // void formatClause(StringBuffer out, Block block, Clause clause, int indent) {
-  //   writeFormatOption(out, block, indent, this.formatOptions.clauseOpen, clause.open)
-  //   formatBlocks(out, indent + 1, clause.blocks)
-  //   writeFormatOption(out, block, indent, this.formatOptions.clauseClose, clause.close)
-  // }
+  formatClause(out: StringBuffer, block: Block, clause: Clause, indent: number): void {
+    this.writeFormatOption(out, block, indent, this.formatOptions.clauseOpen, clause.open)
+    this.formatBlocks(out, indent + 1, clause.blocks)
+    this.writeFormatOption(out, block, indent, this.formatOptions.clauseClose, clause.close)
+  }
 
-  // String replaceAttribute(String code, String placeholder, Block block, Attribute attribute) {
-  //   assert (attribute != null)
-  //   final formattedValue = CodeFormatter.formatAttributeValue(attribute)
-  //   final replacement = this.formatAttribute(this.containerId, block.id, block.instanceId, attribute.id, formattedValue, attribute.type)
-  //   return code.replaceAll(placeholder, replacement)
-  // }
+  replaceAttribute(code: string, placeholder: string, block: Block, attribute: Attribute): string {
+    // assert (attribute != null)
+    const formattedValue = CodeFormatter.formatAttributeValue(attribute)
+    if (block.instanceId === null) {
+      throw new Error("Cannot generate attribute code for block instance without an instance ID.")
+    }
+    const replacement = this.formatAttribute(this.containerId, block.id, block.instanceId, attribute.id, formattedValue, attribute.type)
+    return StringUtils.replaceAll(code, placeholder, replacement)
+  }
 
-  // void writeIndentedLine(StringBuffer out, int indent, String line) {
-  //   String fullIndent = ""
-  //   for (int i = 0; i < indent; i++) { fullIndent = fullIndent + indentString; }
-  //   out.write(fullIndent)
-  //   String indentedPost = line.replaceAll("\n", "\n" + fullIndent)
-  //   out.writeln(indentedPost)
-  // }
+  writeIndentedLine(out: StringBuffer, indent: number, line: string): void {
+    var fullIndent = ""
+    for (var i = 0; i < indent; i++) { fullIndent = fullIndent + this.indentString }
+    out.write(fullIndent)
+    const indentedPost = StringUtils.replaceAll(line, "\n", "\n" + fullIndent)
+    out.writeln(indentedPost)
+  }
 
-  // void writeFormatOption(StringBuffer out, Block block, int indent, String formatOption, String override) {
-  //   final option = StringUtils.toStr(override, formatOption)
-  //   if (StringUtils.isNotNullOrEmpty(option) && option.trim() != "") {
-  //     final optionFormat = block == null ? option : replaceParamsAndProps(option, block)
-  //     writeIndentedLine(out, indent, optionFormat)
-  //   }
-  // }
+  writeFormatOption(out: StringBuffer, block: Block | null, indent: number, formatOption: string, override: string | null): void {
+    const option = StringUtils.toStr(override, formatOption)
+    if (StringUtils.isNotNullOrEmpty(option) && option.trim() !== "") {
+      const optionFormat = block === null ? option : this.replaceParamsAndProps(option, block)
+      this.writeIndentedLine(out, indent, optionFormat)
+    }
+  }
 
   static formatAttributeValue(attribute: Attribute): string {
     const value = StringUtils.toStr(attribute.getValue(), "")
     const quoteIt = attribute.shouldQuote()
-    const formatValue = quoteIt ? "\"$value\"" : value
+    const formatValue = quoteIt ? `\"${value}\"` : value
     return formatValue
   }
 
