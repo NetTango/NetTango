@@ -2,7 +2,7 @@
 
 class Clause extends BlockCollection {
 
-  // final storage = new ExternalStorage(["children", "action", "open", "close", "allowedTags"])
+  readonly storage = new ExternalStorage(["children", "action", "open", "close", "allowedTags"])
 
   readonly owner: Block
   readonly clauseIndex: number
@@ -12,10 +12,12 @@ class Clause extends BlockCollection {
 
   allowedTags: AllowedTags = new UnrestrictedTags()
 
-  // bool isDragOver = false
-  // bool isDragHeaderOver = false
+  isDragOver: boolean = false
+  isDragHeaderOver: boolean = false
 
-  // DivElement divider, leftBar, blocksDiv
+  divider: HTMLDivElement = new HTMLDivElement()
+  leftBar: HTMLDivElement = new HTMLDivElement()
+  blocksDiv: HTMLDivElement = new HTMLDivElement()
 
   constructor(owner: Block, clauseIndex: number, action: string, open: string, close: string) {
     super()
@@ -26,182 +28,193 @@ class Clause extends BlockCollection {
     this.close = close
   }
 
-  // DivElement draw(DragImage dragImage, Block container, DivElement extraDropDiv) {
-  //   final acceptor = new ClauseAcceptor(this)
+  draw(dragImage: DragImage, container: Block, extraDropDiv: HTMLDivElement | null): HTMLDivElement {
+    // final acceptor = new ClauseAcceptor(this)
 
-  //   div = new DivElement()
-  //   div.classes.add("nt-clause")
+    this.div = new HTMLDivElement()
+    this.div.classList.add("nt-clause")
 
-  //   if (extraDropDiv != null) {
-  //     final extraDropzone = Dropzone(extraDropDiv, acceptor: acceptor)
-  //     extraDropzone.onDrop.listen(drop)
-  //     extraDropzone.onDragEnter.listen( (e) => isDragHeaderOver = true )
-  //     extraDropzone.onDragLeave.listen( (e) => isDragHeaderOver = false )
-  //   }
+    if (extraDropDiv !== null) {
+      // final extraDropzone = Dropzone(extraDropDiv, acceptor: acceptor)
+      // extraDropzone.onDrop.listen(drop)
+      // extraDropzone.onDragEnter.listen( (e) => isDragHeaderOver = true )
+      // extraDropzone.onDragLeave.listen( (e) => isDragHeaderOver = false )
+    }
 
-  //   final styleClass = container.getStyleClass()
+    const styleClass = container.getStyleClass()
 
-  //   this.leftBar = new DivElement()
-  //   leftBar.classes.add("nt-clause-left-bar")
-  //   leftBar.classes.add("$styleClass-color")
-  //   Block.maybeSetColorOverride(container.blockColor, leftBar)
-  //   div.append(leftBar)
+    this.leftBar = new HTMLDivElement()
+    this.leftBar.classList.add("nt-clause-left-bar")
+    this.leftBar.classList.add(`${styleClass}-color`)
+    Block.maybeSetColorOverride(container.blockColor, this.leftBar)
+    this.div.append(this.leftBar)
 
-  //   this.divider = new DivElement()
-  //   divider.classes.add("nt-clause-divider")
-  //   divider.classes.add("$styleClass-color")
-  //   Block.maybeSetColorOverride(container.blockColor, divider)
-  //   div.append(divider)
+    this.divider = new HTMLDivElement()
+    this.divider.classList.add("nt-clause-divider")
+    this.divider.classList.add(`${styleClass}-color`)
+    Block.maybeSetColorOverride(container.blockColor, this.divider)
+    this.div.append(this.divider)
 
-  //   final dividerText = StringUtils.toStrNotEmpty(this.action, "")
-  //   if (StringUtils.isNotNullOrEmpty(dividerText.trim())) {
-  //     final dividerTextDiv = new DivElement()
-  //     dividerTextDiv.classes.add("nt-clause-divider-text")
-  //     dividerTextDiv.innerText = dividerText
-  //     divider.append(dividerTextDiv)
-  //   }
-  //   // I would much prefer to just put the arrow in the clause directly, but it gets a little
-  //   // tricky to figure out where to place it veritically with dividers, empty clauses, etc.
-  //   // So this makes this mildly easier, but still a little hacky (see the CSS file for more).
-  //   // -Jeremy B August 2020
-  //   final arrow = Arrow.draw()
-  //   divider.append(arrow)
+    const dividerText = StringUtils.toStrNotEmpty(this.action, "")
+    if (StringUtils.isNotNullOrEmpty(dividerText.trim())) {
+      const dividerTextDiv = new HTMLDivElement()
+      dividerTextDiv.classList.add("nt-clause-divider-text")
+      dividerTextDiv.innerText = dividerText
+      this.divider.append(dividerTextDiv)
+    }
+    // I would much prefer to just put the arrow in the clause directly, but it gets a little
+    // tricky to figure out where to place it veritically with dividers, empty clauses, etc.
+    // So this makes this mildly easier, but still a little hacky (see the CSS file for more).
+    // -Jeremy B August 2020
+    const arrow = Arrow.draw()
+    this.divider.append(arrow)
 
-  //   final dropzone = Dropzone(div, acceptor: acceptor)
-  //   dropzone.onDrop.listen(drop)
-  //   dropzone.onDragEnter.listen( (e) => isDragOver = true )
-  //   dropzone.onDragLeave.listen( (e) => isDragOver = false )
+    // final dropzone = Dropzone(div, acceptor: acceptor)
+    // dropzone.onDrop.listen(drop)
+    // dropzone.onDragEnter.listen( (e) => isDragOver = true )
+    // dropzone.onDragLeave.listen( (e) => isDragOver = false )
 
-  //   this.blocksDiv = new DivElement()
-  //   blocksDiv.classes.add("nt-clause-blocks")
+    this.blocksDiv = new HTMLDivElement()
+    this.blocksDiv.classList.add("nt-clause-blocks")
 
-  //   if (blocks.isEmpty) {
-  //     setEmpty()
-  //     return div
-  //   }
+    if (this.blocks.length === 0) {
+      this.setEmpty()
+      return this.div
+    }
 
-  //   div.append(blocksDiv)
+    this.div.append(this.blocksDiv)
 
-  //   for (int i = 0; i < blocks.length; i++) {
-  //     Block block = blocks[i]
-  //     final siblings = blocks.skip(i + 1)
-  //     final dragData = BlockDragData.blockOwned(owner.dragData.chainIndex, i, owner.instanceId, siblings, clauseIndex)
-  //     block.draw(dragImage, dragData)
-  //   }
+    for (var i = 0; i < this.blocks.length; i++) {
+      const block = this.blocks[i]
+      const siblings = this.blocks.slice(i + 1)
+      if (this.owner.dragData.chainIndex === null || this.owner.instanceId === null) {
+        throw new Error("Cannot draw a clause for a block missing drag data or instance ID.")
+      }
+      const dragData = BlockDragData.blockOwned(this.owner.dragData.chainIndex, i, this.owner.instanceId, siblings, this.clauseIndex)
+      block.draw(dragImage, dragData)
+    }
 
-  //   BlockCollection.appendBlocks(blocksDiv, blocks, "nt-block-clause")
+    BlockCollection.appendBlocks(this.blocksDiv, this.blocks, "nt-block-clause")
 
-  //   return div
-  // }
+    return this.div
+  }
 
-  // Clause clone(Block newBlock) {
-  //   final clause = new Clause(newBlock, this.clauseIndex, this.action, this.open, this.close)
-  //   if (this.allowedTags is ConcreteTags) {
-  //     final ConcreteTags allowed = this.allowedTags
-  //     clause.allowedTags = allowed.clone()
-  //   }
-  //   else if (this.allowedTags is InheritTags) {
-  //     final InheritTags allowed = this.allowedTags
-  //     clause.allowedTags = allowed.clone(clause)
-  //   } else {
-  //     throw new Exception("Unknown AllowedTags type for clause cloning")
-  //   }
-  //   return clause
-  // }
+  clone(newBlock: Block): Clause {
+    const clause = new Clause(newBlock, this.clauseIndex, this.action, this.open, this.close)
+    if (this.allowedTags instanceof ConcreteTags) {
+      const allowed: ConcreteTags = this.allowedTags
+      clause.allowedTags = allowed.clone()
+    }
+    else if (this.allowedTags instanceof InheritTags) {
+      const allowed: InheritTags = this.allowedTags
+      clause.allowedTags = allowed.clone(clause)
+    } else {
+      throw new Error("Unknown AllowedTags type for clause cloning")
+    }
+    return clause
+  }
 
-  // void setEmpty() {
-  //   div.classes.add("nt-clause-empty")
-  //   div.append(Notch.drawClause(false, this))
+  setEmpty(): void {
+    this.div.classList.add("nt-clause-empty")
+    this.div.append(Notch.drawClause(false, this))
 
-  //   final dropElement = new DivElement() .. className = "nt-clause-drop"
-  //   div.append(dropElement)
+    const dropElement = new HTMLDivElement()
+    dropElement.className = "nt-clause-drop"
+    this.div.append(dropElement)
 
-  //   div.append(Notch.drawClause(true,  this))
-  // }
+    this.div.append(Notch.drawClause(true,  this))
+  }
 
-  // void setNonEmpty() {
-  //   div.classes.remove("nt-clause-empty")
-  // }
+  setNonEmpty(): void {
+    this.div.classList.remove("nt-clause-empty")
+  }
 
-  // void resetOwned() {
-  //   for (int i = 0; i < blocks.length; i++) {
-  //     Block block = blocks[i]
-  //     block.dragData.resetBlockOwned(owner.dragData.chainIndex, i, owner.instanceId, blocks.skip(i + 1), clauseIndex)
-  //     block.resetOwnedBlocksDragData()
-  //   }
-  // }
+  resetOwned(): void {
+    for (var i = 0; i < this.blocks.length; i++) {
+      const block = this.blocks[i]
+      if (this.owner.dragData.chainIndex === null || this.owner.instanceId === null) {
+        throw new Error("Cannot draw a clause for a block missing drag data or instance ID.")
+      }
+      block.dragData.resetBlockOwned(this.owner.dragData.chainIndex, i, this.owner.instanceId, this.blocks.slice(i + 1), this.clauseIndex)
+      block.resetOwnedBlocksDragData()
+    }
+  }
 
-  // void redrawBlocks() {
-  //   div.innerHtml = ""
-  //   this.blocksDiv.innerHtml = ""
+  redrawBlocks(): void {
+    this.div.innerHTML = ""
+    this.blocksDiv.innerHTML = ""
 
-  //   div.append(this.leftBar)
-  //   div.append(this.divider)
+    this.div.append(this.leftBar)
+    this.div.append(this.divider)
 
-  //   if (blocks.isEmpty) {
-  //     setEmpty()
-  //     return
-  //   }
+    if (this.blocks.length === 0) {
+      this.setEmpty()
+      return
+    }
 
-  //   setNonEmpty()
+    this.setNonEmpty()
 
-  //   div.append(blocksDiv)
+    this.div.append(this.blocksDiv)
 
-  //   for (int i = 0; i < blocks.length; i++) {
-  //     Block block = blocks[i]
-  //     block.dragData.resetBlockOwned(owner.dragData.chainIndex, i, owner.instanceId, blocks.skip(i + 1), clauseIndex)
-  //     block.resetOwnedBlocksDragData()
-  //   }
+    for (var i = 0; i < this.blocks.length; i++) {
+      const block = this.blocks[i]
+      if (this.owner.dragData.chainIndex === null || this.owner.instanceId === null) {
+        throw new Error("Cannot draw a clause for a block missing drag data or instance ID.")
+      }
+      block.dragData.resetBlockOwned(this.owner.dragData.chainIndex, i, this.owner.instanceId, this.blocks.slice(i + 1), this.clauseIndex)
+      block.resetOwnedBlocksDragData()
+    }
 
-  //   BlockCollection.appendBlocks(blocksDiv, blocks, "nt-block-clause")
-  // }
+    BlockCollection.appendBlocks(this.blocksDiv, this.blocks, "nt-block-clause")
+  }
 
-  // void enableDropZones() {
-  //   if (ClauseAcceptor.isLandingSpot(this)) {
-  //     this.div.classes.add("nt-allowed-drop")
-  //   }
+  enableDropZones(): void {
+    // if (ClauseAcceptor.isLandingSpot(this)) {
+    //   this.div.classes.add("nt-allowed-drop")
+    // }
 
-  //   for (final block in this.blocks) {
-  //     block.enableDropZones()
-  //   }
-  // }
+    // for (final block in this.blocks) {
+    //   block.enableDropZones()
+    // }
+  }
 
-  // void disableDropZones() {
-  //   this.div.classes.remove("nt-allowed-drop")
+  disableDropZones(): void {
+    // this.div.classes.remove("nt-allowed-drop")
 
-  //   for (final block in this.blocks) {
-  //     block.disableDropZones()
-  //   }
-  // }
+    // for (final block in this.blocks) {
+    //   block.disableDropZones()
+    // }
+  }
 
-  // bool updateDragOver() {
-  //   div.classes.remove("nt-block-clause-drag-over")
-  //   if (blocks.isNotEmpty) { blocks[0].blockDiv.classes.remove("nt-block-clause-drag-over"); }
-  //   bool isHighlightHandled = false
-  //   for (Block block in blocks) {
-  //     final blockResult = block.updateDragOver()
-  //     isHighlightHandled = isHighlightHandled || blockResult
-  //   }
-  //   if ((isDragOver || isDragHeaderOver) && !isHighlightHandled) {
-  //     isHighlightHandled = true
-  //     if (blocks.isEmpty) {
-  //       div.classes.add("nt-block-clause-drag-over")
-  //     } else {
-  //       blocks[0].blockDiv.classes.add("nt-block-clause-drag-over")
-  //     }
-  //   }
-  //   return isHighlightHandled
-  // }
+  updateDragOver(): boolean {
+    this.div.classList.remove("nt-block-clause-drag-over")
+    if (this.blocks.length > 0) { this.blocks[0].blockDiv.classList.remove("nt-block-clause-drag-over") }
 
-  // void clearDragOver() {
-  //   div.classes.remove("nt-block-clause-drag-over")
-  //   if (blocks.isNotEmpty) { blocks[0].blockDiv.classes.remove("nt-block-clause-drag-over"); }
-  //   isDragOver = false
-  //   isDragHeaderOver = false
-  //   for (Block block in blocks) {
-  //     block.clearDragOver()
-  //   }
-  // }
+    var isHighlightHandled = false
+    for (var block of this.blocks) {
+      const blockResult = block.updateDragOver()
+      isHighlightHandled = isHighlightHandled || blockResult
+    }
+    if ((this.isDragOver || this.isDragHeaderOver) && !isHighlightHandled) {
+      isHighlightHandled = true
+      if (this.blocks.length === 0) {
+        this.div.classList.add("nt-block-clause-drag-over")
+      } else {
+        this.blocks[0].blockDiv.classList.add("nt-block-clause-drag-over")
+      }
+    }
+    return isHighlightHandled
+  }
+
+  clearDragOver(): void {
+    this.div.classList.remove("nt-block-clause-drag-over")
+    if (this.blocks.length > 0) { this.blocks[0].blockDiv.classList.remove("nt-block-clause-drag-over"); }
+    this.isDragOver = false
+    this.isDragHeaderOver = false
+    for (var block of this.blocks) {
+      block.clearDragOver()
+    }
+  }
 
   // void drop(DropzoneEvent event) {
   //   DragManager.current.wasHandled = true

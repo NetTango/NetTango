@@ -2,169 +2,174 @@
 
 class Chain extends BlockCollection {
 
-  // final storage = new ExternalStorage(["x", "y", "blocks"])
+  readonly storage = new ExternalStorage(["x", "y", "blocks"])
 
-  // static final FRAGMENT_HEIGHT = 40
+  static readonly FRAGMENT_HEIGHT = 40
 
-  // int x = 0, y = 0
+  x = 0
+  y = 0
 
-  // final CodeWorkspace workspace
+  readonly workspace: CodeWorkspace
 
-  // int chainIndex
+  chainIndex: number
 
-  // DivElement fragmentDiv
-  // bool isDragOver = false
+  fragmentDiv = new HTMLDivElement()
+  isDragOver: boolean = false
 
-  // bool get isFragment => blocks.isEmpty || !blocks[0].canBeStarter
+  get isFragment(): boolean { return this.blocks.length === 0 || !this.blocks[0].canBeStarter }
 
-  // Chain(CodeWorkspace this.workspace)
+  constructor(workspace: CodeWorkspace, chainIndex: number) {
+    super()
+    this.workspace = workspace
+    this.chainIndex = chainIndex
+  }
 
-  // DivElement draw(DragImage dragImage, int newChainIndex) {
-  //   this.chainIndex = newChainIndex
+  draw(dragImage: DragImage, newChainIndex: number): HTMLDivElement {
+    this.chainIndex = newChainIndex
 
-  //   fragmentDiv = new DivElement()
-  //   fragmentDiv.classes.add("nt-fragment")
-  //   final fragmentDropzone = Dropzone(fragmentDiv, acceptor: new ChainAcceptor(this))
-  //   fragmentDropzone.onDrop.listen(drop)
-  //   fragmentDropzone.onDragEnter.listen( (e) => isDragOver = true )
-  //   fragmentDropzone.onDragLeave.listen( (e) => isDragOver = false )
+    this.fragmentDiv = new HTMLDivElement()
+    this.fragmentDiv.classList.add("nt-fragment")
+    // final fragmentDropzone = Dropzone(fragmentDiv, acceptor: new ChainAcceptor(this))
+    // fragmentDropzone.onDrop.listen(drop)
+    // fragmentDropzone.onDragEnter.listen( (e) => isDragOver = true )
+    // fragmentDropzone.onDragLeave.listen( (e) => isDragOver = false )
 
-  //   div = new DivElement()
-  //   div.classes.add("nt-chain")
+    this.div = new HTMLDivElement()
+    this.div.classList.add("nt-chain")
 
-  //   if (blocks.isEmpty) {
-  //     return div
-  //   }
+    if (this.blocks.length === 0) {
+      return this.div
+    }
 
-  //   for (int i = 0; i < blocks.length; i++) {
-  //     Block block = blocks.elementAt(i)
-  //     final dragData = BlockDragData.workspaceChain(chainIndex, i, blocks.skip(i + 1))
-  //     block.draw(dragImage, dragData)
-  //   }
+    for (var i = 0; i < this.blocks.length; i++) {
+      const block = this.blocks[i]
+      const dragData = BlockDragData.workspaceChain(this.chainIndex, i, this.blocks.slice(i + 1))
+      block.draw(dragImage, dragData)
+    }
 
-  //   Chain.redrawChain(div, blocks, false, fragmentDiv: fragmentDiv)
+    Chain.redrawChain(this.div, this.blocks, false, this.fragmentDiv)
 
-  //   updatePosition(this.x, this.y)
+    this.updatePosition(this.x, this.y)
 
-  //   return div
-  // }
+    return this.div
+  }
 
-  // void updatePosition(int x, int y) {
-  //   this.x = x
-  //   this.y = y
-  //   div.style.left = "${x}px"
-  //   div.style.top  = "${y}px"
-  // }
+  updatePosition(x: number, y: number): void {
+    this.x = x
+    this.y = y
+    this.div.style.left = `${x}px`
+    this.div.style.top  = `${y}px`
+  }
 
-  // void resetDragData(int newChainIndex) {
-  //   this.chainIndex = newChainIndex
-  //   for (int i = 0; i < blocks.length; i++) {
-  //     Block block = blocks[i]
-  //     block.dragData.resetWorkspaceChain(chainIndex, i, blocks.skip(i + 1))
-  //     block.resetOwnedBlocksDragData()
-  //   }
-  // }
+  resetDragData(newChainIndex: number): void {
+    this.chainIndex = newChainIndex
+    for (var i = 0; i < this.blocks.length; i++) {
+      const block = this.blocks[i]
+      block.dragData.resetWorkspaceChain(this.chainIndex, i, this.blocks.slice(i + 1))
+      block.resetOwnedBlocksDragData()
+    }
+  }
 
-  // bool updateDragOver() {
-  //   fragmentDiv.classes.remove("nt-drag-over")
-  //   bool isHighlightHandled = false
-  //   for (Block block in blocks) {
-  //     final blockResult = block.updateDragOver()
-  //     isHighlightHandled = isHighlightHandled || blockResult
-  //   }
-  //   if (isDragOver && !isHighlightHandled) {
-  //     isHighlightHandled = true
-  //     fragmentDiv.classes.add("nt-drag-over")
-  //   }
-  //   return isHighlightHandled
-  // }
+  updateDragOver(): boolean {
+    this.fragmentDiv.classList.remove("nt-drag-over")
+    var isHighlightHandled = false
+    for (var block of this.blocks) {
+      const blockResult = block.updateDragOver()
+      isHighlightHandled = isHighlightHandled || blockResult
+    }
+    if (this.isDragOver && !isHighlightHandled) {
+      isHighlightHandled = true
+      this.fragmentDiv.classList.add("nt-drag-over")
+    }
+    return isHighlightHandled
+  }
 
-  // void clearDragOver() {
-  //   fragmentDiv.classes.remove("nt-drag-over")
-  //   isDragOver = false
-  //   for (Block block in blocks) {
-  //     block.clearDragOver()
-  //   }
-  // }
+  clearDragOver(): void {
+    this.fragmentDiv.classList.remove("nt-drag-over")
+    this.isDragOver = false
+    for (var block of this.blocks) {
+      block.clearDragOver()
+    }
+  }
 
-  // static void redrawChain(DivElement div, List<Block> blocks, bool useClones, {DivElement fragmentDiv = null}) {
-  //   div.innerHtml = ""
+  static redrawChain(div: HTMLDivElement, blocks: Block[], useClones: boolean, fragmentDiv: HTMLDivElement | null = null): void {
+    div.innerHTML = ""
 
-  //   if (blocks.first.canBeStarter) {
-  //     div.classes.add("nt-chain-starter")
-  //     div.classes.remove("nt-chain-fragment")
+    if (blocks[0].canBeStarter) {
+      div.classList.add("nt-chain-starter")
+      div.classList.remove("nt-chain-fragment")
 
-  //     final topCap = Cap.draw(true, blocks.first)
-  //     div.append(topCap)
+      const topCap = Cap.draw(true, blocks[0])
+      div.append(topCap)
 
-  //   } else {
-  //     div.classes.remove("nt-chain-starter")
-  //     div.classes.add("nt-chain-fragment")
+    } else {
+      div.classList.remove("nt-chain-starter")
+      div.classList.add("nt-chain-fragment")
 
-  //     if (fragmentDiv != null) {
-  //       div.append(fragmentDiv)
-  //     }
+      if (fragmentDiv !== null) {
+        div.append(fragmentDiv)
+      }
 
-  //     final topNotch = Notch.draw(true, blocks.first)
-  //     div.append(topNotch)
+      const topNotch = Notch.draw(true, blocks[0])
+      div.append(topNotch)
 
-  //     final arrow = Arrow.draw()
-  //     div.append(arrow)
-  //   }
+      const arrow = Arrow.draw()
+      div.append(arrow)
+    }
 
-  //   BlockCollection.appendBlocks(div, blocks, "nt-block", useClones: useClones)
+    BlockCollection.appendBlocks(div, blocks, "nt-block", useClones)
 
-  //   if (blocks.last.isAttachable) {
-  //     final bottomNotch = Notch.draw(false, blocks.last)
-  //     div.append(bottomNotch)
-  //   } else {
-  //     final bottomCap = Cap.draw(false, blocks.last)
-  //     div.append(bottomCap)
-  //   }
-  // }
+    if (blocks[blocks.length - 1].isAttachable) {
+      const bottomNotch = Notch.draw(false, blocks[blocks.length - 1])
+      div.append(bottomNotch)
+    } else {
+      const bottomCap = Cap.draw(false, blocks[blocks.length - 1])
+      div.append(bottomCap)
+    }
+  }
 
-  // void redrawBlocks() {
-  //   for (int i = 0; i < blocks.length; i++) {
-  //     Block block = blocks[i]
-  //     block.dragData.resetWorkspaceChain(chainIndex, i, blocks.skip(i + 1))
-  //     block.resetOwnedBlocksDragData()
-  //   }
-  //   Chain.redrawChain(div, blocks, false, fragmentDiv: fragmentDiv)
-  // }
+  redrawBlocks(): void {
+    for (var i = 0; i < this.blocks.length; i++) {
+      const block = this.blocks[i]
+      block.dragData.resetWorkspaceChain(this.chainIndex, i, this.blocks.slice(i + 1))
+      block.resetOwnedBlocksDragData()
+    }
+    Chain.redrawChain(this.div, this.blocks, false, this.fragmentDiv)
+  }
 
-  // void addBlocks(Iterable<Block> newBlocks) {
-  //   insertBlocks(blocks.length, newBlocks)
-  // }
+  addBlocks(newBlocks: Block[]): void {
+    this.insertBlocks(this.blocks.length, newBlocks)
+  }
 
-  // void enableDropZones() {
-  //   if (ChainAcceptor.isLandingSpot(this)) {
-  //     this.div.classes.add("nt-allowed-drop")
-  //   }
+  enableDropZones(): void {
+    // if (ChainAcceptor.isLandingSpot(this)) {
+    //   this.div.classes.add("nt-allowed-drop")
+    // }
 
-  //   if (isFragment) {
-  //     fragmentDiv.classes.add("show")
-  //     final top = this.y.round() - FRAGMENT_HEIGHT
-  //     div.style.top = "${top}px"
-  //   }
+    // if (isFragment) {
+    //   fragmentDiv.classes.add("show")
+    //   final top = this.y.round() - FRAGMENT_HEIGHT
+    //   div.style.top = "${top}px"
+    // }
 
-  //   for (final block in this.blocks) {
-  //     block.enableDropZones()
-  //   }
-  // }
+    // for (final block in this.blocks) {
+    //   block.enableDropZones()
+    // }
+  }
 
-  // void disableDropZones() {
-  //   this.div.classes.remove("nt-allowed-drop")
+  disableDropZones(): void {
+    // this.div.classes.remove("nt-allowed-drop")
 
-  //   fragmentDiv.classes.remove("show")
-  //   final top = this.y.round()
-  //   div.style.top = "${top}px"
+    // fragmentDiv.classes.remove("show")
+    // final top = this.y.round()
+    // div.style.top = "${top}px"
 
-  //   for (final block in this.blocks) {
-  //     block.disableDropZones()
-  //   }
-  // }
+    // for (final block in this.blocks) {
+    //   block.disableDropZones()
+    // }
+  }
 
-  // void drop(DropzoneEvent event) {
+  //  drop(DropzoneEvent event): void {
   //   DragManager.current.wasHandled = true
 
   //   final newBlocks = workspace.dragManager.consumeDraggingBlocks()

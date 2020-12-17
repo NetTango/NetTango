@@ -64,8 +64,8 @@ class Block {
   isRequired: boolean = false
 
   // /// Can this block accept subsequent peer blocks in the chain/clause?
-  // bool isTerminal
-  // bool get isAttachable => isTerminal == null ? true : !isTerminal
+  isTerminal: boolean | null = null
+  get isAttachable(): boolean { return this.isTerminal === null ? true : !this.isTerminal }
 
   // /// Restrict block placement
   placement: "starter" | "child" | "anywhere" = BlockPlacement.CHILD
@@ -83,12 +83,12 @@ class Block {
   /// link back to the main workspace
   workspace: CodeWorkspace
 
-  // DragImage dragImage
+  dragImage: DragImage | null = null
   // BlockAcceptor acceptor
-  dragData: BlockDragData | null = null
-  // bool isDragOver = false
+  dragData: BlockDragData = new BlockDragData()
+  isDragOver = false
   isDragNotchOver = false
-  // DivElement blockDiv
+  blockDiv = new HTMLDivElement()
   // DivElement actionDiv
   // Toggle propertiesToggle
 
@@ -179,12 +179,12 @@ class Block {
     return `${this.workspace.containerId}-block-command`
   }
 
-  // DivElement draw(DragImage dragImage, BlockDragData dragData) {
-  //   this.dragImage = dragImage
-  //   this.dragData = dragData
+  draw(dragImage: DragImage, dragData: BlockDragData): HTMLDivElement {
+    this.dragImage = dragImage
+    this.dragData = dragData
   //   this.acceptor = new BlockAcceptor(this)
 
-  //   this.blockDiv = new DivElement()
+    this.blockDiv = new HTMLDivElement()
   //   blockDiv.classes.add("nt-block")
   //   final styleClass = getStyleClass()
   //   blockDiv.classes.add(styleClass)
@@ -259,8 +259,8 @@ class Block {
 
   //   Block.wireDragEvents(this, blockDiv, (isOver) => this.isDragOver = isOver )
 
-  //   return blockDiv
-  // }
+    return this.blockDiv
+  }
 
   static maybeSetColorOverride(backgroundColor: string | null, div: HTMLDivElement): void {
     // if (backgroundColor != null) { div.style.backgroundColor = backgroundColor; }
@@ -313,30 +313,30 @@ class Block {
   //   return escapedValue
   // }
 
-  // bool updateDragOver() {
-  //   blockDiv.classes.remove("nt-drag-over")
-  //   blockDiv.classes.remove("nt-block-clause-drag-over")
-  //   bool isHighlightHandled = false
-  //   for (Clause clause in clauses) {
-  //     final clauseResult = clause.updateDragOver()
-  //     isHighlightHandled = isHighlightHandled || clauseResult
-  //   }
-  //   if ((isDragOver || isDragNotchOver) && !isHighlightHandled) {
-  //     isHighlightHandled = true
-  //     blockDiv.classes.add("nt-drag-over")
-  //   }
-  //   return isHighlightHandled
-  // }
+  updateDragOver(): boolean {
+    this.blockDiv.classList.remove("nt-drag-over")
+    this.blockDiv.classList.remove("nt-block-clause-drag-over")
+    var isHighlightHandled = false
+    for (var clause of this.clauses) {
+      const clauseResult = clause.updateDragOver()
+      isHighlightHandled = isHighlightHandled || clauseResult
+    }
+    if ((this.isDragOver || this.isDragNotchOver) && !isHighlightHandled) {
+      isHighlightHandled = true
+      this.blockDiv.classList.add("nt-drag-over")
+    }
+    return isHighlightHandled
+  }
 
-  // void clearDragOver() {
-  //   blockDiv.classes.remove("nt-drag-over")
-  //   blockDiv.classes.remove("nt-block-clause-drag-over")
-  //   isDragOver = false
-  //   isDragNotchOver = false
-  //   for (Clause clause in clauses) {
-  //     clause.clearDragOver()
-  //   }
-  // }
+  clearDragOver(): void {
+    this.blockDiv.classList.remove("nt-drag-over")
+    this.blockDiv.classList.remove("nt-block-clause-drag-over")
+    this.isDragOver = false
+    this.isDragNotchOver = false
+    for (var clause of this.clauses) {
+      clause.clearDragOver()
+    }
+  }
 
   // void startDrag(DraggableEvent event) {
   //   workspace.dragManager.startDrag(this, this.dragData, event, true)
@@ -386,11 +386,11 @@ class Block {
   //   }
   // }
 
-  // void resetOwnedBlocksDragData() {
-  //   for (final clause in this.clauses) {
-  //     clause.resetOwned()
-  //   }
-  // }
+  resetOwnedBlocksDragData(): void {
+    for (var clause of this.clauses) {
+      clause.resetOwned()
+    }
+  }
 
   // void resetBlockActionText() {
   //   actionDiv.innerHtml = ""

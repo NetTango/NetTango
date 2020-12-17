@@ -4,9 +4,9 @@ abstract class BlockCollection {
 
   blocks: Block[] = []
 
-  // DivElement div
+  div: HTMLDivElement = new HTMLDivElement()
 
-  // void redrawBlocks()
+  abstract redrawBlocks(): void
 
   getBlockCount(id: number): number {
     try {
@@ -28,48 +28,48 @@ abstract class BlockCollection {
     return null
   }
 
-  // void insertBlocks(int blockIndex, Iterable<Block> newBlocks) {
-  //   blocks.insertAll(blockIndex, newBlocks)
-  //   redrawBlocks()
-  // }
+  insertBlocks(blockIndex: number, newBlocks: Block[]): void {
+    this.blocks.splice(blockIndex, 0, ...newBlocks)
+    this.redrawBlocks()
+  }
 
-  // Iterable<Block> removeBlocks(int blockIndex) {
-  //   final removed = blocks.skip(blockIndex)
-  //   blocks = blocks.take(blockIndex).toList()
-  //   redrawBlocks()
-  //   return removed
-  // }
+  removeBlocks(blockIndex: number): Block[] {
+    const removed = this.blocks.splice(blockIndex)
+    this.redrawBlocks()
+    return removed
+  }
 
-  // static void appendBlock(DivElement div, DivElement blockDiv, String newPosition, {bool useClones = false}) {
-  //   final DivElement appendDiv = useClones ? blockDiv.clone(true) : blockDiv
-  //   appendDiv.classes.removeAll([
-  //     "nt-block-first",
-  //     "nt-block-last",
-  //     "nt-block-standalone",
-  //     "nt-block-middle",
-  //     "nt-block-clause-first",
-  //     "nt-block-clause-last",
-  //     "nt-block-clause-standalone",
-  //     "nt-block-clause-middle"
-  //   ])
-  //   appendDiv.classes.add(newPosition)
-  //   div.append(appendDiv)
-  // }
+  static appendBlock(div: HTMLDivElement, blockDiv: HTMLDivElement, newPosition: string, useClones: boolean = false): void {
+    const appendDiv: HTMLDivElement = useClones ? (blockDiv.cloneNode(true) as HTMLDivElement) : blockDiv;
 
-  // static void appendBlocks(DivElement div, List<Block> blocks, String classPrefix, {bool useClones = false}) {
-  //   if (blocks.isEmpty) {
-  //     return
-  //   }
+    [
+      "nt-block-first",
+      "nt-block-last",
+      "nt-block-standalone",
+      "nt-block-middle",
+      "nt-block-clause-first",
+      "nt-block-clause-last",
+      "nt-block-clause-standalone",
+      "nt-block-clause-middle"
+    ].forEach( (cl) => appendDiv.classList.remove(cl) )
+    appendDiv.classList.add(newPosition)
+    div.append(appendDiv)
+  }
 
-  //   if (blocks.length == 1) {
-  //     BlockCollection.appendBlock(div, blocks.first.blockDiv, "$classPrefix-standalone", useClones: useClones)
-  //   } else {
-  //     BlockCollection.appendBlock(div, blocks.first.blockDiv, "$classPrefix-first", useClones: useClones)
-  //     for (int i = 1; i < (blocks.length - 1); i++) {
-  //       BlockCollection.appendBlock(div, blocks[i].blockDiv, "$classPrefix-middle", useClones: useClones)
-  //     }
-  //     BlockCollection.appendBlock(div, blocks.last.blockDiv, "$classPrefix-last", useClones: useClones)
-  //   }
-  // }
+  static appendBlocks(div: HTMLDivElement, blocks: Block[], classPrefix: string, useClones: boolean = false): void {
+    if (blocks.length === 0) {
+      return
+    }
+
+    if (blocks.length === 1) {
+      BlockCollection.appendBlock(div, blocks[0].blockDiv, `${classPrefix}-standalone`, useClones)
+    } else {
+      BlockCollection.appendBlock(div, blocks[0].blockDiv, `${classPrefix}-first`, useClones)
+      for (var i = 1; i < (blocks.length - 1); i++) {
+        BlockCollection.appendBlock(div, blocks[i].blockDiv, `${classPrefix}-middle`, useClones)
+      }
+      BlockCollection.appendBlock(div, blocks[blocks.length - 1].blockDiv, `${classPrefix}-last`, useClones)
+    }
+  }
 
 }
