@@ -15,10 +15,10 @@ class Version5 {
   // specific code formatters, that'd be a good time to also allow language-specific
   // updaters to be provided as well.  -Jeremy B August 2020
   static updateNetLogoColorsAttributes(b: any): void {
-    VersionUtils.maybeForEach(b, "params", (param) => {
+    ArrayUtils.maybeForEach(b, "params", (param) => {
       if (param["type"] === "select") { Version5.updateNetLogoColorsAttribute(param) }
     })
-    VersionUtils.maybeForEach(b, "properties", (prop) => {
+    ArrayUtils.maybeForEach(b, "properties", (prop) => {
       if (prop["type"] === "select") { Version5.updateNetLogoColorsAttribute(prop) }
     })
   }

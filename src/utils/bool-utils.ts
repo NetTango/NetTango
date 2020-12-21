@@ -3,8 +3,13 @@
 class BoolUtils {
 
   static toBool(b: any, defaultValue: boolean = false): boolean {
+    const maybeBool = BoolUtils.toBoolOrNull(b)
+    return (b === null) ? defaultValue : b
+  }
+
+  static toBoolOrNull(b: any): boolean | null {
     if (b === null) {
-      return defaultValue
+      return null
     }
     switch (typeof(b)) {
 
@@ -19,10 +24,10 @@ class BoolUtils {
         if (["f", "false"].includes(lower)) {
           return false
         }
-        return defaultValue
+        return null
 
       default:
-        return defaultValue
+        return null
 
     }
   }

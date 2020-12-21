@@ -3,8 +3,14 @@
 class StringUtils {
 
   static toStr(o: any, defaultValue: string = ""): string {
+    const maybeString = StringUtils.toStrOrNull(o)
+    if (maybeString === null) { return defaultValue }
+    return maybeString
+  }
+
+  static toStrOrNull(o: any): string | null {
     if (o === null) {
-      return defaultValue
+      return null
     }
     switch (typeof(o)) {
 
@@ -15,7 +21,7 @@ class StringUtils {
         return o.toString()
 
       default:
-        return defaultValue
+        return null
 
     }
   }

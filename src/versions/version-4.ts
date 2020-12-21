@@ -17,7 +17,7 @@ class Version4 {
 
     const program: any = json["program"]
     const chains: any[] = []
-    VersionUtils.maybeForEach(program, "chains", (chain) => {
+    ArrayUtils.maybeForEach(program, "chains", (chain) => {
       for (var blocks of chain) {
         var x = 0
         var y = 0

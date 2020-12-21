@@ -6,9 +6,9 @@ class Clause extends BlockCollection {
 
   readonly owner: Block
   readonly clauseIndex: number
-  readonly action: string
-  readonly open: string
-  readonly close: string
+  readonly action: string | null
+  readonly open: string | null
+  readonly close: string | null
 
   allowedTags: AllowedTags = new UnrestrictedTags()
 
@@ -19,7 +19,7 @@ class Clause extends BlockCollection {
   leftBar: HTMLDivElement = new HTMLDivElement()
   blocksDiv: HTMLDivElement = new HTMLDivElement()
 
-  constructor(owner: Block, clauseIndex: number, action: string, open: string, close: string) {
+  constructor(owner: Block, clauseIndex: number, action: string | null, open: string | null, close: string | null) {
     super()
     this.owner = owner
     this.clauseIndex = clauseIndex
