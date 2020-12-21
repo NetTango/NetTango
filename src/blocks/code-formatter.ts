@@ -185,7 +185,7 @@ class CodeFormatter  {
   static formatAttributeValue(attribute: Attribute): string {
     const value = StringUtils.toStr(attribute.getValue(), "")
     const quoteIt = attribute.shouldQuote()
-    const formatValue = quoteIt ? `\"${value}\"` : value
+    const formatValue = quoteIt ? `"${value}"` : value
     return formatValue
   }
 

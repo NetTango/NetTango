@@ -82,7 +82,7 @@ abstract class Attribute {
     propDiv.classList.add("nt-property")
     const propName = new HTMLDivElement()
     propName.classList.add("nt-property-name")
-    propName.innerText = "\u2022 $name"
+    propName.innerText = `\u2022 ${this.name}`
     propDiv.append(propName)
     propDiv.append(this.drawParameter())
     return propDiv

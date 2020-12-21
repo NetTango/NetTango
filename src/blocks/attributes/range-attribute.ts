@@ -52,7 +52,7 @@ class RangeAttribute extends NumAttribute {
         </div>
         <div class="nt-param-row">
           <div class="nt-param-value">
-            <input class="nt-param-input" id="nt-param-${this.uniqueId}" type="range" value="${this.value}" min="$minValue" max="$maxValue" step="$stepSize">
+            <input class="nt-param-input" id="nt-param-${this.uniqueId}" type="range" value="${this.value}" min="${this.minValue}" max="${this.maxValue}" step="${this.stepSize}">
           </div>
         </div>
       `)

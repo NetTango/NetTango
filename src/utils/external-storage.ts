@@ -17,7 +17,7 @@ class ExternalStorage {
     }
     for (var propertyName of Object.keys(this.storage)) {
       if (!this.propertyNames.includes(propertyName)) {
-        if (exports.hasProperty(propertyName)) {
+        if (exports.hasOwnProperty(propertyName)) {
           throw new Error(`Found existing property when restoring external data for export: ${propertyName}`)
         }
         exports[propertyName] = this.storage[propertyName]
