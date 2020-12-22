@@ -23,6 +23,7 @@ import { UnrestrictedTags } from "../blocks/tags/unrestricted-tags"
 import { ArrayUtils } from "../utils/array-utils"
 import { BoolUtils } from "../utils/bool-utils"
 import { NumUtils } from "../utils/num-utils"
+import { ObjectUtils } from "../utils/object-utils"
 import { StringUtils } from "../utils/string-utils"
 import { VersionManager } from "../versions/version-manager"
 
@@ -40,7 +41,7 @@ function restoreWorkspace(containerId: string, workspaceEnc: any, formatter: Cod
   workspace.chainOpen  = StringUtils.toStrOrNull(workspaceEnc["chainOpen"])
   workspace.chainClose = StringUtils.toStrOrNull(workspaceEnc["chainClose"])
 
-  if (workspaceEnc.hasProperty("blockStyles")) {
+  if (workspaceEnc.hasOwnProperty("blockStyles")) {
     workspace.starterBlockStyle   = restoreBlockStyle(workspaceEnc["blockStyles"]["starterBlockStyle"],   BlockStyle.DEFAULT_STARTER_COLOR)
     workspace.containerBlockStyle = restoreBlockStyle(workspaceEnc["blockStyles"]["containerBlockStyle"], BlockStyle.DEFAULT_CONTAINER_COLOR)
     workspace.commandBlockStyle   = restoreBlockStyle(workspaceEnc["blockStyles"]["commandBlockStyle"],   BlockStyle.DEFAULT_COMMAND_COLOR)
@@ -117,7 +118,7 @@ function restoreMenuBlock(workspace: CodeWorkspace, blockEnc: any): Block {
   const placement = StringUtils.toStr(blockEnc["placement"], block.placement)
   block.placement = ["starter", "child", "anywhere"].includes(placement) ? (placement as "starter" | "child" | "anywhere") : block.placement
 
-  if (blockEnc["allowedTags"] !== null) {
+  if (ObjectUtils.isObjectValue(blockEnc["allowedTags"])) {
     block.allowedTags = restoreConcreteTags(blockEnc["allowedTags"])
   }
 
@@ -153,7 +154,7 @@ function restoreClause(workspace: CodeWorkspace, block: Block, clauseEnc: any, c
   const clause = new Clause(block, clauseIndex, action, open, close)
   clause.storage.set(clauseEnc)
 
-  if (clauseEnc["allowedTags"] !== null) {
+  if (ObjectUtils.isObjectValue(clauseEnc["allowedTags"])) {
     clause.allowedTags = restoreAllowedTags(clause, clauseEnc["allowedTags"])
   }
 
@@ -343,11 +344,11 @@ function restoreChainBlockAttributeValues(blockAttributes: Map<number, Attribute
         expressionAttibute.builder = builder
       }
     } else {
-      if (typeof(attributeEnc["value"]) === "object") {
+      if (!attributeEnc.hasOwnProperty("value") || typeof(attributeEnc["value"]) === "object") {
         // only expressions can have an object as a value, so...
-        blockAttribute.setValue(StringUtils.toStr(attributeEnc["defaultValue"], ""))
+        blockAttribute.setValue(blockAttribute.getDefaultValue())
       } else {
-        blockAttribute.setValue(StringUtils.toStr(attributeEnc["value"], ""))
+        blockAttribute.setValue(attributeEnc["value"])
       }
     }
   }
@@ -372,7 +373,7 @@ function restoreExpressionBuilder(workspace: CodeWorkspace, type: "bool" | "num"
 function restoreExpression(builder: ExpressionBuilder, type: "bool" | "num", expressionEnc: any): Expression {
   const expression = new Expression(builder, type)
   expression.name = StringUtils.toStr(expressionEnc["name"])
-  if (expressionEnc["format"] !== null) {
+  if (ObjectUtils.isObjectValue(expressionEnc["format"])) {
     expression.format = expressionEnc["format"]
   }
 

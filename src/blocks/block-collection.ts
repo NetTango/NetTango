@@ -7,7 +7,7 @@ abstract class BlockCollection {
 
   blocks: Block[] = []
 
-  div: HTMLDivElement = new HTMLDivElement()
+  div: HTMLDivElement = document.createElement("div")
 
   abstract redrawBlocks(): void
 

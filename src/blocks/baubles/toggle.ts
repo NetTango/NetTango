@@ -12,7 +12,7 @@ class Toggle {
   constructor(isOn: boolean, onChange: (b: boolean) => void) {
     this.isOn = isOn
     this.onChange = onChange
-    this.div = new HTMLDivElement()
+    this.div = document.createElement("div")
     this.div.classList.add("nt-toggle")
     this.div.innerText = isOn ? this.onGlyph : this.offGlyph
     this.div.addEventListener("click", this.click)

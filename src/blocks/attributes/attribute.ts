@@ -61,7 +61,7 @@ abstract class Attribute {
 
   // parameters are meant to display inline with just a value
   drawParameter(): HTMLDivElement {
-    const paramDiv = new HTMLDivElement()
+    const paramDiv = document.createElement("div")
     paramDiv.innerText = this.getDisplayValue()
     paramDiv.classList.add("nt-attribute-value")
     paramDiv.classList.add("${block.getStyleClass()}-attribute")
@@ -81,9 +81,9 @@ abstract class Attribute {
 
   // properties display stand-alone with an identifier
   drawProperty(): HTMLDivElement {
-    const propDiv = new HTMLDivElement()
+    const propDiv = document.createElement("div")
     propDiv.classList.add("nt-property")
-    const propName = new HTMLDivElement()
+    const propName = document.createElement("div")
     propName.classList.add("nt-property-name")
     propName.innerText = `\u2022 ${this.name}`
     propDiv.append(propName)

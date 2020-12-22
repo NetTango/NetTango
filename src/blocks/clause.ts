@@ -28,9 +28,9 @@ class Clause extends BlockCollection {
   isDragOver: boolean = false
   isDragHeaderOver: boolean = false
 
-  divider: HTMLDivElement = new HTMLDivElement()
-  leftBar: HTMLDivElement = new HTMLDivElement()
-  blocksDiv: HTMLDivElement = new HTMLDivElement()
+  divider: HTMLDivElement = document.createElement("div")
+  leftBar: HTMLDivElement = document.createElement("div")
+  blocksDiv: HTMLDivElement = document.createElement("div")
 
   constructor(owner: Block, clauseIndex: number, action: string | null, open: string | null, close: string | null) {
     super()
@@ -44,7 +44,7 @@ class Clause extends BlockCollection {
   draw(dragImage: DragImage, container: Block, extraDropDiv: HTMLDivElement | null): HTMLDivElement {
     // final acceptor = new ClauseAcceptor(this)
 
-    this.div = new HTMLDivElement()
+    this.div = document.createElement("div")
     this.div.classList.add("nt-clause")
 
     if (extraDropDiv !== null) {
@@ -56,13 +56,13 @@ class Clause extends BlockCollection {
 
     const styleClass = container.getStyleClass()
 
-    this.leftBar = new HTMLDivElement()
+    this.leftBar = document.createElement("div")
     this.leftBar.classList.add("nt-clause-left-bar")
     this.leftBar.classList.add(`${styleClass}-color`)
     Block.maybeSetColorOverride(container.blockColor, this.leftBar)
     this.div.append(this.leftBar)
 
-    this.divider = new HTMLDivElement()
+    this.divider = document.createElement("div")
     this.divider.classList.add("nt-clause-divider")
     this.divider.classList.add(`${styleClass}-color`)
     Block.maybeSetColorOverride(container.blockColor, this.divider)
@@ -70,7 +70,7 @@ class Clause extends BlockCollection {
 
     const dividerText = StringUtils.toStrNotEmpty(this.action, "")
     if (StringUtils.isNotNullOrEmpty(dividerText.trim())) {
-      const dividerTextDiv = new HTMLDivElement()
+      const dividerTextDiv = document.createElement("div")
       dividerTextDiv.classList.add("nt-clause-divider-text")
       dividerTextDiv.innerText = dividerText
       this.divider.append(dividerTextDiv)
@@ -87,7 +87,7 @@ class Clause extends BlockCollection {
     // dropzone.onDragEnter.listen( (e) => isDragOver = true )
     // dropzone.onDragLeave.listen( (e) => isDragOver = false )
 
-    this.blocksDiv = new HTMLDivElement()
+    this.blocksDiv = document.createElement("div")
     this.blocksDiv.classList.add("nt-clause-blocks")
 
     if (this.blocks.length === 0) {
@@ -131,7 +131,7 @@ class Clause extends BlockCollection {
     this.div.classList.add("nt-clause-empty")
     this.div.append(Notch.drawClause(false, this))
 
-    const dropElement = new HTMLDivElement()
+    const dropElement = document.createElement("div")
     dropElement.className = "nt-clause-drop"
     this.div.append(dropElement)
 

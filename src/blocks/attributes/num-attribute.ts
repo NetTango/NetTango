@@ -20,7 +20,7 @@ abstract class NumAttribute extends Attribute {
     return (valueString.endsWith(".0")) ? valueString.substring(0, valueString.length - 2) : valueString
   }
   setValue(valueString: string) {
-    this.value = NumUtils.toNum(valueString, 0.0)
+    this.value = NumUtils.toNum(valueString, this.defaultValue === null ? 0.0 : this.defaultValue)
   }
 
   getDefaultValue(): string {

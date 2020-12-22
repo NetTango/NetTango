@@ -43,7 +43,7 @@ class RangeAttribute extends NumAttribute {
     dialog.classList.remove("small")
     dialog.innerHTML = ""
 
-    const table = new HTMLDivElement()
+    const table = document.createElement("div")
     table.className = "nt-param-table"
     dialog.append(table)
 

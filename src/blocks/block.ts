@@ -103,8 +103,8 @@ class Block {
   dragData: BlockDragData = new BlockDragData()
   isDragOver = false
   isDragNotchOver = false
-  blockDiv = new HTMLDivElement()
-  actionDiv = new HTMLDivElement()
+  blockDiv = document.createElement("div")
+  actionDiv = document.createElement("div")
   propertiesToggle: Toggle | null = null
 
   constructor(workspace: CodeWorkspace, id: number | null, action: string, isSlotBlock: boolean) {
@@ -199,7 +199,7 @@ class Block {
     this.dragData = dragData
   //   this.acceptor = new BlockAcceptor(this)
 
-    this.blockDiv = new HTMLDivElement()
+    this.blockDiv = document.createElement("div")
     this.blockDiv.classList.add("nt-block")
     const styleClass = this.getStyleClass()
     this.blockDiv.classList.add(styleClass)
@@ -209,18 +209,18 @@ class Block {
 
     Block.applyStyleOverrides(this, this.blockDiv)
 
-    const headerDiv = new HTMLDivElement()
+    const headerDiv = document.createElement("div")
     headerDiv.classList.add(`${styleClass}-color`)
     Block.maybeSetColorOverride(this.blockColor, headerDiv)
     headerDiv.classList.add("nt-block-header")
     this.blockDiv.append(headerDiv)
 
-    this.actionDiv = new HTMLDivElement()
+    this.actionDiv = document.createElement("div")
     this.updateActionText()
     this.actionDiv.classList.add("nt-block-action")
     headerDiv.append(this.actionDiv)
 
-    const paramDiv = new HTMLDivElement()
+    const paramDiv = document.createElement("div")
     paramDiv.classList.add("nt-block-params")
     headerDiv.append(paramDiv)
 
@@ -228,7 +228,7 @@ class Block {
       paramDiv.append(attribute.drawParameter())
     }
 
-    const propertiesDiv = new HTMLDivElement()
+    const propertiesDiv = document.createElement("div")
     propertiesDiv.classList.add("nt-block-properties")
     headerDiv.append(propertiesDiv)
 
@@ -260,7 +260,7 @@ class Block {
         this.blockDiv.append(clauseDiv)
       }
 
-      const clauseFooter = new HTMLDivElement()
+      const clauseFooter = document.createElement("div")
       clauseFooter.classList.add("nt-clause-footer")
       clauseFooter.classList.add(`${styleClass}-color`)
       Block.maybeSetColorOverride(this.blockColor, clauseFooter)

@@ -5,7 +5,7 @@ import { Block } from "../block"
 class Cap {
 
   static draw(isTop: Boolean, block: Block): HTMLDivElement {
-    const div = new HTMLDivElement()
+    const div = document.createElement("div")
     div.classList.add("nt-cap")
     const blockStyle = block.getStyleClass()
     const classes = [blockStyle, `${blockStyle}-color`]

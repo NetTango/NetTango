@@ -19,7 +19,7 @@ class BlockMenu {
   /// Menu background color
   color = "rgba(0, 0, 0, 0.2)"
 
-  menuDiv = new HTMLDivElement()
+  menuDiv = document.createElement("div")
 
   constructor(workspace: CodeWorkspace) {
     this.workspace = workspace
@@ -49,7 +49,7 @@ Cannot add a block with the same ID as an existing block
   }
 
   draw(dragImage: DragImage): HTMLDivElement {
-    this.menuDiv = new HTMLDivElement()
+    this.menuDiv = document.createElement("div")
     this.menuDiv.id = `${this.workspace.containerId}-menu`
     this.menuDiv.classList.add("nt-menu")
 

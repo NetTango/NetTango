@@ -25,11 +25,11 @@ class CodeWorkspace {
 
   // /// HTML Canvas ID
   containerId: string
-  backdrop: HTMLDivElement = new HTMLDivElement()
-  dialog: HTMLDivElement = new HTMLDivElement()
-  container: HTMLDivElement = new HTMLDivElement()
-  spaceDiv: HTMLDivElement = new HTMLDivElement()
-  chainsDiv: HTMLDivElement = new HTMLDivElement()
+  backdrop: HTMLDivElement = document.createElement("div")
+  dialog: HTMLDivElement = document.createElement("div")
+  container: HTMLDivElement = document.createElement("div")
+  spaceDiv: HTMLDivElement = document.createElement("div")
+  chainsDiv: HTMLDivElement = document.createElement("div")
 
   formatter: CodeFormatter
 
@@ -142,7 +142,7 @@ class CodeWorkspace {
     const styleId = `${this.containerId}-styles`
     var style = document.getElementById(styleId)
     if (style === null) {
-      style = new HTMLStyleElement()
+      style = document.createElement("style")
       style.id = styleId
       this.container.append(style)
     }
@@ -156,7 +156,7 @@ class CodeWorkspace {
     this.containerBlockStyle.appendToSheet(styleSheet, `${this.containerId}-block-container`)
     this.commandBlockStyle.appendToSheet(styleSheet, `${this.containerId}-block-command`)
 
-    const wrapper = new HTMLDivElement()
+    const wrapper = document.createElement("div")
     wrapper.classList.add("nt-workspace-wrapper")
     this.container.append(wrapper)
 
@@ -167,19 +167,19 @@ class CodeWorkspace {
 
     this.backdrop.className = "nt-attribute-backdrop"
     this.backdrop.addEventListener("click", (e) => this.backdrop.classList.remove("show") )
-    this.dialog = new HTMLDivElement()
+    this.dialog = document.createElement("div")
     this.dialog.className = "nt-attribute-dialog"
     this.dialog.addEventListener("click", (e) => e.stopPropagation() )
     this.backdrop.append(this.dialog)
     this.container.append(this.backdrop)
 
-    this.spaceDiv = new HTMLDivElement()
+    this.spaceDiv = document.createElement("div")
     this.spaceDiv.id = `${this.containerId}-space`
     this.spaceDiv.classList.add("nt-workspace")
 
     wrapper.append(this.spaceDiv)
 
-    this.chainsDiv = new HTMLDivElement()
+    this.chainsDiv = document.createElement("div")
     this.spaceDiv.append(this.chainsDiv)
 
     for (var i = 0; i < this.chains.length; i++) {

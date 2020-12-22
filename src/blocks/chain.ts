@@ -23,7 +23,7 @@ class Chain extends BlockCollection {
 
   chainIndex: number
 
-  fragmentDiv = new HTMLDivElement()
+  fragmentDiv = document.createElement("div")
   isDragOver: boolean = false
 
   get isFragment(): boolean { return this.blocks.length === 0 || !this.blocks[0].canBeStarter }
@@ -37,14 +37,14 @@ class Chain extends BlockCollection {
   draw(dragImage: DragImage, newChainIndex: number): HTMLDivElement {
     this.chainIndex = newChainIndex
 
-    this.fragmentDiv = new HTMLDivElement()
+    this.fragmentDiv = document.createElement("div")
     this.fragmentDiv.classList.add("nt-fragment")
     // final fragmentDropzone = Dropzone(fragmentDiv, acceptor: new ChainAcceptor(this))
     // fragmentDropzone.onDrop.listen(drop)
     // fragmentDropzone.onDragEnter.listen( (e) => isDragOver = true )
     // fragmentDropzone.onDragLeave.listen( (e) => isDragOver = false )
 
-    this.div = new HTMLDivElement()
+    this.div = document.createElement("div")
     this.div.classList.add("nt-chain")
 
     if (this.blocks.length === 0) {

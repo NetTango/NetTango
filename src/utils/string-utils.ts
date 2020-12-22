@@ -17,6 +17,9 @@ class StringUtils {
       case "string":
         return o
 
+      case "number":
+        return o.toString()
+
       case "object":
         return o.toString()
 

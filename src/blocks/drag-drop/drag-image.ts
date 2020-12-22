@@ -3,7 +3,7 @@
 class DragImage {
 
 // class DragImage extends AvatarHandler {
-  element = new HTMLDivElement()
+  element = document.createElement("div")
 
   // @override
   // void dragStart(Element draggable, Point startPosition) {

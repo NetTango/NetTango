@@ -107,14 +107,14 @@ class SelectAttribute extends Attribute {
     dialog.classList.add("small")
     dialog.innerHTML = ""
 
-    const table = new HTMLDivElement()
+    const table = document.createElement("div")
     table.className = "nt-param-table"
     dialog.append(table)
 
     for (var v of this.values) {
-      const row = new HTMLDivElement()
+      const row = document.createElement("div")
       row.className = "nt-param-row"
-      const opt = new HTMLDivElement()
+      const opt = document.createElement("div")
       opt.className = "nt-select-option"
       opt.innerHTML = v.displayValue
       if (v.actual === this.value) { opt.classList.add("selected") }

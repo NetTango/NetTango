@@ -3,7 +3,7 @@
 class Arrow {
 
   static draw(): HTMLDivElement {
-    const arrow = new HTMLDivElement()
+    const arrow = document.createElement("div")
     arrow.innerText = "➔"
     arrow.classList.add("nt-arrow")
     return arrow

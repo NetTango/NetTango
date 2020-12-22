@@ -107,7 +107,7 @@ class Expression {
   }
 
   appendOperator(parent: HTMLDivElement): void {
-    const div = new HTMLDivElement()
+    const div = document.createElement("div")
     div.innerHTML = StringUtils.toStr(this.name, "")
     div.classList.add("nt-expression-text")
     div.classList.add("editable")
@@ -127,7 +127,7 @@ class Expression {
   }
 
   appendParen(parent: HTMLDivElement, left: boolean): void {
-    const paren = new HTMLDivElement()
+    const paren = document.createElement("div")
     paren.innerHTML = left ? "(" : ")"
     paren.classList.add("nt-expression-text")
     paren.classList.add("parenthesis")
@@ -137,7 +137,7 @@ class Expression {
 
   appendNumber(parent: HTMLDivElement): void {
     this.name = NumUtils.toNum(this.name, 0).toString()
-    const input = new HTMLInputElement()
+    const input = document.createElement("input")
     input.type = "number"
     input.className = "nt-number-input"
     input.value = this.name
@@ -153,7 +153,7 @@ class Expression {
   }
 
   renderHtml(parent: Element): void {
-    const div = new HTMLDivElement()
+    const div = document.createElement("div")
     div.className = "nt-expression"
     if ((this.isNum || this.isEmpty) && this.type === "num") {
       this.appendNumber(div)
@@ -193,7 +193,7 @@ class Expression {
   //-------------------------------------------------------------
   openPulldown(expander: Element): void {
     document.querySelectorAll('.nt-pulldown-menu').forEach( (el) => el.remove() )
-    const hmenu = new HTMLDivElement()
+    const hmenu = document.createElement("div")
     hmenu.classList.add('nt-pulldown-menu')
 
     // ---------------  expressions ---------------------
@@ -206,7 +206,7 @@ class Expression {
 
     // ---------------  clear button ---------------------
     hmenu.insertAdjacentHTML("beforeend", "<hr>")
-    const link = new HTMLAnchorElement
+    const link = document.createElement("a")
     link.href = "#"
     link.innerHTML = "Clear"
     link.className = "clear"
@@ -227,7 +227,7 @@ class Expression {
   _addMenuItems(hmenu: HTMLDivElement, items: ExpressionDefinition[]): void {
     for (const item of items) {
       if (item.type === this.type) {
-        const link = new HTMLAnchorElement()
+        const link = document.createElement("a")
         link.href = "#"
         link.innerHTML = `${item.name}`
         hmenu.append(link)

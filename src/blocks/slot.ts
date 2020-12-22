@@ -17,7 +17,7 @@ class Slot {
   limit = -1
 
   slotIndex: number
-  slotDiv: HTMLDivElement = new HTMLDivElement()
+  slotDiv: HTMLDivElement = document.createElement("div")
   dragImage: DragImage | null = null
   isAtLimit = false
 
@@ -36,7 +36,7 @@ class Slot {
   draw(dragImage: DragImage, index: number): HTMLDivElement {
     this.dragImage = dragImage
     this.slotIndex = index
-    this.slotDiv = new HTMLDivElement()
+    this.slotDiv = document.createElement("div")
     this.slotDiv.classList.add("nt-menu-slot")
     const styleClass = this.block.getStyleClass()
     this.slotDiv.classList.add(styleClass)

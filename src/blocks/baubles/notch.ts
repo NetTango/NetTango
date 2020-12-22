@@ -7,7 +7,7 @@ class Notch {
 
   static draw(isTop: boolean, block: Block): HTMLDivElement {
 
-    const div = new HTMLDivElement()
+    const div = document.createElement("div")
     div.classList.add("nt-notch")
     const blockStyle = block.getStyleClass()
     div.classList.add(blockStyle)
@@ -23,7 +23,7 @@ class Notch {
     const colorClass = `${blockStyle}-color`
     const posClasses = ["filler", "left", "middle", "right"]
     posClasses.forEach( (notchClass) => {
-      const filler = new HTMLDivElement()
+      const filler = document.createElement("div")
       const notchClasses = [`nt-notch-${notchClass}`, colorClass]
       notchClasses.forEach( (cl) => filler.classList.add(cl) )
       if (!isTop || notchClass !== "middle") {
@@ -38,7 +38,7 @@ class Notch {
   }
 
   static drawClause(isTop: boolean, clause: Clause): HTMLDivElement {
-    const div = new HTMLDivElement()
+    const div = document.createElement("div")
     div.classList.add("nt-notch")
     const blockStyle = clause.owner.getStyleClass()
     div.classList.add(blockStyle)
@@ -54,7 +54,7 @@ class Notch {
     const colorClass = `${blockStyle}-color`
     const posClasses = ["filler", "left", "middle", "right"]
     posClasses.forEach( (notchClass) => {
-      const filler = new HTMLDivElement()
+      const filler = document.createElement("div")
       const notchClasses = [`nt-notch-${notchClass}`, colorClass]
       notchClasses.forEach( (cl) => filler.classList.add(cl) )
       if (!isTop || notchClass !== "middle") {
@@ -64,7 +64,7 @@ class Notch {
     });
 
     if (!isTop) {
-      const clauseFiller = new HTMLDivElement()
+      const clauseFiller = document.createElement("div")
       clauseFiller.className = "nt-notch-clause-filler"
       div.append(clauseFiller)
     }
