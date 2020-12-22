@@ -1,29 +1,3 @@
 # TypeScript settings
 node_modules/
 dist/
-
-# Don’t commit the following directories created by pub.
-build/
-packages
-.buildlog
-.packages
-
-# Or the files created by dart2js.
-*.dart.js
-*.dart.precompiled.js
-*.js_
-*.js.deps
-*.js.map
-.DS_Store
-.dart_tool
-
-django/static
-django/reese/settings.py
-django/login.sh
-django/*.pem
-django/reese/media
-django/uploadstatic.sh
-*.pyc
-
-login.sh
-upload.sh
