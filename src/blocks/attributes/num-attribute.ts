@@ -39,7 +39,7 @@ abstract class NumAttribute extends Attribute {
   // Perhaps surprisingly, this class does *not* correspond to the `"num"` attribute `type`.
   // That type is for the `ExpressionAttribute`.  This class can be `int` or `range`.
   // -Jeremy B July 2020
-  constructor(block: Block, id: number) {
+  constructor(block: Block, id: number | null) {
     super(block, id)
   }
 

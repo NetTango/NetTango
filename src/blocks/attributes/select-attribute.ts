@@ -37,7 +37,7 @@ class SelectAttribute extends Attribute {
 
   value: string = ""
   defaultValue: string = ""
-  quoteValues: QuoteOptionTypes = QuoteOptions.SMART_QUOTE
+  quoteValues: QuoteOptionTypes | null = QuoteOptions.SMART_QUOTE
 
   getValue(): string { return StringUtils.toStr(this.value, "") }
   setValue(valueString: string): void {

@@ -304,7 +304,7 @@ class Block {
 
   updateActionText(): void {
     const codeTip = this.formatCodeTip()
-    this.actionDiv.insertAdjacentHTML("afterend", `<span title="${codeTip}">${this.action}</span>`)
+    this.actionDiv.insertAdjacentHTML("beforeend", `<span title="${codeTip}">${this.action}</span>`)
   }
 
   formatCodeTip(): string {

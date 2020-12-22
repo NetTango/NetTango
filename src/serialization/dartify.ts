@@ -70,7 +70,7 @@ function restoreMenuBlocks(workspace: CodeWorkspace, blockEncs: any[]): void {
   // pre-check block IDs for our next one, as they may be out of order
   // and we'll need to set any that aren't set (new blocks) while processing
   for (var b of blockEncs) {
-    const id = NumUtils.toInt(b["id"], workspace.nextBlockId)
+    const id = NumUtils.toInt(b["id"], -1)
     if (id >= workspace.nextBlockId) {
       workspace.nextBlockId = id + 1
     }
@@ -177,7 +177,7 @@ function restoreBlocks(workspace: CodeWorkspace, children: any[]): Block[] {
 function restoreAttribute(block: Block, attributeEnc: any): Attribute {
   var attribute: Attribute | null = null
 
-  const id = (attributeEnc["id"] as number)
+  const id = NumUtils.toNumOrNull(attributeEnc["id"])
 
   switch(StringUtils.toStr(attributeEnc["type"], "num")) {
 
@@ -208,7 +208,7 @@ function restoreAttribute(block: Block, attributeEnc: any): Attribute {
     case "select": {
       const a = attribute = new SelectAttribute(block, id)
       const maybeQuoteValues = StringUtils.toStrOrNull(attributeEnc["quoteValues"])
-      a.quoteValues = (QuoteOptions.NEVER_QUOTE === maybeQuoteValues || QuoteOptions.ALWAYS_QUOTE === maybeQuoteValues || QuoteOptions.SMART_QUOTE === maybeQuoteValues) ? maybeQuoteValues : a.quoteValues
+      a.quoteValues = (QuoteOptions.NEVER_QUOTE === maybeQuoteValues || QuoteOptions.ALWAYS_QUOTE === maybeQuoteValues || QuoteOptions.SMART_QUOTE === maybeQuoteValues) ? maybeQuoteValues : null
       ArrayUtils.maybeForEach(attributeEnc, "values", (valueEnc) => {
         const value = new SelectOption(valueEnc["actual"], valueEnc["display"])
         a.values.push(value)
@@ -235,7 +235,7 @@ function restoreAttribute(block: Block, attributeEnc: any): Attribute {
 }
 
 function restoreExpressionDefinitions(workspace: CodeWorkspace, definitionEncs: any[]): void {
-  if (definitionEncs === null || !Array.isArray(definitionEncs) || definitionEncs.length === 0) {
+  if (!Array.isArray(definitionEncs) || definitionEncs.length === 0) {
     return
   }
 
@@ -314,7 +314,7 @@ function restoreChainBlock(workspace: CodeWorkspace, blockEnc: any): Block | nul
 // we trust the `attribute.clone()` that made each chain block attribute instance got the rest of the properties
 // this just puts the values back in place.
 function restoreChainBlockAttributeValues(blockAttributes: Map<number, Attribute>, attributeEncs: any[]): void {
-  if (attributeEncs === null) {
+  if (!Array.isArray(attributeEncs)) {
     return
   }
 
@@ -327,7 +327,7 @@ function restoreChainBlockAttributeValues(blockAttributes: Map<number, Attribute
     const blockAttribute = blockAttributes.get(attributeEnc["id"])!
     blockAttribute.storage.set(attributeEnc)
 
-    if (attributeEnc["value"] === null) {
+    if (attributeEnc["value"] === null || attributeEnc["value"] === undefined) {
       continue
     }
 
@@ -386,7 +386,7 @@ function restoreExpression(builder: ExpressionBuilder, type: "bool" | "num", exp
 }
 
 function restoreBlockStyle(styleEnc: any, blockColorDefault: string): BlockStyle {
-  if (styleEnc === null) {
+  if (!ObjectUtils.isObjectValue(styleEnc)) {
     const defaultStyle = new BlockStyle()
     defaultStyle.blockColor = blockColorDefault
     return defaultStyle
@@ -418,7 +418,7 @@ function restoreAllowedTags(clause: Clause, allowedTagsEnc: any): AllowedTags {
 }
 
 function restoreConcreteTags(concreteTags: any): ConcreteTags {
-  if (concreteTags["tags"] === null || ~Array.isArray(concreteTags["tags"])) {
+  if (!Array.isArray(concreteTags["tags"])) {
     return new UnrestrictedTags()
   }
   const tags = (concreteTags["tags"] as string[])

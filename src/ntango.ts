@@ -44,6 +44,7 @@ function _initialize(language: string, formatAttribute: FormatAttributeType, con
     _workspaces.set(containerId, workspace)
     workspace.draw()
   } catch (e) {
+    console.log(e)
     throw new Error("There was an error initializing the workspace with the given NetTango model JSON.")
   }
 }

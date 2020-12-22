@@ -105,7 +105,7 @@ class CodeFormatter  {
     this.writeFormatOption(out, null, 0, this.formatOptions.chainOpen, chainOpen)
     this.formatBlock(out, 0, first)
     this.formatBlocks(out, 1, blocks.slice(1))
-    const override = StringUtils.toStrNotEmpty(first.closeStarter, StringUtils.toStrNotEmpty(chainClose, ""))
+    const override = StringUtils.isNotNullOrEmpty(first.closeStarter) ? first.closeStarter : chainClose
     this.writeFormatOption(out, null, 0, this.formatOptions.chainClose, override)
     out.writeln()
   }

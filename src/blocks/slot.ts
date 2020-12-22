@@ -44,7 +44,8 @@ class Slot {
 
     const sampleBlock = this.block.clone(false)
     const codeTip = this.formatCodeTip(sampleBlock)
-    this.slotDiv.insertAdjacentHTML("afterend", `<span title="${codeTip}">${this.block.action}</span>`)
+    const titleSpan = `<span title="${codeTip}">${this.block.action}</span>`
+    this.slotDiv.insertAdjacentHTML("beforeend", titleSpan)
 
     if (this.block.blockColor !== null)  { this.slotDiv.style.backgroundColor = this.block.blockColor }
     if (this.block.borderColor !== null) { this.slotDiv.style.borderColor     = this.block.borderColor }

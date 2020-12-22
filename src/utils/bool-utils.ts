@@ -4,7 +4,7 @@ class BoolUtils {
 
   static toBool(b: any, defaultValue: boolean = false): boolean {
     const maybeBool = BoolUtils.toBoolOrNull(b)
-    return (b === null) ? defaultValue : b
+    return (maybeBool === null) ? defaultValue : b
   }
 
   static toBoolOrNull(b: any): boolean | null {

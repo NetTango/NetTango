@@ -40,7 +40,7 @@ class ExpressionAttribute extends Attribute {
     this.defaultValue = defaultString
   }
 
-  constructor(block: Block, id: number, type: "num" | "bool") {
+  constructor(block: Block, id: number | null, type: "num" | "bool") {
     super(block, id)
     this.builder = new ExpressionBuilder(this.block.workspace, type)
     this._type = type
@@ -71,7 +71,7 @@ class ExpressionAttribute extends Attribute {
     dialog.classList.remove("small")
     dialog.innerHTML = ""
 
-    dialog.insertAdjacentHTML("afterend", `
+    dialog.insertAdjacentHTML("beforeend", `
       <div class="nt-param-table">
         <div class="nt-param-row">
           <div class="nt-param-label">${this.name}:</div>

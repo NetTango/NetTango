@@ -16,7 +16,7 @@ class NetTango {
 
   /// Call init to instantiate a workspace associated with an HTML canvas.
   /// TODO: Document JSON specification format--for now see README.md
-  static init(language: "NetLogo", canvasId: string, json: any, formatAttributeJS: () => string): void {
+  static init(language: "NetLogo", canvasId: string, json: any, formatAttributeJS: FormatAttributeType): void {
     NetTango_InitWorkspace(language, canvasId, JSON.stringify(json), formatAttributeJS)
   }
 
@@ -29,7 +29,7 @@ class NetTango {
 
   /// Exports the code for a workspace in a given target language.
   /// The only language supported now is "NetLogo".
-  static exportCode(canvasId: string, formatAttributeJS: FormatAttributeType): string {
+  static exportCode(canvasId: string, formatAttributeJS: FormatAttributeType | null): string {
     return NetTango_ExportCode(canvasId, formatAttributeJS)
   }
 

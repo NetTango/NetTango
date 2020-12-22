@@ -19,7 +19,7 @@ class RangeAttribute extends NumAttribute {
   /// highest possible value that the user can select (for numbers and range)
   maxValue: number = 10
 
-  constructor(block: Block, id: number) {
+  constructor(block: Block, id: number | null) {
     super(block, id)
   }
 
@@ -47,7 +47,7 @@ class RangeAttribute extends NumAttribute {
     table.className = "nt-param-table"
     dialog.append(table)
 
-    table.insertAdjacentHTML("afterend",
+    table.insertAdjacentHTML("beforeend",
       `
         <div class="nt-param-row">
           <div class="nt-param-label">

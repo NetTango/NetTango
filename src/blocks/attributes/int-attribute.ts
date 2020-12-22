@@ -11,7 +11,7 @@ class IntAttribute extends NumAttribute {
 
   get type(): AttributeTypes { return "int" }
 
-  constructor(block: Block, id: number) {
+  constructor(block: Block, id: number | null) {
     super(block, id)
     this.stepSize = 1
   }

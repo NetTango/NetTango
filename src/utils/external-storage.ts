@@ -3,9 +3,17 @@
 class ExternalStorage {
 
   propertyNames: string[]
-  storage: any | null
+  storage: any | null = null
 
-  set(storage: any) { this.storage = storage }
+  set(storage: any) {
+    if (storage === null || storage === undefined) {
+      throw new Error("Cannot set storage to null or undefined.")
+    }
+    if (typeof(storage) !== "object") {
+      throw new Error("Storage must be an object.")
+    }
+    this.storage = storage
+  }
 
   constructor(propertyNames: string[]) {
     this.propertyNames = propertyNames
@@ -13,7 +21,9 @@ class ExternalStorage {
 
   restore(exports: any) {
     if (this.storage === null) {
-      return
+      // TODO: Hmm, why would we restore without setting the storage?  Maybe handle this better.
+      // throw new Error("Cannot restore if the storage is unset.")
+      return null
     }
     for (var propertyName of Object.keys(this.storage)) {
       if (!this.propertyNames.includes(propertyName)) {
