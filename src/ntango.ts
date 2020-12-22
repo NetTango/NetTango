@@ -1,5 +1,12 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { AttributeTypes } from "./blocks/attributes/attribute"
+import { CodeFormatter } from "./blocks/code-formatter"
+import { CodeWorkspace } from "./blocks/code-workspace"
+import { restoreWorkspace } from "./serialization/dartify"
+import { encodeWorkspace } from "./serialization/jsonify"
+import { VersionManager } from "./versions/version-manager"
+
 const _workspaces: Map<string, CodeWorkspace> = new Map()
 
 type FormatAttributeType = (containerId: string, blockId: number, instanceId: number, attributeId: number, value: any, attributeType: AttributeTypes) => string
@@ -110,3 +117,13 @@ const NetTango_ExportCode = JSExportCode
 const NetTango_FormatAttributeValue = JSFormatAttributeValue
 const NetTango_Save = JSSaveWorkspace
 const NetTango_SaveAll = JSSaveAllWorkspaces
+
+export {
+    FormatAttributeType
+  , NetTango_InitWorkspace
+  , NetTango_InitAllWorkspaces
+  , NetTango_ExportCode
+  , NetTango_FormatAttributeValue
+  , NetTango_Save
+  , NetTango_SaveAll
+}

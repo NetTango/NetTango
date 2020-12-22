@@ -1,5 +1,7 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { ArrayUtils } from "../utils/array-utils"
+
 class VersionUtils {
 
   static updateBlocks(json: any, blockDefinitionHandler: (block: any) => void, blockInstanceHandler: (block: Object) => void): void {
@@ -76,3 +78,5 @@ class VersionUtils {
   }
 
 }
+
+export { VersionUtils }

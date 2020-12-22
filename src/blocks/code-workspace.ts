@@ -1,5 +1,19 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { FormatAttributeType } from "../ntango"
+import { NetTango } from "../ntango-shim"
+import { ExternalStorage } from "../utils/external-storage"
+import { NumUtils } from "../utils/num-utils"
+import { VersionManager } from "../versions/version-manager"
+import { Block } from "./block"
+import { BlockMenu } from "./block-menu"
+import { BlockStyle } from "./block-style"
+import { Chain } from "./chain"
+import { CodeFormatter } from "./code-formatter"
+import { DragImage } from "./drag-drop/drag-image"
+import { ExpressionDefinition } from "./expressions/expression-definition"
+import { ProgramChangedEvent } from "./program-changed-event"
+
 class CodeWorkspace {
 
   static readonly DEFAULT_HEIGHT = 600
@@ -315,3 +329,5 @@ class CodeWorkspace {
   }
 
 }
+
+export { CodeWorkspace }

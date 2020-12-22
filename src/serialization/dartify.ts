@@ -1,5 +1,31 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { Attribute } from "../blocks/attributes/attribute"
+import { ExpressionAttribute } from "../blocks/attributes/expression-attribute"
+import { IntAttribute } from "../blocks/attributes/int-attribute"
+import { RangeAttribute } from "../blocks/attributes/range-attribute"
+import { SelectAttribute, QuoteOptions, SelectOption } from "../blocks/attributes/select-attribute"
+import { TextAttribute } from "../blocks/attributes/text-attribute"
+import { Block } from "../blocks/block"
+import { BlockStyle } from "../blocks/block-style"
+import { Chain } from "../blocks/chain"
+import { Clause } from "../blocks/clause"
+import { CodeFormatter } from "../blocks/code-formatter"
+import { CodeWorkspace } from "../blocks/code-workspace"
+import { Expression } from "../blocks/expressions/expression"
+import { ExpressionBuilder } from "../blocks/expressions/expression-builder"
+import { ExpressionDefinition } from "../blocks/expressions/expression-definition"
+import { AllowedTags } from "../blocks/tags/allowed-tags"
+import { AnyOfTags } from "../blocks/tags/any-of-tags"
+import { ConcreteTags } from "../blocks/tags/concrete-tags"
+import { InheritTags } from "../blocks/tags/inherit-tags"
+import { UnrestrictedTags } from "../blocks/tags/unrestricted-tags"
+import { ArrayUtils } from "../utils/array-utils"
+import { BoolUtils } from "../utils/bool-utils"
+import { NumUtils } from "../utils/num-utils"
+import { StringUtils } from "../utils/string-utils"
+import { VersionManager } from "../versions/version-manager"
+
 function restoreWorkspace(containerId: string, workspaceEnc: any, formatter: CodeFormatter): CodeWorkspace {
   if (workspaceEnc["version"] !== VersionManager.VERSION) {
     throw new Error(`The supported NetTango version is ${VersionManager.VERSION}, but the given definition version was ${workspaceEnc["version"]}.`)
@@ -398,3 +424,5 @@ function restoreConcreteTags(concreteTags: any): ConcreteTags {
   const anyOf = new AnyOfTags(tags)
   return anyOf
 }
+
+export { restoreWorkspace }

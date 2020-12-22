@@ -1,5 +1,8 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { AttributeTypes } from "./attributes/attribute"
+import { Block } from "./block"
+
 abstract class ProgramChangedEvent {
   abstract toJS(): any
 }
@@ -78,3 +81,5 @@ class MenuItemContextMenuEvent extends ProgramChangedEvent {
   }
 
 }
+
+export { ProgramChangedEvent, MenuItemClickedEvent, MenuItemContextMenuEvent, AttributeChangedEvent, BlockChangedEvent }

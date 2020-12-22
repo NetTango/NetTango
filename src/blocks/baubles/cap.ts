@@ -1,5 +1,7 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { Block } from "../block"
+
 class Cap {
 
   static draw(isTop: Boolean, block: Block): HTMLDivElement {
@@ -24,3 +26,5 @@ class Cap {
   }
 
 }
+
+export { Cap }

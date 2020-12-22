@@ -1,5 +1,11 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { NumUtils } from "../../utils/num-utils"
+import { Block } from "../block"
+import { CodeFormatter } from "../code-formatter"
+import { AttributeChangedEvent } from "../program-changed-event"
+import { Attribute } from "./attribute"
+
 //-------------------------------------------------------------------------
 /// Represents a number parameter
 //-------------------------------------------------------------------------
@@ -111,3 +117,5 @@ abstract class NumAttribute extends Attribute {
     `
   }
 }
+
+export { NumAttribute }

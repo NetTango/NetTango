@@ -1,5 +1,8 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { NumUtils } from "../utils/num-utils"
+import { Block } from "./block"
+
 abstract class BlockCollection {
 
   blocks: Block[] = []
@@ -73,3 +76,5 @@ abstract class BlockCollection {
   }
 
 }
+
+export { BlockCollection }

@@ -1,5 +1,20 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { ExternalStorage } from "../utils/external-storage"
+import { NumUtils } from "../utils/num-utils"
+import { StringBuffer } from "../utils/string-buffer"
+import { StringUtils } from "../utils/string-utils"
+import { Attribute } from "./attributes/attribute"
+import { Arrow } from "./baubles/arrow"
+import { Toggle } from "./baubles/toggle"
+import { Clause } from "./clause"
+import { CodeWorkspace } from "./code-workspace"
+import { BlockDragData } from "./drag-drop/block-drag-data"
+import { DragImage } from "./drag-drop/drag-image"
+import { BlockChangedEvent } from "./program-changed-event"
+import { ConcreteTags } from "./tags/concrete-tags"
+import { UnrestrictedTags } from "./tags/unrestricted-tags"
+
 class BlockPlacement {
   static readonly STARTER = "starter"
   static readonly CHILD = "child"
@@ -406,3 +421,5 @@ class Block {
   }
 
 }
+
+export { Block, BlockPlacement }

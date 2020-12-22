@@ -1,5 +1,18 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { ExternalStorage } from "../utils/external-storage"
+import { StringUtils } from "../utils/string-utils"
+import { Arrow } from "./baubles/arrow"
+import { Notch } from "./baubles/notch"
+import { Block } from "./block"
+import { BlockCollection } from "./block-collection"
+import { BlockDragData } from "./drag-drop/block-drag-data"
+import { DragImage } from "./drag-drop/drag-image"
+import { AllowedTags } from "./tags/allowed-tags"
+import { ConcreteTags } from "./tags/concrete-tags"
+import { InheritTags } from "./tags/inherit-tags"
+import { UnrestrictedTags } from "./tags/unrestricted-tags"
+
 class Clause extends BlockCollection {
 
   readonly storage = new ExternalStorage(["children", "action", "open", "close", "allowedTags"])
@@ -229,3 +242,5 @@ class Clause extends BlockCollection {
   // }
 
 }
+
+export { Clause }

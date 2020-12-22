@@ -1,5 +1,12 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { Block } from "../block"
+import { CodeFormatter } from "../code-formatter"
+import { Expression } from "../expressions/expression"
+import { ExpressionBuilder } from "../expressions/expression-builder"
+import { AttributeChangedEvent } from "../program-changed-event"
+import { Attribute } from "./attribute"
+
 //-------------------------------------------------------------------------
 /// Represents an expression (boolean or number)
 //-------------------------------------------------------------------------
@@ -112,3 +119,5 @@ class ExpressionAttribute extends Attribute {
     this.builder.open(`#nt-expression-${this.uniqueId}`)
   }
 }
+
+export { ExpressionAttribute }

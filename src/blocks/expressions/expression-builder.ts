@@ -1,5 +1,10 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { StringBuffer } from "../../utils/string-buffer"
+import { CodeWorkspace } from "../code-workspace"
+import { Expression } from "./expression"
+import { ExpressionDefinition } from "./expression-definition"
+
 class ExpressionBuilder {
 
   workspace: CodeWorkspace
@@ -51,3 +56,5 @@ class ExpressionBuilder {
   }
 
 }
+
+export { ExpressionBuilder }

@@ -42,3 +42,5 @@ class BlockStyle {
   }
 
 }
+
+export { BlockStyle }

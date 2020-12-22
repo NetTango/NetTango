@@ -37,3 +37,5 @@ class BoolUtils {
   }
 
 }
+
+export { BoolUtils }

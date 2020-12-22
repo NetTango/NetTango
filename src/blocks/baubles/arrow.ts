@@ -10,3 +10,5 @@ class Arrow {
   }
 
 }
+
+export { Arrow }

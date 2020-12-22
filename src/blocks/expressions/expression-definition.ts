@@ -13,3 +13,5 @@ class ExpressionDefinition {
   }
 
 }
+
+export { ExpressionDefinition }

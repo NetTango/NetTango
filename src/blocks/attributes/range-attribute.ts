@@ -1,5 +1,11 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { Block } from "../block"
+import { CodeFormatter } from "../code-formatter"
+import { AttributeChangedEvent } from "../program-changed-event"
+import { Attribute, AttributeTypes } from "./attribute"
+import { NumAttribute } from "./num-attribute"
+
 //-------------------------------------------------------------------------
 /// Represents a range of numbers
 //-------------------------------------------------------------------------
@@ -75,3 +81,5 @@ class RangeAttribute extends NumAttribute {
     }
   }
 }
+
+export { RangeAttribute }

@@ -37,3 +37,5 @@ class DragImage {
   // }
 
 }
+
+export { DragImage }

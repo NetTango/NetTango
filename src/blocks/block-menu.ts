@@ -1,5 +1,10 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { Block } from "./block"
+import { CodeWorkspace } from "./code-workspace"
+import { DragImage } from "./drag-drop/drag-image"
+import { Slot } from "./slot"
+
 /**
  * Visual programming menu bar
  */
@@ -92,3 +97,5 @@ Cannot add a block with the same ID as an existing block
 //   }
 
 }
+
+export { BlockMenu }

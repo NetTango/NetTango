@@ -1,5 +1,21 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { Attribute } from "../blocks/attributes/attribute"
+import { ExpressionAttribute } from "../blocks/attributes/expression-attribute"
+import { NumAttribute } from "../blocks/attributes/num-attribute"
+import { RangeAttribute } from "../blocks/attributes/range-attribute"
+import { SelectAttribute } from "../blocks/attributes/select-attribute"
+import { Block } from "../blocks/block"
+import { BlockStyle } from "../blocks/block-style"
+import { Clause } from "../blocks/clause"
+import { CodeWorkspace } from "../blocks/code-workspace"
+import { Expression } from "../blocks/expressions/expression"
+import { ExpressionDefinition } from "../blocks/expressions/expression-definition"
+import { AllowedTags } from "../blocks/tags/allowed-tags"
+import { AnyOfTags } from "../blocks/tags/any-of-tags"
+import { InheritTags } from "../blocks/tags/inherit-tags"
+import { UnrestrictedTags } from "../blocks/tags/unrestricted-tags"
+
 function encodeWorkspace(workspace: CodeWorkspace): any {
   // TODO: It'd be nice to just to do a `JsObject.jsify(workspace)` and be done, right?
   // maybe that is possible, but at the moment there are slight differences in property names
@@ -272,3 +288,5 @@ function encodeAllowedTags(allowedTags: AllowedTags): any {
   }
   throw new Error("Unknown AllowedTags type, cannot encode it.")
 }
+
+export { encodeWorkspace }

@@ -1,5 +1,11 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { StringUtils } from "../../utils/string-utils"
+import { Block } from "../block"
+import { CodeFormatter } from "../code-formatter"
+import { AttributeChangedEvent } from "../program-changed-event"
+import { Attribute, AttributeTypes } from "./attribute"
+
 type QuoteOptionTypes = "smart-quote" | "always-quote" | "never-quote"
 
 class QuoteOptions {
@@ -128,3 +134,5 @@ class SelectAttribute extends Attribute {
     }
   }
 }
+
+export { SelectAttribute, SelectOption, QuoteOptions, QuoteOptionTypes }

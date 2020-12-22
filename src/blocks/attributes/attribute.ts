@@ -1,5 +1,8 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { ExternalStorage } from "../../utils/external-storage"
+import { Block } from "../block"
+
 type AttributeTypes = "bool" | "num" | "int" | "range" | "text" | "select"
 
 /// Represents the paramter or property options for a block
@@ -90,3 +93,5 @@ abstract class Attribute {
 
   abstract showParameterDialog(x: number, y: number, acceptCallback: () => void): void
 }
+
+export { Attribute, AttributeTypes }

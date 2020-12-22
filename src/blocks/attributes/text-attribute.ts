@@ -1,5 +1,11 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { StringUtils } from "../../utils/string-utils"
+import { Block } from "../block"
+import { CodeFormatter } from "../code-formatter"
+import { AttributeChangedEvent } from "../program-changed-event"
+import { Attribute, AttributeTypes } from "./attribute"
+
 /// Represents the paramter or property options for a block
 class TextAttribute extends Attribute {
 
@@ -95,3 +101,5 @@ class TextAttribute extends Attribute {
   }
 
 }
+
+export { TextAttribute }

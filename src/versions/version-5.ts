@@ -1,5 +1,10 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { BlockPlacement } from "../blocks/block"
+import { ArrayUtils } from "../utils/array-utils"
+import { BoolUtils } from "../utils/bool-utils"
+import { VersionUtils } from "./version-utils"
+
 class Version5 {
 
   static update(json: any): void {
@@ -99,3 +104,5 @@ class Version5 {
     }
   }
 }
+
+export { Version5 }

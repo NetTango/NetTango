@@ -1,5 +1,15 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { ExternalStorage } from "../utils/external-storage"
+import { Arrow } from "./baubles/arrow"
+import { Cap } from "./baubles/cap"
+import { Notch } from "./baubles/notch"
+import { Block } from "./block"
+import { BlockCollection } from "./block-collection"
+import { CodeWorkspace } from "./code-workspace"
+import { BlockDragData } from "./drag-drop/block-drag-data"
+import { DragImage } from "./drag-drop/drag-image"
+
 class Chain extends BlockCollection {
 
   readonly storage = new ExternalStorage(["x", "y", "blocks"])
@@ -183,3 +193,5 @@ class Chain extends BlockCollection {
   // }
 
 }
+
+export { Chain }

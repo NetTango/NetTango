@@ -1,5 +1,10 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { QuoteOptions } from "./blocks/attributes/select-attribute"
+import { BlockPlacement } from "./blocks/block"
+import { ProgramChangedEvent } from "./blocks/program-changed-event"
+import { FormatAttributeType, NetTango_ExportCode, NetTango_FormatAttributeValue, NetTango_InitAllWorkspaces, NetTango_InitWorkspace, NetTango_Save, NetTango_SaveAll } from "./ntango"
+
 /**
  * NetTango functions can be used to create a blocks-based programming interface
  * associated with an HTML canvas.
@@ -63,3 +68,5 @@ class NetTango {
 
   static _callbacks: any = {}
 }
+
+export { NetTango }

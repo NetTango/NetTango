@@ -1,5 +1,7 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { Block } from "../block"
+
 class BlockDragData {
   chainIndex: number | null = null
   parentType: "new-block" | "workspace-chain" | "block-clause" | null = null
@@ -75,3 +77,5 @@ class BlockDragData {
     return dragData
   }
 }
+
+export { BlockDragData }

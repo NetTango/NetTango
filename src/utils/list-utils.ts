@@ -12,3 +12,5 @@ class ListUtils {
   }
 
 }
+
+export { ListUtils }

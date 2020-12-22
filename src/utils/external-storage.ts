@@ -25,3 +25,5 @@ class ExternalStorage {
     }
   }
 }
+
+export { ExternalStorage }

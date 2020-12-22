@@ -1,5 +1,7 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { VersionUtils } from "./version-utils"
+
 class Version1 {
 
   static update(json: any): any {
@@ -57,3 +59,5 @@ class Version1 {
   }
 
 }
+
+export { Version1 }

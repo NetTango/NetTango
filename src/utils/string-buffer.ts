@@ -32,3 +32,5 @@ class StringBuffer {
   }
 
 }
+
+export { StringBuffer }

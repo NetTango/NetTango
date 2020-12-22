@@ -1,5 +1,8 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { ArrayUtils } from "../utils/array-utils"
+import { VersionUtils } from "./version-utils"
+
 class Version4 {
 
   static update(json: any): void {
@@ -46,3 +49,5 @@ class Version4 {
     delete b["y"]
   }
 }
+
+export { Version4 }

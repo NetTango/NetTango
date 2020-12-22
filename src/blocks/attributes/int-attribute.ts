@@ -1,5 +1,9 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { Block } from "../block"
+import { Attribute, AttributeTypes } from "./attribute"
+import { NumAttribute } from "./num-attribute"
+
 //-------------------------------------------------------------------------
 /// Represents an integer parameter
 //-------------------------------------------------------------------------
@@ -23,3 +27,5 @@ class IntAttribute extends NumAttribute {
   }
 
 }
+
+export { IntAttribute }

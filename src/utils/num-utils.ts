@@ -38,3 +38,5 @@ class NumUtils {
   }
 
 }
+
+export { NumUtils }

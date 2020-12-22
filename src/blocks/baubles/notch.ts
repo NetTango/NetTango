@@ -1,5 +1,8 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { Block } from "../block"
+import { Clause } from "../clause"
+
 class Notch {
 
   static draw(isTop: boolean, block: Block): HTMLDivElement {
@@ -70,3 +73,5 @@ class Notch {
   }
 
 }
+
+export { Notch }

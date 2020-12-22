@@ -1,5 +1,10 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { Block } from "../block"
+import { Clause } from "../clause"
+import { AllowedTags } from "./allowed-tags"
+import { ConcreteTags } from "./concrete-tags"
+
 class InheritTags extends AllowedTags {
   readonly clause: Clause
 
@@ -55,3 +60,5 @@ class InheritTags extends AllowedTags {
   }
 
 }
+
+export { InheritTags }

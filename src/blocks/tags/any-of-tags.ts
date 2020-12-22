@@ -1,5 +1,11 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { BoolUtils } from "../../utils/bool-utils"
+import { ListUtils } from "../../utils/list-utils"
+import { Block } from "../block"
+import { ConcreteTags } from "./concrete-tags"
+import { InheritTags } from "./inherit-tags"
+
 // For now we're just doing this basic AnyOf implementation, but we could split this out into
 // a few different subclasses with AllOf, NotOneOf, NotAllOf, etc, or even a fancier full-blown
 // logic operator version.  -Jeremy B August 2020
@@ -36,3 +42,5 @@ class AnyOfTags extends ConcreteTags {
     return BoolUtils.allAreTrue(areClausesAllowed)
   }
 }
+
+export { AnyOfTags }

@@ -1,5 +1,11 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { Version1 } from "./version-1"
+import { Version2 } from "./version-2"
+import { Version3 } from "./version-3"
+import { Version4 } from "./version-4"
+import { Version5 } from "./version-5"
+
 class VersionManager {
   static readonly VERSION = 5
 
@@ -33,3 +39,5 @@ class VersionManager {
     definition["version"] = VersionManager.VERSION
   }
 }
+
+export { VersionManager }

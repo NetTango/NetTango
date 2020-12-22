@@ -1,5 +1,15 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { FormatAttributeType } from "../ntango"
+import { StringBuffer } from "../utils/string-buffer"
+import { StringUtils } from "../utils/string-utils"
+import { Attribute } from "./attributes/attribute"
+import { Block } from "./block"
+import { Chain } from "./chain"
+import { Clause } from "./clause"
+import { CodeWorkspace } from "./code-workspace"
+import { Expression } from "./expressions/expression"
+
 // TODO: This is an over-simplification, but it works for our big use-case (NetLogo)
 // If we want to look at custom per-language code formatters again, I think it makese
 // more sense for them to be provided by the end users, as opposed to included in the
@@ -209,3 +219,5 @@ class CodeFormatter  {
   }
 
 }
+
+export { CodeFormatter }
