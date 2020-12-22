@@ -4,7 +4,7 @@
   "description": "A blocks-based programming library written in Dart",
   "main": "ntango.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/NetTango/NetTango/issues"
   },
-  "homepage": "https://github.com/NetTango/NetTango#readme"
+  "homepage": "https://github.com/NetTango/NetTango#readme",
+  "devDependencies": {
+    "@types/jest": "^26.0.19",
+    "jest": "^26.0.19"
+  }
 }
