@@ -19,28 +19,26 @@ class Version4 {
     }
 
     const program: any = json["program"]
-    const chains: any[] = []
+    const newChains: any[] = []
     ArrayUtils.maybeForEach(program, "chains", (chain) => {
-      for (var blocks of chain) {
-        var x = 0
-        var y = 0
-        if (blocks.length !== 0) {
-          const first = blocks[0]
-          if (typeof(first["x"]) === "number" && typeof(first["y"]) === "number") {
-            x = Math.floor(first["x"])
-            y = Math.floor(first["y"])
-          }
+      var x = 0
+      var y = 0
+      if (chain.length !== 0) {
+        const first = chain[0]
+        if (typeof(first["x"]) === "number" && typeof(first["y"]) === "number") {
+          x = Math.floor(first["x"])
+          y = Math.floor(first["y"])
         }
-
-        chain = {
-          "blocks": blocks,
-          "x": x,
-          "y": y
-        }
-        chains.push(chain)
       }
+
+      const newChain = {
+        "blocks": chain,
+        "x": x,
+        "y": y
+      }
+      newChains.push(newChain)
     })
-    program["chains"] = chains
+    program["chains"] = newChains
 
   }
 

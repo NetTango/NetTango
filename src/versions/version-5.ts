@@ -80,7 +80,7 @@ class Version5 {
   static moveChildrenToClauses(b: any): void {
     if (b.hasOwnProperty("children")) {
       const blocks = b["children"]
-      b.deleteProperty("children")
+      delete b["children"]
       const firstClause: any = {}
       firstClause["children"] = blocks
       if (b.hasOwnProperty("clauses")) {
