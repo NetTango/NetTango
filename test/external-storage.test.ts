@@ -1,3 +1,4 @@
+// NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
 import { BlockPlacement } from "../src/blocks/block"
 import { CodeFormatter } from "../src/blocks/code-formatter"
