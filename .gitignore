@@ -1,3 +1,4 @@
 # TypeScript settings
 node_modules/
 dist/
+ntango.js
