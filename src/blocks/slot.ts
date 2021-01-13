@@ -61,8 +61,8 @@ class Slot {
     // slotDrag.onDragStart.listen(startDrag)
     // slotDrag.onDragEnd.listen(endDrag)
 
-    this.slotDiv.addEventListener("doubleclick", this.raiseDoubleClick)
-    this.slotDiv.addEventListener("contextmenu", this.raiseContextMenu)
+    this.slotDiv.addEventListener("dblclick", (e) => this.raiseDoubleClick(e))
+    this.slotDiv.addEventListener("contextmenu", (e) => this.raiseContextMenu(e))
     this.updateForLimit()
     return this.slotDiv
   }

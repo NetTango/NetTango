@@ -15,7 +15,7 @@ class Toggle {
     this.div = document.createElement("div")
     this.div.classList.add("nt-toggle")
     this.div.innerText = isOn ? this.onGlyph : this.offGlyph
-    this.div.addEventListener("click", this.click)
+    this.div.addEventListener("click", (e) => this.click(e) )
   }
 
   click(event: MouseEvent): void {

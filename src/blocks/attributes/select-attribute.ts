@@ -73,7 +73,7 @@ class SelectAttribute extends Attribute {
     clone.quoteValues = source.quoteValues
     source.values.forEach( (option) => clone.values.push(option) )
     if (!isSlotBlock) {
-      clone.value = (source.value === null) ? clone.defaultValue : source.value
+      clone.value = StringUtils.toStrNotEmpty(source.value, clone.defaultValue)
     }
     return clone
   }

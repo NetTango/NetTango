@@ -11,8 +11,8 @@ import { FormatAttributeType, NetTango_ExportCode, NetTango_FormatAttributeValue
  */
 class NetTango {
 
-  blockPlacementOptions = BlockPlacement
-  selectQuoteOptions    = QuoteOptions
+  static blockPlacementOptions = BlockPlacement
+  static selectQuoteOptions    = QuoteOptions
 
   /// Call init to instantiate a workspace associated with an HTML canvas.
   /// TODO: Document JSON specification format--for now see README.md
@@ -67,6 +67,11 @@ class NetTango {
   }
 
   static _callbacks: any = {}
+}
+
+if (window !== undefined && window !== null && !window.hasOwnProperty("NetTango")) {
+  const w: any = window
+  w["NetTango"] = NetTango
 }
 
 export { NetTango }

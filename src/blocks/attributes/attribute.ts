@@ -64,7 +64,7 @@ abstract class Attribute {
     const paramDiv = document.createElement("div")
     paramDiv.innerText = this.getDisplayValue()
     paramDiv.classList.add("nt-attribute-value")
-    paramDiv.classList.add("${block.getStyleClass()}-attribute")
+    paramDiv.classList.add(`${this.block.getStyleClass()}-attribute`)
     if (this.block.blockColor !== null) { paramDiv.style.color = this.block.blockColor; }
     if (this.block.textColor !== null) { paramDiv.style.backgroundColor = this.block.textColor; }
 

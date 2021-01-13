@@ -315,7 +315,7 @@ class Block {
     }
     if (this.dragData.parentType === "workspace-chain" && this.dragData.blockIndex === 0 && this.dragData.chainIndex !== null) {
       const chain = this.workspace.chains[this.dragData.chainIndex]
-      this.workspace.formatter.formatBlocks(out, 0, chain.blocks)
+      this.workspace.formatter.formatChainBlocks(out, chain.blocks, this.workspace.chainOpen, this.workspace.chainClose)
       // if this block isn't a valid chain starter, nothing may have been written
       if (out.isEmpty) {
         this.workspace.formatter.formatBlock(out, 0, this)
