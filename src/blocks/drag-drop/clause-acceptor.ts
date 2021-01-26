@@ -18,6 +18,15 @@ class ClauseAcceptor {
 
   static isLandingSpot(clause: Clause): boolean {
     const dragManager = DragManager.getCurrent()
+    if (dragManager.draggingBlocks === null) {
+      return false
+    }
+    const block = clause.owner
+    const isOverSelf = block.instanceId !== null && dragManager.draggingBlocks.some( (b) => block.instanceId !== null && b.getBlockInstance(block.instanceId) !== null )
+    if (isOverSelf) {
+      return false
+    }
+
     return (
       clause.owner.workspace.containerId === dragManager.workspace.containerId &&
       dragManager.canBeChild &&

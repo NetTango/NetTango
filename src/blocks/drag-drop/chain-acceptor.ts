@@ -19,6 +19,15 @@ class ChainAcceptor {
   // the only "landing spot" for a chain is the top section
   static isLandingSpot(chain: Chain): boolean {
     const dragManager = DragManager.getCurrent()
+    if (dragManager.draggingBlocks === null) {
+      return false
+    }
+    const block = chain.blocks[0]
+    const isOverSelf = block.instanceId !== null && dragManager.draggingBlocks.some( (b) => block.instanceId !== null && b.getBlockInstance(block.instanceId) !== null )
+    if (isOverSelf) {
+      return false
+    }
+
     return (
       chain.workspace.containerId === dragManager.workspace.containerId &&
       !chain.blocks[0].canBeStarter &&
