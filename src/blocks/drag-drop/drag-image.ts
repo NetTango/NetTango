@@ -1,9 +1,7 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-class DragImage {
-
 // class DragImage extends AvatarHandler {
-  element = document.createElement("div")
+  // element = document.createElement("div")
 
   // @override
   // void dragStart(Element draggable, Point startPosition) {
@@ -13,14 +11,6 @@ class DragImage {
   //   final avatarOffset = getOffsetToRoot(avatar)
   //   final draggableOffset = getOffsetToRoot(draggable)
   //   setLeftTop(draggableOffset - avatarOffset)
-  // }
-
-  // static Point getOffsetToRoot(Element element) {
-  //   if (element.offsetParent == null) {
-  //     return element.offset.topLeft
-  //   } else {
-  //     return element.offset.topLeft + getOffsetToRoot(element.offsetParent)
-  //   }
   // }
 
   // @override
@@ -36,6 +26,6 @@ class DragImage {
   //   element.style.visibility = null
   // }
 
-}
+// }
 
-export { DragImage }
+// export { DragImage }

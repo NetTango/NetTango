@@ -43,7 +43,7 @@ abstract class BlockCollection {
   }
 
   static appendBlock(div: HTMLDivElement, blockDiv: HTMLDivElement, newPosition: string, useClones: boolean = false): void {
-    const appendDiv: HTMLDivElement = useClones ? (blockDiv.cloneNode(true) as HTMLDivElement) : blockDiv;
+    const appendDiv: HTMLDivElement = blockDiv;//useClones ? (blockDiv.cloneNode(true) as HTMLDivElement) : blockDiv;
 
     [
       "nt-block-first",

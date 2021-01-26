@@ -1,8 +1,10 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import interact from "interactjs"
 import { Block } from "./block"
 import { CodeWorkspace } from "./code-workspace"
-import { DragImage } from "./drag-drop/drag-image"
+import { DragManager } from "./drag-drop/drag-manager"
+import { BlockChangedEvent } from "./program-changed-event"
 import { Slot } from "./slot"
 
 /**
@@ -48,26 +50,31 @@ Cannot add a block with the same ID as an existing block
     return null
   }
 
-  draw(dragImage: DragImage): HTMLDivElement {
+  draw(): HTMLDivElement {
     this.menuDiv = document.createElement("div")
     this.menuDiv.id = `${this.workspace.containerId}-menu`
     this.menuDiv.classList.add("nt-menu")
 
     for (var i = 0; i < this.slots.length; i++) {
       const slot = this.slots[i]
-      this.menuDiv.append(slot.draw(dragImage, i))
+      this.menuDiv.append(slot.draw(i))
     }
 
-    // final dropZone = Dropzone(menuDiv, acceptor: workspace.acceptor)
-    // dropZone.onDragEnter.listen( (e) {
-    //   DragManager.current.isOverMenu = true
-    //   this.updateDragOver()
-    // })
-    // dropZone.onDragLeave.listen( (e) {
-    //   DragManager.current.isOverMenu = false
-    //   this.updateDragOver()
-    // })
-    // dropZone.onDrop.listen(drop)
+    const dropZone = interact(this.menuDiv).dropzone({ accept: "#nt-drag-image" })
+    // acceptor: workspace.acceptor)
+    dropZone.on("dragenter", () => {
+      console.log("enter menu")
+      const dragManager = DragManager.getCurrent()
+      dragManager.isOverMenu = true
+      this.updateDragOver()
+    })
+    dropZone.on("dragleave", () => {
+      console.log("leave menu")
+      const dragManager = DragManager.getCurrent()
+      dragManager.isOverMenu = false
+      this.updateDragOver()
+    })
+    dropZone.on("drop", () => this.drop() )
 
     this.updateLimits()
 
@@ -81,20 +88,22 @@ Cannot add a block with the same ID as an existing block
   }
 
   updateDragOver(): void {
-    // if (DragManager.current != null && (DragManager.current.isOverMenu || (DragManager.current.isOverContainer && !DragManager.current.isOverWorkspace))) {
-    //   menuDiv.classes.add("nt-menu-drag-over")
-    // } else {
-    //   menuDiv.classes.remove("nt-menu-drag-over")
-    // }
+    if (DragManager.current !== null && (DragManager.current.isOverMenu || (DragManager.current.isOverContainer && !DragManager.current.isOverWorkspace))) {
+      this.menuDiv.classList.add("nt-menu-drag-over")
+    } else {
+      this.menuDiv.classList.remove("nt-menu-drag-over")
+    }
   }
 
-//   void drop(DropzoneEvent event) {
-//     DragManager.current.wasHandled = true
-
-//     final oldBlocks = workspace.dragManager.consumeDraggingBlocks()
-//     Block changedBlock = oldBlocks.elementAt(0)
-//     workspace.programChanged(new BlockChangedEvent(changedBlock))
-//   }
+  drop(): void {
+    console.log("drop menu")
+    const dragManager = DragManager.getCurrent()
+    dragManager.wasHandled = true
+    this.workspace.dragManager.clearDraggingClasses()
+    const oldBlocks = this.workspace.dragManager.consumeDraggingBlocks()
+    const changedBlock = oldBlocks[0]
+    this.workspace.programChanged(new BlockChangedEvent(changedBlock))
+  }
 
 }
 

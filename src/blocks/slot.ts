@@ -1,11 +1,13 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import type { InteractEvent } from '@interactjs/core/InteractEvent'
 import { StringBuffer } from "../utils/string-buffer"
 import { StringUtils } from "../utils/string-utils"
 import { Block } from "./block"
 import { CodeWorkspace } from "./code-workspace"
-import { DragImage } from "./drag-drop/drag-image"
 import { MenuItemClickedEvent, MenuItemContextMenuEvent } from "./program-changed-event"
+import { DragListener } from "./drag-drop/drag-listener"
+import { NewDragData } from './drag-drop/drag-data/new-drag-data'
 
 class Slot {
 
@@ -18,7 +20,6 @@ class Slot {
 
   slotIndex: number
   slotDiv: HTMLDivElement = document.createElement("div")
-  dragImage: DragImage | null = null
   isAtLimit = false
 
   constructor(block: Block, workspace: CodeWorkspace, limit: number, slotIndex: number) {
@@ -33,8 +34,7 @@ class Slot {
     return (this.limit <= 0 || free > 0)
   }
 
-  draw(dragImage: DragImage, index: number): HTMLDivElement {
-    this.dragImage = dragImage
+  draw(index: number): HTMLDivElement {
     this.slotIndex = index
     this.slotDiv = document.createElement("div")
     this.slotDiv.classList.add("nt-menu-slot")
@@ -57,11 +57,11 @@ class Slot {
       this.slotDiv.style.lineHeight = lineHeight
     }
 
-    // final slotDrag = Draggable(slotDiv, avatarHandler: dragImage, draggingClass: "nt-block-dragging", cancel: ".nt-menu-slot-at-limit")
-    // slotDrag.onDragStart.listen(startDrag)
-    // slotDrag.onDragEnd.listen(endDrag)
+    const dragListener = new DragListener(this.slotDiv, "nt-block-dragging", "nt-menu-slot-at-limit")
+    dragListener.start = (e: InteractEvent) => this.startDrag(e)
+    dragListener.end   = () => this.endDrag()
 
-    this.slotDiv.addEventListener("dblclick", (e) => this.raiseDoubleClick(e))
+    this.slotDiv.addEventListener("dblclick", () => this.raiseDoubleClick())
     this.slotDiv.addEventListener("contextmenu", (e) => this.raiseContextMenu(e))
     this.updateForLimit()
     return this.slotDiv
@@ -87,19 +87,18 @@ class Slot {
     }
   }
 
-  // void startDrag(DraggableEvent event) {
-  //   final newInstance = this.block.clone(false)
-  //   BlockDragData dragData = BlockDragData.newBlock(newInstance, this.slotIndex)
-  //   newInstance.draw(dragImage, dragData)
+  startDrag(event: InteractEvent): void {
+    const newInstance = this.block.clone(false)
+    const dragData = new NewDragData(newInstance, this.slotIndex)
+    newInstance.draw(dragData)
+    this.workspace.dragManager.startDrag(newInstance, dragData, event, false)
+  }
 
-  //   workspace.dragManager.startDrag(newInstance, dragData, event, false)
-  // }
+  endDrag(): void {
+    this.workspace.dragManager.endDrag()
+  }
 
-  // void endDrag(DraggableEvent event) {
-  //   workspace.dragManager.endDrag()
-  // }
-
-  raiseDoubleClick(e: Event): void {
+  raiseDoubleClick(): void {
     const event = new MenuItemClickedEvent(this.block.id)
     this.workspace.programChanged(event)
   }

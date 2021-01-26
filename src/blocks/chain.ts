@@ -1,5 +1,8 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import interact from "interactjs"
+import type { InteractEvent } from '@interactjs/core/InteractEvent'
+
 import { ExternalStorage } from "../utils/external-storage"
 import { Arrow } from "./baubles/arrow"
 import { Cap } from "./baubles/cap"
@@ -7,8 +10,11 @@ import { Notch } from "./baubles/notch"
 import { Block } from "./block"
 import { BlockCollection } from "./block-collection"
 import { CodeWorkspace } from "./code-workspace"
-import { BlockDragData } from "./drag-drop/block-drag-data"
-import { DragImage } from "./drag-drop/drag-image"
+import { ChainAcceptor } from "./drag-drop/chain-acceptor"
+import { ChainDragData } from "./drag-drop/drag-data/chain-drag-data"
+import { DragListener } from "./drag-drop/drag-listener"
+import { DragManager } from "./drag-drop/drag-manager"
+import { BlockChangedEvent } from "./program-changed-event"
 
 class Chain extends BlockCollection {
 
@@ -34,15 +40,19 @@ class Chain extends BlockCollection {
     this.chainIndex = chainIndex
   }
 
-  draw(dragImage: DragImage, newChainIndex: number): HTMLDivElement {
+  draw(newChainIndex: number): HTMLDivElement {
     this.chainIndex = newChainIndex
 
     this.fragmentDiv = document.createElement("div")
     this.fragmentDiv.classList.add("nt-fragment")
-    // final fragmentDropzone = Dropzone(fragmentDiv, acceptor: new ChainAcceptor(this))
-    // fragmentDropzone.onDrop.listen(drop)
-    // fragmentDropzone.onDragEnter.listen( (e) => isDragOver = true )
-    // fragmentDropzone.onDragLeave.listen( (e) => isDragOver = false )
+    const acceptor = new ChainAcceptor(this)
+    const fragmentDropzone = interact(this.fragmentDiv).dropzone({
+      accept: ".nt-menu-slot, .nt-block, .nt-cap, .nt-notch"
+      , checker: (_1, _2, dropped) => acceptor.checker(dropped)
+    })
+    fragmentDropzone.on("drop", (e) => this.drop(e) )
+    fragmentDropzone.on("dragenter", () => this.isDragOver = true )
+    fragmentDropzone.on("dragleave", () => this.isDragOver = false )
 
     this.div = document.createElement("div")
     this.div.classList.add("nt-chain")
@@ -53,8 +63,8 @@ class Chain extends BlockCollection {
 
     for (var i = 0; i < this.blocks.length; i++) {
       const block = this.blocks[i]
-      const dragData = BlockDragData.workspaceChain(this.chainIndex, i, this.blocks.slice(i + 1))
-      block.draw(dragImage, dragData)
+      const dragData = new ChainDragData(this.chainIndex, i, this.blocks.slice(i + 1))
+      block.draw(dragData)
     }
 
     Chain.redrawChain(this.div, this.blocks, false, this.fragmentDiv)
@@ -75,7 +85,7 @@ class Chain extends BlockCollection {
     this.chainIndex = newChainIndex
     for (var i = 0; i < this.blocks.length; i++) {
       const block = this.blocks[i]
-      block.dragData.resetWorkspaceChain(this.chainIndex, i, this.blocks.slice(i + 1))
+      block.dragData = new ChainDragData(this.chainIndex, i, this.blocks.slice(i + 1))
       block.resetOwnedBlocksDragData()
     }
   }
@@ -141,7 +151,7 @@ class Chain extends BlockCollection {
   redrawBlocks(): void {
     for (var i = 0; i < this.blocks.length; i++) {
       const block = this.blocks[i]
-      block.dragData.resetWorkspaceChain(this.chainIndex, i, this.blocks.slice(i + 1))
+      block.dragData = new ChainDragData(this.chainIndex, i, this.blocks.slice(i + 1))
       block.resetOwnedBlocksDragData()
     }
     Chain.redrawChain(this.div, this.blocks, false, this.fragmentDiv)
@@ -152,45 +162,49 @@ class Chain extends BlockCollection {
   }
 
   enableDropZones(): void {
-    // if (ChainAcceptor.isLandingSpot(this)) {
-    //   this.div.classes.add("nt-allowed-drop")
-    // }
+    if (ChainAcceptor.isLandingSpot(this)) {
+      this.div.classList.add("nt-allowed-drop")
+    }
 
-    // if (isFragment) {
-    //   fragmentDiv.classes.add("show")
-    //   final top = this.y.round() - FRAGMENT_HEIGHT
-    //   div.style.top = "${top}px"
-    // }
+    if (this.isFragment) {
+      this.fragmentDiv.classList.add("show")
+      const top = Math.round(this.y) - Chain.FRAGMENT_HEIGHT
+      this.div.style.top = `${top}px`
+    }
 
-    // for (final block in this.blocks) {
-    //   block.enableDropZones()
-    // }
+    for (var block of this.blocks) {
+      block.enableDropZones()
+    }
   }
 
   disableDropZones(): void {
-    // this.div.classes.remove("nt-allowed-drop")
+    this.div.classList.remove("nt-allowed-drop")
 
-    // fragmentDiv.classes.remove("show")
-    // final top = this.y.round()
-    // div.style.top = "${top}px"
+    this.fragmentDiv.classList.remove("show")
+    const top = Math.round(this.y)
+    this.div.style.top = `${top}px`
 
-    // for (final block in this.blocks) {
-    //   block.disableDropZones()
-    // }
+    for (var block of this.blocks) {
+      block.disableDropZones()
+    }
   }
 
-  //  drop(DropzoneEvent event): void {
-  //   DragManager.current.wasHandled = true
+  drop(event: InteractEvent): void {
+    const dragManager = DragManager.getCurrent()
+    dragManager.wasHandled = true
 
-  //   final newBlocks = workspace.dragManager.consumeDraggingBlocks()
-  //   final newFirst  = newBlocks.elementAt(0)
-  //   final offset = DragImage.getOffsetToRoot(this.div)
-  //   final dropLocation = event.position - offset
-  //   this.y = this.y - FRAGMENT_HEIGHT + dropLocation.y.floor()
-  //   insertBlocks(0, newBlocks)
+    this.workspace.dragManager.clearDraggingClasses()
+    const newBlocks = this.workspace.dragManager.consumeDraggingBlocks()
+    const newFirst  = newBlocks[0]
+    const offset = DragListener.getOffsetToRoot(this.div)
+    // The casts here are necessary I believe because the type defs are wrong, `dragEvent` does exist on the
+    // `InteractEvent` when a drop occurs. -Jeremy B January 2020
+    const dropY = ((event as any).dragEvent.page.y as number) - offset.y - dragManager.dragStartOffset.y
+    this.y = this.y - Chain.FRAGMENT_HEIGHT + Math.floor(dropY)
+    this.insertBlocks(0, newBlocks)
 
-  //   workspace.programChanged(new BlockChangedEvent(newFirst))
-  // }
+    this.workspace.programChanged(new BlockChangedEvent(newFirst))
+  }
 
 }
 

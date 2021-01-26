@@ -2,6 +2,9 @@
 
 import { Block } from "../block"
 import { Clause } from "../clause"
+import { ChainDragData } from "../drag-drop/drag-data/chain-drag-data"
+import { ClauseDragData } from "../drag-drop/drag-data/clause-drag-data"
+import { NewDragData } from "../drag-drop/drag-data/new-drag-data"
 import { AllowedTags } from "./allowed-tags"
 import { ConcreteTags } from "./concrete-tags"
 
@@ -30,33 +33,27 @@ class InheritTags extends AllowedTags {
     if (clause.owner.dragData === null) {
       throw new Error("No drag data to use for tags")
     }
-    switch (clause.owner.dragData.parentType) {
 
-      case "workspace-chain":
-        if (clause.owner.dragData.chainIndex === null) {
-          throw new Error("No chain index for a workspace chain block?")
-        }
-        const first = clause.owner.workspace.chains[clause.owner.dragData.chainIndex].blocks[0]
-        return first.canBeStarter ? first.allowedTags : null
-
-      case "block-clause":
-        if (clause.owner.dragData.parentInstanceId === null || clause.owner.dragData.clauseIndex === null) {
-          throw new Error("No parent block ID or clause index for a clause block?")
-        }
-        const ownerClause = clause.owner.workspace.getBlockInstance(clause.owner.dragData.parentInstanceId).clauses[clause.owner.dragData.clauseIndex]
-        if (ownerClause.allowedTags instanceof InheritTags) {
-          return InheritTags.getConcreteTags(ownerClause)
-        }
-        return (ownerClause.allowedTags as ConcreteTags)
-
-      // I guess a new block is a fragment?  But we shouldn't be calling this, really.
-      case "new-block":
-        return null
-
-      default:
-        throw new Error(`Unknown block parent type: ${clause.owner.dragData.parentType}`)
-
+    const data = clause.owner.dragData
+    if (data instanceof ChainDragData) {
+      const first = clause.owner.workspace.chains[data.chainIndex].blocks[0]
+      return first.canBeStarter ? first.allowedTags : null
     }
+
+    if (data instanceof ClauseDragData) {
+      const ownerClause = clause.owner.workspace.getBlockInstance(data.parentInstanceId).clauses[data.clauseIndex]
+      if (ownerClause.allowedTags instanceof InheritTags) {
+        return InheritTags.getConcreteTags(ownerClause)
+      }
+      return (ownerClause.allowedTags as ConcreteTags)
+    }
+
+    // I guess a new block is a fragment?  But we shouldn't be calling this, really.
+    if (data instanceof NewDragData) {
+      return null
+    }
+
+    throw new Error(`Unknown block drag data type: ${clause.owner.dragData}`)
   }
 
 }

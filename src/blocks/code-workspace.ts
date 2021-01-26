@@ -1,5 +1,8 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import type { InteractEvent } from '@interactjs/core/InteractEvent'
+import interact from "interactjs"
+
 import { FormatAttributeType } from "../ntango"
 import { NetTango } from "../ntango-shim"
 import { ExternalStorage } from "../utils/external-storage"
@@ -10,9 +13,10 @@ import { BlockMenu } from "./block-menu"
 import { BlockStyle } from "./block-style"
 import { Chain } from "./chain"
 import { CodeFormatter } from "./code-formatter"
-import { DragImage } from "./drag-drop/drag-image"
+import { DragListener } from "./drag-drop/drag-listener"
+import { DragManager } from "./drag-drop/drag-manager"
 import { ExpressionDefinition } from "./expressions/expression-definition"
-import { ProgramChangedEvent } from "./program-changed-event"
+import { BlockChangedEvent, ProgramChangedEvent } from "./program-changed-event"
 
 class CodeWorkspace {
 
@@ -23,7 +27,7 @@ class CodeWorkspace {
 
   readonly version = VersionManager.VERSION
 
-  // /// HTML Canvas ID
+  /// HTML Canvas ID
   containerId: string
   backdrop: HTMLDivElement = document.createElement("div")
   dialog: HTMLDivElement = document.createElement("div")
@@ -70,10 +74,7 @@ class CodeWorkspace {
   containerBlockStyle: BlockStyle
   commandBlockStyle: BlockStyle
 
-  readonly dragImage = new DragImage()
-  // DragManager dragManager
-  // WorkspaceAcceptor acceptor
-  // Dropzone containerDropzone
+  readonly dragManager = new DragManager(this)
 
   constructor(containerId: string, formatter: CodeFormatter) {
     this.containerId = containerId
@@ -84,12 +85,6 @@ class CodeWorkspace {
     this.container = maybeContainer as HTMLDivElement
     this.container.innerHTML = ""
     this.container.classList.add("nt-container")
-
-  //   this.dragManager = DragManager(this, this.dragImage)
-  //   this.acceptor    = WorkspaceAcceptor(this.containerId)
-
-  //   containerDropzone = Dropzone(container, acceptor: this.acceptor)
-  //   containerDropzone.onDrop.listen(containerDrop)
 
     this.starterBlockStyle   = BlockStyle.DEFAULT_STARTER_STYLE
     this.containerBlockStyle = BlockStyle.DEFAULT_CONTAINER_STYLE
@@ -160,10 +155,9 @@ class CodeWorkspace {
     wrapper.classList.add("nt-workspace-wrapper")
     this.container.append(wrapper)
 
-    const drag = this.dragImage.element
-    drag.classList.add("nt-block-drag")
-    drag.classList.add("nt-chain")
-    wrapper.append(drag)
+    DragListener.dragImage.classList.add("nt-block-drag")
+    DragListener.dragImage.classList.add("nt-chain")
+    wrapper.append(DragListener.dragImage)
 
     this.backdrop.className = "nt-attribute-backdrop"
     this.backdrop.addEventListener("click", (e) => this.backdrop.classList.remove("show") )
@@ -184,66 +178,103 @@ class CodeWorkspace {
 
     for (var i = 0; i < this.chains.length; i++) {
       const chain = this.chains[i]
-      chain.draw(this.dragImage, i)
+      chain.draw(i)
     }
 
     this.redrawChains()
 
-    const menuDiv = this.menu.draw(this.dragImage)
+    const menuDiv = this.menu.draw()
     menuDiv.style.maxHeight = `${this.height}px`
     wrapper.append(menuDiv)
 
-    // final spaceDropzone = Dropzone(spaceDiv, acceptor: this.acceptor)
-    // spaceDropzone.onDragEnter.listen( (e) {
-    //   DragManager.current.isOverWorkspace = true
-    //   menu.updateDragOver()
-    // })
-    // spaceDropzone.onDragOver.listen( (e) => this.updateDragOver() )
-    // spaceDropzone.onDragLeave.listen( (e) {
-    //   DragManager.current.isOverWorkspace = false
-    //   this.updateDragOver()
-    //   menu.updateDragOver()
-    // })
-    // spaceDropzone.onDrop.listen(drop)
+    const spaceDropzone = interact(this.spaceDiv).dropzone({
+        accept: ".nt-menu-slot, .nt-block, .nt-cap, .nt-notch"
+      , checker: (_1, _2, dropped) => this.checker(dropped)
+    })
 
-    // containerDropzone.onDragEnter.listen( (e) {
-    //   DragManager.current.isOverContainer = true
-    //   menu.updateDragOver()
-    // })
-    // containerDropzone.onDragLeave.listen( (e) {
-    //   DragManager.current.isOverContainer = false
-    //   menu.updateDragOver()
-    // })
+    spaceDropzone.on("dragenter", () => {
+      console.log("enter workspace")
+      const dragManager = DragManager.getCurrent()
+      dragManager.isOverWorkspace = true
+      this.menu.updateDragOver()
+    })
+
+    spaceDropzone.on("dragover", () => this.updateDragOver() )
+
+    spaceDropzone.on("dragleave", () => {
+      console.log("leave workspace")
+      const dragManager = DragManager.getCurrent()
+      dragManager.isOverWorkspace = false
+      this.updateDragOver()
+      this.menu.updateDragOver()
+    })
+
+    spaceDropzone.on("drop", (e) => this.drop(e) )
+
+    const containerDropzone = interact(this.container).dropzone({
+        accept:  ".nt-menu-slot, .nt-block, .nt-cap, .nt-notch"
+      , checker: (_1, _2, dropped) => this.checker(dropped)
+    })
+
+    containerDropzone.on("dragenter", () => {
+      console.log("enter container")
+      const dragManager = DragManager.getCurrent()
+      dragManager.isOverContainer = true
+      this.menu.updateDragOver()
+    })
+
+    containerDropzone.on("dragleave", () => {
+      console.log("leave container")
+      const dragManager = DragManager.getCurrent()
+      dragManager.isOverContainer = false
+      this.menu.updateDragOver()
+    })
+
+    containerDropzone.on("drop", () => this.containerDrop() )
 
     this.updateWorkspaceHeight()
   }
 
-  // void drop(DropzoneEvent event) {
-  //   DragManager.current.wasHandled = true
+  checker(dropped: boolean): boolean {
+    const dragManager = DragManager.getCurrent()
+    return dropped && !dragManager.wasHandled && this.containerId === dragManager.workspace.containerId
+  }
 
-  //   final blocks = this.dragManager.consumeDraggingBlocks()
-  //   final offset = DragImage.getOffsetToRoot(this.chainsDiv)
-  //   final dropLocation = event.position - offset - DragManager.current.dragStartOffset
-  //   createChain(blocks, max(0, dropLocation.x.floor()), max(0, dropLocation.y.floor()))
+  drop(event: InteractEvent): void {
+    console.log("drop workspace")
+    const dragManager = DragManager.getCurrent()
+    dragManager.wasHandled = true
 
-  //   Block changedBlock = blocks.elementAt(0)
-  //   programChanged(new BlockChangedEvent(changedBlock))
-  // }
+    this.dragManager.clearDraggingClasses()
+    const blocks = this.dragManager.consumeDraggingBlocks()
+    const offset = DragListener.getOffsetToRoot(this.chainsDiv)
+    // The casts here are necessary I believe because the type defs are wrong, `dragEvent` does exist on the
+    // `InteractEvent` when a drop occurs. -Jeremy B January 2020
+    const dropX = ((event as any).dragEvent.page.x as number) - offset.x - dragManager.dragStartOffset.x
+    const dropY = ((event as any).dragEvent.page.y as number) - offset.y - dragManager.dragStartOffset.y
+    this.createChain(blocks, Math.max(dropX, 0), Math.max(dropY, 0))
 
-  // void containerDrop(DropzoneEvent event) {
-  //   DragManager.current.wasHandled = true
+    const changedBlock = blocks[0]
+    this.programChanged(new BlockChangedEvent(changedBlock))
+  }
 
-  //   final oldBlocks = this.dragManager.consumeDraggingBlocks()
+  containerDrop(): void {
+    console.log("drop container")
+    const dragManager = DragManager.getCurrent()
+    dragManager.wasHandled = true
 
-  //   Block changedBlock = oldBlocks.elementAt(0)
-  //   programChanged(new BlockChangedEvent(changedBlock))
-  // }
+    this.dragManager.clearDraggingClasses()
+    const oldBlocks = this.dragManager.consumeDraggingBlocks()
+
+    const changedBlock = oldBlocks[0]
+    this.programChanged(new BlockChangedEvent(changedBlock))
+  }
 
   createChain(newBlocks: Block[], x: number, y: number): void {
     const newChainIndex = this.chains.length
     const newChain = new Chain(this, newChainIndex)
     this.chains.push(newChain)
-    const chainDiv = newChain.draw(this.dragImage, newChainIndex)
+    const chainDiv = newChain.draw(newChainIndex)
     this.spaceDiv.append(chainDiv)
     newChain.addBlocks(newBlocks)
     newChain.updatePosition(x, y)
@@ -282,6 +313,7 @@ class CodeWorkspace {
   }
 
   updateDragOver(): void {
+    console.log("updateDragOver()")
     for (var chain of this.chains) {
       chain.updateDragOver()
     }

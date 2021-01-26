@@ -10,6 +10,13 @@ class ArrayUtils {
     }
   }
 
+  static ifNotNullOrEmpty<T, U>(a: T[] | null, process: (a: T[]) => U, defaultVal: U) {
+    if (a === null || a.length === 0) {
+      return defaultVal
+    }
+    return process(a)
+  }
+
 }
 
 export { ArrayUtils }

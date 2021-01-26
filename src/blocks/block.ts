@@ -1,5 +1,8 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import interact from "interactjs"
+import type { InteractEvent } from '@interactjs/core/InteractEvent'
+
 import { ExternalStorage } from "../utils/external-storage"
 import { NumUtils } from "../utils/num-utils"
 import { StringBuffer } from "../utils/string-buffer"
@@ -9,11 +12,16 @@ import { Arrow } from "./baubles/arrow"
 import { Toggle } from "./baubles/toggle"
 import { Clause } from "./clause"
 import { CodeWorkspace } from "./code-workspace"
-import { BlockDragData } from "./drag-drop/block-drag-data"
-import { DragImage } from "./drag-drop/drag-image"
+import { BlockAcceptor } from "./drag-drop/block-acceptor"
+import { BlockDragData } from "./drag-drop/drag-data/block-drag-data"
+import { ChainDragData } from "./drag-drop/drag-data/chain-drag-data"
+import { NewDragData } from "./drag-drop/drag-data/new-drag-data"
 import { BlockChangedEvent } from "./program-changed-event"
 import { ConcreteTags } from "./tags/concrete-tags"
 import { UnrestrictedTags } from "./tags/unrestricted-tags"
+import { DragManager } from "./drag-drop/drag-manager"
+import { ClauseDragData } from "./drag-drop/drag-data/clause-drag-data"
+import { DragListener } from "./drag-drop/drag-listener"
 
 class BlockPlacement {
   static readonly STARTER = "starter"
@@ -84,7 +92,9 @@ class Block {
 
   // /// Restrict block placement
   placement: "starter" | "child" | "anywhere" = BlockPlacement.CHILD
-  // bool get canBeChild   => placement == BlockPlacement.CHILD   || placement == BlockPlacement.ANYWHERE
+  get canBeChild(): boolean {
+    return this.placement == BlockPlacement.CHILD || this.placement == BlockPlacement.ANYWHERE
+  }
   get canBeStarter(): boolean {
     return this.placement === BlockPlacement.STARTER || this.placement === BlockPlacement.ANYWHERE
   }
@@ -98,9 +108,9 @@ class Block {
   /// link back to the main workspace
   workspace: CodeWorkspace
 
-  dragImage: DragImage | null = null
   // BlockAcceptor acceptor
-  dragData: BlockDragData = new BlockDragData()
+  dragData: BlockDragData = new NewDragData(this, 0)
+  acceptor: BlockAcceptor = new BlockAcceptor(this)
   isDragOver = false
   isDragNotchOver = false
   blockDiv = document.createElement("div")
@@ -194,10 +204,8 @@ class Block {
     return `${this.workspace.containerId}-block-command`
   }
 
-  draw(dragImage: DragImage, dragData: BlockDragData): HTMLDivElement {
-    this.dragImage = dragImage
+  draw(dragData: BlockDragData): HTMLDivElement {
     this.dragData = dragData
-  //   this.acceptor = new BlockAcceptor(this)
 
     this.blockDiv = document.createElement("div")
     this.blockDiv.classList.add("nt-block")
@@ -252,11 +260,11 @@ class Block {
     }
 
     if (this.hasClauses) {
-      const firstClauseDiv = this.clauses[0].draw(dragImage, this, headerDiv)
+      const firstClauseDiv = this.clauses[0].draw(this, headerDiv)
       this.blockDiv.append(firstClauseDiv)
 
       for (var clause of this.clauses.slice(1)) {
-        const clauseDiv = clause.draw(dragImage, this, null)
+        const clauseDiv = clause.draw(this, null)
         this.blockDiv.append(clauseDiv)
       }
 
@@ -293,13 +301,17 @@ class Block {
   }
 
   static wireDragEvents(block: Block, div: HTMLDivElement, setOver: (isOver: boolean) => void): void {
-    // final draggable = Draggable(div, avatarHandler: block.dragImage, draggingClass: "nt-block-dragging")
-    // draggable.onDragStart.listen(block.startDrag)
-    // draggable.onDragEnd.listen(block.endDrag)
-    // final dropzone = Dropzone(div, acceptor: block.acceptor)
-    // dropzone.onDrop.listen(block.drop)
-    // dropzone.onDragEnter.listen( (e) => setOver(true) )
-    // dropzone.onDragLeave.listen( (e) => setOver(false) )
+    const dragListener = new DragListener(div)
+    dragListener.start = (e: InteractEvent) => block.startDrag(e)
+    dragListener.end   = () => block.endDrag()
+
+    const dropzone = interact(div).dropzone({
+        accept: ".nt-menu-slot, .nt-block, .nt-cap, .nt-notch"
+      , checker: (_1, _2, dropped) => block.acceptor.checker(dropped)
+    })
+    dropzone.on("drop", () => block.drop() )
+    dropzone.on("dragenter", () => setOver(true) )
+    dropzone.on("dragleave", () => setOver(false) )
   }
 
   updateActionText(): void {
@@ -313,7 +325,7 @@ class Block {
       out.writeln(this.note)
       out.writeln()
     }
-    if (this.dragData.parentType === "workspace-chain" && this.dragData.blockIndex === 0 && this.dragData.chainIndex !== null) {
+    if (this.dragData instanceof ChainDragData) {
       const chain = this.workspace.chains[this.dragData.chainIndex]
       this.workspace.formatter.formatChainBlocks(out, chain.blocks, this.workspace.chainOpen, this.workspace.chainClose)
       // if this block isn't a valid chain starter, nothing may have been written
@@ -353,52 +365,53 @@ class Block {
     }
   }
 
-  // void startDrag(DraggableEvent event) {
-  //   workspace.dragManager.startDrag(this, this.dragData, event, true)
-  // }
+  startDrag(event: InteractEvent): void {
+    this.workspace.dragManager.startDrag(this, this.dragData, event, true)
+  }
 
-  // void endDrag(DraggableEvent event) {
-  //   workspace.dragManager.endDrag()
-  // }
+  endDrag(): void {
+    this.workspace.dragManager.endDrag()
+  }
 
-  // void drop(DropzoneEvent event) {
-  //   DragManager.current.wasHandled = true
+  drop(): void {
+    const dragManager = DragManager.getCurrent()
+    dragManager.wasHandled = true
 
-  //   final newBlocks = workspace.dragManager.consumeDraggingBlocks()
+    this.workspace.dragManager.clearDraggingClasses()
+    const newBlocks = this.workspace.dragManager.consumeDraggingBlocks()
 
-  //   switch (dragData.parentType) {
+    if (this.dragData instanceof ChainDragData) {
+      this.workspace.chains[this.dragData.chainIndex].insertBlocks(this.dragData.blockIndex + 1, newBlocks)
+    }
 
-  //     case "workspace-chain":
-  //       workspace.chains[dragData.chainIndex].insertBlocks(dragData.blockIndex + 1, newBlocks)
-  //       break
+    if (this.dragData instanceof ClauseDragData) {
+      const parentBlock = this.workspace.chains[this.dragData.chainIndex].getBlockInstance(this.dragData.parentInstanceId)
+      if (parentBlock === null) {
+        throw new Error("Could not find parent block?")
+      }
+      parentBlock.clauses[this.dragData.clauseIndex].insertBlocks(this.dragData.blockIndex + 1, newBlocks)
+    }
 
-  //     case "block-clause":
-  //       final parentBlock = workspace.chains[dragData.chainIndex].getBlockInstance(dragData.parentInstanceId)
-  //       parentBlock.clauses[dragData.clauseIndex].insertBlocks(dragData.blockIndex + 1, newBlocks)
-  //       break
-
-  //   }
-
-  //   Block changedBlock = newBlocks.elementAt(0)
-  //   workspace.programChanged(new BlockChangedEvent(changedBlock))
-  // }
+    const changedBlock = newBlocks[0]
+    this.workspace.programChanged(new BlockChangedEvent(changedBlock))
+  }
 
   enableDropZones(): void {
-  //   if (BlockAcceptor.isLandingSpot(this)) {
-  //     this.blockDiv.classes.add("nt-allowed-drop")
-  //   }
+    if (BlockAcceptor.isLandingSpot(this)) {
+      this.blockDiv.classList.add("nt-allowed-drop")
+    }
 
-  //   for (final clause in this.clauses) {
-  //     clause.enableDropZones()
-  //   }
+    for (var clause of this.clauses) {
+      clause.enableDropZones()
+    }
   }
 
   disableDropZones(): void {
-  //   this.blockDiv.classes.remove("nt-allowed-drop")
+    this.blockDiv.classList.remove("nt-allowed-drop")
 
-  //   for (final clause in this.clauses) {
-  //     clause.disableDropZones()
-  //   }
+    for (var clause of this.clauses) {
+      clause.disableDropZones()
+    }
   }
 
   resetOwnedBlocksDragData(): void {

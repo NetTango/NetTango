@@ -1,13 +1,19 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import interact from "interactjs"
+import type { InteractEvent } from '@interactjs/core/InteractEvent'
+
 import { ExternalStorage } from "../utils/external-storage"
 import { StringUtils } from "../utils/string-utils"
 import { Arrow } from "./baubles/arrow"
 import { Notch } from "./baubles/notch"
 import { Block } from "./block"
 import { BlockCollection } from "./block-collection"
-import { BlockDragData } from "./drag-drop/block-drag-data"
-import { DragImage } from "./drag-drop/drag-image"
+import { ClauseAcceptor } from "./drag-drop/clause-acceptor"
+import { ActiveDragData } from "./drag-drop/drag-data/active-drag-data"
+import { ClauseDragData } from "./drag-drop/drag-data/clause-drag-data"
+import { DragManager } from "./drag-drop/drag-manager"
+import { BlockChangedEvent } from "./program-changed-event"
 import { AllowedTags } from "./tags/allowed-tags"
 import { ConcreteTags } from "./tags/concrete-tags"
 import { InheritTags } from "./tags/inherit-tags"
@@ -41,17 +47,20 @@ class Clause extends BlockCollection {
     this.close = close
   }
 
-  draw(dragImage: DragImage, container: Block, extraDropDiv: HTMLDivElement | null): HTMLDivElement {
-    // final acceptor = new ClauseAcceptor(this)
+  draw(container: Block, extraDropDiv: HTMLDivElement | null): HTMLDivElement {
+    const acceptor = new ClauseAcceptor(this)
 
     this.div = document.createElement("div")
     this.div.classList.add("nt-clause")
 
     if (extraDropDiv !== null) {
-      // final extraDropzone = Dropzone(extraDropDiv, acceptor: acceptor)
-      // extraDropzone.onDrop.listen(drop)
-      // extraDropzone.onDragEnter.listen( (e) => isDragHeaderOver = true )
-      // extraDropzone.onDragLeave.listen( (e) => isDragHeaderOver = false )
+      const extraDropzone = interact(extraDropDiv).dropzone({
+          accept: ".nt-menu.slot"
+        , checker: (_1, _2, dropped) => acceptor.checker(dropped)
+      })
+      extraDropzone.on("drop", () => this.drop() )
+      extraDropzone.on("dragenter", () => { console.log("enter clause"); this.isDragHeaderOver = true })
+      extraDropzone.on("dragleave", () => { console.log("leave clause"); this.isDragHeaderOver = false })
     }
 
     const styleClass = container.getStyleClass()
@@ -82,10 +91,13 @@ class Clause extends BlockCollection {
     const arrow = Arrow.draw()
     this.divider.append(arrow)
 
-    // final dropzone = Dropzone(div, acceptor: acceptor)
-    // dropzone.onDrop.listen(drop)
-    // dropzone.onDragEnter.listen( (e) => isDragOver = true )
-    // dropzone.onDragLeave.listen( (e) => isDragOver = false )
+    const dropzone = interact(this.div).dropzone({
+        accept: ".nt-menu-slot, .nt-block, .nt-cap, .nt-notch"
+      , checker: (_1, _2, dropped) => acceptor.checker(dropped)
+    })
+    dropzone.on("drop", () => this.drop() )
+    dropzone.on("dragenter", () => { console.log("enter clause"); this.isDragOver = true })
+    dropzone.on("dragleave", () => { console.log("leave clause"); this.isDragOver = false })
 
     this.blocksDiv = document.createElement("div")
     this.blocksDiv.classList.add("nt-clause-blocks")
@@ -100,11 +112,11 @@ class Clause extends BlockCollection {
     for (var i = 0; i < this.blocks.length; i++) {
       const block = this.blocks[i]
       const siblings = this.blocks.slice(i + 1)
-      if (this.owner.dragData.chainIndex === null || this.owner.instanceId === null) {
-        throw new Error("Cannot draw a clause for a block missing drag data or instance ID.")
+      if (!(this.owner.dragData instanceof ActiveDragData) || this.owner.instanceId === null) {
+        throw new Error("Cannot draw a clause for a block missing drag data.")
       }
-      const dragData = BlockDragData.blockOwned(this.owner.dragData.chainIndex, i, this.owner.instanceId, siblings, this.clauseIndex)
-      block.draw(dragImage, dragData)
+      const dragData = new ClauseDragData(this.owner.dragData.chainIndex, i, this.owner.instanceId, siblings, this.clauseIndex)
+      block.draw(dragData)
     }
 
     BlockCollection.appendBlocks(this.blocksDiv, this.blocks, "nt-block-clause")
@@ -145,10 +157,10 @@ class Clause extends BlockCollection {
   resetOwned(): void {
     for (var i = 0; i < this.blocks.length; i++) {
       const block = this.blocks[i]
-      if (this.owner.dragData.chainIndex === null || this.owner.instanceId === null) {
+      if (!(this.owner.dragData instanceof ActiveDragData) || this.owner.instanceId === null) {
         throw new Error("Cannot draw a clause for a block missing drag data or instance ID.")
       }
-      block.dragData.resetBlockOwned(this.owner.dragData.chainIndex, i, this.owner.instanceId, this.blocks.slice(i + 1), this.clauseIndex)
+      block.dragData = new ClauseDragData(this.owner.dragData.chainIndex, i, this.owner.instanceId, this.blocks.slice(i + 1), this.clauseIndex)
       block.resetOwnedBlocksDragData()
     }
   }
@@ -171,10 +183,10 @@ class Clause extends BlockCollection {
 
     for (var i = 0; i < this.blocks.length; i++) {
       const block = this.blocks[i]
-      if (this.owner.dragData.chainIndex === null || this.owner.instanceId === null) {
+      if (!(this.owner.dragData instanceof ActiveDragData) || this.owner.instanceId === null) {
         throw new Error("Cannot draw a clause for a block missing drag data or instance ID.")
       }
-      block.dragData.resetBlockOwned(this.owner.dragData.chainIndex, i, this.owner.instanceId, this.blocks.slice(i + 1), this.clauseIndex)
+      block.dragData = new ClauseDragData(this.owner.dragData.chainIndex, i, this.owner.instanceId, this.blocks.slice(i + 1), this.clauseIndex)
       block.resetOwnedBlocksDragData()
     }
 
@@ -182,21 +194,21 @@ class Clause extends BlockCollection {
   }
 
   enableDropZones(): void {
-    // if (ClauseAcceptor.isLandingSpot(this)) {
-    //   this.div.classes.add("nt-allowed-drop")
-    // }
+    if (ClauseAcceptor.isLandingSpot(this)) {
+      this.div.classList.add("nt-allowed-drop")
+    }
 
-    // for (final block in this.blocks) {
-    //   block.enableDropZones()
-    // }
+    for (const block of this.blocks) {
+      block.enableDropZones()
+    }
   }
 
   disableDropZones(): void {
-    // this.div.classes.remove("nt-allowed-drop")
+    this.div.classList.remove("nt-allowed-drop")
 
-    // for (final block in this.blocks) {
-    //   block.disableDropZones()
-    // }
+    for (var block of this.blocks) {
+      block.disableDropZones()
+    }
   }
 
   updateDragOver(): boolean {
@@ -229,17 +241,20 @@ class Clause extends BlockCollection {
     }
   }
 
-  // void drop(DropzoneEvent event) {
-  //   DragManager.current.wasHandled = true
+  drop(): void {
+    console.log("drop clause")
+    const dragManager = DragManager.getCurrent()
+    dragManager.wasHandled = true
 
-  //   final newBlocks = owner.workspace.dragManager.consumeDraggingBlocks()
+    this.owner.workspace.dragManager.clearDraggingClasses()
+    const newBlocks = this.owner.workspace.dragManager.consumeDraggingBlocks()
 
-  //   insertBlocks(0, newBlocks)
-  //   div.classes.remove("nt-clause-empty")
+    this.insertBlocks(0, newBlocks)
+    this.div.classList.remove("nt-clause-empty")
 
-  //   Block changedBlock = newBlocks.elementAt(0)
-  //   owner.workspace.programChanged(new BlockChangedEvent(changedBlock))
-  // }
+    const changedBlock = newBlocks[0]
+    this.owner.workspace.programChanged(new BlockChangedEvent(changedBlock))
+  }
 
 }
 

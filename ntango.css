@@ -115,6 +115,10 @@
   }
 }
 
+.nt-cap {
+  touch-action: none;
+}
+
 .nt-cap-top {
   border-left: 1px solid;
   border-top: 1px solid;
@@ -133,6 +137,10 @@
   border-bottom-right-radius: 10px;
   border-color: inherit;
   min-height: 9px;
+}
+
+.nt-notch {
+  touch-action: none;
 }
 
 .nt-notch-top {
@@ -344,6 +352,7 @@
   white-space: nowrap;
   min-width: 10em;
   height: fit-content;
+  touch-action: none;
 }
 
 .nt-clause-blocks > .nt-block,
@@ -515,6 +524,7 @@
   background: white;
   user-select: none;
   white-space: nowrap;
+  touch-action: none;
 }
 
 .nt-menu-slot-at-limit {
