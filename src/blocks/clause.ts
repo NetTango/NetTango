@@ -31,9 +31,6 @@ class Clause extends BlockCollection {
 
   allowedTags: AllowedTags = new UnrestrictedTags()
 
-  isDragOver: boolean = false
-  isDragHeaderOver: boolean = false
-
   divider: HTMLDivElement = document.createElement("div")
   leftBar: HTMLDivElement = document.createElement("div")
   blocksDiv: HTMLDivElement = document.createElement("div")
@@ -47,6 +44,11 @@ class Clause extends BlockCollection {
     this.close = close
   }
 
+  getHighlightElement(): HTMLDivElement {
+    const element = (this.blocks.length === 0) ? this.div : this.blocks[0].blockDiv
+    return element
+  }
+
   draw(container: Block, extraDropDiv: HTMLDivElement | null): HTMLDivElement {
     const acceptor = new ClauseAcceptor(this)
 
@@ -55,12 +57,16 @@ class Clause extends BlockCollection {
 
     if (extraDropDiv !== null) {
       const extraDropzone = interact(extraDropDiv).dropzone({
-          accept: ".nt-menu.slot"
+          accept: ".nt-menu-slot, .nt-block, .nt-cap, .nt-notch"
         , checker: (_1, _2, dropped) => acceptor.checker(dropped)
       })
       extraDropzone.on("drop", () => this.drop() )
-      extraDropzone.on("dragenter", () => { console.log("enter clause"); this.isDragHeaderOver = true })
-      extraDropzone.on("dragleave", () => { console.log("leave clause"); this.isDragHeaderOver = false })
+      extraDropzone.on("dragenter", () => {
+        this.getHighlightElement().classList.add("nt-block-clause-drag-over")
+      })
+      extraDropzone.on("dragleave", () => {
+        this.getHighlightElement().classList.remove("nt-block-clause-drag-over")
+      })
     }
 
     const styleClass = container.getStyleClass()
@@ -96,8 +102,12 @@ class Clause extends BlockCollection {
       , checker: (_1, _2, dropped) => acceptor.checker(dropped)
     })
     dropzone.on("drop", () => this.drop() )
-    dropzone.on("dragenter", () => { console.log("enter clause"); this.isDragOver = true })
-    dropzone.on("dragleave", () => { console.log("leave clause"); this.isDragOver = false })
+    dropzone.on("dragenter", () => {
+      this.getHighlightElement().classList.add("nt-block-clause-drag-over")
+    })
+    dropzone.on("dragleave", () => {
+      this.getHighlightElement().classList.remove("nt-block-clause-drag-over")
+    })
 
     this.blocksDiv = document.createElement("div")
     this.blocksDiv.classList.add("nt-clause-blocks")
@@ -211,39 +221,13 @@ class Clause extends BlockCollection {
     }
   }
 
-  updateDragOver(): boolean {
-    this.div.classList.remove("nt-block-clause-drag-over")
-    if (this.blocks.length > 0) { this.blocks[0].blockDiv.classList.remove("nt-block-clause-drag-over") }
-
-    var isHighlightHandled = false
-    for (var block of this.blocks) {
-      const blockResult = block.updateDragOver()
-      isHighlightHandled = isHighlightHandled || blockResult
-    }
-    if ((this.isDragOver || this.isDragHeaderOver) && !isHighlightHandled) {
-      isHighlightHandled = true
-      if (this.blocks.length === 0) {
-        this.div.classList.add("nt-block-clause-drag-over")
-      } else {
-        this.blocks[0].blockDiv.classList.add("nt-block-clause-drag-over")
-      }
-    }
-    return isHighlightHandled
-  }
-
-  clearDragOver(): void {
-    this.div.classList.remove("nt-block-clause-drag-over")
-    if (this.blocks.length > 0) { this.blocks[0].blockDiv.classList.remove("nt-block-clause-drag-over"); }
-    this.isDragOver = false
-    this.isDragHeaderOver = false
-    for (var block of this.blocks) {
-      block.clearDragOver()
-    }
-  }
-
   drop(): void {
-    console.log("drop clause")
     const dragManager = DragManager.getCurrent()
+    if (dragManager.wasHandled) {
+      return
+    }
+
+    this.getHighlightElement().classList.remove("nt-block-clause-drag-over")
     dragManager.wasHandled = true
 
     this.owner.workspace.dragManager.clearDraggingClasses()

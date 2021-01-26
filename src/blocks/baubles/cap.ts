@@ -20,7 +20,7 @@ class Cap {
       div.classList.add("nt-cap-bottom")
     }
 
-    Block.wireDragEvents(block, div, (isOver) => block.isDragNotchOver = isOver)
+    Block.wireDragEvents(block, div)
 
     return div
   }

@@ -61,18 +61,11 @@ Cannot add a block with the same ID as an existing block
     }
 
     const dropZone = interact(this.menuDiv).dropzone({ accept: "#nt-drag-image" })
-    // acceptor: workspace.acceptor)
     dropZone.on("dragenter", () => {
-      console.log("enter menu")
-      const dragManager = DragManager.getCurrent()
-      dragManager.isOverMenu = true
-      this.updateDragOver()
+      this.menuDiv.classList.add("nt-menu-drag-over")
     })
     dropZone.on("dragleave", () => {
-      console.log("leave menu")
-      const dragManager = DragManager.getCurrent()
-      dragManager.isOverMenu = false
-      this.updateDragOver()
+      this.menuDiv.classList.remove("nt-menu-drag-over")
     })
     dropZone.on("drop", () => this.drop() )
 
@@ -87,17 +80,13 @@ Cannot add a block with the same ID as an existing block
     }
   }
 
-  updateDragOver(): void {
-    if (DragManager.current !== null && (DragManager.current.isOverMenu || (DragManager.current.isOverContainer && !DragManager.current.isOverWorkspace))) {
-      this.menuDiv.classList.add("nt-menu-drag-over")
-    } else {
-      this.menuDiv.classList.remove("nt-menu-drag-over")
-    }
-  }
-
   drop(): void {
-    console.log("drop menu")
     const dragManager = DragManager.getCurrent()
+    if (dragManager.wasHandled) {
+      return
+    }
+
+    this.menuDiv.classList.remove("nt-menu-drag-over")
     dragManager.wasHandled = true
     this.workspace.dragManager.clearDraggingClasses()
     const oldBlocks = this.workspace.dragManager.consumeDraggingBlocks()

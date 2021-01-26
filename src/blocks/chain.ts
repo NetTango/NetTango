@@ -30,7 +30,6 @@ class Chain extends BlockCollection {
   chainIndex: number
 
   fragmentDiv = document.createElement("div")
-  isDragOver: boolean = false
 
   get isFragment(): boolean { return this.blocks.length === 0 || !this.blocks[0].canBeStarter }
 
@@ -51,8 +50,12 @@ class Chain extends BlockCollection {
       , checker: (_1, _2, dropped) => acceptor.checker(dropped)
     })
     fragmentDropzone.on("drop", (e) => this.drop(e) )
-    fragmentDropzone.on("dragenter", () => this.isDragOver = true )
-    fragmentDropzone.on("dragleave", () => this.isDragOver = false )
+    fragmentDropzone.on("dragenter", () => {
+      this.fragmentDiv.classList.add("nt-drag-over")
+    } )
+    fragmentDropzone.on("dragleave", () => {
+      this.fragmentDiv.classList.remove("nt-drag-over")
+    } )
 
     this.div = document.createElement("div")
     this.div.classList.add("nt-chain")
@@ -87,28 +90,6 @@ class Chain extends BlockCollection {
       const block = this.blocks[i]
       block.dragData = new ChainDragData(this.chainIndex, i, this.blocks.slice(i + 1))
       block.resetOwnedBlocksDragData()
-    }
-  }
-
-  updateDragOver(): boolean {
-    this.fragmentDiv.classList.remove("nt-drag-over")
-    var isHighlightHandled = false
-    for (var block of this.blocks) {
-      const blockResult = block.updateDragOver()
-      isHighlightHandled = isHighlightHandled || blockResult
-    }
-    if (this.isDragOver && !isHighlightHandled) {
-      isHighlightHandled = true
-      this.fragmentDiv.classList.add("nt-drag-over")
-    }
-    return isHighlightHandled
-  }
-
-  clearDragOver(): void {
-    this.fragmentDiv.classList.remove("nt-drag-over")
-    this.isDragOver = false
-    for (var block of this.blocks) {
-      block.clearDragOver()
     }
   }
 
@@ -191,12 +172,17 @@ class Chain extends BlockCollection {
 
   drop(event: InteractEvent): void {
     const dragManager = DragManager.getCurrent()
+    if (dragManager.wasHandled) {
+      return
+    }
+
+    this.fragmentDiv.classList.remove("nt-drag-over")
     dragManager.wasHandled = true
 
     this.workspace.dragManager.clearDraggingClasses()
     const newBlocks = this.workspace.dragManager.consumeDraggingBlocks()
     const newFirst  = newBlocks[0]
-    const offset = DragListener.getOffsetToRoot(this.div)
+    const offset    = DragListener.getOffsetToRoot(this.div)
     // The casts here are necessary I believe because the type defs are wrong, `dragEvent` does exist on the
     // `InteractEvent` when a drop occurs. -Jeremy B January 2020
     const dropY = ((event as any).dragEvent.page.y as number) - offset.y - dragManager.dragStartOffset.y

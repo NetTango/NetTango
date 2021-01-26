@@ -32,9 +32,6 @@ class DragManager {
   wasHandled: boolean = false
   dragData: BlockDragData | null = null
   dragStartOffset: Point = DragListener.ZERO_POINT
-  isOverMenu: boolean = false
-  isOverWorkspace: boolean = false
-  isOverContainer: boolean = false
   oldChainX: number | null = null
   oldChainY: number | null = null
 
@@ -70,12 +67,8 @@ class DragManager {
     DragManager.current = null
 
     this.wasHandled = true
-    this.isOverMenu = false
-    this.isOverContainer = false
-    this.isOverWorkspace = false
 
     this.workspace.disableDropZones()
-    this.workspace.clearDragOver()
     this.clearDraggingClasses()
 
     const finishedDrag = this.dragData

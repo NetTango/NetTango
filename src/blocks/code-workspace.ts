@@ -193,20 +193,7 @@ class CodeWorkspace {
     })
 
     spaceDropzone.on("dragenter", () => {
-      console.log("enter workspace")
-      const dragManager = DragManager.getCurrent()
-      dragManager.isOverWorkspace = true
-      this.menu.updateDragOver()
-    })
-
-    spaceDropzone.on("dragover", () => this.updateDragOver() )
-
-    spaceDropzone.on("dragleave", () => {
-      console.log("leave workspace")
-      const dragManager = DragManager.getCurrent()
-      dragManager.isOverWorkspace = false
-      this.updateDragOver()
-      this.menu.updateDragOver()
+      this.menu.menuDiv.classList.remove("nt-menu-drag-over")
     })
 
     spaceDropzone.on("drop", (e) => this.drop(e) )
@@ -217,17 +204,10 @@ class CodeWorkspace {
     })
 
     containerDropzone.on("dragenter", () => {
-      console.log("enter container")
-      const dragManager = DragManager.getCurrent()
-      dragManager.isOverContainer = true
-      this.menu.updateDragOver()
+      this.menu.menuDiv.classList.add("nt-menu-drag-over")
     })
-
     containerDropzone.on("dragleave", () => {
-      console.log("leave container")
-      const dragManager = DragManager.getCurrent()
-      dragManager.isOverContainer = false
-      this.menu.updateDragOver()
+      this.menu.menuDiv.classList.remove("nt-menu-drag-over")
     })
 
     containerDropzone.on("drop", () => this.containerDrop() )
@@ -241,8 +221,10 @@ class CodeWorkspace {
   }
 
   drop(event: InteractEvent): void {
-    console.log("drop workspace")
     const dragManager = DragManager.getCurrent()
+    if (dragManager.wasHandled) {
+      return
+    }
     dragManager.wasHandled = true
 
     this.dragManager.clearDraggingClasses()
@@ -259,8 +241,12 @@ class CodeWorkspace {
   }
 
   containerDrop(): void {
-    console.log("drop container")
     const dragManager = DragManager.getCurrent()
+    if (dragManager.wasHandled) {
+      return
+    }
+
+    this.menu.menuDiv.classList.remove("nt-menu-drag-over")
     dragManager.wasHandled = true
 
     this.dragManager.clearDraggingClasses()
@@ -310,20 +296,6 @@ class CodeWorkspace {
     for (var chain of this.chains) {
       chain.disableDropZones()
     }
-  }
-
-  updateDragOver(): void {
-    console.log("updateDragOver()")
-    for (var chain of this.chains) {
-      chain.updateDragOver()
-    }
-  }
-
-  clearDragOver(): void {
-    for (var chain of this.chains) {
-      chain.clearDragOver()
-    }
-    this.menu.updateDragOver()
   }
 
   _updateWorkspaceForChanges(): void {

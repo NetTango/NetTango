@@ -111,8 +111,6 @@ class Block {
   // BlockAcceptor acceptor
   dragData: BlockDragData = new NewDragData(this, 0)
   acceptor: BlockAcceptor = new BlockAcceptor(this)
-  isDragOver = false
-  isDragNotchOver = false
   blockDiv = document.createElement("div")
   actionDiv = document.createElement("div")
   propertiesToggle: Toggle | null = null
@@ -280,7 +278,7 @@ class Block {
       this.blockDiv.append(arrow)
     }
 
-    Block.wireDragEvents(this, this.blockDiv, (isOver) => this.isDragOver = isOver )
+    Block.wireDragEvents(this, this.blockDiv)
 
     return this.blockDiv
   }
@@ -300,7 +298,7 @@ class Block {
     }
   }
 
-  static wireDragEvents(block: Block, div: HTMLDivElement, setOver: (isOver: boolean) => void): void {
+  static wireDragEvents(block: Block, div: HTMLDivElement): void {
     const dragListener = new DragListener(div)
     dragListener.start = (e: InteractEvent) => block.startDrag(e)
     dragListener.end   = () => block.endDrag()
@@ -310,8 +308,12 @@ class Block {
       , checker: (_1, _2, dropped) => block.acceptor.checker(dropped)
     })
     dropzone.on("drop", () => block.drop() )
-    dropzone.on("dragenter", () => setOver(true) )
-    dropzone.on("dragleave", () => setOver(false) )
+    dropzone.on("dragenter", () => {
+      block.blockDiv.classList.add("nt-drag-over")
+    } )
+    dropzone.on("dragleave", () => {
+      block.blockDiv.classList.remove("nt-drag-over")
+    })
   }
 
   updateActionText(): void {
@@ -340,31 +342,6 @@ class Block {
     return escapedValue
   }
 
-  updateDragOver(): boolean {
-    this.blockDiv.classList.remove("nt-drag-over")
-    this.blockDiv.classList.remove("nt-block-clause-drag-over")
-    var isHighlightHandled = false
-    for (var clause of this.clauses) {
-      const clauseResult = clause.updateDragOver()
-      isHighlightHandled = isHighlightHandled || clauseResult
-    }
-    if ((this.isDragOver || this.isDragNotchOver) && !isHighlightHandled) {
-      isHighlightHandled = true
-      this.blockDiv.classList.add("nt-drag-over")
-    }
-    return isHighlightHandled
-  }
-
-  clearDragOver(): void {
-    this.blockDiv.classList.remove("nt-drag-over")
-    this.blockDiv.classList.remove("nt-block-clause-drag-over")
-    this.isDragOver = false
-    this.isDragNotchOver = false
-    for (var clause of this.clauses) {
-      clause.clearDragOver()
-    }
-  }
-
   startDrag(event: InteractEvent): void {
     this.workspace.dragManager.startDrag(this, this.dragData, event, true)
   }
@@ -375,6 +352,11 @@ class Block {
 
   drop(): void {
     const dragManager = DragManager.getCurrent()
+    if (dragManager.wasHandled) {
+      return
+    }
+
+    this.blockDiv.classList.remove("nt-drag-over")
     dragManager.wasHandled = true
 
     this.workspace.dragManager.clearDraggingClasses()

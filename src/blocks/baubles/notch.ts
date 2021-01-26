@@ -32,7 +32,7 @@ class Notch {
       div.append(filler)
     })
 
-    Block.wireDragEvents(block, div, (isOver) => block.isDragNotchOver = isOver )
+    Block.wireDragEvents(block, div)
 
     return div
   }
