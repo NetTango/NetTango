@@ -179,8 +179,8 @@ class Chain extends BlockCollection {
     this.fragmentDiv.classList.remove("nt-drag-over")
     dragManager.wasHandled = true
 
-    this.workspace.dragManager.clearDraggingClasses()
-    const newBlocks = this.workspace.dragManager.consumeDraggingBlocks()
+    dragManager.clearDraggingClasses()
+    const newBlocks = dragManager.consumeDraggingBlocks()
     const newFirst  = newBlocks[0]
     const offset    = DragListener.getOffsetToRoot(this.div)
     // The casts here are necessary I believe because the type defs are wrong, `dragEvent` does exist on the

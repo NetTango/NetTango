@@ -230,8 +230,8 @@ class Clause extends BlockCollection {
     this.getHighlightElement().classList.remove("nt-block-clause-drag-over")
     dragManager.wasHandled = true
 
-    this.owner.workspace.dragManager.clearDraggingClasses()
-    const newBlocks = this.owner.workspace.dragManager.consumeDraggingBlocks()
+    dragManager.clearDraggingClasses()
+    const newBlocks = dragManager.consumeDraggingBlocks()
 
     this.insertBlocks(0, newBlocks)
     this.div.classList.remove("nt-clause-empty")

@@ -359,8 +359,8 @@ class Block {
     this.blockDiv.classList.remove("nt-drag-over")
     dragManager.wasHandled = true
 
-    this.workspace.dragManager.clearDraggingClasses()
-    const newBlocks = this.workspace.dragManager.consumeDraggingBlocks()
+    dragManager.clearDraggingClasses()
+    const newBlocks = dragManager.consumeDraggingBlocks()
 
     if (this.dragData instanceof ChainDragData) {
       this.workspace.chains[this.dragData.chainIndex].insertBlocks(this.dragData.blockIndex + 1, newBlocks)

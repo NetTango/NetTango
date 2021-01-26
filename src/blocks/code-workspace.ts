@@ -227,8 +227,8 @@ class CodeWorkspace {
     }
     dragManager.wasHandled = true
 
-    this.dragManager.clearDraggingClasses()
-    const blocks = this.dragManager.consumeDraggingBlocks()
+    dragManager.clearDraggingClasses()
+    const blocks = dragManager.consumeDraggingBlocks()
     const offset = DragListener.getOffsetToRoot(this.chainsDiv)
     // The casts here are necessary I believe because the type defs are wrong, `dragEvent` does exist on the
     // `InteractEvent` when a drop occurs. -Jeremy B January 2020
@@ -249,8 +249,8 @@ class CodeWorkspace {
     this.menu.menuDiv.classList.remove("nt-menu-drag-over")
     dragManager.wasHandled = true
 
-    this.dragManager.clearDraggingClasses()
-    const oldBlocks = this.dragManager.consumeDraggingBlocks()
+    dragManager.clearDraggingClasses()
+    const oldBlocks = dragManager.consumeDraggingBlocks()
 
     const changedBlock = oldBlocks[0]
     this.programChanged(new BlockChangedEvent(changedBlock))
