@@ -8,18 +8,21 @@ class DragListener {
 
   static readonly ZERO_POINT: Point = Object.freeze({ x: 0, y: 0 })
 
+  private static _dragImage: HTMLDivElement | null = null
   static readonly dragImage: HTMLDivElement = (function() {
-    const element = document.createElement("div")
-    element.id = "nt-drag-image"
-    element.classList.add("nt-block-drag")
-    return element
+    if (DragListener._dragImage !== null) {
+      return DragListener._dragImage
+    }
+    DragListener._dragImage = document.createElement("div")
+    DragListener._dragImage.id = "nt-drag-image"
+    DragListener._dragImage.classList.add("nt-block-drag")
+    return DragListener._dragImage
   }())
   private static zeroTopLeft: Point | null = null
 
   readonly sourceElement: HTMLElement
   readonly draggingClass: string | null
   readonly cancelClass: string | null
-  // readonly elementDragger: Interactable
 
   start = (e: InteractEvent) => { }
   end   = (e: InteractEvent) => { }
@@ -37,11 +40,9 @@ class DragListener {
   private startEx(e: InteractEvent): void {
     const offset = DragListener.getOffsetToRoot(this.sourceElement)
 
-    if (DragListener.zeroTopLeft === null) {
-      DragListener.dragImage.style.left = "0px"
-      DragListener.dragImage.style.top  = "0px"
-      DragListener.zeroTopLeft = DragListener.getOffsetToRoot(DragListener.dragImage)
-    }
+    DragListener.dragImage.style.left = "0px"
+    DragListener.dragImage.style.top  = "0px"
+    DragListener.zeroTopLeft = DragListener.getOffsetToRoot(DragListener.dragImage)
 
     DragListener.dragImage.style.left = `${offset.x - DragListener.zeroTopLeft.x}px`
     DragListener.dragImage.style.top  = `${offset.y - DragListener.zeroTopLeft.y}px`
