@@ -14,7 +14,7 @@ class AnyOfTags extends ConcreteTags {
 
   constructor(tags: string[]) {
     super()
-    this.tags.concat(tags)
+    this.tags.push(...tags)
   }
 
   clone(): ConcreteTags {
@@ -22,7 +22,7 @@ class AnyOfTags extends ConcreteTags {
   }
 
   check(blocks: Block[]): boolean {
-    const areBlocksAllowed = blocks.map(this.checkBlock)
+    const areBlocksAllowed = blocks.map( (b) => this.checkBlock(b) )
     return BoolUtils.allAreTrue( areBlocksAllowed )
   }
 
