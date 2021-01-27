@@ -60,14 +60,20 @@ Cannot add a block with the same ID as an existing block
       this.menuDiv.append(slot.draw(i))
     }
 
-    const dropZone = interact(this.menuDiv).dropzone({ accept: "#nt-drag-image" })
+    const dropZone = interact(this.menuDiv).dropzone({
+      accept:  ".nt-menu-slot, .nt-block, .nt-cap, .nt-notch"
+    , checker: (_1, _2, dropped) => this.workspace.checker(dropped)
+    })
+
     dropZone.on("dragenter", () => {
       this.menuDiv.classList.add("nt-menu-drag-over")
     })
     dropZone.on("dragleave", () => {
       this.menuDiv.classList.remove("nt-menu-drag-over")
     })
-    dropZone.on("drop", () => this.drop() )
+    dropZone.on("drop", () => {
+      this.drop()
+    })
 
     this.updateLimits()
 

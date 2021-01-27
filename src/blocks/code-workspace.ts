@@ -197,8 +197,9 @@ class CodeWorkspace {
     spaceDropzone.on("dragenter", () => {
       this.menu.menuDiv.classList.remove("nt-menu-drag-over")
     })
-
-    spaceDropzone.on("drop", (e) => this.drop(e) )
+    spaceDropzone.on("drop", (e) => {
+      this.drop(e)
+    })
 
     const containerDropzone = interact(this.container).dropzone({
         accept:  ".nt-menu-slot, .nt-block, .nt-cap, .nt-notch"
@@ -211,8 +212,9 @@ class CodeWorkspace {
     containerDropzone.on("dragleave", () => {
       this.menu.menuDiv.classList.remove("nt-menu-drag-over")
     })
-
-    containerDropzone.on("drop", () => this.containerDrop() )
+    containerDropzone.on("drop", () => {
+      this.containerDrop()
+    })
 
     this.updateWorkspaceHeight()
   }
