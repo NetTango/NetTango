@@ -34,7 +34,7 @@ class AnyOfTags extends ConcreteTags {
       return true
     }
     const areClausesAllowed = block.clauses.map( (clause) => {
-      if ((clause.allowedTags instanceof InheritTags) || clause.blocks.length === 0) {
+      if ((clause.allowedTags instanceof AnyOfTags) || clause.blocks.length === 0) {
         return true
       }
       return this.check(clause.blocks)
