@@ -60,7 +60,7 @@ class DragManager {
     const blocks = (this.dragData instanceof ActiveDragData) ? this.dragData.siblings.slice(0) : []
     blocks.splice(0, 0, block)
 
-    Chain.redrawChain(DragListener.dragImage, blocks, useClones)
+    Chain.redrawChain(block.workspace.dragImage, blocks, useClones)
   }
 
   endDrag(): void {

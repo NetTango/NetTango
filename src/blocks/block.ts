@@ -299,7 +299,7 @@ class Block {
   }
 
   static wireDragEvents(block: Block, div: HTMLDivElement): void {
-    const dragListener = new DragListener(div)
+    const dragListener = new DragListener(block.workspace.dragImage, div)
     dragListener.start = (e: InteractEvent) => block.startDrag(e)
     dragListener.end   = () => block.endDrag()
 

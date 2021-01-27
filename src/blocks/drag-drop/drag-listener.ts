@@ -7,19 +7,9 @@ import type { DraggableOptions, Point } from '@interactjs/types/index'
 class DragListener {
 
   static readonly ZERO_POINT: Point = Object.freeze({ x: 0, y: 0 })
-
-  private static _dragImage: HTMLDivElement | null = null
-  static readonly dragImage: HTMLDivElement = (function() {
-    if (DragListener._dragImage !== null) {
-      return DragListener._dragImage
-    }
-    DragListener._dragImage = document.createElement("div")
-    DragListener._dragImage.id = "nt-drag-image"
-    DragListener._dragImage.classList.add("nt-block-drag")
-    return DragListener._dragImage
-  }())
   private static zeroTopLeft: Point | null = null
 
+  readonly dragImage: HTMLDivElement
   readonly sourceElement: HTMLElement
   readonly draggingClass: string | null
   readonly cancelClass: string | null
@@ -29,7 +19,8 @@ class DragListener {
 
   private position: Point
 
-  constructor(sourceElement: HTMLElement, draggingClass: string | null = null, cancelClass: string | null = null) {
+  constructor(dragImage: HTMLDivElement, sourceElement: HTMLElement, draggingClass: string | null = null, cancelClass: string | null = null) {
+    this.dragImage     = dragImage
     this.sourceElement = sourceElement
     this.draggingClass = draggingClass
     this.cancelClass   = cancelClass
@@ -40,13 +31,13 @@ class DragListener {
   private startEx(e: InteractEvent): void {
     const offset = DragListener.getOffsetToRoot(this.sourceElement)
 
-    DragListener.dragImage.style.left = "0px"
-    DragListener.dragImage.style.top  = "0px"
-    DragListener.zeroTopLeft = DragListener.getOffsetToRoot(DragListener.dragImage)
+    this.dragImage.style.left = "0px"
+    this.dragImage.style.top  = "0px"
+    DragListener.zeroTopLeft = DragListener.getOffsetToRoot(this.dragImage)
 
-    DragListener.dragImage.style.left = `${offset.x - DragListener.zeroTopLeft.x}px`
-    DragListener.dragImage.style.top  = `${offset.y - DragListener.zeroTopLeft.y}px`
-    DragListener.dragImage.style.visibility = "visible"
+    this.dragImage.style.left = `${offset.x - DragListener.zeroTopLeft.x}px`
+    this.dragImage.style.top  = `${offset.y - DragListener.zeroTopLeft.y}px`
+    this.dragImage.style.visibility = "visible"
 
     if (this.draggingClass !== null) {
       this.sourceElement.classList.add(this.draggingClass)
@@ -59,12 +50,12 @@ class DragListener {
 
   private moveEx(e: InteractEvent): void {
     this.position = { x: this.position.x + e.dx, y: this.position.y + e.dy }
-    DragListener.dragImage.style.transform = `translate(${this.position.x}px, ${this.position.y}px)`
+    this.dragImage.style.transform = `translate(${this.position.x}px, ${this.position.y}px)`
   }
 
   private endEx(e: InteractEvent): void {
     (["left", "top", "transform", "visibility"]).forEach( (property) =>
-      DragListener.dragImage.style.removeProperty(property)
+      this.dragImage.style.removeProperty(property)
     )
     this.end(e)
   }

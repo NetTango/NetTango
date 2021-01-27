@@ -34,6 +34,7 @@ class CodeWorkspace {
   container: HTMLDivElement = document.createElement("div")
   spaceDiv: HTMLDivElement = document.createElement("div")
   chainsDiv: HTMLDivElement = document.createElement("div")
+  dragImage: HTMLDivElement = document.createElement("div")
 
   formatter: CodeFormatter
 
@@ -155,9 +156,10 @@ class CodeWorkspace {
     wrapper.classList.add("nt-workspace-wrapper")
     this.container.append(wrapper)
 
-    DragListener.dragImage.classList.add("nt-block-drag")
-    DragListener.dragImage.classList.add("nt-chain")
-    wrapper.append(DragListener.dragImage)
+    this.dragImage.id = `${this.containerId}-drag-image`
+    this.dragImage.classList.add("nt-block-drag")
+    this.dragImage.classList.add("nt-chain")
+    wrapper.append(this.dragImage)
 
     this.backdrop.className = "nt-attribute-backdrop"
     this.backdrop.addEventListener("click", (e) => this.backdrop.classList.remove("show") )

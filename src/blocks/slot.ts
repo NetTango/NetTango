@@ -57,7 +57,7 @@ class Slot {
       this.slotDiv.style.lineHeight = lineHeight
     }
 
-    const dragListener = new DragListener(this.slotDiv, "nt-block-dragging", "nt-menu-slot-at-limit")
+    const dragListener = new DragListener(this.workspace.dragImage, this.slotDiv, "nt-block-dragging", "nt-menu-slot-at-limit")
     dragListener.start = (e: InteractEvent) => this.startDrag(e)
     dragListener.end   = () => this.endDrag()
 
