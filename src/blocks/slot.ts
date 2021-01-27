@@ -61,8 +61,8 @@ class Slot {
     dragListener.start = (e: InteractEvent) => this.startDrag(e)
     dragListener.end   = () => this.endDrag()
 
-    this.slotDiv.addEventListener("dblclick", () => this.raiseDoubleClick())
-    this.slotDiv.addEventListener("contextmenu", (e) => this.raiseContextMenu(e))
+    this.slotDiv.addEventListener("dblclick", () => this.raiseDoubleClick() )
+    this.slotDiv.addEventListener("contextmenu", (e) => this.raiseContextMenu(e) )
     this.updateForLimit()
     return this.slotDiv
   }
