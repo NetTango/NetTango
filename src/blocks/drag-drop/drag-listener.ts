@@ -6,8 +6,7 @@ import type { DraggableOptions, Point } from '@interactjs/types/index'
 
 class DragListener {
 
-  static readonly ZERO_POINT: Point = Object.freeze({ x: 0, y: 0 })
-  private static zeroTopLeft: Point | null = null
+  static readonly ORIGIN: Point = Object.freeze({ x: 0, y: 0 })
 
   readonly dragImage: HTMLDivElement
   readonly sourceElement: HTMLElement
@@ -25,7 +24,7 @@ class DragListener {
     this.draggingClass = draggingClass
     this.cancelClass   = cancelClass
     interact(sourceElement).draggable(this.makeOptions())
-    this.position = DragListener.ZERO_POINT
+    this.position = DragListener.ORIGIN
   }
 
   private startEx(e: InteractEvent): void {
@@ -33,17 +32,17 @@ class DragListener {
 
     this.dragImage.style.left = "0px"
     this.dragImage.style.top  = "0px"
-    DragListener.zeroTopLeft = DragListener.getOffsetToRoot(this.dragImage)
+    const zeroTopLeft = DragListener.getOffsetToRoot(this.dragImage)
 
-    this.dragImage.style.left = `${offset.x - DragListener.zeroTopLeft.x}px`
-    this.dragImage.style.top  = `${offset.y - DragListener.zeroTopLeft.y}px`
+    this.dragImage.style.left = `${offset.x - zeroTopLeft.x}px`
+    this.dragImage.style.top  = `${offset.y - zeroTopLeft.y}px`
     this.dragImage.style.visibility = "visible"
 
     if (this.draggingClass !== null) {
       this.sourceElement.classList.add(this.draggingClass)
     }
 
-    this.position = DragListener.ZERO_POINT
+    this.position = DragListener.ORIGIN
 
     this.start(e)
   }

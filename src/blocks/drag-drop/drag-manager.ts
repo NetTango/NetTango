@@ -31,7 +31,7 @@ class DragManager {
 
   wasHandled: boolean = false
   dragData: BlockDragData | null = null
-  dragStartOffset: Point = DragListener.ZERO_POINT
+  dragStartOffset: Point = DragListener.ORIGIN
   oldChainX: number | null = null
   oldChainY: number | null = null
 
