@@ -8,8 +8,8 @@ abstract class ActiveDragData extends BlockDragData {
   blockIndex: number
   siblings: Block[]
 
-  constructor(chainIndex: number, blockIndex: number, siblings: Block[]) {
-    super()
+  constructor(block: Block, chainIndex: number, blockIndex: number, siblings: Block[]) {
+    super(block)
     this.chainIndex = chainIndex
     this.blockIndex = blockIndex
     this.siblings   = siblings

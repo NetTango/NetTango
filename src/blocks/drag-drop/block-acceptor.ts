@@ -5,7 +5,7 @@ import { AllowedTags } from "../tags/allowed-tags";
 import { ChainDragData } from "./drag-data/chain-drag-data";
 import { ClauseDragData } from "./drag-data/clause-drag-data";
 import { NewDragData } from "./drag-data/new-drag-data";
-import { DragManager } from "./drag-manager";
+import { DragManager, DragInProgress } from "./drag-manager";
 
 class BlockAcceptor {
 
@@ -16,24 +16,24 @@ class BlockAcceptor {
   }
 
   checker(dropped: boolean): boolean {
-    const dragManager = DragManager.getCurrent()
-    return dropped && !dragManager.wasHandled && !(this.block.dragData instanceof NewDragData) && BlockAcceptor.isLandingSpot(this.block)
+    if (!dropped || this.block.dragData instanceof NewDragData) {
+      return dropped
+    }
+    return DragManager.isValidDrop(this.block.workspace.containerId, (dragState) => {
+      return BlockAcceptor.isLandingSpot(this.block, dragState)
+    })
   }
 
-  static isLandingSpot(block: Block): boolean {
-    const dragManager = DragManager.getCurrent()
-    if (dragManager.draggingBlocks === null) {
-      return false
-    }
-    const isOverSelf = block.instanceId !== null && dragManager.draggingBlocks.some( (b) => block.instanceId !== null && b.getBlockInstance(block.instanceId) !== null )
+  static isLandingSpot(block: Block, dragState: DragInProgress): boolean {
+    const draggingBlocks = dragState.getDraggingBlocks()
+    const isOverSelf = block.instanceId !== null && draggingBlocks.some( (b) => block.instanceId !== null && b.getBlockInstance(block.instanceId) !== null )
     if (isOverSelf) {
       return false
     }
 
-    const isSameWorkspace = block.workspace.containerId === dragManager.workspace.containerId
-    const areTagsAllowed  = BlockAcceptor.getAllowedTags(block).check(dragManager.draggingBlocks)
-    const isPositionOkay  = block.dragData.isLastInCollection() || dragManager.isInsertable
-    return isSameWorkspace && dragManager.canBeChild && block.isAttachable && areTagsAllowed && isPositionOkay
+    const areTagsAllowed = BlockAcceptor.getAllowedTags(block).check(draggingBlocks)
+    const isPositionOkay = block.dragData.isLastInCollection() || dragState.isInsertable
+    return dragState.canBeChild && block.isAttachable && areTagsAllowed && isPositionOkay
   }
 
   static getAllowedTags(block: Block): AllowedTags {

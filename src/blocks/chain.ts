@@ -66,7 +66,7 @@ class Chain extends BlockCollection {
 
     for (var i = 0; i < this.blocks.length; i++) {
       const block = this.blocks[i]
-      const dragData = new ChainDragData(this.chainIndex, i, this.blocks.slice(i + 1))
+      const dragData = new ChainDragData(block, this.chainIndex, i, this.blocks.slice(i + 1))
       block.draw(dragData)
     }
 
@@ -88,7 +88,7 @@ class Chain extends BlockCollection {
     this.chainIndex = newChainIndex
     for (var i = 0; i < this.blocks.length; i++) {
       const block = this.blocks[i]
-      block.dragData = new ChainDragData(this.chainIndex, i, this.blocks.slice(i + 1))
+      block.dragData = new ChainDragData(block, this.chainIndex, i, this.blocks.slice(i + 1))
       block.resetOwnedBlocksDragData()
     }
   }
@@ -132,7 +132,7 @@ class Chain extends BlockCollection {
   redrawBlocks(): void {
     for (var i = 0; i < this.blocks.length; i++) {
       const block = this.blocks[i]
-      block.dragData = new ChainDragData(this.chainIndex, i, this.blocks.slice(i + 1))
+      block.dragData = new ChainDragData(block, this.chainIndex, i, this.blocks.slice(i + 1))
       block.resetOwnedBlocksDragData()
     }
     Chain.redrawChain(this.div, this.blocks, false, this.fragmentDiv)
@@ -143,7 +143,7 @@ class Chain extends BlockCollection {
   }
 
   enableDropZones(): void {
-    if (ChainAcceptor.isLandingSpot(this)) {
+    if (DragManager.isValidDrop(this.workspace.containerId, (dragState) => ChainAcceptor.isLandingSpot(this, dragState))) {
       this.div.classList.add("nt-allowed-drop")
     }
 
@@ -171,25 +171,17 @@ class Chain extends BlockCollection {
   }
 
   drop(event: InteractEvent): void {
-    const dragManager = DragManager.getCurrent()
-    if (dragManager.wasHandled) {
-      return
-    }
-
-    this.fragmentDiv.classList.remove("nt-drag-over")
-    dragManager.wasHandled = true
-
-    dragManager.clearDraggingClasses()
-    const newBlocks = dragManager.consumeDraggingBlocks()
-    const newFirst  = newBlocks[0]
-    const offset    = DragListener.getOffsetToRoot(this.div)
-    // The casts here are necessary I believe because the type defs are wrong, `dragEvent` does exist on the
-    // `InteractEvent` when a drop occurs. -Jeremy B January 2020
-    const dropY = ((event as any).dragEvent.page.y as number) - offset.y - dragManager.dragStartOffset.y
-    this.y = this.y - Chain.FRAGMENT_HEIGHT + Math.floor(dropY)
-    this.insertBlocks(0, newBlocks)
-
-    this.workspace.programChanged(new BlockChangedEvent(newFirst))
+    DragManager.drop( (newBlocks, dragStartOffset) => {
+      this.fragmentDiv.classList.remove("nt-drag-over")
+      const newFirst = newBlocks[0]
+      const offset = DragListener.getOffsetToRoot(this.div)
+      // The casts here are necessary I believe because the type defs are wrong, `dragEvent` does exist on the
+      // `InteractEvent` when a drop occurs. -Jeremy B January 2020
+      const dropY = ((event as any).dragEvent.page.y as number) - offset.y - dragStartOffset.y
+      this.y = this.y - Chain.FRAGMENT_HEIGHT + Math.floor(dropY)
+      this.insertBlocks(0, newBlocks)
+      this.workspace.programChanged(new BlockChangedEvent(newFirst))
+    })
   }
 
 }

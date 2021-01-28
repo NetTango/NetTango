@@ -75,8 +75,6 @@ class CodeWorkspace {
   containerBlockStyle: BlockStyle
   commandBlockStyle: BlockStyle
 
-  readonly dragManager = new DragManager(this)
-
   constructor(containerId: string, formatter: CodeFormatter) {
     this.containerId = containerId
     this.formatter = formatter
@@ -220,44 +218,29 @@ class CodeWorkspace {
   }
 
   checker(dropped: boolean): boolean {
-    const dragManager = DragManager.getCurrent()
-    return dropped && !dragManager.wasHandled && this.containerId === dragManager.workspace.containerId
+    return dropped && DragManager.isValidDrop(this.containerId)
   }
 
   drop(event: InteractEvent): void {
-    const dragManager = DragManager.getCurrent()
-    if (dragManager.wasHandled) {
-      return
-    }
-    dragManager.wasHandled = true
+    DragManager.drop( (blocks, dragStartOffset) => {
+      const offset = DragListener.getOffsetToRoot(this.chainsDiv)
+      // The casts here are necessary I believe because the type defs are wrong, `dragEvent` does exist on the
+      // `InteractEvent` when a drop occurs. -Jeremy B January 2020
+      const dropX = ((event as any).dragEvent.page.x as number) - offset.x - dragStartOffset.x
+      const dropY = ((event as any).dragEvent.page.y as number) - offset.y - dragStartOffset.y
+      this.createChain(blocks, Math.max(dropX, 0), Math.max(dropY, 0))
 
-    dragManager.clearDraggingClasses()
-    const blocks = dragManager.consumeDraggingBlocks()
-    const offset = DragListener.getOffsetToRoot(this.chainsDiv)
-    // The casts here are necessary I believe because the type defs are wrong, `dragEvent` does exist on the
-    // `InteractEvent` when a drop occurs. -Jeremy B January 2020
-    const dropX = ((event as any).dragEvent.page.x as number) - offset.x - dragManager.dragStartOffset.x
-    const dropY = ((event as any).dragEvent.page.y as number) - offset.y - dragManager.dragStartOffset.y
-    this.createChain(blocks, Math.max(dropX, 0), Math.max(dropY, 0))
-
-    const changedBlock = blocks[0]
-    this.programChanged(new BlockChangedEvent(changedBlock))
+      const changedBlock = blocks[0]
+      this.programChanged(new BlockChangedEvent(changedBlock))
+    })
   }
 
   containerDrop(): void {
-    const dragManager = DragManager.getCurrent()
-    if (dragManager.wasHandled) {
-      return
-    }
-
-    this.menu.menuDiv.classList.remove("nt-menu-drag-over")
-    dragManager.wasHandled = true
-
-    dragManager.clearDraggingClasses()
-    const oldBlocks = dragManager.consumeDraggingBlocks()
-
-    const changedBlock = oldBlocks[0]
-    this.programChanged(new BlockChangedEvent(changedBlock))
+    DragManager.drop( (oldBlocks) => {
+      this.menu.menuDiv.classList.remove("nt-menu-drag-over")
+      const changedBlock = oldBlocks[0]
+      this.programChanged(new BlockChangedEvent(changedBlock))
+    })
   }
 
   createChain(newBlocks: Block[], x: number, y: number): void {

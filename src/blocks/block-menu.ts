@@ -87,17 +87,11 @@ Cannot add a block with the same ID as an existing block
   }
 
   drop(): void {
-    const dragManager = DragManager.getCurrent()
-    if (dragManager.wasHandled) {
-      return
-    }
-
-    this.menuDiv.classList.remove("nt-menu-drag-over")
-    dragManager.wasHandled = true
-    dragManager.clearDraggingClasses()
-    const oldBlocks = dragManager.consumeDraggingBlocks()
-    const changedBlock = oldBlocks[0]
-    this.workspace.programChanged(new BlockChangedEvent(changedBlock))
+    DragManager.drop( (oldBlocks) => {
+      this.menuDiv.classList.remove("nt-menu-drag-over")
+      const changedBlock = oldBlocks[0]
+      this.workspace.programChanged(new BlockChangedEvent(changedBlock))
+    })
   }
 
 }

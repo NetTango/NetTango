@@ -2,6 +2,7 @@
 
 import interact from "interactjs"
 import type { InteractEvent } from '@interactjs/core/InteractEvent'
+
 import type { DraggableOptions, Point } from '@interactjs/types/index'
 
 class DragListener {

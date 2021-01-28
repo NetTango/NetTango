@@ -310,7 +310,7 @@ class Block {
     dropzone.on("drop", () => block.drop() )
     dropzone.on("dragenter", () => {
       block.blockDiv.classList.add("nt-drag-over")
-    } )
+    })
     dropzone.on("dragleave", () => {
       block.blockDiv.classList.remove("nt-drag-over")
     })
@@ -343,43 +343,36 @@ class Block {
   }
 
   startDrag(event: InteractEvent): void {
-    this.workspace.dragManager.startDrag(this, this.dragData, event, true)
+    DragManager.start(this, this.dragData, event)
   }
 
   endDrag(): void {
-    this.workspace.dragManager.endDrag()
+    DragManager.cancel()
   }
 
   drop(): void {
-    const dragManager = DragManager.getCurrent()
-    if (dragManager.wasHandled) {
-      return
-    }
+    DragManager.drop( (newBlocks) => {
+      this.blockDiv.classList.remove("nt-drag-over")
 
-    this.blockDiv.classList.remove("nt-drag-over")
-    dragManager.wasHandled = true
-
-    dragManager.clearDraggingClasses()
-    const newBlocks = dragManager.consumeDraggingBlocks()
-
-    if (this.dragData instanceof ChainDragData) {
-      this.workspace.chains[this.dragData.chainIndex].insertBlocks(this.dragData.blockIndex + 1, newBlocks)
-    }
-
-    if (this.dragData instanceof ClauseDragData) {
-      const parentBlock = this.workspace.chains[this.dragData.chainIndex].getBlockInstance(this.dragData.parentInstanceId)
-      if (parentBlock === null) {
-        throw new Error("Could not find parent block?")
+      if (this.dragData instanceof ChainDragData) {
+        this.workspace.chains[this.dragData.chainIndex].insertBlocks(this.dragData.blockIndex + 1, newBlocks)
       }
-      parentBlock.clauses[this.dragData.clauseIndex].insertBlocks(this.dragData.blockIndex + 1, newBlocks)
-    }
 
-    const changedBlock = newBlocks[0]
-    this.workspace.programChanged(new BlockChangedEvent(changedBlock))
+      if (this.dragData instanceof ClauseDragData) {
+        const parentBlock = this.workspace.chains[this.dragData.chainIndex].getBlockInstance(this.dragData.parentInstanceId)
+        if (parentBlock === null) {
+          throw new Error("Could not find parent block?")
+        }
+        parentBlock.clauses[this.dragData.clauseIndex].insertBlocks(this.dragData.blockIndex + 1, newBlocks)
+      }
+
+      const changedBlock = newBlocks[0]
+      this.workspace.programChanged(new BlockChangedEvent(changedBlock))
+    })
   }
 
   enableDropZones(): void {
-    if (BlockAcceptor.isLandingSpot(this)) {
+    if (DragManager.isValidDrop(this.workspace.containerId, (dragState) => BlockAcceptor.isLandingSpot(this, dragState))) {
       this.blockDiv.classList.add("nt-allowed-drop")
     }
 

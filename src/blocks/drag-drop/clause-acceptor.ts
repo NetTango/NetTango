@@ -1,7 +1,7 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
 import { Clause } from "../clause"
-import { DragManager } from "./drag-manager"
+import { DragInProgress, DragManager } from "./drag-manager"
 
 class ClauseAcceptor {
 
@@ -12,27 +12,26 @@ class ClauseAcceptor {
   }
 
   checker(dropped: boolean): boolean {
-    const dragManager = DragManager.getCurrent()
-    return dropped && !dragManager.wasHandled && ClauseAcceptor.isLandingSpot(this.clause)
+    if (!dropped) {
+      return dropped
+    }
+    return DragManager.isValidDrop(this.clause.owner.workspace.containerId, (dragState) => {
+      return ClauseAcceptor.isLandingSpot(this.clause, dragState)
+    })
   }
 
-  static isLandingSpot(clause: Clause): boolean {
-    const dragManager = DragManager.getCurrent()
-    if (dragManager.draggingBlocks === null) {
-      return false
-    }
-    const block = clause.owner
-    const isOverSelf = block.instanceId !== null && dragManager.draggingBlocks.some( (b) => block.instanceId !== null && b.getBlockInstance(block.instanceId) !== null )
+  static isLandingSpot(clause: Clause, dragState: DragInProgress): boolean {
+    const block          = clause.owner
+    const draggingBlocks = dragState.getDraggingBlocks()
+    const isOverSelf = block.instanceId !== null && draggingBlocks.some( (b) => block.instanceId !== null && b.getBlockInstance(block.instanceId) !== null )
     if (isOverSelf) {
       return false
     }
 
     return (
-      clause.owner.workspace.containerId === dragManager.workspace.containerId &&
-      dragManager.canBeChild &&
-      dragManager.draggingBlocks !== null &&
-      clause.allowedTags.check(dragManager.draggingBlocks) &&
-      (clause.blocks.length === 0 || dragManager.isInsertable)
+      dragState.canBeChild &&
+      clause.allowedTags.check(draggingBlocks) &&
+      (clause.blocks.length === 0 || dragState.isInsertable)
     )
   }
 

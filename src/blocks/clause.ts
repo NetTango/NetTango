@@ -125,7 +125,7 @@ class Clause extends BlockCollection {
       if (!(this.owner.dragData instanceof ActiveDragData) || this.owner.instanceId === null) {
         throw new Error("Cannot draw a clause for a block missing drag data.")
       }
-      const dragData = new ClauseDragData(this.owner.dragData.chainIndex, i, this.owner.instanceId, siblings, this.clauseIndex)
+      const dragData = new ClauseDragData(block, this.owner.dragData.chainIndex, i, this.owner.instanceId, siblings, this.clauseIndex)
       block.draw(dragData)
     }
 
@@ -170,7 +170,7 @@ class Clause extends BlockCollection {
       if (!(this.owner.dragData instanceof ActiveDragData) || this.owner.instanceId === null) {
         throw new Error("Cannot draw a clause for a block missing drag data or instance ID.")
       }
-      block.dragData = new ClauseDragData(this.owner.dragData.chainIndex, i, this.owner.instanceId, this.blocks.slice(i + 1), this.clauseIndex)
+      block.dragData = new ClauseDragData(block, this.owner.dragData.chainIndex, i, this.owner.instanceId, this.blocks.slice(i + 1), this.clauseIndex)
       block.resetOwnedBlocksDragData()
     }
   }
@@ -196,7 +196,7 @@ class Clause extends BlockCollection {
       if (!(this.owner.dragData instanceof ActiveDragData) || this.owner.instanceId === null) {
         throw new Error("Cannot draw a clause for a block missing drag data or instance ID.")
       }
-      block.dragData = new ClauseDragData(this.owner.dragData.chainIndex, i, this.owner.instanceId, this.blocks.slice(i + 1), this.clauseIndex)
+      block.dragData = new ClauseDragData(block, this.owner.dragData.chainIndex, i, this.owner.instanceId, this.blocks.slice(i + 1), this.clauseIndex)
       block.resetOwnedBlocksDragData()
     }
 
@@ -204,7 +204,7 @@ class Clause extends BlockCollection {
   }
 
   enableDropZones(): void {
-    if (ClauseAcceptor.isLandingSpot(this)) {
+    if (DragManager.isValidDrop(this.owner.workspace.containerId, (dragState) => ClauseAcceptor.isLandingSpot(this, dragState))) {
       this.div.classList.add("nt-allowed-drop")
     }
 
@@ -222,22 +222,14 @@ class Clause extends BlockCollection {
   }
 
   drop(): void {
-    const dragManager = DragManager.getCurrent()
-    if (dragManager.wasHandled) {
-      return
-    }
+    DragManager.drop( (newBlocks) => {
+      this.getHighlightElement().classList.remove("nt-block-clause-drag-over")
+      this.insertBlocks(0, newBlocks)
+      this.div.classList.remove("nt-clause-empty")
 
-    this.getHighlightElement().classList.remove("nt-block-clause-drag-over")
-    dragManager.wasHandled = true
-
-    dragManager.clearDraggingClasses()
-    const newBlocks = dragManager.consumeDraggingBlocks()
-
-    this.insertBlocks(0, newBlocks)
-    this.div.classList.remove("nt-clause-empty")
-
-    const changedBlock = newBlocks[0]
-    this.owner.workspace.programChanged(new BlockChangedEvent(changedBlock))
+      const changedBlock = newBlocks[0]
+      this.owner.workspace.programChanged(new BlockChangedEvent(changedBlock))
+    })
   }
 
 }

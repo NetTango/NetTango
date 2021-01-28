@@ -7,6 +7,7 @@ import { Block } from "./block"
 import { CodeWorkspace } from "./code-workspace"
 import { MenuItemClickedEvent, MenuItemContextMenuEvent } from "./program-changed-event"
 import { DragListener } from "./drag-drop/drag-listener"
+import { DragManager } from "./drag-drop/drag-manager"
 import { NewDragData } from './drag-drop/drag-data/new-drag-data'
 
 class Slot {
@@ -91,11 +92,11 @@ class Slot {
     const newInstance = this.block.clone(false)
     const dragData = new NewDragData(newInstance, this.slotIndex)
     newInstance.draw(dragData)
-    this.workspace.dragManager.startDrag(newInstance, dragData, event, false)
+    DragManager.start(newInstance, dragData, event)
   }
 
   endDrag(): void {
-    this.workspace.dragManager.endDrag()
+    DragManager.cancel()
   }
 
   raiseDoubleClick(): void {
