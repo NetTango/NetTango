@@ -111,14 +111,8 @@ class SelectAttribute extends Attribute {
     table.className = "nt-param-table"
     dialog.append(table)
 
-    for (var v of this.values) {
-      const row = document.createElement("div")
-      row.className = "nt-param-row"
-      const opt = document.createElement("div")
-      opt.className = "nt-select-option"
-      opt.innerHTML = v.displayValue
-      if (v.actual === this.value) { opt.classList.add("selected") }
-      opt.addEventListener("click", (e) => {
+    const makeClickListener = (v: SelectOption): ((e: MouseEvent) => void) => {
+      return (e) => {
         this.value = v.actual
         backdrop.classList.remove("show")
         acceptCallback()
@@ -128,7 +122,17 @@ class SelectAttribute extends Attribute {
         }
         this.block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.type, this.value, formattedValue))
         e.stopPropagation()
-      })
+      }
+    }
+
+    for (var v of this.values) {
+      const row = document.createElement("div")
+      row.className = "nt-param-row"
+      const opt = document.createElement("div")
+      opt.className = "nt-select-option"
+      opt.innerHTML = v.displayValue
+      if (v.actual === this.value) { opt.classList.add("selected") }
+      opt.addEventListener("click", makeClickListener(v))
       row.append(opt)
       table.append(row)
     }
