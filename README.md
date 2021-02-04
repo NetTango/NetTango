@@ -12,7 +12,7 @@ NetTango is published as a package on [the npm package directory](https://www.np
 }
 ```
 
-To create a NetTango workspace, you will need to include the `ntango.js` file in your project, as well as the `ntango.css` file for styling.
+To create a NetTango workspace, you will need to include the `nettango.js` file in your project, as well as the `nettango.css` file for styling.
 
 A basic HTML example might them look like this:
 
@@ -22,8 +22,8 @@ A basic HTML example might them look like this:
 <head>
   <title>NetTango Example</title>
   <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">
-  <link href="ntango.css" rel="stylesheet">
-  <script src="ntango.js"></script>
+  <link href="nettango.css" rel="stylesheet">
+  <script src="nettango.js"></script>
 </head>
 <body>
   <div id="nt-containerish">

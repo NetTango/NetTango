@@ -4,7 +4,7 @@ module.exports = {
   mode: 'development',
   entry: './dist/src/nettango.js',
   output: {
-    filename: 'ntango.js',
+    filename: 'nettango.js',
     path: path.resolve(__dirname)
   }
 }

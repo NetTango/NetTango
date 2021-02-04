@@ -2,7 +2,7 @@
   "name": "nettango",
   "version": "0.13.3",
   "description": "A blocks-based programming library written in Dart",
-  "main": "ntango.js",
+  "main": "nettango.js",
   "scripts": {
     "test": "tsc; jest",
     "build": "tsc; webpack --mode development",
