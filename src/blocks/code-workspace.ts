@@ -3,8 +3,7 @@
 import type { InteractEvent } from '@interactjs/core/InteractEvent'
 import interact from "interactjs"
 
-import { FormatAttributeType } from "../ntango"
-import { NetTango } from "../ntango-shim"
+import { FormatAttributeType, NetTango } from "../nettango"
 import { ExternalStorage } from "../utils/external-storage"
 import { NumUtils } from "../utils/num-utils"
 import { VersionManager } from "../versions/version-manager"
@@ -104,7 +103,7 @@ class CodeWorkspace {
   programChanged(event: ProgramChangedEvent): void {
     try {
       this._updateWorkspaceForChanges()
-      NetTango._relayCallback(this.containerId, event.toJS())
+      NetTango.relayCallback(this.containerId, event.toJS())
     } catch (e) {
       console.log("Unable to relay program changed event to Javascript")
       console.log(e)
@@ -141,7 +140,7 @@ class CodeWorkspace {
       this.container.append(style)
     }
     const styleSheet = (style as HTMLStyleElement).sheet!
-    // the style sheet remains during a re-init of workspaces, so clear it
+    // the style sheet remains during a restore of workspaces, so clear it
     while (styleSheet.cssRules.length > 0) {
       styleSheet.removeRule(0)
     }

@@ -45,7 +45,7 @@ document.body.onload = function() {
 
 
   // STEP 2: Initialize the workspace (with the canvasId and the list of blocks)
-  NetTango.init("nt-workspace", workspaceDefinition);
+  NetTango.restore("nt-workspace", workspaceDefinition);
 
   // STEP 3: Add a callback to catch program changed events
   NetTango.addProgramChangedCallback("nt-workspace", function(canvasId) {

@@ -2,7 +2,7 @@
 
 import { BlockPlacement } from "../src/blocks/block"
 import { CodeFormatter } from "../src/blocks/code-formatter"
-import { FormatAttributeType } from "../src/ntango"
+import { FormatAttributeType } from "../src/nettango"
 import { restoreWorkspace } from "../src/serialization/dartify"
 import { encodeWorkspace } from "../src/serialization/jsonify"
 import { VersionManager } from "../src/versions/version-manager"
