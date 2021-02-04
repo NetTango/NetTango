@@ -241,7 +241,9 @@ function restoreExpressionDefinitions(workspace: CodeWorkspace, definitionEncs: 
 
   for (var definitionEnc of definitionEncs) {
     const definition = new ExpressionDefinition(definitionEnc["name"], definitionEnc["type"])
-    definition.format = definitionEnc["format"]
+    if (definitionEnc["format"] !== undefined) {
+      definition.format = definitionEnc["format"]
+    }
     ArrayUtils.maybeForEach(definitionEnc, "arguments", (argument) => {
       definition.arguments.push(argument)
     })

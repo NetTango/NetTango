@@ -5,7 +5,7 @@ class ExpressionDefinition {
   name: string
   type: "num" | "bool"
   arguments: ("num" | "bool")[] = []
-  format: string = ""
+  format: string | null = null
 
   constructor(name: string, type: "num" | "bool") {
     this.name = name
