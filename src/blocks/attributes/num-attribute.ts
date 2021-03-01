@@ -16,7 +16,7 @@ abstract class NumAttribute extends Attribute {
 
   getValue(): string {
     if (this.value === null) { return "" }
-    const valueString: string = (this.value !== null ? this.value : 0).toFixed(1).toString()
+    const valueString: string = (this.value !== null ? this.value : 0).toFixed(this.stepSizePrecision).toString()
     return (valueString.endsWith(".0")) ? valueString.substring(0, valueString.length - 2) : valueString
   }
   setValue(valueString: string) {
@@ -35,6 +35,15 @@ abstract class NumAttribute extends Attribute {
 
   /// step interval for selections (for numbers and range)
   stepSize: number = 1
+
+  get stepSizePrecision(): number {
+    if (Number.isInteger(this.stepSize)) {
+      return 0
+    } else {
+      const text = this.stepSize.toString()
+      return text.length - text.indexOf('.') - 1
+    }
+  }
 
   // Perhaps surprisingly, this class does *not* correspond to the `"num"` attribute `type`.
   // That type is for the `ExpressionAttribute`.  This class can be `int` or `range`.
