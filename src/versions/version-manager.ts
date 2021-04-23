@@ -16,26 +16,8 @@ class VersionManager {
       throw new Error(`Somehow the given model version (${version}) is greater than the supported NetTango version (${VersionManager.VERSION}).`)
     }
 
-    if (version < 1) {
-      Version1.update(definition)
-    }
-
-    if (version < 2) {
-      Version2.update(definition)
-    }
-
-    if (version < 3) {
-      Version3.update(definition)
-    }
-
-    if (version < 4) {
-      Version4.update(definition)
-    }
-
-    if (version < 5) {
-      Version5.update(definition)
-    }
-
+    const versions = [Version1, Version2, Version3, Version4, Version5]
+    versions.slice(version).forEach( (v) => v.update(definition) )
     definition["version"] = VersionManager.VERSION
   }
 }
