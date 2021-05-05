@@ -1,61 +1,47 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { ConcreteTags } from "../../types/types"
 import { Block } from "../block"
 import { Clause } from "../clause"
 import { ChainDragData } from "../drag-drop/drag-data/chain-drag-data"
 import { ClauseDragData } from "../drag-drop/drag-data/clause-drag-data"
 import { NewDragData } from "../drag-drop/drag-data/new-drag-data"
-import { AllowedTags } from "./allowed-tags"
-import { ConcreteTags } from "./concrete-tags"
+import { checkConcreteTags } from "./concrete-tags"
 
-class InheritTags extends AllowedTags {
-  readonly clause: Clause
-
-  constructor(clause: Clause) {
-    super()
-    this.clause = clause
+function getConcreteTags(clause: Clause): ConcreteTags | null {
+  if (clause.owner.dragData === null) {
+    throw new Error("No drag data to use for tags")
   }
 
-  clone(newClause: Clause): AllowedTags {
-    return new InheritTags(newClause)
+  const data = clause.owner.dragData
+  if (data instanceof ChainDragData) {
+    const first = clause.owner.workspace.chains[data.chainIndex].blocks[0]
+    return first.canBeStarter ? (first.b.allowedTags as ConcreteTags) : null
   }
 
-  check(blocks: Block[]): boolean {
-    const parent = InheritTags.getConcreteTags(this.clause)
-    if (parent === null) {
-      // no restrictions at the moment
-      return true
+  if (data instanceof ClauseDragData) {
+    const ownerClause = clause.owner.workspace.getBlockInstance(data.parentInstanceId).clauses[data.clauseIndex]
+    if (ownerClause.c.allowedTags.type === 'inherit') {
+      return getConcreteTags(ownerClause)
     }
-    return parent.check(blocks)
+    return (ownerClause.c.allowedTags as ConcreteTags)
   }
 
-  static getConcreteTags(clause: Clause): ConcreteTags | null {
-    if (clause.owner.dragData === null) {
-      throw new Error("No drag data to use for tags")
-    }
-
-    const data = clause.owner.dragData
-    if (data instanceof ChainDragData) {
-      const first = clause.owner.workspace.chains[data.chainIndex].blocks[0]
-      return first.canBeStarter ? first.allowedTags : null
-    }
-
-    if (data instanceof ClauseDragData) {
-      const ownerClause = clause.owner.workspace.getBlockInstance(data.parentInstanceId).clauses[data.clauseIndex]
-      if (ownerClause.allowedTags instanceof InheritTags) {
-        return InheritTags.getConcreteTags(ownerClause)
-      }
-      return (ownerClause.allowedTags as ConcreteTags)
-    }
-
-    // I guess a new block is a fragment?  But we shouldn't be calling this, really.
-    if (data instanceof NewDragData) {
-      return null
-    }
-
-    throw new Error(`Unknown block drag data type: ${clause.owner.dragData}`)
+  // I guess a new block is a fragment?  But we shouldn't be calling this, really.
+  if (data instanceof NewDragData) {
+    return null
   }
 
+  throw new Error(`Unknown block drag data type: ${clause.owner.dragData}`)
 }
 
-export { InheritTags }
+function checkInheritTags(clause: Clause, blocks: Block[]): boolean {
+  const parent = getConcreteTags(clause)
+  if (parent === null) {
+    // no restrictions at the moment
+    return true
+  }
+  return checkConcreteTags(parent, blocks)
+}
+
+export { checkInheritTags }

@@ -3,8 +3,8 @@
 import type { InteractEvent } from '@interactjs/core/InteractEvent'
 import interact from "interactjs"
 
-import { FormatAttributeType, NetTango } from "../nettango"
-import { ExternalStorage } from "../utils/external-storage"
+import { FormatAttributeType } from "../nettango"
+import { ChainInput, CodeWorkspaceInput } from '../types/types'
 import { NumUtils } from "../utils/num-utils"
 import { VersionManager } from "../versions/version-manager"
 import { Block } from "./block"
@@ -14,7 +14,6 @@ import { Chain } from "./chain"
 import { CodeFormatter } from "./code-formatter"
 import { DragListener } from "./drag-drop/drag-listener"
 import { DragManager } from "./drag-drop/drag-manager"
-import { ExpressionDefinition } from "./expressions/expression-definition"
 import { BlockChangedEvent, ProgramChangedEvent } from "./program-changed-event"
 
 class CodeWorkspace {
@@ -22,12 +21,14 @@ class CodeWorkspace {
   static readonly DEFAULT_HEIGHT = 600
   static readonly DEFAULT_WIDTH = 450
 
-  readonly storage = new ExternalStorage(["version", "height", "width", "blocks", "program", "chainOpen", "chainClose", "blockStyles", "variables", "expressions"])
-
   readonly version = VersionManager.VERSION
 
+  readonly ws: CodeWorkspaceInput
+
+  notifier: null | ((event: ProgramChangedEvent) => void) = null
+
   /// HTML Canvas ID
-  containerId: string
+  readonly containerId: string
   backdrop: HTMLDivElement = document.createElement("div")
   dialog: HTMLDivElement = document.createElement("div")
   container: HTMLDivElement = document.createElement("div")
@@ -37,22 +38,17 @@ class CodeWorkspace {
 
   formatter: CodeFormatter
 
-  chainOpen: string | null = null
-  chainClose: string | null = null
-
-  chains: Chain[] = []
+  readonly chains: Chain[]
 
   nextBlockId: number = 0
   nextBlockInstanceId: number = 0
 
   /// block menu
-  menu: BlockMenu
+  readonly menu: BlockMenu
 
-  /// global variable definitions and types
-  variables: string[] = []
-
-  /// list of expressions
-  expressionDefinitions: ExpressionDefinition[] = []
+  starterBlockStyle: BlockStyle
+  containerBlockStyle: BlockStyle
+  commandBlockStyle: BlockStyle
 
   _height = CodeWorkspace.DEFAULT_HEIGHT
   get height(): number { return this._height }
@@ -70,11 +66,8 @@ class CodeWorkspace {
     this.container.style.maxWidth = `${this.width}px`
   }
 
-  starterBlockStyle: BlockStyle
-  containerBlockStyle: BlockStyle
-  commandBlockStyle: BlockStyle
-
-  constructor(containerId: string, formatter: CodeFormatter) {
+  constructor(ws: CodeWorkspaceInput, containerId: string, formatter: CodeFormatter) {
+    this.ws = ws
     this.containerId = containerId
     this.formatter = formatter
 
@@ -84,16 +77,23 @@ class CodeWorkspace {
     this.container.innerHTML = ""
     this.container.classList.add("nt-container")
 
-    this.starterBlockStyle   = BlockStyle.DEFAULT_STARTER_STYLE
-    this.containerBlockStyle = BlockStyle.DEFAULT_CONTAINER_STYLE
-    this.commandBlockStyle   = BlockStyle.DEFAULT_COMMAND_STYLE
-
     this.container.style.minHeight = `${this.height}px`
     this.container.style.minWidth  = `${this.width}px`
     this.container.style.maxWidth  = `${this.width}px`
 
-    this.menu = new BlockMenu(this)
+    this.menu = new BlockMenu(this.ws.blocks, this)
 
+    if (this.ws.blockStyles === null) {
+      this.starterBlockStyle = new BlockStyle(BlockStyle.DEFAULT_STARTER_STYLE)
+      this.containerBlockStyle = new BlockStyle(BlockStyle.DEFAULT_CONTAINER_STYLE)
+      this.commandBlockStyle = new BlockStyle(BlockStyle.DEFAULT_COMMAND_STYLE)
+    } else {
+      this.starterBlockStyle = new BlockStyle(this.ws.blockStyles.starterBlockStyle)
+      this.containerBlockStyle = new BlockStyle(this.ws.blockStyles.containerBlockStyle)
+      this.commandBlockStyle = new BlockStyle(this.ws.blockStyles.commandBlockStyle)
+    }
+
+    this.chains = this.ws.program.chains.map( (c, i) => new Chain(c, this, i) )
   }
 
   unload(): void {
@@ -103,7 +103,7 @@ class CodeWorkspace {
   programChanged(event: ProgramChangedEvent): void {
     try {
       this._updateWorkspaceForChanges()
-      NetTango.relayCallback(this.containerId, event.toJS())
+      if (this.notifier !== null) { this.notifier(event.toJS()) }
     } catch (e) {
       console.log("Unable to relay program changed event to Javascript")
       console.log(e)
@@ -244,7 +244,8 @@ class CodeWorkspace {
 
   createChain(newBlocks: Block[], x: number, y: number): void {
     const newChainIndex = this.chains.length
-    const newChain = new Chain(this, newChainIndex)
+    const c: ChainInput = { x, y, blocks: [] }
+    const newChain = new Chain(c, this, newChainIndex)
     this.chains.push(newChain)
     const chainDiv = newChain.draw(newChainIndex)
     this.spaceDiv.append(chainDiv)
@@ -265,7 +266,7 @@ class CodeWorkspace {
 
   redrawChains(): void {
     const sortedChains = this.chains.slice(0)
-    sortedChains.sort((c1, c2) =>  c1.y - c2.y)
+    sortedChains.sort((c1, c2) =>  c1.c.y - c2.c.y)
     this.chainsDiv.innerHTML = ""
     for (var chain of sortedChains) {
       this.chainsDiv.append(chain.div)

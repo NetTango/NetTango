@@ -1,43 +1,60 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { ExpressionDefinition, ExpressionInput } from "../../types/types"
 import { NumUtils } from "../../utils/num-utils"
 import { StringBuffer } from "../../utils/string-buffer"
 import { StringUtils } from "../../utils/string-utils"
 import { ExpressionBuilder } from "./expression-builder"
-import { ExpressionDefinition } from "./expression-definition"
 
 /// TODO
 ///   limit length of inline expressions on blocks.
 class Expression {
 
+  e: ExpressionInput
   builder: ExpressionBuilder
-  name: string | null = null
-  type: "num" | "bool"
-  format: string | null = null
-  children: Expression[] = []
+  children: Expression[]
 
   get isRoot(): boolean { return this.builder.root === this }
-  get isEmpty(): boolean { return this.name === null }
-  get isUnary(): boolean { return this.children.length === 1 }
-  get isBinary(): boolean { return this.children.length === 2 }
-  get hasChildren(): boolean { return this.children.length > 0 }
-  get isChildless(): boolean { return this.children.length === 0 }
+  get isEmpty(): boolean { return this.e.name === null }
+  get isUnary(): boolean { return this.e.children.length === 1 }
+  get isBinary(): boolean { return this.e.children.length === 2 }
+  get hasChildren(): boolean { return this.e.children.length > 0 }
+  get isChildless(): boolean { return this.e.children.length === 0 }
   get isNum(): boolean {
-    if (this.name !== null) {
-      return !Number.isNaN(Number.parseFloat(this.name))
+    if (this.e.name !== null) {
+      return !Number.isNaN(Number.parseFloat(this.e.name))
     }
     return false
   }
 
-  constructor(builder: ExpressionBuilder, type: "num" | "bool") {
+  constructor(builder: ExpressionBuilder, type: 'num' | 'bool') {
     this.builder = builder
-    this.type = type
+    this.e = Expression.createEmptyExpression(type)
+    this.children = []
+  }
+
+  static getDefaultValue(type: 'num' | 'bool'): '0' | 'false' {
+    return (type === 'num') ? '0' : 'false'
+  }
+
+  static createEmptyExpression(type: 'num' | 'bool'): ExpressionInput {
+    return {
+      name: Expression.getDefaultValue(type)
+    , type: type
+    , format: null
+    , children: []
+    }
+  }
+
+  static cloneExpressionInput(source: ExpressionInput): ExpressionInput {
+    const clone = Expression.createEmptyExpression(source.type)
+    source.children.forEach( (child) => clone.children.push(Expression.cloneExpressionInput(child) ))
+    return clone
   }
 
   static clone(builder: ExpressionBuilder, source: Expression): Expression {
-    const c = new Expression(builder, source.type)
-    c.name = source.name
-    c.format = source.format
+    const c = new Expression(builder, source.e.type)
+    c.e = Expression.cloneExpressionInput(source.e)
     source.children.forEach( (child) => c.children.push(Expression.clone(c.builder, child)) )
     return c
   }
@@ -47,7 +64,7 @@ class Expression {
       if (!this.isRoot) {
         out.write("(")
       }
-      out.write(`${this.name} `)
+      out.write(`${this.e.name} `)
       this.children[0].displayString(out)
       if (!this.isRoot) {
         out.write(")")
@@ -58,14 +75,14 @@ class Expression {
         out.write("(")
       }
       this.children[0].displayString(out)
-      out.write(` ${this.name} `)
+      out.write(` ${this.e.name} `)
       this.children[1].displayString(out)
       if (!this.isRoot) {
         out.write(")")
       }
     }
-    else if (this.name !== null) {
-      out.write(`${this.name}`)
+    else if (this.e.name !== null) {
+      out.write(`${this.e.name}`)
     }
   }
 
@@ -79,7 +96,7 @@ class Expression {
       return true
     }
     for (var i = 0; i < args.length; i++) {
-      if (args[i] !== this.children[i].type) {
+      if (args[i] !== this.children[i].e.type) {
         return true
       }
     }
@@ -91,15 +108,18 @@ class Expression {
 
     if (this.childMismatch(args)) {
       this.children.splice(0)
+      this.e.children.splice(0)
       if (args !== null) {
         for (var i = 0; i < args.length; i++) {
           // chain first expression?
           const e = new Expression(this.builder, args[i])
-          if (i === 0 && childless && args[i] === this.type) {
-            e.name = this.name
+          if (i === 0 && childless && args[i] === this.e.type) {
+            e.e.name = this.e.name
             this.children.push(e)
+            this.e.children.push(e.e)
           } else {
             this.children.push(e)
+            this.e.children.push(e.e)
           }
         }
       }
@@ -108,10 +128,10 @@ class Expression {
 
   appendOperator(parent: HTMLDivElement): void {
     const div = document.createElement("div")
-    div.innerHTML = StringUtils.toStr(this.name, "")
+    div.innerHTML = StringUtils.toStr(this.e.name, "")
     div.classList.add("nt-expression-text")
     div.classList.add("editable")
-    div.classList.add(this.type)
+    div.classList.add(this.e.type)
 
     div.addEventListener("click", (e) => {
       this.openPulldown(div)
@@ -136,16 +156,16 @@ class Expression {
   }
 
   appendNumber(parent: HTMLDivElement): void {
-    this.name = NumUtils.toNum(this.name, 0).toString()
+    this.e.name = NumUtils.toNum(this.e.name, 0).toString()
     const input = document.createElement("input")
     input.type = "number"
     input.className = "nt-number-input"
-    input.value = this.name
+    input.value = this.e.name
     input.step = "1"
     input.addEventListener("change", (e) => {
-      this.name = input.value
-      if (this.name === "") {
-        this.name = "0"
+      this.e.name = input.value
+      if (this.e.name === "") {
+        this.e.name = "0"
         input.value = "0"
       }
     })
@@ -155,7 +175,7 @@ class Expression {
   renderHtml(parent: Element): void {
     const div = document.createElement("div")
     div.className = "nt-expression"
-    if ((this.isNum || this.isEmpty) && this.type === "num") {
+    if ((this.isNum || this.isEmpty) && this.e.type === "num") {
       this.appendNumber(div)
     }
     else if (this.isEmpty) {
@@ -176,7 +196,7 @@ class Expression {
       this.appendParen(div, false)
     }
     else {
-      div.insertAdjacentHTML("beforeend", `<div class='nt-expression-text ${this.type}'>${this.name}</div>`)
+      div.insertAdjacentHTML("beforeend", `<div class='nt-expression-text ${this.e.type}'>${this.e.name}</div>`)
     }
     if (this.isChildless) {
       div.classList.add("editable")
@@ -213,9 +233,10 @@ class Expression {
     hmenu.append(link)
     link.addEventListener("click", (e) => {
       hmenu.remove()
-      this.name = null
+      this.e.name = Expression.getDefaultValue(this.e.type)
       this.children.splice(0)
-      this.format = null
+      this.e.children.splice(0)
+      this.e.format = null
       this.builder.renderHtml()
       e.stopPropagation()
       e.preventDefault()
@@ -226,7 +247,7 @@ class Expression {
 
   _addMenuItems(hmenu: HTMLDivElement, items: ExpressionDefinition[]): void {
     for (const item of items) {
-      if (item.type === this.type) {
+      if (item.type === this.e.type) {
         const link = document.createElement("a")
         link.href = "#"
         link.innerHTML = `${item.name}`
@@ -234,9 +255,9 @@ class Expression {
         link.addEventListener("click", (e) => {
           hmenu.remove()
           this.setChildren(item.arguments)
-          this.name = item.name
-          this.type = item.type
-          this.format = item.format
+          this.e.name = item.name
+          this.e.type = item.type
+          this.e.format = item.format
           this.builder.renderHtml()
           e.stopPropagation()
           e.preventDefault()

@@ -1,14 +1,15 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
 import { QuoteOptions } from "./blocks/attributes/select-attribute"
-import { BlockPlacement } from "./blocks/block"
-import { ProgramChangedEvent } from "./blocks/program-changed-event"
+import { BlockPlacement } from "./blocks/block-placement"
 import { AttributeTypes } from "./blocks/attributes/attribute"
 import { CodeFormatter } from "./blocks/code-formatter"
 import { CodeWorkspace } from "./blocks/code-workspace"
 import { restoreWorkspace } from "./serialization/dartify"
 import { encodeWorkspace } from "./serialization/jsonify"
 import { VersionManager } from "./versions/version-manager"
+import { CodeWorkspaceInput } from "./types/types"
+import { ProgramChangedEvent } from "./blocks/program-changed-event"
 
 type FormatAttributeType = (containerId: string, blockId: number, instanceId: number, attributeId: number, value: any, attributeType: AttributeTypes) => string
 
@@ -22,19 +23,16 @@ class NetTango {
   static selectQuoteOptions    = QuoteOptions
 
   private static readonly workspaces: Map<string, CodeWorkspace> = new Map()
-  private static readonly callbacks: any = {}
-
-  static relayCallback(canvasId: string, event: ProgramChangedEvent): void {
-    if (canvasId in NetTango.callbacks) {
-      NetTango.callbacks[canvasId](canvasId, event)
-    }
-  }
 
   /// Add a callback function to receive programChanged events from the
   /// workspace. Callback functions should take one parameter, which is
   /// the canvasId for the workspace (as a String).
-  static onProgramChanged(canvasId: string, callback: () => void): void {
-    NetTango.callbacks[canvasId] = callback
+  static onProgramChanged(containerId: string, callback: (containerId: string, event: ProgramChangedEvent) => void): void {
+    if (!NetTango.workspaces.has(containerId)) {
+      throw new Error("Cannot find workspace for given container ID.")
+    }
+    const notifier = (event: ProgramChangedEvent) => callback(containerId, event)
+    NetTango.workspaces.get(containerId)!.notifier = notifier
   }
 
   /// Exports the code for a workspace in a given target language.
@@ -53,7 +51,7 @@ class NetTango {
     const workspace = NetTango.workspaces.get(containerId)!
     const block     = workspace.getBlockInstance(instanceId)
     const attribute = block.getAttribute(attributeId)
-    return CodeFormatter.formatAttributeValue(attribute)
+    return CodeFormatter.formatAttributeValue(attribute.a)
   }
 
   /// Exports the current state of the workspace as a JSON object to be
@@ -70,7 +68,7 @@ class NetTango {
   /// Call `restore` to instantiate a workspace associated with an HTML canvas.
   /// TODO: Document JSON specification format--for now see README.md
   static restore(language: "NetLogo", containerId: string, definition: any, formatAttribute: FormatAttributeType): void {
-    VersionManager.updateWorkspace(definition)
+    const workspaceEnc: CodeWorkspaceInput = VersionManager.updateWorkspace(definition)
 
     const formatter = new CodeFormatter(language, formatAttribute, containerId)
 
@@ -78,7 +76,7 @@ class NetTango {
       if (NetTango.workspaces.has(containerId)) {
         NetTango.workspaces.get(containerId)!.removeEventListeners()
       }
-      const workspace = restoreWorkspace(containerId, definition, formatter)
+      const workspace = restoreWorkspace(containerId, workspaceEnc, formatter)
       NetTango.workspaces.set(containerId, workspace)
       workspace.draw()
     } catch (e) {

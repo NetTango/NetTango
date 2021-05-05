@@ -1,49 +1,33 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { TextAttributeInput } from "../../types/types"
 import { StringUtils } from "../../utils/string-utils"
 import { Block } from "../block"
 import { CodeFormatter } from "../code-formatter"
 import { AttributeChangedEvent } from "../program-changed-event"
-import { Attribute, AttributeTypes } from "./attribute"
+import { Attribute } from "./attribute"
 
 /// Represents the paramter or property options for a block
 class TextAttribute extends Attribute {
 
-  get type(): AttributeTypes { return "text" }
+  readonly ta: TextAttributeInput
 
-  value: string = ""
-  defaultValue: string = ""
-
-  getValue(): string { return this.value === null ? "" : this.value }
   setValue(valueString: string): void {
-    this.value = valueString
+    this.ta.value = valueString
   }
 
-  getDefaultValue(): string { return this.defaultValue }
+  getDefaultValue(): string { return this.ta.default }
   setDefaultValue(defaultString: string): void {
-    this.defaultValue = defaultString
+    this.ta.default = defaultString
   }
 
-  constructor(block: Block, id: number | null) {
-    super(block, id)
-  }
-
-  static clone(block: Block, source: TextAttribute, isSlotBlock: boolean): TextAttribute   {
-    const clone = new TextAttribute(block, null)
-    Attribute.clone(block, source, isSlotBlock, clone)
-    clone.defaultValue = source.defaultValue
+  constructor(ta: TextAttributeInput, block: Block, isSlotBlock: boolean) {
+    super(ta, block)
+    this.ta = ta
     if (!isSlotBlock) {
-      clone.value = (source.value === null || source.value === "") ? clone.defaultValue : source.value
+      ta.value = (ta.value === "") ? ta.default : ta.value
     }
-    return clone
   }
-
-  // just so we can clone without knowing the type
-  clone(block: Block, isSlotBlock: boolean): TextAttribute {
-    return TextAttribute.clone(block, this, isSlotBlock)
-  }
-
-  shouldQuote(): boolean { return true }
 
   showParameterDialog(x: number, y: number, acceptCallback: () => void): void {
     const backdrop = this.block.workspace.backdrop
@@ -69,15 +53,15 @@ class TextAttribute extends Attribute {
     document.querySelectorAll(".nt-param-confirm").forEach( (el) =>
       el.addEventListener("click", (e) => {
         if (input !== null) {
-          this.value = input.value
+          this.ta.value = input.value
         }
         backdrop.classList.remove("show")
         acceptCallback()
-        const formattedValue = CodeFormatter.formatAttributeValue(this)
-        if (this.block.instanceId === null) {
+        const formattedValue = CodeFormatter.formatAttributeValue(this.a)
+        if (this.block.b.instanceId === null) {
           throw new Error("Cannot show parameter dialog for a non-instance block.")
         }
-        this.block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.type, this.value, formattedValue))
+        this.block.workspace.programChanged(new AttributeChangedEvent(this.block.b.id, this.block.b.instanceId, this.ta.id, this.ta.type, this.ta.value, formattedValue))
       })
     )
 
@@ -93,10 +77,10 @@ class TextAttribute extends Attribute {
   }
 
   buildHTMLInput(): string {
-    const htmlValue = StringUtils.escapeHtml(this.getValue())
+    const htmlValue = StringUtils.escapeHtml(CodeFormatter.getAttributeValue(this.ta))
     return `
       <input class="nt-param-input" id="nt-param-${this.uniqueId}" type="text" value="${htmlValue}">
-      <span class="nt-param-unit">${this.unit}</span>
+      <span class="nt-param-unit">${this.ta.unit}</span>
     `
   }
 

@@ -9,52 +9,51 @@ import { MenuItemClickedEvent, MenuItemContextMenuEvent } from "./program-change
 import { DragListener } from "./drag-drop/drag-listener"
 import { DragManager } from "./drag-drop/drag-manager"
 import { NewDragData } from './drag-drop/drag-data/new-drag-data'
+import { BlockInput } from '../types/types'
+import { ObjectUtils } from '../utils/object-utils'
 
 class Slot {
 
-  block: Block
-  // num x, y
-
-  workspace: CodeWorkspace
-
-  limit = -1
+  readonly b: BlockInput
+  readonly workspace: CodeWorkspace
 
   slotIndex: number
   slotDiv: HTMLDivElement = document.createElement("div")
   isAtLimit = false
 
-  constructor(block: Block, workspace: CodeWorkspace, limit: number, slotIndex: number) {
-    this.block = block
+  constructor(b: BlockInput, workspace: CodeWorkspace, slotIndex: number) {
+    this.b = b
+    if (b.id === null) {
+      throw new Error("Cannot make a menu slot for a block without an ID.")
+    }
     this.workspace = workspace
-    this.limit = limit
     this.slotIndex = slotIndex
   }
 
   isAvailable(): boolean {
-    const free = this.limit - this.workspace.getBlockCount(this.block.id)
-    return (this.limit <= 0 || free > 0)
+    const free = this.b.limit - this.workspace.getBlockCount(this.b.id)
+    return (this.b.limit <= 0 || free > 0)
   }
 
   draw(index: number): HTMLDivElement {
     this.slotIndex = index
     this.slotDiv = document.createElement("div")
     this.slotDiv.classList.add("nt-menu-slot")
-    const styleClass = this.block.getStyleClass()
+    const styleClass = Block.getStyleClass(this.b, this.workspace.containerId)
     this.slotDiv.classList.add(styleClass)
     this.slotDiv.classList.add(`${styleClass}-color`)
 
-    const sampleBlock = this.block.clone(false)
-    const codeTip = this.formatCodeTip(sampleBlock)
-    const titleSpan = `<span title="${codeTip}">${this.block.action}</span>`
+    const codeTip = this.formatCodeTip(this.b)
+    const titleSpan = `<span title="${codeTip}">${this.b.action}</span>`
     this.slotDiv.insertAdjacentHTML("beforeend", titleSpan)
 
-    if (this.block.blockColor !== null)  { this.slotDiv.style.backgroundColor = this.block.blockColor }
-    if (this.block.borderColor !== null) { this.slotDiv.style.borderColor     = this.block.borderColor }
-    if (this.block.textColor !== null)   { this.slotDiv.style.color           = this.block.textColor }
-    if (this.block.font !== null) {
+    if (this.b.blockColor !== null)  { this.slotDiv.style.backgroundColor = this.b.blockColor }
+    if (this.b.borderColor !== null) { this.slotDiv.style.borderColor     = this.b.borderColor }
+    if (this.b.textColor !== null)   { this.slotDiv.style.color           = this.b.textColor }
+    if (this.b.font !== null) {
       // lineHeight gets reset by the `font` property
       const lineHeight = this.slotDiv.style.lineHeight
-      this.slotDiv.style.font       = this.block.font
+      this.slotDiv.style.font       = this.b.font
       this.slotDiv.style.lineHeight = lineHeight
     }
 
@@ -68,13 +67,15 @@ class Slot {
     return this.slotDiv
   }
 
-  formatCodeTip(sampleBlock: Block): string {
+  formatCodeTip(block: BlockInput): string {
     const out = new StringBuffer()
-    if (this.block.note !== null && StringUtils.isNotNullOrEmpty(this.block.note.trimLeft())) {
-      out.writeln(this.block.note)
+    if (this.b.note !== null && StringUtils.isNotNullOrEmpty(this.b.note.trimLeft())) {
+      out.writeln(this.b.note)
       out.writeln()
     }
-    this.workspace.formatter.formatBlock(out, 0, sampleBlock)
+    const fakeInstance = ObjectUtils.clone(block)
+    fakeInstance.instanceId = -1
+    this.workspace.formatter.formatBlock(out, 0, fakeInstance)
     const value = out.toString().trim()
     const escapedValue = StringUtils.escapeHtml(value)
     return escapedValue
@@ -89,7 +90,7 @@ class Slot {
   }
 
   startDrag(event: InteractEvent): void {
-    const newInstance = this.block.clone(false)
+    const newInstance = Block.newInstance(this.b, this.workspace, false)
     const dragData = new NewDragData(newInstance, this.slotIndex)
     newInstance.draw(dragData)
     DragManager.start(newInstance, dragData, event)
@@ -100,14 +101,14 @@ class Slot {
   }
 
   raiseDoubleClick(): void {
-    const event = new MenuItemClickedEvent(this.block.id)
+    const event = new MenuItemClickedEvent(this.b.id)
     this.workspace.programChanged(event)
   }
 
   raiseContextMenu(e: MouseEvent): boolean {
     e.preventDefault()
     e.stopPropagation()
-    const event = new MenuItemContextMenuEvent(this.block.id, e.pageX, e.pageY)
+    const event = new MenuItemContextMenuEvent(this.b.id, e.pageX, e.pageY)
     this.workspace.programChanged(event)
     return false
   }

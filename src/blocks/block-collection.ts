@@ -1,13 +1,21 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { BlockInput } from "../types/types"
 import { NumUtils } from "../utils/num-utils"
 import { Block } from "./block"
+import { CodeWorkspace } from "./code-workspace"
 
 abstract class BlockCollection {
 
-  blocks: Block[] = []
+  readonly bs: BlockInput[]
+  readonly blocks: Block[]
 
   div: HTMLDivElement = document.createElement("div")
+
+  constructor(bs: BlockInput[], workspace: CodeWorkspace) {
+    this.bs = bs
+    this.blocks = bs.map( (b) => new Block(b, workspace, false) )
+  }
 
   abstract redrawBlocks(): void
 
@@ -31,13 +39,22 @@ abstract class BlockCollection {
     return null
   }
 
+  // this is a little backwards... indeally we'd add to the backing data, then
+  // update our "projection" and make the block components, but for now
+  // we'll leave this here to keep the data up-to-date.  -Jeremy B April 2021
+  resetBlockData(): void {
+    this.bs.splice(0, this.bs.length, ...this.blocks.map( (b) => (b.b as BlockInput) ))
+  }
+
   insertBlocks(blockIndex: number, newBlocks: Block[]): void {
     this.blocks.splice(blockIndex, 0, ...newBlocks)
+    this.resetBlockData()
     this.redrawBlocks()
   }
 
   removeBlocks(blockIndex: number): Block[] {
     const removed = this.blocks.splice(blockIndex)
+    this.resetBlockData()
     this.redrawBlocks()
     return removed
   }

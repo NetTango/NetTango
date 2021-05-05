@@ -1,7 +1,11 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { Block } from "../block"
 import { Clause } from "../clause"
-import { DragInProgress, DragManager } from "./drag-manager"
+import { checkAnyOfTags } from "../tags/concrete-tags"
+import { checkInheritTags } from "../tags/inherit-tags"
+import { DragInProgress } from "./drag-in-progress"
+import { DragManager } from "./drag-manager"
 
 class ClauseAcceptor {
 
@@ -23,18 +27,32 @@ class ClauseAcceptor {
   static isLandingSpot(clause: Clause, dragState: DragInProgress): boolean {
     const block          = clause.owner
     const draggingBlocks = dragState.getDraggingBlocks()
-    const isOverSelf = block.instanceId !== null && draggingBlocks.some( (b) => block.instanceId !== null && b.getBlockInstance(block.instanceId) !== null )
+    const isOverSelf = block.b.instanceId !== null && draggingBlocks.some( (b) => block.b.instanceId !== null && b.getBlockInstance(block.b.instanceId) !== null )
     if (isOverSelf) {
       return false
     }
 
     return (
       dragState.canBeChild &&
-      clause.allowedTags.check(draggingBlocks) &&
+      checkClauseAllowedTags(clause, draggingBlocks) &&
       (clause.blocks.length === 0 || dragState.isInsertable)
     )
   }
-
 }
 
-export { ClauseAcceptor }
+function checkClauseAllowedTags(clause: Clause, blocks: Block[]): boolean {
+  switch (clause.c.allowedTags.type) {
+
+    case 'any-of':
+      return checkAnyOfTags(clause.c.allowedTags.tags, blocks)
+
+    case 'inherit':
+      return checkInheritTags(clause, blocks)
+
+    case 'unrestricted':
+      return true
+
+  }
+}
+
+export { ClauseAcceptor, checkClauseAllowedTags }

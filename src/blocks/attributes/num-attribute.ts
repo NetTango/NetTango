@@ -1,5 +1,6 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { IntAttributeInput, NumAttributeInput, RangeAttributeInput } from "../../types/types"
 import { NumUtils } from "../../utils/num-utils"
 import { Block } from "../block"
 import { CodeFormatter } from "../code-formatter"
@@ -11,59 +12,29 @@ import { Attribute } from "./attribute"
 //-------------------------------------------------------------------------
 abstract class NumAttribute extends Attribute {
 
-  value: number | null = null
-  defaultValue: number | null = null
+  readonly na: NumAttributeInput
 
-  getValue(): string {
-    if (this.value === null) { return "" }
-    const valueString: string = (this.value !== null ? this.value : 0).toFixed(this.stepSizePrecision).toString()
-    return (valueString.endsWith(".0")) ? valueString.substring(0, valueString.length - 2) : valueString
-  }
   setValue(valueString: string) {
-    this.value = NumUtils.toNum(valueString, this.defaultValue === null ? 0.0 : this.defaultValue)
+    this.na.value = NumUtils.toNum(valueString, this.na.default === null ? 0.0 : this.na.default)
   }
 
   getDefaultValue(): string {
-    return this.defaultValue === null ? "" : this.defaultValue.toString()
+    return this.na.default === null ? "" : this.na.default.toString()
   }
   setDefaultValue(valueString: string): void {
-    this.defaultValue = NumUtils.toNumOrNull(valueString)
-  }
-
-  /// represents a random number?
-  random: boolean | null = null
-
-  /// step interval for selections (for numbers and range)
-  stepSize: number = 1
-
-  get stepSizePrecision(): number {
-    if (Number.isInteger(this.stepSize)) {
-      return 0
-    } else {
-      const text = this.stepSize.toString()
-      return text.length - text.indexOf('.') - 1
-    }
+    this.na.default = NumUtils.toNum(valueString)
   }
 
   // Perhaps surprisingly, this class does *not* correspond to the `"num"` attribute `type`.
   // That type is for the `ExpressionAttribute`.  This class can be `int` or `range`.
   // -Jeremy B July 2020
-  constructor(block: Block, id: number | null) {
-    super(block, id)
-  }
-
-  static clone(block: Block, source: NumAttribute, isSlotBlock: boolean, clone: NumAttribute): NumAttribute {
-    Attribute.clone(block, source, isSlotBlock, clone)
-    clone.random = source.random
-    clone.stepSize = source.stepSize
-    clone.defaultValue = source.defaultValue
+  constructor(na: IntAttributeInput | RangeAttributeInput, block: Block, isSlotBlock: boolean) {
+    super(na, block)
+    this.na = na
     if (!isSlotBlock) {
-      clone.value = (source.value === null) ? clone.defaultValue : source.value
+      na.value = (na.value === null) ? na.default : na.value
     }
-    return clone
   }
-
-  shouldQuote(): boolean { return false }
 
   showParameterDialog(x: number, y: number, acceptCallback: () => void): void {
     const backdrop = this.block.workspace.backdrop
@@ -93,11 +64,11 @@ abstract class NumAttribute extends Attribute {
         }
         backdrop.classList.remove("show")
         acceptCallback()
-        const formattedValue = CodeFormatter.formatAttributeValue(this)
-        if (this.block.instanceId === null) {
+        const formattedValue = CodeFormatter.formatAttributeValue(this.a)
+        if (this.block.b.instanceId === null) {
           throw new Error("Cannot show parameter dialog for a non-instance block.")
         }
-        this.block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.type, this.value, formattedValue))
+        this.block.workspace.programChanged(new AttributeChangedEvent(this.block.b.id, this.block.b.instanceId, this.na.id, this.a.type, this.na.value, formattedValue))
       })
     )
 
@@ -118,10 +89,10 @@ abstract class NumAttribute extends Attribute {
 
   buildHTMLInput(): string {
     return `
-      <div class="nt-param-name">${this.name}</div>
+      <div class="nt-param-name">${this.na.name}</div>
       <div class="nt-param-value">
-        <input class="nt-param-input" id="nt-param-${this.uniqueId}" type="number" step="${this.stepSize}" value="${this.value}">
-        <span class="nt-param-unit">${this.unit}</span>
+        <input class="nt-param-input" id="nt-param-${this.uniqueId}" type="number" step="${this.na.step}" value="${this.na.value}">
+        <span class="nt-param-unit">${this.na.unit}</span>
       </div>
     `
   }

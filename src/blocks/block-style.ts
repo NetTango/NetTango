@@ -1,5 +1,8 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { BlockStyleInput } from "../types/types"
+import { ObjectUtils } from "../utils/object-utils"
+
 class BlockStyle {
 
   static readonly DEFAULT_STARTER_COLOR   = "#bb5555"
@@ -9,35 +12,37 @@ class BlockStyle {
   static readonly DEFAULT_BORDER_COLOR    = "#ffffff"
   static readonly DEFAULT_FONT_FAMILY     = "Poppins, sans-serif"
 
-  static readonly DEFAULT_STARTER_STYLE   = new BlockStyle({ blockColor: BlockStyle.DEFAULT_STARTER_COLOR })
-  static readonly DEFAULT_CONTAINER_STYLE = new BlockStyle({ blockColor: BlockStyle.DEFAULT_CONTAINER_COLOR })
-  static readonly DEFAULT_COMMAND_STYLE   = new BlockStyle({ blockColor: BlockStyle.DEFAULT_COMMAND_COLOR })
+  static readonly DEFAULT_COMMAND_STYLE: BlockStyleInput = {
+    blockColor:  BlockStyle.DEFAULT_COMMAND_COLOR
+  , textColor:   BlockStyle.DEFAULT_TEXT_COLOR
+  , borderColor: BlockStyle.DEFAULT_BORDER_COLOR
+  , fontWeight:  ""
+  , fontSize:    ""
+  , fontFace:    ""
+  }
+  static readonly DEFAULT_CONTAINER_STYLE = ObjectUtils.clone(BlockStyle.DEFAULT_COMMAND_STYLE, { blockColor: BlockStyle.DEFAULT_CONTAINER_COLOR })
+  static readonly DEFAULT_STARTER_STYLE   = ObjectUtils.clone(BlockStyle.DEFAULT_COMMAND_STYLE, { blockColor: BlockStyle.DEFAULT_STARTER_COLOR })
 
-  constructor(values?: Partial<BlockStyle>) {
-    Object.assign(this, values)
+  readonly bs: BlockStyleInput
+
+  constructor(bs: BlockStyleInput) {
+    this.bs = bs
   }
 
-  blockColor  = BlockStyle.DEFAULT_COMMAND_COLOR
-  textColor   = BlockStyle.DEFAULT_TEXT_COLOR
-  borderColor = BlockStyle.DEFAULT_BORDER_COLOR
-  fontWeight  = ""
-  fontSize    = ""
-  fontFace    = ""
-
   get font() {
-    const weight = this.fontWeight === "" ? "" : `font-weight: ${this.fontWeight};`
-    const size   = this.fontSize   === "" ? "" : `font-size: ${this.fontSize};`
-    const face = `font-family: ${ this.fontFace === "" ? BlockStyle.DEFAULT_FONT_FAMILY : this.fontFace };`
+    const weight = this.bs.fontWeight === "" ? "" : `font-weight: ${this.bs.fontWeight};`
+    const size   = this.bs.fontSize   === "" ? "" : `font-size: ${this.bs.fontSize};`
+    const face = `font-family: ${ this.bs.fontFace === "" ? BlockStyle.DEFAULT_FONT_FAMILY : this.bs.fontFace };`
     return `${weight} ${size} ${face}`.trim()
   }
 
   get cssRule() {
-    return `color: ${this.textColor}; border-color: ${this.borderColor}; ${this.font}`.trim()
+    return `color: ${this.bs.textColor}; border-color: ${this.bs.borderColor}; ${this.font}`.trim()
   }
 
   appendToSheet(sheet: CSSStyleSheet, blockClass: string) {
-    sheet.insertRule(`.${blockClass}-color { background-color: ${this.blockColor}; }`, 0)
-    sheet.insertRule(`.${blockClass}-attribute { color: ${this.blockColor}; background-color: ${this.textColor}; }`, 0)
+    sheet.insertRule(`.${blockClass}-color { background-color: ${this.bs.blockColor}; }`, 0)
+    sheet.insertRule(`.${blockClass}-attribute { color: ${this.bs.blockColor}; background-color: ${this.bs.textColor}; }`, 0)
     sheet.insertRule(`.${blockClass} { ${this.cssRule} }`, 0)
   }
 

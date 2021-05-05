@@ -1,7 +1,9 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
 import { Chain } from "../chain";
-import { DragInProgress, DragManager } from "./drag-manager";
+import { checkConcreteTags } from "../tags/concrete-tags";
+import { DragInProgress } from "./drag-in-progress";
+import { DragManager } from "./drag-manager";
 
 class ChainAcceptor {
 
@@ -24,7 +26,7 @@ class ChainAcceptor {
   static isLandingSpot(chain: Chain, dragState: DragInProgress): boolean {
     const draggingBlocks = dragState.getDraggingBlocks()
     const block = chain.blocks[0]
-    const isOverSelf = block.instanceId !== null && draggingBlocks.some( (b) => block.instanceId !== null && b.getBlockInstance(block.instanceId) !== null )
+    const isOverSelf = block.b.instanceId !== null && draggingBlocks.some( (b) => block.b.instanceId !== null && b.getBlockInstance(block.b.instanceId) !== null )
     if (isOverSelf) {
       return false
     }
@@ -33,7 +35,7 @@ class ChainAcceptor {
       !chain.blocks[0].canBeStarter &&
       dragState.isInsertable &&
       // not if you're dropping a starter that cannot contain some of my blocks
-      draggingBlocks[0].allowedTags.check(chain.blocks)
+      checkConcreteTags(draggingBlocks[0].b.allowedTags, chain.blocks)
     )
   }
 

@@ -1,6 +1,6 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { BlockPlacement } from "../blocks/block"
+import { BlockPlacement } from "../blocks/block-placement"
 import { ArrayUtils } from "../utils/array-utils"
 import { BoolUtils } from "../utils/bool-utils"
 import { VersionUtils } from "./version-utils"

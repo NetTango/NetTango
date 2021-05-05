@@ -14,8 +14,8 @@ class BlockChangedEvent extends ProgramChangedEvent {
 
   constructor(block: Block) {
     super()
-    this.blockId = block.id
-    this.instanceId = block.instanceId
+    this.blockId = block.b.id
+    this.instanceId = block.b.instanceId
   }
 
   toJS(): any {

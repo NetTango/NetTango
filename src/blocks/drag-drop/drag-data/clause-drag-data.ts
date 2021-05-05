@@ -3,7 +3,7 @@
 import type { InteractEvent } from '@interactjs/core/InteractEvent'
 
 import { Block } from "../../block"
-import { DragInProgress } from "../drag-manager"
+import { DragInProgress } from '../drag-in-progress';
 import { ActiveDragData } from "./active-drag-data"
 
 class ClauseDragData extends ActiveDragData {

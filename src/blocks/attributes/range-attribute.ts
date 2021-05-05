@@ -1,9 +1,9 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { RangeAttributeInput } from "../../types/types"
 import { Block } from "../block"
 import { CodeFormatter } from "../code-formatter"
 import { AttributeChangedEvent } from "../program-changed-event"
-import { Attribute, AttributeTypes } from "./attribute"
 import { NumAttribute } from "./num-attribute"
 
 //-------------------------------------------------------------------------
@@ -11,28 +11,11 @@ import { NumAttribute } from "./num-attribute"
 //-------------------------------------------------------------------------
 class RangeAttribute extends NumAttribute {
 
-  get type(): AttributeTypes { return "range" }
+  readonly ra: RangeAttributeInput
 
-  /// lowest possible value that the user can select (for numbers and range)
-  minValue: number = 0
-
-  /// highest possible value that the user can select (for numbers and range)
-  maxValue: number = 10
-
-  constructor(block: Block, id: number | null) {
-    super(block, id)
-  }
-
-  static clone(block: Block, source: RangeAttribute, isSlotBlock: boolean): RangeAttribute {
-    const clone = new RangeAttribute(block, source.id)
-    super.clone(block, source, isSlotBlock, clone)
-    clone.minValue = source.minValue
-    clone.maxValue = source.maxValue
-    return clone
-  }
-
-  clone(block: Block, isSlotBlock: boolean): Attribute {
-    return RangeAttribute.clone(block, this, isSlotBlock)
+  constructor(ra: RangeAttributeInput, block: Block, isSlotBlock: boolean) {
+    super(ra, block, isSlotBlock)
+    this.ra = ra
   }
 
   showParameterDialog(x: number, y: number, acceptCallback: () => void): void {
@@ -51,14 +34,14 @@ class RangeAttribute extends NumAttribute {
       `
         <div class="nt-param-row">
           <div class="nt-param-label">
-            ${this.name}:
-            <label id="nt-param-label-${this.uniqueId}" for="nt-param-${this.uniqueId}">${this.value}</label>
-            <span class="nt-param-unit">${this.unit}</span>
+            ${this.ra.name}:
+            <label id="nt-param-label-${this.uniqueId}" for="nt-param-${this.uniqueId}">${this.ra.value}</label>
+            <span class="nt-param-unit">${this.ra.unit}</span>
           </div>
         </div>
         <div class="nt-param-row">
           <div class="nt-param-value">
-            <input class="nt-param-input" id="nt-param-${this.uniqueId}" type="range" value="${this.value}" min="${this.minValue}" max="${this.maxValue}" step="${this.stepSize}">
+            <input class="nt-param-input" id="nt-param-${this.uniqueId}" type="range" value="${this.ra.value}" min="${this.ra.min}" max="${this.ra.max}" step="${this.ra.step}">
           </div>
         </div>
       `)
@@ -70,11 +53,11 @@ class RangeAttribute extends NumAttribute {
         this.setValue(input.value)
         backdrop.classList.remove("show")
         acceptCallback()
-        const formattedValue = CodeFormatter.formatAttributeValue(this)
-        if (this.block.instanceId === null) {
+        const formattedValue = CodeFormatter.formatAttributeValue(this.a)
+        if (this.block.b.instanceId === null) {
           throw new Error("Cannot show parameter dialog for a non-instance block.")
         }
-        this.block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.type, this.value, formattedValue))
+        this.block.workspace.programChanged(new AttributeChangedEvent(this.block.b.id, this.block.b.instanceId, this.ra.id, this.ra.type, this.ra.value, formattedValue))
         e.stopPropagation()
       })
       input.addEventListener("input", (e) => { label.innerHTML = input.value; })

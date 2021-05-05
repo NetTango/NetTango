@@ -3,7 +3,6 @@
 import interact from "interactjs"
 import type { InteractEvent } from '@interactjs/core/InteractEvent'
 
-import { ExternalStorage } from "../utils/external-storage"
 import { NumUtils } from "../utils/num-utils"
 import { StringBuffer } from "../utils/string-buffer"
 import { StringUtils } from "../utils/string-utils"
@@ -17,50 +16,20 @@ import { BlockDragData } from "./drag-drop/drag-data/block-drag-data"
 import { ChainDragData } from "./drag-drop/drag-data/chain-drag-data"
 import { NewDragData } from "./drag-drop/drag-data/new-drag-data"
 import { BlockChangedEvent } from "./program-changed-event"
-import { ConcreteTags } from "./tags/concrete-tags"
-import { UnrestrictedTags } from "./tags/unrestricted-tags"
 import { DragManager } from "./drag-drop/drag-manager"
 import { ClauseDragData } from "./drag-drop/drag-data/clause-drag-data"
 import { DragListener } from "./drag-drop/drag-listener"
-
-class BlockPlacement {
-  static readonly STARTER = "starter"
-  static readonly CHILD = "child"
-  static readonly ANYWHERE = "anywhere"
-}
+import { BlockInput } from "../types/types"
+import { ObjectUtils } from "../utils/object-utils"
+import { createAttribute } from "./attributes/attribute-factory"
+import { BlockRules } from "./block-rules"
 
 /**
  * Visual programming block
  */
 class Block {
 
-  readonly storage = new ExternalStorage(["id", "action", "required", "isTerminal", "placement", "allowedTags", "tags", "instanceId", "type", "format", "closeClauses", "closeStarter", "limit", "note", "blockColor", "textColor", "borderColor", "font", "clauses", "params", "properties", "propertiesDisplay"])
-
-  /// unique block ID number per workspace
-  id: number
-
-  /// unqiue block ID number per instance in a program chain
-  instanceId: number | null = null
-
-  /// text displayed on the block
-  action: string
-
-  /// language specific command type used by code formatters (e.g. nlogo:command)
-  type: string | null = null
-
-  /// formatting hint to help translate the parse tree into source code.
-  /// parameters can be referenced using python format syntax. e.g.
-  /// "if random 100 > {0}"
-  format: string | null = null
-
-  /// code to be inserted after all clauses
-  closeClauses: string | null = null
-
-  /// code to be inserted after all attached blocks in a chain if the block is a starter
-  closeStarter: string | null = null
-
-  // /// extra text to include in the code tip info of a block
-  note: string | null = null
+  readonly b: BlockInput
 
   /// parameters for this block (optional)
   params: Map<number, Attribute> = new Map()
@@ -68,7 +37,6 @@ class Block {
   /// properties for this block (optional)
   /// properties are just named parameters that get listed vertically
   properties: Map<number, Attribute> = new Map()
-  propertiesDisplay: "shown" | "hidden" = "shown"
 
   nextParamId: number = 0
 
@@ -76,34 +44,18 @@ class Block {
   get hasProperties(): boolean { return this.properties.size > 0 }
 
   clauses: Clause[] = []
-  get hasClauses(): boolean { return this.clauses.length > 0 }
+  get hasClauses(): boolean {
+    return BlockRules.hasClauses(this.b)
+  }
 
-  blockColor: string | null = null
-  textColor: string | null = null
-  borderColor: string | null = null
-  font: string | null = null
+  get isAttachable(): boolean { return !this.b.isTerminal }
 
-  /// Tells a code formatter that at least one block of this type is required
-  isRequired: boolean = false
-
-  // /// Can this block accept subsequent peer blocks in the chain/clause?
-  isTerminal: boolean | null = null
-  get isAttachable(): boolean { return this.isTerminal === null ? true : !this.isTerminal }
-
-  // /// Restrict block placement
-  placement: "starter" | "child" | "anywhere" = BlockPlacement.CHILD
   get canBeChild(): boolean {
-    return this.placement == BlockPlacement.CHILD || this.placement == BlockPlacement.ANYWHERE
+    return BlockRules.canBeChild(this.b)
   }
   get canBeStarter(): boolean {
-    return this.placement === BlockPlacement.STARTER || this.placement === BlockPlacement.ANYWHERE
+    return BlockRules.canBeStarter(this.b)
   }
-
-  // If this is a non-terminal starter, these are the allowed tags for blocks to add to it.
-  allowedTags: ConcreteTags = new UnrestrictedTags()
-
-  // these are the tags for this block when being added to a clause or chain
-  readonly tags: string[] = []
 
   /// link back to the main workspace
   workspace: CodeWorkspace
@@ -115,56 +67,33 @@ class Block {
   actionDiv = document.createElement("div")
   propertiesToggle: Toggle | null = null
 
-  constructor(workspace: CodeWorkspace, id: number | null, action: string, isSlotBlock: boolean) {
+  constructor(b: BlockInput, workspace: CodeWorkspace, isSlotBlock: boolean) {
+    this.b = b
     this.workspace = workspace
-    this.action = action
-    if (id === null) {
-      id = this.workspace.nextBlockId
-      this.workspace.nextBlockId++
-    } else if (id >= this.workspace.nextBlockId) {
-      this.workspace.nextBlockId = id + 1
-    }
-    this.id = id
     if (!isSlotBlock) {
-      this.instanceId = this.workspace.nextBlockInstanceId
+      this.b.instanceId = this.workspace.nextBlockInstanceId
       this.workspace.nextBlockInstanceId++
     }
+
+    this.clauses = b.clauses.map( (c, i) => new Clause(c, this, i) )
+    b.params.forEach( (p) => {
+      const param = createAttribute(p, this, isSlotBlock)
+      this.params.set(param.a.id, param)
+    })
+    b.properties.forEach( (p) => {
+      const property = createAttribute(p, this, isSlotBlock)
+      this.properties.set(property.a.id, property)
+    })
   }
 
-  clone(isSlotBlock: boolean): Block {
-    const other = new Block(this.workspace, this.id, this.action, isSlotBlock)
-    other.action = this.action
-    other.type = this.type
-    other.format = this.format
-    other.closeClauses = this.closeClauses
-    other.closeStarter = this.closeStarter
-    other.note = this.note
-    other.blockColor = this.blockColor
-    other.textColor = this.textColor
-    other.borderColor = this.borderColor
-    other.font = this.font
-    other.isRequired = this.isRequired
-    other.isTerminal = this.isTerminal
-    other.placement = this.placement
-    other.allowedTags = this.allowedTags.clone()
-    other.tags.push(...this.tags)
-
-    this.clauses.forEach( (clause) => other.clauses.push( clause.clone(other) ))
-
-    for (var param of this.params.values()) {
-      const otherParam = param.clone(other, isSlotBlock)
-      other.params.set(otherParam.id, otherParam)
-    }
-    for (var prop of this.properties.values()) {
-      const otherProp = prop.clone(other, isSlotBlock)
-      other.properties.set(otherProp.id, otherProp)
-    }
+  static newInstance(b: BlockInput, workspace: CodeWorkspace, isSlotBlock: boolean): Block {
+    const other = new Block(ObjectUtils.clone(b), workspace, isSlotBlock)
     return other
   }
 
   getBlockCount(id: number): number {
     var count: number = 0
-    if (this.id === id) { count++ }
+    if (this.b.id === id) { count++ }
     if (this.hasClauses) {
       count = count + NumUtils.sum(this.clauses.map( (clause) => clause.getBlockCount(id) ))
     }
@@ -172,7 +101,7 @@ class Block {
   }
 
   getBlockInstance(instanceId: number): Block | null {
-    if (this.instanceId === instanceId) {
+    if (this.b.instanceId === instanceId) {
       return this
     }
     for (var clause of this.clauses) {
@@ -192,14 +121,19 @@ class Block {
     throw new Error(`Attribute with given ID not found on block: ${attributeId}`)
   }
 
+  static getStyleClass(b: BlockInput, containerId: string): string {
+    if (BlockRules.canBeStarter(b)) {
+      return `${containerId}-block-starter`
+    }
+    if (BlockRules.hasClauses(b)) {
+      return `${containerId}-block-container`
+    }
+    return `${containerId}-block-command`
+
+  }
+
   getStyleClass(): string {
-    if (this.canBeStarter) {
-      return `${this.workspace.containerId}-block-starter`
-    }
-    if (this.hasClauses) {
-      return `${this.workspace.containerId}-block-container`
-    }
-    return `${this.workspace.containerId}-block-command`
+    return Block.getStyleClass(this.b, this.workspace.containerId)
   }
 
   draw(dragData: BlockDragData): HTMLDivElement {
@@ -213,11 +147,11 @@ class Block {
       this.blockDiv.classList.add("nt-block-with-clauses")
     }
 
-    Block.applyStyleOverrides(this, this.blockDiv)
+    BlockRules.applyStyleOverrides(this.b, this.blockDiv)
 
     const headerDiv = document.createElement("div")
     headerDiv.classList.add(`${styleClass}-color`)
-    Block.maybeSetColorOverride(this.blockColor, headerDiv)
+    BlockRules.maybeSetColorOverride(this.b.blockColor, headerDiv)
     headerDiv.classList.add("nt-block-header")
     this.blockDiv.append(headerDiv)
 
@@ -239,12 +173,12 @@ class Block {
     headerDiv.append(propertiesDiv)
 
     if (this.hasProperties) {
-      this.propertiesToggle = new Toggle(this.propertiesDisplay !== "hidden", (isOn) => {
-        this.propertiesDisplay = isOn ? "shown" : "hidden"
+      this.propertiesToggle = new Toggle(this.b.propertiesDisplay !== "hidden", (isOn) => {
+        this.b.propertiesDisplay = isOn ? "shown" : "hidden"
         propertiesDiv.classList.toggle("nt-block-properties-hidden")
         this.workspace.programChanged(new BlockChangedEvent(this))
       })
-      if (this.propertiesDisplay === "hidden") {
+      if (this.b.propertiesDisplay === "hidden") {
         propertiesDiv.classList.add("nt-block-properties-hidden")
       }
       this.actionDiv.append(this.propertiesToggle.div)
@@ -253,7 +187,7 @@ class Block {
     for (var attribute of this.properties.values()) {
       const propertyDiv = attribute.drawProperty()
       propertyDiv.classList.add(`${styleClass}-color`)
-      Block.maybeSetColorOverride(this.blockColor, propertyDiv)
+      BlockRules.maybeSetColorOverride(this.b.blockColor, propertyDiv)
       propertiesDiv.append(propertyDiv)
     }
 
@@ -269,7 +203,7 @@ class Block {
       const clauseFooter = document.createElement("div")
       clauseFooter.classList.add("nt-clause-footer")
       clauseFooter.classList.add(`${styleClass}-color`)
-      Block.maybeSetColorOverride(this.blockColor, clauseFooter)
+      BlockRules.maybeSetColorOverride(this.b.blockColor, clauseFooter)
       this.blockDiv.append(clauseFooter)
     }
 
@@ -281,21 +215,6 @@ class Block {
     Block.wireDragEvents(this, this.blockDiv)
 
     return this.blockDiv
-  }
-
-  static maybeSetColorOverride(backgroundColor: string | null, div: HTMLDivElement): void {
-    if (backgroundColor !== null) { div.style.backgroundColor = backgroundColor }
-  }
-
-  static applyStyleOverrides(block: Block, div: HTMLDivElement): void {
-    if (block.borderColor !== null) { div.style.borderColor = block.borderColor; }
-    if (block.textColor !== null)   { div.style.color       = block.textColor; }
-    if (block.font !== null) {
-      // lineHeight gets reset by the `font` property
-      const lineHeight     = div.style.lineHeight
-      div.style.font       = block.font
-      div.style.lineHeight = lineHeight
-    }
   }
 
   static wireDragEvents(block: Block, div: HTMLDivElement): void {
@@ -318,24 +237,24 @@ class Block {
 
   updateActionText(): void {
     const codeTip = this.formatCodeTip()
-    this.actionDiv.insertAdjacentHTML("beforeend", `<span title="${codeTip}">${this.action}</span>`)
+    this.actionDiv.insertAdjacentHTML("beforeend", `<span title="${codeTip}">${this.b.action}</span>`)
   }
 
   formatCodeTip(): string {
     const out = new StringBuffer()
-    if (this.note !== null && StringUtils.isNotNullOrEmpty(this.note.trimLeft())) {
-      out.writeln(this.note)
+    if (this.b.note !== null && StringUtils.isNotNullOrEmpty(this.b.note.trimLeft())) {
+      out.writeln(this.b.note)
       out.writeln()
     }
     if (this.dragData instanceof ChainDragData) {
       const chain = this.workspace.chains[this.dragData.chainIndex]
-      this.workspace.formatter.formatChainBlocks(out, chain.blocks, this.workspace.chainOpen, this.workspace.chainClose)
+      this.workspace.formatter.formatChainBlocks(out, chain.blocks.map( (block) => block.b ), this.workspace.ws.chainOpen, this.workspace.ws.chainClose)
       // if this block isn't a valid chain starter, nothing may have been written
       if (out.isEmpty) {
-        this.workspace.formatter.formatBlock(out, 0, this)
+        this.workspace.formatter.formatBlock(out, 0, this.b)
       }
     } else {
-      this.workspace.formatter.formatBlock(out, 0, this)
+      this.workspace.formatter.formatBlock(out, 0, this.b)
     }
     const value = out.toString().trim()
     const escapedValue = StringUtils.escapeHtml(value)
@@ -410,4 +329,4 @@ class Block {
 
 }
 
-export { Block, BlockPlacement }
+export { Block }

@@ -3,7 +3,7 @@
 import type { InteractEvent } from '@interactjs/core/InteractEvent'
 
 import { Block } from "../../block";
-import { DragInProgress } from '../drag-manager';
+import { DragInProgress } from '../drag-in-progress';
 import { ActiveDragData } from "./active-drag-data";
 import { NumUtils } from '../../../utils/num-utils';
 
@@ -59,8 +59,8 @@ class WholeChainDrag extends DragInProgress {
     super(block.workspace, startEvent)
     this.dragData  = dragData
     const oldChain = this.workspace.chains[dragData.chainIndex]
-    this.oldChainX = oldChain.x
-    this.oldChainY = oldChain.y
+    this.oldChainX = oldChain.c.x
+    this.oldChainY = oldChain.c.y
     this.draggingBlocks = oldChain.blocks
     this.workspace.removeChain(dragData.chainIndex)
     this.draw(true)

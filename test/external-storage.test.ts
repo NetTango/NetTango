@@ -1,6 +1,6 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { BlockPlacement } from "../src/blocks/block"
+import { BlockPlacement } from "../src/blocks/block-placement"
 import { CodeFormatter } from "../src/blocks/code-formatter"
 import { FormatAttributeType } from "../src/nettango"
 import { restoreWorkspace } from "../src/serialization/dartify"
@@ -10,8 +10,8 @@ import { VersionManager } from "../src/versions/version-manager"
 test("Unknown properties are maintained in external storage", () => {
   document.body.innerHTML = `<div id="test-space-id"></div>`
 
-  const model: any = {
-    "version": VersionManager.VERSION,
+  const model = VersionManager.updateWorkspace({
+    "version": 5,
     "extraString": "extra information",
     "height": 600, "width": 450,
     "blocks": [{
@@ -43,13 +43,14 @@ test("Unknown properties are maintained in external storage", () => {
         }]
       }]
     }
-  }
+  })
 
   const containerId = "test-space-id"
   const dartModel   = restoreWorkspace(containerId, model, createTestFormatter(containerId))
-  expect(dartModel.chains[0].blocks[0].properties.get(1)!.getValue()).toBe("9")
-  const result      = encodeWorkspace(dartModel)
-  model["program"]["chains"][0]["blocks"][0]["properties"][0]["value"] = 9
+  const prop1       = dartModel.chains[0].blocks[0].properties.get(1)!
+  expect(CodeFormatter.getAttributeValue(prop1.a)).toBe("9")
+  const result = encodeWorkspace(dartModel)
+  model.program.chains[0].blocks[0].properties[0].value = 9
   expect(result).toStrictEqual(model)
 })
 

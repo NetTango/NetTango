@@ -1,14 +1,12 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
 import { FormatAttributeType } from "../nettango"
+import { AttributeInput, BlockInput, ClauseInput, ExpressionInput, NumAttributeInput } from "../types/types"
 import { StringBuffer } from "../utils/string-buffer"
 import { StringUtils } from "../utils/string-utils"
-import { Attribute } from "./attributes/attribute"
-import { Block } from "./block"
+import { BlockRules } from "./block-rules"
 import { Chain } from "./chain"
-import { Clause } from "./clause"
 import { CodeWorkspace } from "./code-workspace"
-import { Expression } from "./expressions/expression"
 
 // TODO: This is an over-simplification, but it works for our big use-case (NetLogo)
 // If we want to look at custom per-language code formatters again, I think it makese
@@ -29,13 +27,13 @@ class FormatOptions {
 }
 
 function compareChainsByAction(c1: Chain, c2: Chain) {
-  if (c1.blocks.length === 0 || c1.blocks[0].action === null) {
+  if (c1.blocks.length === 0) {
     return -1
   }
-  if (c2.blocks.length === 0 || c2.blocks[0].action === null) {
+  if (c2.blocks.length === 0) {
     return 1
   }
-  return c1.blocks[0].action.localeCompare(c2.blocks[0].action)
+  return c1.blocks[0].b.action.localeCompare(c2.blocks[0].b.action)
 }
 
 class CodeFormatter  {
@@ -68,8 +66,8 @@ class CodeFormatter  {
     }
 
     const extraChains = workspace.menu.slots
-      .filter( (slot) => includeRequired && slot.block.isRequired && slot.block.canBeStarter && workspace.getBlockCount(slot.block.id) === 0)
-      .map( (slot) => [slot.block] )
+      .filter( (slot) => includeRequired && slot.b.isRequired && BlockRules.canBeStarter(slot.b) && workspace.getBlockCount(slot.b.id) === 0)
+      .map( (slot) => [slot.b] )
 
     // TODO: What to do with required blocks that cannot be starters?
 
@@ -80,27 +78,27 @@ class CodeFormatter  {
     return result
   }
 
-  formatLanguageCode(workspace: CodeWorkspace, extraChains: Block[][]): string {
+  formatLanguageCode(workspace: CodeWorkspace, extraChains: BlockInput[][]): string {
     const out = new StringBuffer()
 
     const chains = workspace.chains.slice(0)
     chains.sort(compareChainsByAction)
     for (var chain of chains) {
-      this.formatChainBlocks(out, chain.blocks, workspace.chainOpen, workspace.chainClose)
+      this.formatChainBlocks(out, chain.blocks.map( (block) => block.b ), workspace.ws.chainOpen, workspace.ws.chainClose)
     }
 
     for (var blocks of extraChains) {
-      this.formatChainBlocks(out, blocks, workspace.chainOpen, workspace.chainClose)
+      this.formatChainBlocks(out, blocks, workspace.ws.chainOpen, workspace.ws.chainClose)
     }
 
     return out.toString()
   }
 
-  formatChainBlocks(out: StringBuffer, blocks: Block[], chainOpen: string | null, chainClose: string | null): void {
+  formatChainBlocks(out: StringBuffer, blocks: BlockInput[], chainOpen: string | null, chainClose: string | null): void {
     if (blocks.length === 0) { return }
 
     var first = blocks[0]
-    if (!first.canBeStarter) { return }
+    if (!BlockRules.canBeStarter(first)) { return }
 
     this.writeFormatOption(out, null, 0, this.formatOptions.chainOpen, chainOpen)
     this.formatBlock(out, 0, first)
@@ -110,7 +108,7 @@ class CodeFormatter  {
     out.writeln()
   }
 
-  formatBlocks(out: StringBuffer, indent: number, blocks: Block[]): void {
+  formatBlocks(out: StringBuffer, indent: number, blocks: BlockInput[]): void {
     if (blocks.length === 0) { return }
 
     for (var block of blocks) {
@@ -118,15 +116,15 @@ class CodeFormatter  {
     }
   }
 
-  formatBlock(out: StringBuffer, indent: number, block: Block): void {
+  formatBlock(out: StringBuffer, indent: number, block: BlockInput): void {
 
     var format = block.format
     if (format === null) {
       format = block.action
-      for (var i = 0; i < block.params.size; i++) {
+      for (var i = 0; i < block.params.length; i++) {
         format += ` {${i}}`
       }
-      for (var i = 0; i < block.properties.size; i++) {
+      for (var i = 0; i < block.properties.length; i++) {
         format += ` {P${i}}`
       }
     }
@@ -145,29 +143,27 @@ class CodeFormatter  {
     }
   }
 
-  replaceParamsAndProps(format: string, block: Block): string {
+  replaceParamsAndProps(format: string, block: BlockInput): string {
     format = this.replaceAttributes(format, block, block.params, "")
     format = this.replaceAttributes(format, block, block.properties, "P")
     return format
   }
 
-  replaceAttributes(format: string, block: Block, attributes: Map<number, Attribute>, placeholder: string): string {
+  replaceAttributes(format: string, block: BlockInput, attributes: AttributeInput[], placeholder: string): string {
     var i = 0
-    for (var key of attributes.keys()) {
-      format = this.replaceAttribute(format, `{${placeholder}${i}}`, block, attributes.get(key)!)
-      i++
-    }
+    attributes.forEach( (a, i) => {
+      format = this.replaceAttribute(format, `{${placeholder}${i}}`, block, a)
+    })
     return format
   }
 
-  formatClause(out: StringBuffer, block: Block, clause: Clause, indent: number): void {
+  formatClause(out: StringBuffer, block: BlockInput, clause: ClauseInput, indent: number): void {
     this.writeFormatOption(out, block, indent, this.formatOptions.clauseOpen, clause.open)
-    this.formatBlocks(out, indent + 1, clause.blocks)
+    this.formatBlocks(out, indent + 1, clause.children)
     this.writeFormatOption(out, block, indent, this.formatOptions.clauseClose, clause.close)
   }
 
-  replaceAttribute(code: string, placeholder: string, block: Block, attribute: Attribute): string {
-    // assert (attribute != null)
+  replaceAttribute(code: string, placeholder: string, block: BlockInput, attribute: AttributeInput): string {
     const formattedValue = CodeFormatter.formatAttributeValue(attribute)
     if (block.instanceId === null) {
       throw new Error("Cannot generate attribute code for block instance without an instance ID.")
@@ -184,7 +180,7 @@ class CodeFormatter  {
     out.writeln(indentedPost)
   }
 
-  writeFormatOption(out: StringBuffer, block: Block | null, indent: number, formatOption: string, override: string | null): void {
+  writeFormatOption(out: StringBuffer, block: BlockInput | null, indent: number, formatOption: string, override: string | null): void {
     const option = StringUtils.toStr(override, formatOption)
     if (StringUtils.isNotNullOrEmpty(option) && option.trim() !== "") {
       const optionFormat = block === null ? option : this.replaceParamsAndProps(option, block)
@@ -192,14 +188,14 @@ class CodeFormatter  {
     }
   }
 
-  static formatAttributeValue(attribute: Attribute): string {
-    const value = StringUtils.toStr(attribute.getValue(), "")
-    const quoteIt = attribute.shouldQuote()
+  static formatAttributeValue(attribute: AttributeInput): string {
+    const value = StringUtils.toStr(CodeFormatter.getAttributeValue(attribute), "")
+    const quoteIt = CodeFormatter.shouldQuote(attribute)
     const formatValue = quoteIt ? `"${value}"` : value
     return formatValue
   }
 
-  static formatExpression(expression: Expression): string {
+  static formatExpression(expression: ExpressionInput): string {
     if (expression.format !== null) {
       var format = expression.format
       for (var i = 0; i < expression.children.length; i++) {
@@ -217,6 +213,70 @@ class CodeFormatter  {
       return StringUtils.toStr(expression.name, "")
     }
   }
+
+  static stepSizePrecision(na: NumAttributeInput): number {
+    if (Number.isInteger(na.step)) {
+      return 0
+    } else {
+      const text = na.step.toString()
+      return text.length - text.indexOf('.') - 1
+    }
+  }
+
+  static getAttributeValue(a: AttributeInput): string {
+      switch (a.type) {
+        case 'text':
+          return a.value === null ? "" : a.value
+
+        case 'int':
+        case 'range':
+          if (a.value === null) {
+            return ""
+          }
+          const valueString: string = a.value.toFixed(CodeFormatter.stepSizePrecision(a)).toString()
+          return (valueString.endsWith(".0")) ? valueString.substring(0, valueString.length - 2) : valueString
+
+        case 'select':
+          return StringUtils.toStr(a.value, "")
+
+        case 'num':
+        case 'bool':
+          return typeof a.value === 'string' ? a.value : CodeFormatter.formatExpression(a.value)
+        }
+    }
+
+    // should the value for this attribute be quoted in code?
+    static shouldQuote(a: AttributeInput): boolean {
+      switch (a.type) {
+        case 'text':
+          return true
+
+        case 'int':
+        case 'range':
+          return false
+
+        case 'select':
+          switch (a.quoteValues) {
+
+            case "always-quote":
+              return true
+
+            case "never-quote":
+              return false
+
+            case "smart-quote":
+            default:
+              const maybeNum = Number.parseFloat(a.value)
+              return Number.isNaN(maybeNum) && !["true", "false"].includes(a.value)
+
+          }
+
+        case 'num':
+        case 'bool':
+          return false
+
+      }
+    }
 
 }
 

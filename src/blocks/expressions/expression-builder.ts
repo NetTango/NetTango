@@ -1,9 +1,9 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { ExpressionDefinition } from "../../types/types"
 import { StringBuffer } from "../../utils/string-buffer"
 import { CodeWorkspace } from "../code-workspace"
 import { Expression } from "./expression"
-import { ExpressionDefinition } from "./expression-definition"
 
 class ExpressionBuilder {
 
@@ -12,11 +12,11 @@ class ExpressionBuilder {
   root: Expression
 
   get expressions(): ExpressionDefinition[] {
-    return this.workspace.expressionDefinitions
+    return this.workspace.ws.expressions
   }
 
   get variables(): string[] {
-    return this.workspace.variables
+    return this.workspace.ws.variables
   }
 
   constructor(workspace: CodeWorkspace, type: "num" | "bool") {
@@ -25,7 +25,7 @@ class ExpressionBuilder {
   }
 
   static clone(source: ExpressionBuilder): ExpressionBuilder {
-    const c = new ExpressionBuilder(source.workspace, source.root.type)
+    const c = new ExpressionBuilder(source.workspace, source.root.e.type)
     c.workspace = source.workspace
     c.root = Expression.clone(c, source.root)
     return c

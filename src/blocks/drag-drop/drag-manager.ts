@@ -3,12 +3,9 @@
 import type { InteractEvent } from '@interactjs/core/InteractEvent'
 import type { Point } from '@interactjs/types/index'
 
-import { ArrayUtils } from '../../utils/array-utils'
 import { Block } from "../block"
-import { Chain } from '../chain'
-import { CodeWorkspace } from "../code-workspace"
 import { BlockDragData } from "./drag-data/block-drag-data"
-import { DragListener } from './drag-listener'
+import { DragInProgress } from './drag-in-progress'
 
 class DragManager {
 
@@ -55,39 +52,13 @@ class DragManager {
   }
 
   static isValidDrop(containerId: string, dragHandler: (dragState: DragInProgress) => boolean = () => { return true }): boolean {
-    if (this.currentDrag === null) {
+    if (DragManager.currentDrag === null) {
       return false
     }
 
-    return containerId === this.currentDrag.workspace.containerId && dragHandler(this.currentDrag)
+    return containerId === DragManager.currentDrag.workspace.containerId && dragHandler(DragManager.currentDrag)
   }
 
 }
 
-abstract class DragInProgress {
-
-  readonly workspace: CodeWorkspace
-  readonly dragStartOffset: Point
-
-  constructor(workspace: CodeWorkspace, startEvent: InteractEvent) {
-    this.workspace       = workspace
-    const offset         = DragListener.getOffsetToRoot(startEvent.target as HTMLElement)
-    this.dragStartOffset = { x: startEvent.pageX - offset.x, y: startEvent.pageY - offset.y }
-  }
-
-  abstract getDraggingBlocks(): Block[]
-
-  cancel() {}
-  drop() {}
-
-  get canBeChild(): boolean   { return ArrayUtils.ifNotNullOrEmpty(this.getDraggingBlocks(), (a) => a[0].canBeChild, false) }
-  get canBeStarter(): boolean { return ArrayUtils.ifNotNullOrEmpty(this.getDraggingBlocks(), (a) => a[0].canBeStarter, false) }
-  get isInsertable(): boolean { return ArrayUtils.ifNotNullOrEmpty(this.getDraggingBlocks(), (a) => a[a.length - 1].isAttachable, false) }
-
-  protected draw(useClones: boolean): void {
-    Chain.redrawChain(this.workspace.dragImage, this.getDraggingBlocks(), useClones)
-  }
-
-}
-
-export { DragManager, DragInProgress }
+export { DragManager }

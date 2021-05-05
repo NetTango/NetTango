@@ -1,63 +1,32 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { ExternalStorage } from "../../utils/external-storage"
+import { AttributeInput } from "../../types/types"
 import { Block } from "../block"
+import { CodeFormatter } from "../code-formatter"
 
 type AttributeTypes = "bool" | "num" | "int" | "range" | "text" | "select"
 
 /// Represents the paramter or property options for a block
 abstract class Attribute {
 
-  readonly storage = new ExternalStorage(["id", "type", "name", "unit", "value", "default", "quoteValues", "values", "step", "random", "min", "max", "expressionValue"])
+  readonly a: AttributeInput
 
-  /// parameter id - unique per block
-  id: number
-
-  get uniqueId(): string { return `${this.block.workspace.containerId}-${this.block.id}-${this.id}` }
+  get uniqueId(): string { return `${this.block.workspace.containerId}-${this.block.b.id}-${this.a.id}` }
 
   /// parent block
-  block: Block
+  readonly block: Block
 
-  /// parameter type: can be "bool", "num", "int", "range", "text", or "select"
-  abstract get type(): AttributeTypes
-
-  /// name of the parameter (e.g. degrees, length)
-  name: string = ""
-
-  /// short unit name that will be displayed after the value (e.g. %, px, m, mm, s)
-  unit: string = ""
-
-  abstract getValue(): string
   abstract setValue(valueString: string): void
 
   abstract getDefaultValue(): string
   abstract setDefaultValue(defaultString: string): void
 
-  getDisplayValue(): string { return `${this.getValue()}${this.unit}` }
+  getDisplayValue(): string { return `${CodeFormatter.getAttributeValue(this.a)}${this.a.unit}` }
 
-  constructor(block: Block, id: number | null) {
+  constructor(a: AttributeInput, block: Block) {
+    this.a = a
     this.block = block
-    if (id !== null) {
-      this.id = id
-      if (this.id >= this.block.nextParamId) {
-        this.block.nextParamId = this.id + 1
-      }
-    } else {
-      this.id = this.block.nextParamId++
-    }
   }
-
-  static clone(block: Block, source: Attribute, isSlotBlock: boolean, clone: Attribute): void {
-    clone.id = source.id
-    clone.name = source.name
-    clone.unit = source.unit
-  }
-
-  // just so we can clone without knowing the type
-  abstract clone(block: Block, isSlotBlock: boolean): Attribute
-
-  // should the value for this attribute be quoted in code?
-  abstract shouldQuote(): boolean
 
   // parameters are meant to display inline with just a value
   drawParameter(): HTMLDivElement {
@@ -65,8 +34,8 @@ abstract class Attribute {
     paramDiv.innerText = this.getDisplayValue()
     paramDiv.classList.add("nt-attribute-value")
     paramDiv.classList.add(`${this.block.getStyleClass()}-attribute`)
-    if (this.block.blockColor !== null) { paramDiv.style.color = this.block.blockColor; }
-    if (this.block.textColor !== null) { paramDiv.style.backgroundColor = this.block.textColor; }
+    if (this.block.b.blockColor !== null) { paramDiv.style.color = this.block.b.blockColor; }
+    if (this.block.b.textColor !== null) { paramDiv.style.backgroundColor = this.block.b.textColor; }
 
     const updateValue = () => { paramDiv.innerText = this.getDisplayValue(); }
     paramDiv.addEventListener("click", (event) => {
@@ -85,7 +54,7 @@ abstract class Attribute {
     propDiv.classList.add("nt-property")
     const propName = document.createElement("div")
     propName.classList.add("nt-property-name")
-    propName.innerText = `\u2022 ${this.name}`
+    propName.innerText = `\u2022 ${this.a.name}`
     propDiv.append(propName)
     propDiv.append(this.drawParameter())
     return propDiv

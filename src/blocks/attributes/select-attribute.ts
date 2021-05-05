@@ -1,10 +1,11 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import { SelectAttributeInput, SelectOptionInput } from "../../types/types"
 import { StringUtils } from "../../utils/string-utils"
 import { Block } from "../block"
 import { CodeFormatter } from "../code-formatter"
 import { AttributeChangedEvent } from "../program-changed-event"
-import { Attribute, AttributeTypes } from "./attribute"
+import { Attribute } from "./attribute"
 
 type QuoteOptionTypes = "smart-quote" | "always-quote" | "never-quote"
 
@@ -14,18 +15,8 @@ class QuoteOptions {
   static readonly NEVER_QUOTE  = "never-quote"
 }
 
-class SelectOption {
-  readonly actual: string
-  readonly display: string
-
-  get displayValue(): string {
-    return this.display === null || this.display === "" ? this.actual : this.display
-  }
-
-  constructor(actual: string, display: string) {
-    this.actual = actual
-    this.display = display
-  }
+function selectOptionDisplay(o: SelectOptionInput): string {
+  return (o.display === null || o.display === "") ? o.actual : o.display
 }
 
 //-------------------------------------------------------------------------
@@ -33,69 +24,34 @@ class SelectOption {
 //-------------------------------------------------------------------------
 class SelectAttribute extends Attribute {
 
-  get type(): AttributeTypes { return "select" }
+  readonly sa: SelectAttributeInput
 
-  value: string = ""
-  defaultValue: string = ""
-  quoteValues: QuoteOptionTypes | null = QuoteOptions.SMART_QUOTE
-
-  getValue(): string { return StringUtils.toStr(this.value, "") }
   setValue(valueString: string): void {
-    this.value = valueString
+    this.sa.value = valueString
   }
 
-  getDefaultValue(): string { return this.defaultValue }
+  getDefaultValue(): string { return this.sa.default }
   setDefaultValue(defaultString: string): void {
-    this.defaultValue = defaultString
+    this.sa.default = defaultString
   }
 
-  getDisplayValue(): string { return `${this.selectedDisplay}${this.unit} \u25BE` }
+  getDisplayValue(): string { return `${this.selectedDisplay}${this.sa.unit} \u25BE` }
 
   /// list of possible values for select type
-  readonly values: SelectOption[] = []
   get selectedDisplay(): string {
-    const valueOptions = this.values.filter( (o) => o.actual === this.value && o.display !== null && o.display !== "")
+    const valueOptions = this.sa.values.filter( (o) => o.actual === this.sa.value && o.display !== null && o.display !== "")
     if (valueOptions.length === 1) {
-      return valueOptions[0].displayValue
+      return selectOptionDisplay(valueOptions[0])
     } else {
-      return this.value
+      return this.sa.value
     }
   }
 
-  constructor(block: Block, id: number | null) {
-    super(block, id)
-  }
-
-  static clone(block: Block, source: SelectAttribute, isSlotBlock: boolean): SelectAttribute {
-    const clone = new SelectAttribute(block, null)
-    Attribute.clone(block, source, isSlotBlock, clone)
-    clone.defaultValue = source.defaultValue
-    clone.quoteValues = source.quoteValues
-    source.values.forEach( (option) => clone.values.push(option) )
+  constructor(sa: SelectAttributeInput, block: Block, isSlotBlock: boolean) {
+    super(sa, block)
+    this.sa = sa
     if (!isSlotBlock) {
-      clone.value = StringUtils.toStrNotEmpty(source.value, clone.defaultValue)
-    }
-    return clone
-  }
-
-  clone(block: Block, isSlotBlock: boolean): Attribute {
-    return SelectAttribute.clone(block, this, isSlotBlock)
-  }
-
-  shouldQuote(): boolean {
-    switch (this.quoteValues) {
-
-      case "always-quote":
-        return true
-
-      case "never-quote":
-        return false
-
-      case "smart-quote":
-      default:
-        const maybeNum = Number.parseFloat(this.value)
-        return Number.isNaN(maybeNum) && !["true","false"].includes(this.value)
-
+      sa.value = StringUtils.toStrNotEmpty(sa.value, sa.default)
     }
   }
 
@@ -111,27 +67,27 @@ class SelectAttribute extends Attribute {
     table.className = "nt-param-table"
     dialog.append(table)
 
-    const makeClickListener = (v: SelectOption): ((e: MouseEvent) => void) => {
+    const makeClickListener = (v: SelectOptionInput): ((e: MouseEvent) => void) => {
       return (e) => {
-        this.value = v.actual
+        this.sa.value = v.actual
         backdrop.classList.remove("show")
         acceptCallback()
-        const formattedValue = CodeFormatter.formatAttributeValue(this)
-        if (this.block.instanceId === null) {
+        const formattedValue = CodeFormatter.formatAttributeValue(this.a)
+        if (this.block.b.instanceId === null) {
           throw new Error("Cannot show parameter dialog for a non-instance block.")
         }
-        this.block.workspace.programChanged(new AttributeChangedEvent(this.block.id, this.block.instanceId, this.id, this.type, this.value, formattedValue))
+        this.block.workspace.programChanged(new AttributeChangedEvent(this.block.b.id, this.block.b.instanceId, this.sa.id, this.sa.type, this.sa.value, formattedValue))
         e.stopPropagation()
       }
     }
 
-    for (var v of this.values) {
+    for (var v of this.sa.values) {
       const row = document.createElement("div")
       row.className = "nt-param-row"
       const opt = document.createElement("div")
       opt.className = "nt-select-option"
-      opt.innerHTML = v.displayValue
-      if (v.actual === this.value) { opt.classList.add("selected") }
+      opt.innerHTML = selectOptionDisplay(v)
+      if (v.actual === this.sa.value) { opt.classList.add("selected") }
       opt.addEventListener("click", makeClickListener(v))
       row.append(opt)
       table.append(row)
@@ -139,4 +95,4 @@ class SelectAttribute extends Attribute {
   }
 }
 
-export { SelectAttribute, SelectOption, QuoteOptions, QuoteOptionTypes }
+export { SelectAttribute, QuoteOptions, QuoteOptionTypes }

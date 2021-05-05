@@ -1,9 +1,7 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
 import interact from "interactjs"
-import type { InteractEvent } from '@interactjs/core/InteractEvent'
 
-import { ExternalStorage } from "../utils/external-storage"
 import { StringUtils } from "../utils/string-utils"
 import { Arrow } from "./baubles/arrow"
 import { Notch } from "./baubles/notch"
@@ -14,34 +12,25 @@ import { ActiveDragData } from "./drag-drop/drag-data/active-drag-data"
 import { ClauseDragData } from "./drag-drop/drag-data/clause-drag-data"
 import { DragManager } from "./drag-drop/drag-manager"
 import { BlockChangedEvent } from "./program-changed-event"
-import { AllowedTags } from "./tags/allowed-tags"
-import { ConcreteTags } from "./tags/concrete-tags"
-import { InheritTags } from "./tags/inherit-tags"
-import { UnrestrictedTags } from "./tags/unrestricted-tags"
+import { ClauseInput } from "../types/types"
+import { ObjectUtils } from "../utils/object-utils"
+import { BlockRules } from "./block-rules"
 
 class Clause extends BlockCollection {
 
-  readonly storage = new ExternalStorage(["children", "action", "open", "close", "allowedTags"])
-
+  readonly c: ClauseInput
   readonly owner: Block
   readonly clauseIndex: number
-  readonly action: string | null
-  readonly open: string | null
-  readonly close: string | null
-
-  allowedTags: AllowedTags = new UnrestrictedTags()
 
   divider: HTMLDivElement = document.createElement("div")
   leftBar: HTMLDivElement = document.createElement("div")
   blocksDiv: HTMLDivElement = document.createElement("div")
 
-  constructor(owner: Block, clauseIndex: number, action: string | null, open: string | null, close: string | null) {
-    super()
+  constructor(c: ClauseInput, owner: Block, clauseIndex: number) {
+    super(c.children, owner.workspace)
+    this.c = c
     this.owner = owner
     this.clauseIndex = clauseIndex
-    this.action = action
-    this.open = open
-    this.close = close
   }
 
   getHighlightElement(): HTMLDivElement {
@@ -74,16 +63,16 @@ class Clause extends BlockCollection {
     this.leftBar = document.createElement("div")
     this.leftBar.classList.add("nt-clause-left-bar")
     this.leftBar.classList.add(`${styleClass}-color`)
-    Block.maybeSetColorOverride(container.blockColor, this.leftBar)
+    BlockRules.maybeSetColorOverride(container.b.blockColor, this.leftBar)
     this.div.append(this.leftBar)
 
     this.divider = document.createElement("div")
     this.divider.classList.add("nt-clause-divider")
     this.divider.classList.add(`${styleClass}-color`)
-    Block.maybeSetColorOverride(container.blockColor, this.divider)
+    BlockRules.maybeSetColorOverride(container.b.blockColor, this.divider)
     this.div.append(this.divider)
 
-    const dividerText = StringUtils.toStrNotEmpty(this.action, "")
+    const dividerText = StringUtils.toStrNotEmpty(this.c.action, "")
     if (StringUtils.isNotNullOrEmpty(dividerText.trim())) {
       const dividerTextDiv = document.createElement("div")
       dividerTextDiv.classList.add("nt-clause-divider-text")
@@ -122,10 +111,10 @@ class Clause extends BlockCollection {
     for (var i = 0; i < this.blocks.length; i++) {
       const block = this.blocks[i]
       const siblings = this.blocks.slice(i + 1)
-      if (!(this.owner.dragData instanceof ActiveDragData) || this.owner.instanceId === null) {
+      if (!(this.owner.dragData instanceof ActiveDragData) || this.owner.b.instanceId === null) {
         throw new Error("Cannot draw a clause for a block missing drag data.")
       }
-      const dragData = new ClauseDragData(block, this.owner.dragData.chainIndex, i, this.owner.instanceId, siblings, this.clauseIndex)
+      const dragData = new ClauseDragData(block, this.owner.dragData.chainIndex, i, this.owner.b.instanceId, siblings, this.clauseIndex)
       block.draw(dragData)
     }
 
@@ -135,18 +124,7 @@ class Clause extends BlockCollection {
   }
 
   clone(newBlock: Block): Clause {
-    const clause = new Clause(newBlock, this.clauseIndex, this.action, this.open, this.close)
-    if (this.allowedTags instanceof ConcreteTags) {
-      const allowed: ConcreteTags = this.allowedTags
-      clause.allowedTags = allowed.clone()
-    }
-    else if (this.allowedTags instanceof InheritTags) {
-      const allowed: InheritTags = this.allowedTags
-      clause.allowedTags = allowed.clone(clause)
-    } else {
-      throw new Error("Unknown AllowedTags type for clause cloning")
-    }
-    return clause
+    return new Clause(ObjectUtils.clone(this.c), newBlock, this.clauseIndex)
   }
 
   setEmpty(): void {
@@ -167,10 +145,10 @@ class Clause extends BlockCollection {
   resetOwned(): void {
     for (var i = 0; i < this.blocks.length; i++) {
       const block = this.blocks[i]
-      if (!(this.owner.dragData instanceof ActiveDragData) || this.owner.instanceId === null) {
+      if (!(this.owner.dragData instanceof ActiveDragData) || this.owner.b.instanceId === null) {
         throw new Error("Cannot draw a clause for a block missing drag data or instance ID.")
       }
-      block.dragData = new ClauseDragData(block, this.owner.dragData.chainIndex, i, this.owner.instanceId, this.blocks.slice(i + 1), this.clauseIndex)
+      block.dragData = new ClauseDragData(block, this.owner.dragData.chainIndex, i, this.owner.b.instanceId, this.blocks.slice(i + 1), this.clauseIndex)
       block.resetOwnedBlocksDragData()
     }
   }
@@ -193,10 +171,10 @@ class Clause extends BlockCollection {
 
     for (var i = 0; i < this.blocks.length; i++) {
       const block = this.blocks[i]
-      if (!(this.owner.dragData instanceof ActiveDragData) || this.owner.instanceId === null) {
+      if (!(this.owner.dragData instanceof ActiveDragData) || this.owner.b.instanceId === null) {
         throw new Error("Cannot draw a clause for a block missing drag data or instance ID.")
       }
-      block.dragData = new ClauseDragData(block, this.owner.dragData.chainIndex, i, this.owner.instanceId, this.blocks.slice(i + 1), this.clauseIndex)
+      block.dragData = new ClauseDragData(block, this.owner.dragData.chainIndex, i, this.owner.b.instanceId, this.blocks.slice(i + 1), this.clauseIndex)
       block.resetOwnedBlocksDragData()
     }
 
