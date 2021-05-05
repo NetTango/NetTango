@@ -5,13 +5,24 @@ import { BlockPlacement } from "./blocks/block-placement"
 import { AttributeTypes } from "./blocks/attributes/attribute"
 import { CodeFormatter } from "./blocks/code-formatter"
 import { CodeWorkspace } from "./blocks/code-workspace"
-import { restoreWorkspace } from "./serialization/dartify"
-import { encodeWorkspace } from "./serialization/jsonify"
 import { VersionManager } from "./versions/version-manager"
 import { CodeWorkspaceInput } from "./types/types"
 import { ProgramChangedEvent } from "./blocks/program-changed-event"
+import { ObjectUtils } from "./utils/object-utils"
 
 type FormatAttributeType = (containerId: string, blockId: number, instanceId: number, attributeId: number, value: any, attributeType: AttributeTypes) => string
+
+function restoreWorkspace(containerId: string, workspaceEnc: CodeWorkspaceInput, formatter: CodeFormatter): CodeWorkspace {
+  if (workspaceEnc["version"] !== VersionManager.VERSION) {
+    throw new Error(`The supported NetTango version is ${VersionManager.VERSION}, but the given definition version was ${workspaceEnc["version"]}.`)
+  }
+  const workspace = new CodeWorkspace(workspaceEnc, containerId, formatter)
+  return workspace
+}
+
+function encodeWorkspace(workspace: CodeWorkspace): CodeWorkspaceInput {
+  return ObjectUtils.clone(workspace.ws)
+}
 
 /**
  * NetTango functions can be used to create a blocks-based programming interface
@@ -93,4 +104,4 @@ if (window !== undefined && window !== null && !window.hasOwnProperty("NetTango"
   w["NetTango"] = NetTango
 }
 
-export { FormatAttributeType, NetTango }
+export { FormatAttributeType, NetTango, encodeWorkspace, restoreWorkspace }
