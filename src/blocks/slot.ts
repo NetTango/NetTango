@@ -90,7 +90,7 @@ class Slot {
   }
 
   startDrag(event: InteractEvent): void {
-    const newInstance = Block.newInstance(this.b, this.workspace, false)
+    const newInstance = new Block(ObjectUtils.clone(this.b), this.workspace, false)
     const dragData = new NewDragData(newInstance, this.slotIndex)
     newInstance.draw(dragData)
     DragManager.start(newInstance, dragData, event)

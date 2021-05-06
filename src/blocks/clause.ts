@@ -123,10 +123,6 @@ class Clause extends BlockCollection {
     return this.div
   }
 
-  clone(newBlock: Block): Clause {
-    return new Clause(ObjectUtils.clone(this.c), newBlock, this.clauseIndex)
-  }
-
   setEmpty(): void {
     this.div.classList.add("nt-clause-empty")
     this.div.append(Notch.drawClause(false, this))

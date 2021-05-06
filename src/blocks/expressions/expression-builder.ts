@@ -24,13 +24,6 @@ class ExpressionBuilder {
     this.root = new Expression(this, type)
   }
 
-  static clone(source: ExpressionBuilder): ExpressionBuilder {
-    const c = new ExpressionBuilder(source.workspace, source.root.e.type)
-    c.workspace = source.workspace
-    c.root = Expression.clone(c, source.root)
-    return c
-  }
-
   toString(): string {
     const out = new StringBuffer()
     this.root.displayString(out)

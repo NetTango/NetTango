@@ -86,11 +86,6 @@ class Block {
     })
   }
 
-  static newInstance(b: BlockInput, workspace: CodeWorkspace, isSlotBlock: boolean): Block {
-    const other = new Block(ObjectUtils.clone(b), workspace, isSlotBlock)
-    return other
-  }
-
   getBlockCount(id: number): number {
     var count: number = 0
     if (this.b.id === id) { count++ }

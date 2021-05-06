@@ -46,19 +46,6 @@ class Expression {
     }
   }
 
-  static cloneExpressionInput(source: ExpressionInput): ExpressionInput {
-    const clone = Expression.createEmptyExpression(source.type)
-    source.children.forEach( (child) => clone.children.push(Expression.cloneExpressionInput(child) ))
-    return clone
-  }
-
-  static clone(builder: ExpressionBuilder, source: Expression): Expression {
-    const c = new Expression(builder, source.e.type)
-    c.e = Expression.cloneExpressionInput(source.e)
-    source.children.forEach( (child) => c.children.push(Expression.clone(c.builder, child)) )
-    return c
-  }
-
   displayString(out: StringBuffer): void {
     if (this.isUnary) {
       if (!this.isRoot) {
