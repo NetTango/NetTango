@@ -44,20 +44,20 @@ const blockStyleInputSchema = z.object({
 , fontWeight: z.string()
 , fontSize: z.string()
 , fontFace: z.string()
-})
+}).passthrough()
 
 const inheritTagsInputSchema = z.object({
   type: z.literal("inherit")
-})
+}).passthrough()
 
 const unrestrictedTagsInputSchema = z.object({
   type: z.literal("unrestricted")
-})
+}).passthrough()
 
 const anyOfTagsInputSchema = z.object({
   type: z.literal("any-of")
 , tags: z.array(z.string())
-})
+}).passthrough()
 
 const concreteTagsInputSchema = z.union([
     unrestrictedTagsInputSchema
@@ -76,7 +76,7 @@ const clauseInputSchema: z.ZodSchema<ClauseInput> = z.lazy(() =>
   , open: z.string().nullable()
   , close: z.string().nullable()
   , allowedTags: allowedTagsInputSchema
-  })
+  }).passthrough()
 )
 
 const attributeBaseSchema = z.object({
@@ -89,12 +89,12 @@ const textAttributeInputSchema = attributeBaseSchema.extend({
   type: z.literal("text")
 , value: z.string()
 , default: z.string()
-})
+}).passthrough()
 
 const selectOptionInputSchema = z.object({
   actual: z.string()
 , display: z.string().nullable()
-})
+}).passthrough()
 
 const selectAttributeInputSchema = attributeBaseSchema.extend({
   type: z.literal("select")
@@ -106,24 +106,24 @@ const selectAttributeInputSchema = attributeBaseSchema.extend({
   , z.literal("never-quote")
   ])
 , values: z.array(selectOptionInputSchema)
-})
+}).passthrough()
 
 const numAttributeInputSchema = attributeBaseSchema.extend({
   step: z.number()
 , random: z.boolean()
 , value: z.number()
 , default: z.number()
-})
+}).passthrough()
 
 const intAttributeInputSchema = numAttributeInputSchema.extend({
   type: z.literal("int")
-})
+}).passthrough()
 
 const rangeAttributeInputSchema = numAttributeInputSchema.extend({
   type: z.literal("range")
 , min: z.number()
 , max: z.number()
-})
+}).passthrough()
 
 const expressionTypes = z.union([z.literal("num"), z.literal("bool")])
 
@@ -133,7 +133,7 @@ const expressionInputSchema: z.ZodSchema<ExpressionInput> = z.lazy(() =>
   , type: expressionTypes
   , format: z.string().nullable()
   , children: z.array(expressionInputSchema)
-  })
+  }).passthrough()
 )
 
 const expressionAttributeInputSchema = attributeBaseSchema.extend({
@@ -142,7 +142,7 @@ const expressionAttributeInputSchema = attributeBaseSchema.extend({
 , default: z.string()
 , value: z.union([z.string(), expressionInputSchema])
 , expressionValue: z.string().nullable()
-})
+}).passthrough()
 
 const attributeInputSchema = z.union([
   textAttributeInputSchema
@@ -188,13 +188,13 @@ const blockInputSchema = z.object({
 , params: z.array(attributeInputSchema)
 , properties: z.array(attributeInputSchema)
 , propertiesDisplay: z.union([z.literal("shown"), z.literal("hidden")])
-})
+}).passthrough()
 
 const chainInputSchema = z.object({
   x: z.number()
 , y: z.number()
 , blocks: z.array(blockInputSchema)
-})
+}).passthrough()
 
 const expressionTypeSchema = z.union([z.literal("num"), z.literal("bool")])
 
@@ -203,7 +203,7 @@ const expressionDefinitionInputSchema = z.object({
 , type: expressionTypeSchema
 , arguments: z.array(expressionTypeSchema)
 , format: z.string().nullable()
-})
+}).passthrough()
 
 export const codeWorkspaceInputSchema = z.object({
   version: z.number()
@@ -220,4 +220,4 @@ export const codeWorkspaceInputSchema = z.object({
   }).nullable()
 , variables: z.array(z.string())
 , expressions: z.array(expressionDefinitionInputSchema)
-})
+}).passthrough()
