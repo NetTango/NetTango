@@ -3,7 +3,7 @@
 import { BlockPlacement } from "../src/blocks/block-placement"
 import { BlockStyle } from "../src/blocks/block-style"
 import { CodeWorkspace } from "../src/blocks/code-workspace"
-import { BlockInput, ClauseInput, CodeWorkspaceInput, IntAttributeInput, NumAttributeInput, SelectAttributeInput, UnrestrictedTags } from "../src/types/types"
+import { BlockDefinitionInput, BlockInstanceInput, ClauseInput, ClauseInstanceInput, CodeWorkspaceInput, IntAttributeInput, NumAttributeInput, NumberValueInput, SelectAttributeInput, StringValueInput, UnrestrictedTags } from "../src/types/types"
 import { ObjectUtils } from "../src/utils/object-utils"
 import { VersionManager } from "../src/versions/version-manager"
 
@@ -26,7 +26,7 @@ const EMPTY_WORKSPACE: CodeWorkspaceInput = {
 , variables: []
 }
 
-const EMPTY_BLOCK: BlockInput = {
+const EMPTY_BLOCK: BlockDefinitionInput = {
   id: 0
 , action: ""
 , blockColor: null
@@ -35,13 +35,11 @@ const EMPTY_BLOCK: BlockInput = {
 , closeStarter: null
 , font: null
 , format: null
-, instanceId: null
 , isRequired: false
 , isTerminal: false
 , limit: 0
 , note: null
 , placement: BlockPlacement.CHILD
-, propertiesDisplay: "shown"
 , textColor: null
 , type: null
 , clauses: []
@@ -49,6 +47,15 @@ const EMPTY_BLOCK: BlockInput = {
 , properties: []
 , tags: []
 , allowedTags: UNRESTRICTED_TAGS
+}
+
+const EMPTY_BLOCK_INSTANCE: BlockInstanceInput = {
+    definitionId: 0
+  , instanceId: 0
+  , propertiesDisplay: "shown"
+  , clauses: []
+  , params: []
+  , properties: []
 }
 
 const INT_ATTRIBUTE: IntAttributeInput = {
@@ -59,8 +66,9 @@ const INT_ATTRIBUTE: IntAttributeInput = {
 , step: 1
 , type: "int"
 , unit: null
-, value: 10
 }
+
+const INT_VALUE: NumberValueInput = { type: "int", value: 10 }
 
 const SELECT_ATTRIBUTE: SelectAttributeInput = {
   id: 0
@@ -69,23 +77,27 @@ const SELECT_ATTRIBUTE: SelectAttributeInput = {
 , quoteValues: "smart-quote"
 , type: "select"
 , unit: null
-, value: ""
 , values: []
 }
+
+const SELECT_VALUE: StringValueInput = { type: "select", value: "" }
 
 const EMPTY_CLAUSE: ClauseInput = {
   action: null
 , open: null
 , close: null
-, children: []
 , allowedTags: UNRESTRICTED_TAGS
+}
+
+const EMPTY_CLAUSE_INSTANCE: ClauseInstanceInput = {
+  blocks: []
 }
 
 test("Version1 - blank workspace gets version added", () => {
   const model = {}
-  VersionManager.updateWorkspace(model)
   const expected = EMPTY_WORKSPACE
-  expect(model).toStrictEqual(expected)
+  const result = VersionManager.updateWorkspace(model)
+  expect(result).toStrictEqual(expected)
 })
 
 test("Version1 - block gets id added", () => {
@@ -98,9 +110,9 @@ test("Version1 - block gets id added", () => {
   const blockDef = ObjectUtils.clone(EMPTY_BLOCK, { action: "wolf actions" })
   expected.blocks.push(blockDef)
 
-  VersionManager.updateWorkspace(model)
+  const result = VersionManager.updateWorkspace(model)
 
-  expect(model).toStrictEqual(expected)
+  expect(result).toStrictEqual(expected)
 })
 
 test("Version1 - chain block gets id added", () => {
@@ -114,13 +126,13 @@ test("Version1 - chain block gets id added", () => {
   const expected = ObjectUtils.clone(EMPTY_WORKSPACE)
   const blockDef = ObjectUtils.clone(EMPTY_BLOCK, { action: "wolf actions" })
   expected.blocks.push(blockDef)
-  const blockInst = ObjectUtils.clone(blockDef, { instanceId: null })
+  const blockInst = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE)
   expected.program.chains.push({
     x: 0, y: 0, blocks: [blockInst]
   })
 
-  VersionManager.updateWorkspace(model)
-  expect(model).toStrictEqual(expected)
+  const result = VersionManager.updateWorkspace(model)
+  expect(result).toStrictEqual(expected)
 })
 
 test("Version1 - chain block with children gets id added", () => {
@@ -139,15 +151,17 @@ test("Version1 - chain block with children gets id added", () => {
   expected.blocks.push(blockDef1)
   const blockDef2 = ObjectUtils.clone(EMPTY_BLOCK, { id: 1, action: "forward 10" })
   expected.blocks.push(blockDef2)
-  const blockInst1 = ObjectUtils.clone(blockDef1, { instanceId: null })
-  const blockInst2 = ObjectUtils.clone(blockDef2, { instanceId: null })
-  blockInst1.clauses[0].children.push(blockInst2)
+  const blockInst1 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE)
+  const clauseInst1: ClauseInstanceInput = ObjectUtils.clone(EMPTY_CLAUSE_INSTANCE)
+  blockInst1.clauses.push(clauseInst1)
+  const blockInst2 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE, { definitionId: 1 })
+  blockInst1.clauses[0].blocks.push(blockInst2)
   expected.program.chains.push({
     x: 0, y: 0, blocks: [blockInst1]
   })
 
-  VersionManager.updateWorkspace(model)
-  expect(model).toStrictEqual(expected)
+  const result = VersionManager.updateWorkspace(model)
+  expect(result).toStrictEqual(expected)
 })
 
 test("Version1 - chain block with clauses gets id added", () => {
@@ -168,15 +182,19 @@ test("Version1 - chain block with clauses gets id added", () => {
   expected.blocks.push(blockDef1)
   const blockDef2 = ObjectUtils.clone(EMPTY_BLOCK, { id: 1, action: "forward 10" })
   expected.blocks.push(blockDef2)
-  const blockInst1 = ObjectUtils.clone(blockDef1, { instanceId: null })
-  const blockInst2 = ObjectUtils.clone(blockDef2, { instanceId: null })
-  blockInst1.clauses[1].children.push(blockInst2)
+  const blockInst1 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE)
+  const clauseInst1: ClauseInstanceInput = ObjectUtils.clone(EMPTY_CLAUSE_INSTANCE)
+  blockInst1.clauses.push(clauseInst1)
+  const clauseInst2: ClauseInstanceInput = ObjectUtils.clone(EMPTY_CLAUSE_INSTANCE)
+  blockInst1.clauses.push(clauseInst2)
+  const blockInst2 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE, { definitionId: 1 })
+  blockInst1.clauses[1].blocks.push(blockInst2)
   expected.program.chains.push({
     x: 0, y: 0, blocks: [blockInst1]
   })
 
-  VersionManager.updateWorkspace(model)
-  expect(model).toStrictEqual(expected)
+  const result = VersionManager.updateWorkspace(model)
+  expect(result).toStrictEqual(expected)
 })
 
 test("Version1 - block, parameter, and property get ids added", () => {
@@ -191,14 +209,14 @@ test("Version1 - block, parameter, and property get ids added", () => {
 
   const expected = ObjectUtils.clone(EMPTY_WORKSPACE)
   const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { action: "wolf actions" })
-  const param1: IntAttributeInput = ObjectUtils.clone(INT_ATTRIBUTE, { default: 10, value: 10 })
+  const param1: IntAttributeInput = ObjectUtils.clone(INT_ATTRIBUTE, { default: 10 })
   blockDef1.params.push(param1)
-  const prop1: IntAttributeInput = ObjectUtils.clone(INT_ATTRIBUTE, { id: 1, default: 9, value: 9 })
+  const prop1: IntAttributeInput = ObjectUtils.clone(INT_ATTRIBUTE, { id: 1, default: 9 })
   blockDef1.properties.push(prop1)
   expected.blocks.push(blockDef1)
 
-  VersionManager.updateWorkspace(model)
-  expect(model).toStrictEqual(expected)
+  const result = VersionManager.updateWorkspace(model)
+  expect(result).toStrictEqual(expected)
 })
 
 test("Version1 - chain block, parameter, and property get ids added", () => {
@@ -219,22 +237,22 @@ test("Version1 - chain block, parameter, and property get ids added", () => {
 
   const expected = ObjectUtils.clone(EMPTY_WORKSPACE)
   const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { action: "wolf actions" })
-  const param1: IntAttributeInput = ObjectUtils.clone(INT_ATTRIBUTE, { default: 10, value: 10 })
+  const param1: IntAttributeInput = ObjectUtils.clone(INT_ATTRIBUTE, { default: 10 })
   blockDef1.params.push(param1)
-  const prop1: IntAttributeInput = ObjectUtils.clone(INT_ATTRIBUTE, { id: 1, default: 9, value: 9 })
+  const prop1: IntAttributeInput = ObjectUtils.clone(INT_ATTRIBUTE, { id: 1, default: 9 })
   blockDef1.properties.push(prop1)
   expected.blocks.push(blockDef1)
-  const blockInst1 = ObjectUtils.clone(blockDef1, { instanceId: null })
-  blockInst1.params[0].default = 10
-  blockInst1.params[0].value = 10
-  blockInst1.properties[0].default = 9
-  blockInst1.properties[0].value = 9
+  const blockInst1 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE)
+  const paramVal1: NumberValueInput = ObjectUtils.clone(INT_VALUE, { value: 10 })
+  blockInst1.params.push(paramVal1)
+  const propVal1: NumberValueInput = ObjectUtils.clone(INT_VALUE, { value: 9 })
+  blockInst1.properties.push(propVal1)
   expected.program.chains.push({
     x: 0, y: 0, blocks: [blockInst1]
   })
 
-  VersionManager.updateWorkspace(model)
-  expect(model).toStrictEqual(expected)
+  const result = VersionManager.updateWorkspace(model)
+  expect(result).toStrictEqual(expected)
 })
 
 test("Version2 - select parameter converts to objects", () => {
@@ -258,18 +276,19 @@ test("Version2 - select parameter converts to objects", () => {
   const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { action: "wolf actions" })
   const param1: SelectAttributeInput = ObjectUtils.clone(SELECT_ATTRIBUTE, {
     default: "apples"
-  , value: "apples"
   , values: [{ actual: "apples", display: null }, { actual: "oranges", display: null }]
   })
   blockDef1.params.push(param1)
   expected.blocks.push(blockDef1)
-  const blockInst1 = ObjectUtils.clone(blockDef1, { instanceId: null })
+  const blockInst1 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE)
+  const paramInst1: StringValueInput = ObjectUtils.clone(SELECT_VALUE, { value: "apples" })
+  blockInst1.params.push(paramInst1)
   expected.program.chains.push({
     x: 0, y: 0, blocks: [blockInst1]
   })
 
-  VersionManager.updateWorkspace(model)
-  expect(model).toStrictEqual(expected)
+  const result = VersionManager.updateWorkspace(model)
+  expect(result).toStrictEqual(expected)
 })
 
 test("Version4 - chain gets x and y coordinates from first block", () => {
@@ -281,18 +300,17 @@ test("Version4 - chain gets x and y coordinates from first block", () => {
     }
   }
 
-  VersionManager.updateWorkspace(model)
-
   const expected = ObjectUtils.clone(EMPTY_WORKSPACE)
   const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { action: "act1" })
   expected.blocks.push(blockDef1)
-  const blockInst1 = ObjectUtils.clone(blockDef1, { instanceId: null })
-  const blockInst2 = ObjectUtils.clone(blockDef1, { instanceId: null })
+  const blockInst1 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE)
+  const blockInst2 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE, { instanceId: 1 })
   expected.program.chains.push({
     x: 10, y: 7, blocks: [blockInst1, blockInst2]
   })
 
-  expect(model).toStrictEqual(expected)
+  const result = VersionManager.updateWorkspace(model)
+  expect(result).toStrictEqual(expected)
 })
 
 test("Version5 - select with unquoted values gets `never-quote` set", () => {
@@ -307,19 +325,17 @@ test("Version5 - select with unquoted values gets `never-quote` set", () => {
     } ] } ]
   }
 
-  VersionManager.updateWorkspace(model)
-
   const expected = ObjectUtils.clone(EMPTY_WORKSPACE)
   const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { action: "act1" })
   const param1: SelectAttributeInput = ObjectUtils.clone(SELECT_ATTRIBUTE, {
     default: "red"
   , name: "color"
   , quoteValues: "never-quote"
-  , value: "red"
   , values: [{ actual: "red", display: null }, { actual: "blue", display: null }, { actual: "green", display: null }]
   })
   blockDef1.params.push(param1)
   expected.blocks.push(blockDef1)
 
-  expect(model).toStrictEqual(expected)
+  const result = VersionManager.updateWorkspace(model)
+  expect(result).toStrictEqual(expected)
 })

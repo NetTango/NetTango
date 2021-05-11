@@ -2,7 +2,7 @@
 
 import type { InteractEvent } from '@interactjs/core/InteractEvent'
 
-import { Block } from "../../block"
+import { Block } from "../../block-instance"
 import { DragInProgress } from '../drag-in-progress';
 import { ActiveDragData } from "./active-drag-data"
 

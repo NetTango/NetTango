@@ -2,7 +2,7 @@
 
 import { Arrow } from "./baubles/arrow"
 import { Notch } from "./baubles/notch"
-import { Block } from "./block"
+import { Block } from "./block-instance"
 import { BlockCollection } from "./block-collection"
 
 // To avoid circular dependencies we have a separate drawer for the "chain" that is made while dragging, because

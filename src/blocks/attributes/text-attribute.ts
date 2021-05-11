@@ -1,8 +1,8 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { TextAttributeInput } from "../../types/types"
+import { StringValueInput, TextAttributeInput } from "../../types/types"
 import { StringUtils } from "../../utils/string-utils"
-import { Block } from "../block"
+import { Block } from "../block-instance"
 import { CodeFormatter } from "../code-formatter"
 import { AttributeChangedEvent } from "../program-changed-event"
 import { Attribute } from "./attribute"
@@ -10,23 +10,11 @@ import { Attribute } from "./attribute"
 /// Represents the paramter or property options for a block
 class TextAttribute extends Attribute {
 
-  readonly ta: TextAttributeInput
+  readonly ta: StringValueInput
 
-  setValue(valueString: string): void {
-    this.ta.value = valueString
-  }
-
-  getDefaultValue(): string { return this.ta.default }
-  setDefaultValue(defaultString: string): void {
-    this.ta.default = defaultString
-  }
-
-  constructor(ta: TextAttributeInput, block: Block, isSlotBlock: boolean) {
-    super(ta, block)
+  constructor(def: TextAttributeInput, ta: StringValueInput, block: Block) {
+    super(def, ta, block)
     this.ta = ta
-    if (!isSlotBlock) {
-      ta.value = (ta.value === "") ? ta.default : ta.value
-    }
   }
 
   showParameterDialog(x: number, y: number, acceptCallback: () => void): void {
@@ -57,11 +45,8 @@ class TextAttribute extends Attribute {
         }
         backdrop.classList.remove("show")
         acceptCallback()
-        const formattedValue = CodeFormatter.formatAttributeValue(this.a)
-        if (this.block.b.instanceId === null) {
-          throw new Error("Cannot show parameter dialog for a non-instance block.")
-        }
-        this.block.workspace.programChanged(new AttributeChangedEvent(this.block.b.id, this.block.b.instanceId, this.ta.id, this.ta.type, this.ta.value, formattedValue))
+        const formattedValue = this.ta.value
+        this.block.workspace.programChanged(new AttributeChangedEvent(this.block.def.id, this.block.b.instanceId, this.def.id, this.ta.type, this.ta.value, formattedValue))
       })
     )
 
@@ -77,10 +62,10 @@ class TextAttribute extends Attribute {
   }
 
   buildHTMLInput(): string {
-    const htmlValue = StringUtils.escapeHtml(CodeFormatter.getAttributeValue(this.ta))
+    const htmlValue = StringUtils.escapeHtml(this.ta.value)
     return `
       <input class="nt-param-input" id="nt-param-${this.uniqueId}" type="text" value="${htmlValue}">
-      <span class="nt-param-unit">${this.ta.unit}</span>
+      <span class="nt-param-unit">${this.def.unit}</span>
     `
   }
 

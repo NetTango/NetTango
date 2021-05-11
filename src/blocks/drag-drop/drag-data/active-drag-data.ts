@@ -1,6 +1,6 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { Block } from "../../block"
+import { Block } from "../../block-instance"
 import { BlockDragData } from "./block-drag-data"
 
 abstract class ActiveDragData extends BlockDragData {

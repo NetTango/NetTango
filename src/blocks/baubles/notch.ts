@@ -1,6 +1,6 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { Block } from "../block"
+import { Block } from "../block-instance"
 import { BlockRules } from "../block-rules"
 import { Clause } from "../clause"
 
@@ -13,7 +13,7 @@ class Notch {
     const blockStyle = block.getStyleClass()
     div.classList.add(blockStyle)
 
-    BlockRules.applyStyleOverrides(block.b, div)
+    BlockRules.applyStyleOverrides(block.def, div)
 
     if (isTop) {
       div.classList.add("nt-notch-top")
@@ -28,7 +28,7 @@ class Notch {
       const notchClasses = [`nt-notch-${notchClass}`, colorClass]
       notchClasses.forEach( (cl) => filler.classList.add(cl) )
       if (!isTop || notchClass !== "middle") {
-        BlockRules.maybeSetColorOverride(block.b.blockColor, filler)
+        BlockRules.maybeSetColorOverride(block.def.blockColor, filler)
       }
       div.append(filler)
     })
@@ -44,7 +44,7 @@ class Notch {
     const blockStyle = clause.owner.getStyleClass()
     div.classList.add(blockStyle)
 
-    BlockRules.applyStyleOverrides(clause.owner.b, div)
+    BlockRules.applyStyleOverrides(clause.owner.def, div)
 
     if (isTop) {
       div.classList.add("nt-notch-top")
@@ -59,7 +59,7 @@ class Notch {
       const notchClasses = [`nt-notch-${notchClass}`, colorClass]
       notchClasses.forEach( (cl) => filler.classList.add(cl) )
       if (!isTop || notchClass !== "middle") {
-        BlockRules.maybeSetColorOverride(clause.owner.b.blockColor, filler)
+        BlockRules.maybeSetColorOverride(clause.owner.def.blockColor, filler)
       }
       div.append(filler)
     });

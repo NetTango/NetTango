@@ -35,7 +35,7 @@ class ChainAcceptor {
       !chain.blocks[0].canBeStarter &&
       dragState.isInsertable &&
       // not if you're dropping a starter that cannot contain some of my blocks
-      checkConcreteTags(draggingBlocks[0].b.allowedTags, chain.blocks)
+      checkConcreteTags(draggingBlocks[0].def.allowedTags, chain.blocks)
     )
   }
 

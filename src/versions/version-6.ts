@@ -3,10 +3,19 @@
 import { BlockStyle } from "../blocks/block-style";
 import { CodeWorkspace } from "../blocks/code-workspace";
 import { Expression } from "../blocks/expressions/expression";
-import { codeWorkspaceInputSchema, CodeWorkspaceInput, BlockInput, AttributeInput, ClauseInput } from "../types/types";
+import { codeWorkspaceInputSchema, CodeWorkspaceInput, BlockInput, AttributeInput, ClauseInput } from "../types/types-6";
 import { ObjectUtils } from "../utils/object-utils";
 
 const unrestrictedTags = Object.freeze({ type: "unrestricted" })
+
+const blockInstanceProps: (keyof BlockInput)[] = [
+  "instanceId", "clauses", "params", "properties", "propertiesDisplay"
+]
+const allBlockProps: (keyof BlockInput)[] = [
+  "id", "action", "isRequired", "placement", "instanceId", "type", "format", "isTerminal"
+, "closeClauses", "closeStarter", "limit", "note", "blockColor", "textColor", "borderColor"
+, "font", "allowedTags", "tags", "clauses", "params", "properties", "propertiesDisplay"
+]
 
 function setIfUndefined(o: any, prop: string, value: any | null = null) {
   if (!o.hasOwnProperty(prop)) {
@@ -194,15 +203,7 @@ class Version6 {
   }
 
   static resetBlockInstanceToDefinition(getBlockById: (id: number, action: string) => BlockInput, definition: BlockInput, instance: BlockInput): void {
-    const instanceProps: (keyof BlockInput)[] = [
-      "instanceId", "clauses", "params", "properties", "propertiesDisplay"
-    ]
-    const allProps: (keyof BlockInput)[] = [
-      "id", "action", "isRequired", "placement", "instanceId", "type", "format", "isTerminal"
-    , "closeClauses", "closeStarter", "limit", "note", "blockColor", "textColor", "borderColor"
-    , "font", "allowedTags", "tags", "clauses", "params", "properties", "propertiesDisplay"
-    ]
-    allProps.filter( (k) => !instanceProps.includes(k) ).forEach( (p) => {
+    allBlockProps.filter( (k) => !blockInstanceProps.includes(k) ).forEach( (p) => {
       ObjectUtils.copyProperty(definition, instance, p)
     })
 
@@ -287,4 +288,4 @@ class Version6 {
 
 }
 
-export { Version6 }
+export { Version6, allBlockProps, blockInstanceProps }

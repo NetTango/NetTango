@@ -1,15 +1,30 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { CodeWorkspaceInput } from "../types/types"
+import {
+  AttributeInput
+, AttributeValueInput
+, BlockDefinitionInput
+, BlockInstanceInput
+, CodeWorkspaceInput
+} from "../types/types"
+
+import {
+  makeAttributeDefault
+, makeStringDefault
+, makeNumberDefault
+, makeExpressionDefault
+} from "../blocks/attributes/attribute-factory"
+
 import { Version1 } from "./version-1"
 import { Version2 } from "./version-2"
 import { Version3 } from "./version-3"
 import { Version4 } from "./version-4"
 import { Version5 } from "./version-5"
 import { Version6 } from "./version-6"
+import { Version7 } from "./version-7"
 
 class VersionManager {
-  static readonly VERSION = 6
+  static readonly VERSION = 7
 
   static updateWorkspace(definition: any): CodeWorkspaceInput {
     const version: number = definition.hasOwnProperty("version") ? definition.version : 0
@@ -26,9 +41,58 @@ class VersionManager {
     if (version < 6) {
       Version6.update(definition)
     }
+    if (version < 7) {
+      definition.version = 6
+      definition = Version6.validate(definition)
+      Version7.update(definition)
+    }
     definition.version = VersionManager.VERSION
-    return Version6.validate(definition)
+
+    const validated = Version7.validate(definition)
+
+    // Even though the data types are validated, the clauses and attributes also need to correspond
+    // between definitions and instances, so we reset them here to be sure they are correct.
+    // TODO: See if Zod can handle this validation as well.
+    // -Jeremy B May 2021.
+    const getDefById = (id: number) => validated.blocks.filter( (b) => b.id === id )[0]
+    const processInstance = (instance: BlockInstanceInput) => {
+      const definition = getDefById(instance.definitionId)
+      VersionManager.resetBlock(definition, instance)
+      instance.clauses.forEach( (clause) => clause.blocks.forEach(processInstance) )
+    }
+    validated.program.chains.forEach( (chain) => chain.blocks.forEach(processInstance) )
+
+    return validated
   }
+
+  static resetBlock(definition: BlockDefinitionInput, instance: BlockInstanceInput) {
+    instance.clauses = definition.clauses.map( (_, i) => {
+      return instance.clauses.length > i ? instance.clauses[i] : { blocks: [] }
+    })
+    instance.params = definition.params.map( (a, i) => {
+      return instance.params.length > i ? VersionManager.resetAttribute(a, instance.params[i]) : makeAttributeDefault(a)
+    })
+    instance.properties = definition.properties.map( (a, i) => {
+      return instance.properties.length > i ? VersionManager.resetAttribute(a, instance.properties[i]) : makeAttributeDefault(a)
+    })
+  }
+
+  static resetAttribute(attribute: AttributeInput, value: AttributeValueInput): AttributeValueInput {
+    switch (attribute.type) {
+      case "text":
+      case "select":
+        return (["text", "select"].includes(value.type) ? value : makeStringDefault(attribute))
+
+      case "int":
+      case "range":
+        return (["int", "range"].includes(value.type) ? value : makeNumberDefault(attribute))
+
+      case "num":
+      case "bool":
+        return (["num", "bool"].includes(value.type) ? value : makeExpressionDefault(attribute))
+    }
+  }
+
 }
 
 export { VersionManager }

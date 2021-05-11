@@ -8,9 +8,9 @@ import { VersionUtils } from "./version-utils"
 class Version5 {
 
   static update(json: any): void {
-    VersionUtils.updateBlocks(json, Version5.moveChildrenToClauses, Version5.moveChildrenToClauses)
-    VersionUtils.updateBlocks(json, Version5.addBlockPlacements, Version5.addBlockPlacements)
-    VersionUtils.updateBlocks(json, Version5.updateNetLogoColorsAttributes, Version5.updateNetLogoColorsAttributes)
+    VersionUtils.updateBlocks6(json, Version5.moveChildrenToClauses, Version5.moveChildrenToClauses)
+    VersionUtils.updateBlocks6(json, Version5.addBlockPlacements, Version5.addBlockPlacements)
+    VersionUtils.updateBlocks6(json, Version5.updateNetLogoColorsAttributes, Version5.updateNetLogoColorsAttributes)
   }
 
   // NetTango is meant to be language-agnostic, and because this is NetLogo-specific,

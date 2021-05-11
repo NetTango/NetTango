@@ -1,41 +1,44 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
 import interact from "interactjs"
-import { BlockInput } from "../types/types"
+import { BlockDefinitionInput } from "../types/types"
 import { CodeWorkspace } from "./code-workspace"
 import { DragManager } from "./drag-drop/drag-manager"
 import { BlockChangedEvent } from "./program-changed-event"
-import { Slot } from "./slot"
+import { BlockDefinition } from "./block-definition"
 
 /**
  * Visual programming menu bar
  */
 class BlockMenu {
 
-  readonly blocks: BlockInput[]
+  readonly blocks: BlockDefinitionInput[]
   readonly workspace: CodeWorkspace
 
-  readonly slots: Slot[]
+  readonly slots: BlockDefinition[]
 
   /// Menu background color
   color = "rgba(0, 0, 0, 0.2)"
 
   menuDiv = document.createElement("div")
 
-  constructor(blocks: BlockInput[], workspace: CodeWorkspace) {
+  constructor(blocks: BlockDefinitionInput[], workspace: CodeWorkspace) {
     this.blocks = blocks
     this.workspace = workspace
-    this.slots = blocks.map( (b, i) => new Slot(b, workspace, i) )
+    this.slots = blocks.map( (b, i) => new BlockDefinition(b, workspace, i) )
   }
 
-  getBlockById(id: number): BlockInput | null {
+  getBlockById(id: number): BlockDefinitionInput {
     var matches = this.slots.filter( (s) => {
-      return s.b.id === id
+      return s.def.id === id
     })
-    if (matches.length > 0) {
-      return matches[0].b
+    if (matches.length === 0) {
+      throw new Error(`No block found for ID# ${id}`)
     }
-    return null
+    if (matches.length > 1) {
+      throw new Error(`Multiple blocks found with ID# ${id}`)
+    }
+    return matches[0].def
   }
 
   draw(): HTMLDivElement {

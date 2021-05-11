@@ -7,7 +7,7 @@ import { FormatAttributeType } from "../nettango"
 import { ChainInput, CodeWorkspaceInput } from '../types/types'
 import { NumUtils } from "../utils/num-utils"
 import { VersionManager } from "../versions/version-manager"
-import { Block } from "./block"
+import { Block } from "./block-instance"
 import { BlockMenu } from "./block-menu"
 import { BlockStyle } from "./block-style"
 import { Chain } from "./chain"
@@ -40,9 +40,6 @@ class CodeWorkspace {
 
   readonly chains: Chain[]
 
-  nextBlockId: number = 0
-  nextBlockInstanceId: number = 0
-
   /// block menu
   readonly menu: BlockMenu
 
@@ -66,10 +63,10 @@ class CodeWorkspace {
     this.container.style.maxWidth = `${this.width}px`
   }
 
-  constructor(ws: CodeWorkspaceInput, containerId: string, formatter: CodeFormatter) {
+  constructor(containerId: string, ws: CodeWorkspaceInput, language: string, formatAttribute: FormatAttributeType) {
     this.ws = ws
     this.containerId = containerId
-    this.formatter = formatter
+    this.formatter = new CodeFormatter(this, language, formatAttribute)
 
     const maybeContainer = document.querySelector(`#${containerId}`)
     if (maybeContainer === null) throw new Error(`No container element with ID ${this.containerId} found.`)
@@ -111,7 +108,7 @@ class CodeWorkspace {
   }
 
   exportCode(formatAttributeOverride: FormatAttributeType | null = null): string {
-    return this.formatter.formatCode(this, true, formatAttributeOverride)
+    return this.formatter.formatCode(true, formatAttributeOverride)
   }
 
   getBlockCount(id: number): number {

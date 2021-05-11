@@ -1,7 +1,8 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { ExpressionAttributeInput } from "../../types/types"
-import { Block } from "../block"
+import { ExpressionAttributeInput, ExpressionInput, ExpressionValueInput } from "../../types/types"
+import { StringUtils } from "../../utils/string-utils"
+import { Block } from "../block-instance"
 import { CodeFormatter } from "../code-formatter"
 import { Expression } from "../expressions/expression"
 import { ExpressionBuilder } from "../expressions/expression-builder"
@@ -13,36 +14,30 @@ import { Attribute } from "./attribute"
 //-------------------------------------------------------------------------
 class ExpressionAttribute extends Attribute {
 
-  readonly ea: ExpressionAttributeInput
+  readonly expDef: ExpressionAttributeInput
+  readonly ea: ExpressionValueInput
   builder: ExpressionBuilder
 
-  setValue(valueString: string): void {
-    if (valueString === null) {
-      this.builder = new ExpressionBuilder(this.block.workspace, this.ea.type)
-    }
-    if (Number.isNaN(Number.parseFloat(valueString)) && !["true", "false"].includes(valueString)) {
-      // not a number or boolean, do not use value
-      throw new Error("Expression values can only be set to numbers or booleans.")
-    }
-    this.builder = new ExpressionBuilder(this.block.workspace, this.ea.type)
-    const expression = new Expression(this.builder, this.ea.type)
-    expression.e.name = valueString
-    this.builder.root = expression
-  }
+  // setValue(valueString: string): void {
+  //   if (valueString === null) {
+  //     this.builder = new ExpressionBuilder(this.block.workspace, this.ea.type)
+  //   }
+  //   if (Number.isNaN(Number.parseFloat(valueString)) && !["true", "false"].includes(valueString)) {
+  //     // not a number or boolean, do not use value
+  //     throw new Error("Expression values can only be set to numbers or booleans.")
+  //   }
+  //   this.builder = new ExpressionBuilder(this.block.workspace, this.ea.type)
+  //   const expression = new Expression(this.builder, this.ea.type)
+  //   expression.e.name = valueString
+  //   this.builder.root = expression
+  // }
 
-  getDefaultValue(): string { return this.ea.default }
-  setDefaultValue(defaultString: string): void {
-    this.ea.default = defaultString
-  }
-
-  constructor(ea: ExpressionAttributeInput, block: Block, isSlotBlock: boolean) {
-    super(ea, block)
+  constructor(expDef: ExpressionAttributeInput, ea: ExpressionValueInput, block: Block) {
+    super(expDef, ea, block)
+    this.expDef = expDef
     this.ea = ea
     // TODO: Properly re-instantiate the expression builder, copy old code from Dartify
     this.builder = new ExpressionBuilder(this.block.workspace, this.ea.type)
-    if (!isSlotBlock) {
-      this.setValue(this.ea.default)
-    }
   }
 
   showParameterDialog(x: number, y: number, acceptCallback: () => void): void {
@@ -56,7 +51,7 @@ class ExpressionAttribute extends Attribute {
     dialog.insertAdjacentHTML("beforeend", `
       <div class="nt-param-table">
         <div class="nt-param-row">
-          <div class="nt-param-label">${this.ea.name}:</div>
+          <div class="nt-param-label">${this.def.name}:</div>
         </div>
         <div class="nt-param-row">
           <div id="nt-expression-${this.uniqueId}" class="nt-expression-root"></div>
@@ -78,11 +73,8 @@ class ExpressionAttribute extends Attribute {
         dialog.removeEventListener("click", dialogClicked)
         backdrop.classList.remove("show")
         acceptCallback()
-        const formattedValue = CodeFormatter.formatAttributeValue(this.a)
-        if (this.block.b.instanceId === null) {
-          throw new Error("Cannot show parameter dialog for a non-instance block.")
-        }
-        this.block.workspace.programChanged(new AttributeChangedEvent(this.block.b.id, this.block.b.instanceId, this.ea.id, this.ea.type, CodeFormatter.getAttributeValue(this.ea), formattedValue))
+        const value = ExpressionAttribute.expressionValue(this.ea)
+        this.block.workspace.programChanged(new AttributeChangedEvent(this.block.def.id, this.block.b.instanceId, this.def.id, this.ea.type, value, value))
         return false
       })
     )
@@ -100,6 +92,32 @@ class ExpressionAttribute extends Attribute {
 
     this.builder.open(`#nt-expression-${this.uniqueId}`)
   }
+
+  getDisplayValue(): string { return `${ExpressionAttribute.expressionValue(this.ea)}${this.def.unit}` }
+
+  static expressionValue(ea: ExpressionValueInput): string {
+    return typeof ea.value === 'string' ? ea.value : ExpressionAttribute.formatExpression(ea.value)
+  }
+
+  static formatExpression(expression: ExpressionInput): string {
+    if (expression.format !== null) {
+      var format = expression.format
+      for (var i = 0; i < expression.children.length; i++) {
+        format = StringUtils.replaceAll(format, `{${i}}`, ExpressionAttribute.formatExpression(expression.children[i]))
+      }
+      return format
+    }
+    else if (expression.children.length === 1) {
+      return `(${expression.name} ${ExpressionAttribute.formatExpression(expression.children[0])})`
+    }
+    else if (expression.children.length === 2) {
+      return `(${ExpressionAttribute.formatExpression(expression.children[0])} ${expression.name} ${ExpressionAttribute.formatExpression(expression.children[1])})`
+    }
+    else {
+      return expression.name
+    }
+  }
+
 }
 
 export { ExpressionAttribute }

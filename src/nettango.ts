@@ -12,11 +12,11 @@ import { ObjectUtils } from "./utils/object-utils"
 
 type FormatAttributeType = (containerId: string, blockId: number, instanceId: number, attributeId: number, value: any, attributeType: AttributeTypes) => string
 
-function restoreWorkspace(containerId: string, workspaceEnc: CodeWorkspaceInput, formatter: CodeFormatter): CodeWorkspace {
+function restoreWorkspace(containerId: string, workspaceEnc: CodeWorkspaceInput, language: string, formatAttribute: FormatAttributeType): CodeWorkspace {
   if (workspaceEnc["version"] !== VersionManager.VERSION) {
     throw new Error(`The supported NetTango version is ${VersionManager.VERSION}, but the given definition version was ${workspaceEnc["version"]}.`)
   }
-  const workspace = new CodeWorkspace(workspaceEnc, containerId, formatter)
+  const workspace = new CodeWorkspace(containerId, workspaceEnc, language, formatAttribute)
   return workspace
 }
 
@@ -55,14 +55,14 @@ class NetTango {
     return NetTango.workspaces.get(containerId)!.exportCode(formatAttribute)
   }
 
-  static formatAttributeValue(containerId: string, instanceId: number, attributeId: number): string {
+  static formatAttributeValue(containerId: string, instanceId: number, attributeId: number, isProperty: boolean): string {
     if (!NetTango.workspaces.has(containerId)) {
       throw new Error(`Unknown container ID: ${containerId}`)
     }
     const workspace = NetTango.workspaces.get(containerId)!
     const block     = workspace.getBlockInstance(instanceId)
-    const attribute = block.getAttribute(attributeId)
-    return CodeFormatter.formatAttributeValue(attribute.a)
+    const attribute = isProperty ? block.properties[attributeId] : block.params[attributeId]
+    return CodeFormatter.formatAttributeValue({ def: attribute.def, a: attribute.a })
   }
 
   /// Exports the current state of the workspace as a JSON object to be
@@ -81,13 +81,11 @@ class NetTango {
   static restore(language: "NetLogo", containerId: string, definition: any, formatAttribute: FormatAttributeType): void {
     const workspaceEnc: CodeWorkspaceInput = VersionManager.updateWorkspace(definition)
 
-    const formatter = new CodeFormatter(language, formatAttribute, containerId)
-
     try {
       if (NetTango.workspaces.has(containerId)) {
         NetTango.workspaces.get(containerId)!.removeEventListeners()
       }
-      const workspace = restoreWorkspace(containerId, workspaceEnc, formatter)
+      const workspace = restoreWorkspace(containerId, workspaceEnc, language, formatAttribute)
       NetTango.workspaces.set(containerId, workspace)
       workspace.draw()
     } catch (e) {

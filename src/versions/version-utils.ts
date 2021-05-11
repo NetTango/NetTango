@@ -4,7 +4,22 @@ import { ArrayUtils } from "../utils/array-utils"
 
 class VersionUtils {
 
-  static updateBlocks(json: any, blockDefinitionHandler: (block: any) => void, blockInstanceHandler: (block: Object) => void): void {
+  static updateBlocks(workspaceEnc: any, blockDefinitionHandler: (block: any) => void, blockInstanceHandler: (block: any) => void): void {
+    workspaceEnc.blocks.forEach( (b: any) => blockDefinitionHandler(b) )
+    const handleBlockInstanceRec = (b: any) => {
+      blockInstanceHandler(b)
+      b.clauses.forEach( (cl: any) => {
+        cl.blocks.forEach( (b: any) => {
+          handleBlockInstanceRec(b)
+        })
+      })
+    }
+    workspaceEnc.program.chains.forEach( (c: any) => {
+      c.blocks.forEach(handleBlockInstanceRec)
+    })
+  }
+
+  static updateBlocks6(json: any, blockDefinitionHandler: (block: any) => void, blockInstanceHandler: (block: Object) => void): void {
     if (!json.hasOwnProperty("blocks") || !Array.isArray(json["blocks"])) {
       return
     }

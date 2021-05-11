@@ -1,8 +1,8 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { IntAttributeInput, NumAttributeInput, RangeAttributeInput } from "../../types/types"
+import { IntAttributeInput, NumAttributeInput, NumberValueInput, RangeAttributeInput } from "../../types/types"
 import { NumUtils } from "../../utils/num-utils"
-import { Block } from "../block"
+import { Block } from "../block-instance"
 import { CodeFormatter } from "../code-formatter"
 import { AttributeChangedEvent } from "../program-changed-event"
 import { Attribute } from "./attribute"
@@ -12,28 +12,20 @@ import { Attribute } from "./attribute"
 //-------------------------------------------------------------------------
 abstract class NumAttribute extends Attribute {
 
-  readonly na: NumAttributeInput
+  readonly numDef: NumAttributeInput
+  readonly na: NumberValueInput
 
   setValue(valueString: string) {
-    this.na.value = NumUtils.toNum(valueString, this.na.default === null ? 0.0 : this.na.default)
-  }
-
-  getDefaultValue(): string {
-    return this.na.default === null ? "" : this.na.default.toString()
-  }
-  setDefaultValue(valueString: string): void {
-    this.na.default = NumUtils.toNum(valueString)
+    this.na.value = NumUtils.toNum(valueString, this.numDef.default)
   }
 
   // Perhaps surprisingly, this class does *not* correspond to the `"num"` attribute `type`.
   // That type is for the `ExpressionAttribute`.  This class can be `int` or `range`.
   // -Jeremy B July 2020
-  constructor(na: IntAttributeInput | RangeAttributeInput, block: Block, isSlotBlock: boolean) {
-    super(na, block)
+  constructor(numDef: IntAttributeInput | RangeAttributeInput, na: NumberValueInput, block: Block) {
+    super(numDef, na, block)
+    this.numDef = numDef
     this.na = na
-    if (!isSlotBlock) {
-      na.value = (na.value === null) ? na.default : na.value
-    }
   }
 
   showParameterDialog(x: number, y: number, acceptCallback: () => void): void {
@@ -64,11 +56,11 @@ abstract class NumAttribute extends Attribute {
         }
         backdrop.classList.remove("show")
         acceptCallback()
-        const formattedValue = CodeFormatter.formatAttributeValue(this.a)
+        const formattedValue = NumAttribute.numberValue(this.numDef, this.na)
         if (this.block.b.instanceId === null) {
           throw new Error("Cannot show parameter dialog for a non-instance block.")
         }
-        this.block.workspace.programChanged(new AttributeChangedEvent(this.block.b.id, this.block.b.instanceId, this.na.id, this.a.type, this.na.value, formattedValue))
+        this.block.workspace.programChanged(new AttributeChangedEvent(this.block.def.id, this.block.b.instanceId, this.def.id, this.a.type, this.na.value, formattedValue))
       })
     )
 
@@ -89,13 +81,30 @@ abstract class NumAttribute extends Attribute {
 
   buildHTMLInput(): string {
     return `
-      <div class="nt-param-name">${this.na.name}</div>
+      <div class="nt-param-name">${this.def.name}</div>
       <div class="nt-param-value">
-        <input class="nt-param-input" id="nt-param-${this.uniqueId}" type="number" step="${this.na.step}" value="${this.na.value}">
-        <span class="nt-param-unit">${this.na.unit}</span>
+        <input class="nt-param-input" id="nt-param-${this.uniqueId}" type="number" step="${this.numDef.step}" value="${this.na.value}">
+        <span class="nt-param-unit">${this.def.unit}</span>
       </div>
     `
   }
+
+  getDisplayValue(): string { return `${NumAttribute.numberValue(this.numDef, this.na)}${this.def.unit}` }
+
+  static numberValue(def: NumAttributeInput, na: NumberValueInput): string {
+    const valueString: string = na.value.toFixed(NumAttribute.stepSizePrecision(def)).toString()
+    return (valueString.endsWith(".0")) ? valueString.substring(0, valueString.length - 2) : valueString
+  }
+
+  static stepSizePrecision(def: NumAttributeInput): number {
+    if (Number.isInteger(def.step)) {
+      return 0
+    } else {
+      const text = def.step.toString()
+      return text.length - text.indexOf('.') - 1
+    }
+  }
+
 }
 
 export { NumAttribute }

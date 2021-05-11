@@ -3,27 +3,27 @@
 import type { InteractEvent } from '@interactjs/core/InteractEvent'
 import { StringBuffer } from "../utils/string-buffer"
 import { StringUtils } from "../utils/string-utils"
-import { Block } from "./block"
+import { Block } from "./block-instance"
 import { CodeWorkspace } from "./code-workspace"
 import { MenuItemClickedEvent, MenuItemContextMenuEvent } from "./program-changed-event"
 import { DragListener } from "./drag-drop/drag-listener"
 import { DragManager } from "./drag-drop/drag-manager"
 import { NewDragData } from './drag-drop/drag-data/new-drag-data'
-import { BlockInput } from '../types/types'
-import { ObjectUtils } from '../utils/object-utils'
+import { BlockDefinitionInput, BlockInstanceInput } from '../types/types'
+import { makeAttributeDefault } from './attributes/attribute-factory'
 
-class Slot {
+class BlockDefinition {
 
-  readonly b: BlockInput
+  readonly def: BlockDefinitionInput
   readonly workspace: CodeWorkspace
 
   slotIndex: number
   slotDiv: HTMLDivElement = document.createElement("div")
   isAtLimit = false
 
-  constructor(b: BlockInput, workspace: CodeWorkspace, slotIndex: number) {
-    this.b = b
-    if (b.id === null) {
+  constructor(def: BlockDefinitionInput, workspace: CodeWorkspace, slotIndex: number) {
+    this.def = def
+    if (this.def.id === null) {
       throw new Error("Cannot make a menu slot for a block without an ID.")
     }
     this.workspace = workspace
@@ -31,29 +31,29 @@ class Slot {
   }
 
   isAvailable(): boolean {
-    const free = this.b.limit - this.workspace.getBlockCount(this.b.id)
-    return (this.b.limit <= 0 || free > 0)
+    const free = this.def.limit - this.workspace.getBlockCount(this.def.id)
+    return (this.def.limit <= 0 || free > 0)
   }
 
   draw(index: number): HTMLDivElement {
     this.slotIndex = index
     this.slotDiv = document.createElement("div")
     this.slotDiv.classList.add("nt-menu-slot")
-    const styleClass = Block.getStyleClass(this.b, this.workspace.containerId)
+    const styleClass = Block.getStyleClass(this.def, this.workspace.containerId)
     this.slotDiv.classList.add(styleClass)
     this.slotDiv.classList.add(`${styleClass}-color`)
 
-    const codeTip = this.formatCodeTip(this.b)
-    const titleSpan = `<span title="${codeTip}">${this.b.action}</span>`
+    const codeTip = this.formatCodeTip(this.def)
+    const titleSpan = `<span title="${codeTip}">${this.def.action}</span>`
     this.slotDiv.insertAdjacentHTML("beforeend", titleSpan)
 
-    if (this.b.blockColor !== null)  { this.slotDiv.style.backgroundColor = this.b.blockColor }
-    if (this.b.borderColor !== null) { this.slotDiv.style.borderColor     = this.b.borderColor }
-    if (this.b.textColor !== null)   { this.slotDiv.style.color           = this.b.textColor }
-    if (this.b.font !== null) {
+    if (this.def.blockColor  !== null) { this.slotDiv.style.backgroundColor = this.def.blockColor }
+    if (this.def.borderColor !== null) { this.slotDiv.style.borderColor     = this.def.borderColor }
+    if (this.def.textColor   !== null) { this.slotDiv.style.color           = this.def.textColor }
+    if (this.def.font        !== null) {
       // lineHeight gets reset by the `font` property
       const lineHeight = this.slotDiv.style.lineHeight
-      this.slotDiv.style.font       = this.b.font
+      this.slotDiv.style.font       = this.def.font
       this.slotDiv.style.lineHeight = lineHeight
     }
 
@@ -67,15 +67,14 @@ class Slot {
     return this.slotDiv
   }
 
-  formatCodeTip(block: BlockInput): string {
+  formatCodeTip(block: BlockDefinitionInput): string {
     const out = new StringBuffer()
-    if (this.b.note !== null && StringUtils.isNotNullOrEmpty(this.b.note.trimLeft())) {
-      out.writeln(this.b.note)
+    if (this.def.note !== null && StringUtils.isNotNullOrEmpty(this.def.note.trimLeft())) {
+      out.writeln(this.def.note)
       out.writeln()
     }
-    const fakeInstance = ObjectUtils.clone(block)
-    fakeInstance.instanceId = -1
-    this.workspace.formatter.formatBlock(out, 0, fakeInstance)
+    const fakeInstance = this.makeInstance()
+    this.workspace.formatter.formatBlock(out, 0, { def: this.def, b: fakeInstance })
     const value = out.toString().trim()
     const escapedValue = StringUtils.escapeHtml(value)
     return escapedValue
@@ -89,8 +88,23 @@ class Slot {
     }
   }
 
+  static makeInstance(b: BlockDefinitionInput, instanceId: number): BlockInstanceInput {
+    return {
+      definitionId:      b.id
+    , instanceId:        instanceId
+    , clauses:           b.clauses.map( (c) => { return { blocks: [] } } )
+    , params:            b.params.map( (a) => makeAttributeDefault(a) )
+    , properties:        b.properties.map( (a) => makeAttributeDefault(a) )
+    , propertiesDisplay: "shown"
+    }
+  }
+
+  makeInstance(): BlockInstanceInput {
+    return BlockDefinition.makeInstance(this.def, this.workspace.getBlockCount(this.def.id))
+  }
+
   startDrag(event: InteractEvent): void {
-    const newInstance = new Block(ObjectUtils.clone(this.b), this.workspace, false)
+    const newInstance = new Block(this.def, this.makeInstance(), this.workspace)
     const dragData = new NewDragData(newInstance, this.slotIndex)
     newInstance.draw(dragData)
     DragManager.start(newInstance, dragData, event)
@@ -101,18 +115,18 @@ class Slot {
   }
 
   raiseDoubleClick(): void {
-    const event = new MenuItemClickedEvent(this.b.id)
+    const event = new MenuItemClickedEvent(this.def.id)
     this.workspace.programChanged(event)
   }
 
   raiseContextMenu(e: MouseEvent): boolean {
     e.preventDefault()
     e.stopPropagation()
-    const event = new MenuItemContextMenuEvent(this.b.id, e.pageX, e.pageY)
+    const event = new MenuItemContextMenuEvent(this.def.id, e.pageX, e.pageY)
     this.workspace.programChanged(event)
     return false
   }
 
 }
 
-export { Slot }
+export { BlockDefinition }

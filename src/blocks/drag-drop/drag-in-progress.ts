@@ -5,7 +5,7 @@ import type { Point } from '@interactjs/types/index'
 
 import { ArrayUtils } from '../../utils/array-utils'
 import { DragCap } from '../baubles/drag-cap'
-import { Block } from "../block"
+import { Block } from "../block-instance"
 import { ChainDraw } from '../chain-draw'
 import { CodeWorkspace } from "../code-workspace"
 import { DragListener } from './drag-listener'

@@ -1,6 +1,6 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { Block } from "../block";
+import { Block } from "../block-instance";
 import { checkConcreteTags } from "../tags/concrete-tags";
 import { checkClauseAllowedTags } from "./clause-acceptor";
 import { ChainDragData } from "./drag-data/chain-drag-data";
@@ -44,7 +44,7 @@ class BlockAcceptor {
     }
 
     if (block.dragData instanceof ChainDragData) {
-      return checkConcreteTags(block.workspace.chains[block.dragData.chainIndex].blocks[0].b.allowedTags, blocks)
+      return checkConcreteTags(block.workspace.chains[block.dragData.chainIndex].blocks[0].def.allowedTags, blocks)
     }
 
     if (block.dragData instanceof ClauseDragData) {

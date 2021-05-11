@@ -1,7 +1,7 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
 import { AttributeTypes } from "./attributes/attribute"
-import { Block } from "./block"
+import { Block } from "./block-instance"
 
 abstract class ProgramChangedEvent {
   abstract toJS(): any
@@ -14,7 +14,7 @@ class BlockChangedEvent extends ProgramChangedEvent {
 
   constructor(block: Block) {
     super()
-    this.blockId = block.b.id
+    this.blockId = block.b.definitionId
     this.instanceId = block.b.instanceId
   }
 

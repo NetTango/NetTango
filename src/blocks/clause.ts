@@ -5,20 +5,20 @@ import interact from "interactjs"
 import { StringUtils } from "../utils/string-utils"
 import { Arrow } from "./baubles/arrow"
 import { Notch } from "./baubles/notch"
-import { Block } from "./block"
+import { Block } from "./block-instance"
 import { BlockCollection } from "./block-collection"
 import { ClauseAcceptor } from "./drag-drop/clause-acceptor"
 import { ActiveDragData } from "./drag-drop/drag-data/active-drag-data"
 import { ClauseDragData } from "./drag-drop/drag-data/clause-drag-data"
 import { DragManager } from "./drag-drop/drag-manager"
 import { BlockChangedEvent } from "./program-changed-event"
-import { ClauseInput } from "../types/types"
-import { ObjectUtils } from "../utils/object-utils"
+import { ClauseInput, ClauseInstanceInput } from "../types/types"
 import { BlockRules } from "./block-rules"
 
 class Clause extends BlockCollection {
 
-  readonly c: ClauseInput
+  readonly def: ClauseInput
+  readonly c: ClauseInstanceInput
   readonly owner: Block
   readonly clauseIndex: number
 
@@ -26,8 +26,9 @@ class Clause extends BlockCollection {
   leftBar: HTMLDivElement = document.createElement("div")
   blocksDiv: HTMLDivElement = document.createElement("div")
 
-  constructor(c: ClauseInput, owner: Block, clauseIndex: number) {
-    super(c.children, owner.workspace)
+  constructor(def: ClauseInput, c: ClauseInstanceInput, owner: Block, clauseIndex: number) {
+    super(c.blocks, owner.workspace)
+    this.def = def
     this.c = c
     this.owner = owner
     this.clauseIndex = clauseIndex
@@ -63,16 +64,16 @@ class Clause extends BlockCollection {
     this.leftBar = document.createElement("div")
     this.leftBar.classList.add("nt-clause-left-bar")
     this.leftBar.classList.add(`${styleClass}-color`)
-    BlockRules.maybeSetColorOverride(container.b.blockColor, this.leftBar)
+    BlockRules.maybeSetColorOverride(container.def.blockColor, this.leftBar)
     this.div.append(this.leftBar)
 
     this.divider = document.createElement("div")
     this.divider.classList.add("nt-clause-divider")
     this.divider.classList.add(`${styleClass}-color`)
-    BlockRules.maybeSetColorOverride(container.b.blockColor, this.divider)
+    BlockRules.maybeSetColorOverride(container.def.blockColor, this.divider)
     this.div.append(this.divider)
 
-    const dividerText = StringUtils.toStrNotEmpty(this.c.action, "")
+    const dividerText = StringUtils.toStrNotEmpty(this.def.action, "")
     if (StringUtils.isNotNullOrEmpty(dividerText.trim())) {
       const dividerTextDiv = document.createElement("div")
       dividerTextDiv.classList.add("nt-clause-divider-text")

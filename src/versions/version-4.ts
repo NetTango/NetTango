@@ -10,7 +10,7 @@ class Version4 {
     // so keep the chain location on the chain itself and remove it from the blocks
     // -Jeremy B May 2020
     Version4.addLocationToChains(json)
-    VersionUtils.updateBlocks(json, Version4.removeBlockLocations, Version4.removeBlockLocations)
+    VersionUtils.updateBlocks6(json, Version4.removeBlockLocations, Version4.removeBlockLocations)
   }
 
   static addLocationToChains(json: any): void {

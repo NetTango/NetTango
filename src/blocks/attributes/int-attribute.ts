@@ -1,7 +1,7 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { IntAttributeInput } from "../../types/types"
-import { Block } from "../block"
+import { IntAttributeInput, NumberValueInput } from "../../types/types"
+import { Block } from "../block-instance"
 import { NumAttribute } from "./num-attribute"
 
 //-------------------------------------------------------------------------
@@ -9,8 +9,8 @@ import { NumAttribute } from "./num-attribute"
 //-------------------------------------------------------------------------
 class IntAttribute extends NumAttribute {
 
-  constructor(ia: IntAttributeInput, block: Block, isSlotBlock: boolean) {
-    super(ia, block, isSlotBlock)
+  constructor(def: IntAttributeInput, ia: NumberValueInput, block: Block) {
+    super(def, ia, block)
   }
 
 }

@@ -44,9 +44,9 @@ test("Unknown properties are maintained in external storage", () => {
   })
 
   const containerId = "test-space-id"
-  const dartModel   = restoreWorkspace(containerId, model, createTestFormatter(containerId))
-  const prop1       = dartModel.chains[0].blocks[0].properties.get(1)!
-  expect(CodeFormatter.getAttributeValue(prop1.a)).toBe("9")
+  const dartModel   = restoreWorkspace(containerId, model, "NetLogo", formatAttribute)
+  const prop1       = dartModel.chains[0].blocks[0].properties[0]!
+  expect(CodeFormatter.getAttributeValue({ def: prop1.def, a: prop1.a })).toBe("9")
   const result: any = encodeWorkspace(dartModel)
   model.program.chains[0].blocks[0].properties[0].value = 9
   expect(result).toStrictEqual(model)
@@ -58,8 +58,5 @@ test("Unknown properties are maintained in external storage", () => {
   expect(result.program.chains[0].extraString).toStrictEqual("more extra information")
 })
 
-function createTestFormatter(containerId: string): CodeFormatter {
-  const formatAttribute: FormatAttributeType = (containerId, blockId, instanceId, attributeId, value, attributeType) => value.toString()
-  const formatter = new CodeFormatter("NetLogo", formatAttribute, containerId)
-  return formatter
-}
+const formatAttribute: FormatAttributeType = (containerId, blockId, instanceId, attributeId, value, attributeType) =>
+  value.toString()

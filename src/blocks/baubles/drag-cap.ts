@@ -1,6 +1,6 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { Block } from "../block"
+import { Block } from "../block-instance"
 import { BlockRules } from "../block-rules"
 
 class DragCap {
@@ -12,8 +12,8 @@ class DragCap {
     const classes = [blockStyle, `${blockStyle}-color`]
     classes.forEach( (bs) => div.classList.add(bs) )
 
-    BlockRules.applyStyleOverrides(block.b, div)
-    BlockRules.maybeSetColorOverride(block.b.blockColor, div)
+    BlockRules.applyStyleOverrides(block.def, div)
+    BlockRules.maybeSetColorOverride(block.def.blockColor, div)
 
     if (isTop) {
       div.classList.add("nt-cap-top")

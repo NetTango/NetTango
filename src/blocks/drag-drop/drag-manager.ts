@@ -3,7 +3,7 @@
 import type { InteractEvent } from '@interactjs/core/InteractEvent'
 import type { Point } from '@interactjs/types/index'
 
-import { Block } from "../block"
+import { Block } from "../block-instance"
 import { BlockDragData } from "./drag-data/block-drag-data"
 import { DragInProgress } from './drag-in-progress'
 

@@ -1,6 +1,6 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { Block } from "../block"
+import { Block } from "../block-instance"
 import { Clause } from "../clause"
 import { checkAnyOfTags } from "../tags/concrete-tags"
 import { checkInheritTags } from "../tags/inherit-tags"
@@ -41,10 +41,10 @@ class ClauseAcceptor {
 }
 
 function checkClauseAllowedTags(clause: Clause, blocks: Block[]): boolean {
-  switch (clause.c.allowedTags.type) {
+  switch (clause.def.allowedTags.type) {
 
     case 'any-of':
-      return checkAnyOfTags(clause.c.allowedTags.tags, blocks)
+      return checkAnyOfTags(clause.def.allowedTags.tags, blocks)
 
     case 'inherit':
       return checkInheritTags(clause, blocks)

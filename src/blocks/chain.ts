@@ -3,7 +3,7 @@
 import interact from "interactjs"
 import type { InteractEvent } from '@interactjs/core/InteractEvent'
 
-import { Block } from "./block"
+import { Block } from "./block-instance"
 import { BlockCollection } from "./block-collection"
 import { CodeWorkspace } from "./code-workspace"
 import { ChainAcceptor } from "./drag-drop/chain-acceptor"

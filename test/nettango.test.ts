@@ -243,7 +243,7 @@ test("Remove a parameter from a block that is in a chain", () => {
       ]
     }
   }
-  const expected = copyJson(json)
+  var expected = copyJson(json)
   expected.height = CodeWorkspace.DEFAULT_HEIGHT
   expected.width  = CodeWorkspace.DEFAULT_WIDTH
   expected.blocks[1].required = false
@@ -256,7 +256,7 @@ test("Remove a parameter from a block that is in a chain", () => {
   delete expected.blocks[1].properties
   delete expected.expressions
   delete expected.program.chains[0][1].params
-  VersionManager.updateWorkspace(expected)
+  expected = VersionManager.updateWorkspace(expected)
   NetTango.restore("NetLogo", "nt-canvas", json, formatAttributeForNetTangoExtension)
   var result = NetTango.save("nt-canvas")
   expect(result).toStrictEqual(expected)
@@ -266,7 +266,7 @@ test("Remove a parameter from a block that is in a chain", () => {
 
 test("NetLogo code exports in proper order with params", () => {
   const testCanavsID = "nt-canvas"
-  const expected = copyJson(NETLOGO_MODEL_1)
+  var expected = copyJson(NETLOGO_MODEL_1)
   expected.height = CodeWorkspace.DEFAULT_HEIGHT
   expected.width  = CodeWorkspace.DEFAULT_WIDTH
   expected.blocks[1].propertiesDisplay = 'shown'
@@ -281,7 +281,7 @@ test("NetLogo code exports in proper order with params", () => {
   expected.program.chains[1][1].propertiesDisplay = 'shown'
   delete expected.blocks[1].params[0].value
   delete expected.blocks[1].properties[0].value
-  VersionManager.updateWorkspace(expected)
+  expected = VersionManager.updateWorkspace(expected)
 
   NetTango.restore("NetLogo", testCanavsID, copyJson(NETLOGO_MODEL_1), formatAttributeForNetTangoExtension)
 
@@ -289,7 +289,7 @@ test("NetLogo code exports in proper order with params", () => {
   expect(result).toStrictEqual(expected)
 
   const codeResult = NetTango.exportCode(testCanavsID, null)
-  expect(codeResult).toStrictEqual("to sheep-actions\n  forward (__nt-canvas_24_3_0 + __nt-canvas_24_3_1)\nend\n\nto wolf-actions\n  forward (__nt-canvas_24_1_0 + __nt-canvas_24_1_1)\nend\n\n")
+  expect(codeResult).toStrictEqual("to sheep-actions\n  forward (__nt-canvas_24_1_0 + __nt-canvas_24_1_1)\nend\n\nto wolf-actions\n  forward (__nt-canvas_24_0_0 + __nt-canvas_24_0_1)\nend\n\n")
 })
 
 test("Model with ifelse properly imports and generates code", () => {
@@ -315,11 +315,11 @@ test("Model with ifelse properly imports and generates code", () => {
     "program": { "chains": [ [ procInst, chanceInst ] ] }
   }
 
-  const expected = copyJson(model)
+  var expected = copyJson(model)
   expected.height = CodeWorkspace.DEFAULT_HEIGHT
   expected.width  = CodeWorkspace.DEFAULT_WIDTH
   expected.program.chains[0][1].clauses = [{ "children": [copyJson(wiggleInst)]}]
-  VersionManager.updateWorkspace(expected)
+  expected = VersionManager.updateWorkspace(expected)
 
   NetTango.restore("NetLogo", "nt-canvas", model, formatAttributeForNetTangoExtension)
   var result = NetTango.save("nt-canvas")
@@ -348,7 +348,7 @@ test("Unversioned model gets IDs added for version 1", () => {
     "program": { "chains": [ [ block ] ] }
   }
 
-  const expected = copyJson(model)
+  var expected = copyJson(model)
   expected.height = CodeWorkspace.DEFAULT_HEIGHT
   expected.width  = CodeWorkspace.DEFAULT_WIDTH
   expected.blocks[0].propertiesDisplay = 'shown'
@@ -360,7 +360,7 @@ test("Unversioned model gets IDs added for version 1", () => {
   expected.program.chains[0][0].properties[0].default = 9
   expected.program.chains[0][0].properties[0].step = 1
   expected.program.chains[0][0].properties[0].value = 9
-  VersionManager.updateWorkspace(expected)
+  expected = VersionManager.updateWorkspace(expected)
 
   NetTango.restore("NetLogo", "nt-canvas", model, formatAttributeForNetTangoExtension)
   const result = NetTango.save("nt-canvas")
@@ -390,9 +390,9 @@ test("Duplicate menu block IDs get reset automatically", () => {
     "program": { "chains": [] }
   }
 
-  const expected = copyJson(model)
+  var expected = copyJson(model)
   expected.blocks[1].id = 1
-  VersionManager.updateWorkspace(expected)
+  expected = VersionManager.updateWorkspace(expected)
 
   NetTango.restore("NetLogo", "nt-canvas", model, formatAttributeForNetTangoExtension)
   const result = NetTango.save("nt-canvas")
@@ -413,14 +413,14 @@ test("Version 1 gets IDs added for new block", () => {
     "version": 1
   }
 
-  const expected = copyJson(model)
+  var expected = copyJson(model)
   expected.height = CodeWorkspace.DEFAULT_HEIGHT
   expected.width  = CodeWorkspace.DEFAULT_WIDTH
   expected.blocks[0].id = 0
   expected.blocks[0].propertiesDisplay = 'shown'
   expected.blocks[0].params[0].id = 0
   expected.blocks[0].properties[0].id = 1
-  VersionManager.updateWorkspace(expected)
+  expected = VersionManager.updateWorkspace(expected)
 
   NetTango.restore("NetLogo", "nt-canvas", model, formatAttributeForNetTangoExtension)
   const result = NetTango.save("nt-canvas")
@@ -500,12 +500,12 @@ test("Version 3 model with select and expression attributes saves correctly", ()
       }
     }
 
-  const expected = copyJson(model)
+  var expected = copyJson(model)
   expected.blocks[0].propertiesDisplay = 'shown'
   expected.blocks[1].propertiesDisplay = 'shown'
   expected.program.chains[0][0].instanceId = 0
   expected.program.chains[0][1].instanceId = 1
-  VersionManager.updateWorkspace(expected)
+  expected = VersionManager.updateWorkspace(expected)
 
   NetTango.restore("NetLogo", "nt-canvas", model, formatAttributeForNetTangoExtension)
   const result = NetTango.save("nt-canvas")
@@ -563,8 +563,8 @@ test("Model uses custom clause open and close formats correctly", () => {
     }
   }
 
-  const expected = copyJson(model)
-  VersionManager.updateWorkspace(expected)
+  var expected = copyJson(model)
+  expected = VersionManager.updateWorkspace(expected)
 
   const containerId = "nt-canvas"
   NetTango.restore("NetLogo", containerId, copyJson(model), formatAttributeAsValue)
