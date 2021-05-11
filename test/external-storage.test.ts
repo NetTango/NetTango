@@ -44,12 +44,14 @@ test("Unknown properties are maintained in external storage", () => {
   })
 
   const containerId = "test-space-id"
-  const dartModel   = restoreWorkspace(containerId, model, "NetLogo", formatAttribute)
-  const prop1       = dartModel.chains[0].blocks[0].properties[0]!
+  const workspace   = restoreWorkspace(containerId, model, "NetLogo", formatAttribute)
+  const prop1       = workspace.chains[0].blocks[0].properties[0]!
   expect(CodeFormatter.getAttributeValue({ def: prop1.def, a: prop1.a })).toBe("9")
-  const result: any = encodeWorkspace(dartModel)
+
+  const result: any = encodeWorkspace(workspace)
   model.program.chains[0].blocks[0].properties[0].value = 9
   expect(result).toStrictEqual(model)
+
   expect(result.extraString).toStrictEqual("extra information")
   expect(result.blocks[0].extraArray).toStrictEqual(["extra", "values", "to-store"])
   expect(result.blocks[0].clauses[0].extraBool).toStrictEqual(false)
