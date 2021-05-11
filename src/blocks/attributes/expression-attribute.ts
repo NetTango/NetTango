@@ -18,26 +18,11 @@ class ExpressionAttribute extends Attribute {
   readonly ea: ExpressionValueInput
   builder: ExpressionBuilder
 
-  // setValue(valueString: string): void {
-  //   if (valueString === null) {
-  //     this.builder = new ExpressionBuilder(this.block.workspace, this.ea.type)
-  //   }
-  //   if (Number.isNaN(Number.parseFloat(valueString)) && !["true", "false"].includes(valueString)) {
-  //     // not a number or boolean, do not use value
-  //     throw new Error("Expression values can only be set to numbers or booleans.")
-  //   }
-  //   this.builder = new ExpressionBuilder(this.block.workspace, this.ea.type)
-  //   const expression = new Expression(this.builder, this.ea.type)
-  //   expression.e.name = valueString
-  //   this.builder.root = expression
-  // }
-
   constructor(expDef: ExpressionAttributeInput, ea: ExpressionValueInput, block: Block) {
     super(expDef, ea, block)
     this.expDef = expDef
     this.ea = ea
-    // TODO: Properly re-instantiate the expression builder, copy old code from Dartify
-    this.builder = new ExpressionBuilder(this.block.workspace, this.ea.type)
+    this.builder = new ExpressionBuilder(this.block.workspace, this.ea.value)
   }
 
   showParameterDialog(x: number, y: number, acceptCallback: () => void): void {

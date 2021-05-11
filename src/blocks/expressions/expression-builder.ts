@@ -1,6 +1,6 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { ExpressionDefinition } from "../../types/types"
+import { ExpressionDefinition, ExpressionInput } from "../../types/types"
 import { StringBuffer } from "../../utils/string-buffer"
 import { CodeWorkspace } from "../code-workspace"
 import { Expression } from "./expression"
@@ -19,9 +19,9 @@ class ExpressionBuilder {
     return this.workspace.ws.variables
   }
 
-  constructor(workspace: CodeWorkspace, type: "num" | "bool") {
+  constructor(workspace: CodeWorkspace, ea: ExpressionInput) {
     this.workspace = workspace
-    this.root = new Expression(this, type)
+    this.root = new Expression(this, ea)
   }
 
   toString(): string {

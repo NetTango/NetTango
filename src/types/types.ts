@@ -167,7 +167,7 @@ const numAttributeValueInputSchema = z.object({
 
 const expressionAttributeValueInputSchema = z.object({
   type: z.union([z.literal("num"), z.literal("bool")])
-, value: z.union([z.string(), expressionInputSchema])
+, value: expressionInputSchema
 , expressionValue: z.string().nullable()
 }).passthrough()
 

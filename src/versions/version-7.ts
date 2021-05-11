@@ -10,6 +10,7 @@ class Version7 {
     workspaceEnc.blocks.forEach( (b: any) => Version7.makeBlockDefinition(b) )
     workspaceEnc.program.chains.forEach( (c: any) => c.blocks.forEach( (b: any) => Version7.makeBlockInstance(b) ) )
     VersionUtils.updateBlocks(workspaceEnc, () => {}, Version7.setBlockInstanceIds())
+    VersionUtils.updateBlocks(workspaceEnc, () => {}, Version7.updateBlockExpressionStringValues)
   }
 
   static makeBlockDefinition(b: any): void {
@@ -71,6 +72,26 @@ class Version7 {
       }
       b.instanceId = definitionIdToNextInstanceId.get(b.definitionId)!
       definitionIdToNextInstanceId.set(b.definitionId, b.instanceId + 1)
+    }
+  }
+
+  static updateBlockExpressionStringValues(b: any): void {
+    b.params.forEach(Version7.updateExpressionStringValues)
+    b.properties.forEach(Version7.updateExpressionStringValues)
+  }
+
+  static updateExpressionStringValues(a: any): void {
+    if (!["num", "bool"].includes(a.type)) {
+      return
+    }
+    if (typeof a.value !== "string") {
+      return
+    }
+    a.value = {
+      name: a.value
+    , format: null
+    , type: a.type
+    , children: []
     }
   }
 

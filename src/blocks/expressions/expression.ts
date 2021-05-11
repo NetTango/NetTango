@@ -1,6 +1,6 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { ExpressionDefinition, ExpressionInput } from "../../types/types"
+import { ExpressionDefinition, ExpressionInput, ExpressionValueInput } from "../../types/types"
 import { NumUtils } from "../../utils/num-utils"
 import { StringBuffer } from "../../utils/string-buffer"
 import { StringUtils } from "../../utils/string-utils"
@@ -27,10 +27,10 @@ class Expression {
     return false
   }
 
-  constructor(builder: ExpressionBuilder, type: 'num' | 'bool') {
+  constructor(builder: ExpressionBuilder, e: ExpressionInput) {
     this.builder = builder
-    this.e = Expression.createEmptyExpression(type)
-    this.children = []
+    this.e = e
+    this.children = e.children.map( (ce) => new Expression(builder, ce) )
   }
 
   static getDefaultValue(type: 'num' | 'bool'): '0' | 'false' {
@@ -75,7 +75,7 @@ class Expression {
 
   // test to see if the current children match arg list?
   // if so, leave them alone rather than replace them
-  childMismatch(args: ("num" | "bool")[]): boolean {
+  childMismatch(args: ExpressionInput[]): boolean {
     if (args === null) {
       return this.children.length !== 0
     }
@@ -83,14 +83,14 @@ class Expression {
       return true
     }
     for (var i = 0; i < args.length; i++) {
-      if (args[i] !== this.children[i].e.type) {
+      if (args[i].type !== this.children[i].e.type) {
         return true
       }
     }
     return false
   }
 
-  setChildren(args: ("num" | "bool")[]): void {
+  setChildren(args: ExpressionInput[]): void {
     const childless = this.isChildless
 
     if (this.childMismatch(args)) {
@@ -100,7 +100,7 @@ class Expression {
         for (var i = 0; i < args.length; i++) {
           // chain first expression?
           const e = new Expression(this.builder, args[i])
-          if (i === 0 && childless && args[i] === this.e.type) {
+          if (i === 0 && childless && args[i].type === this.e.type) {
             e.e.name = this.e.name
             this.children.push(e)
             this.e.children.push(e.e)
@@ -241,7 +241,8 @@ class Expression {
         hmenu.append(link)
         link.addEventListener("click", (e) => {
           hmenu.remove()
-          this.setChildren(item.arguments)
+          const children = item.arguments.map( (arg) => Expression.createEmptyExpression(arg) )
+          this.setChildren(children)
           this.e.name = item.name
           this.e.type = item.type
           this.e.format = item.format

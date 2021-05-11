@@ -4,7 +4,7 @@ import {
   AttributeInput
 , AttributeValueInput
 , ExpressionAttributeInput
-, ExpressionValueInput
+, ExpressionInput, ExpressionValueInput
 , IntAttributeInput
 , NumberValueInput
 , RangeAttributeInput
@@ -74,8 +74,17 @@ function makeNumberDefault(attribute: IntAttributeInput | RangeAttributeInput): 
 function makeExpressionDefault(attribute: ExpressionAttributeInput): ExpressionValueInput {
   return {
     type: attribute.type
-  , value: attribute.default
+  , value: makeExpressionValue(attribute.type, attribute.default)
   , expressionValue: attribute.default
+  }
+}
+
+function makeExpressionValue(type: "num" | "bool", name: string): ExpressionInput {
+  return {
+    name: name
+  , type: type
+  , format: null
+  , children: []
   }
 }
 

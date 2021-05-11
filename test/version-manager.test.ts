@@ -1,9 +1,24 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
+import {
+  BlockDefinitionInput
+, BlockInstanceInput
+, ClauseInput
+, ClauseInstanceInput
+, CodeWorkspaceInput
+, ExpressionAttributeInput
+, ExpressionInput
+, ExpressionValueInput
+, IntAttributeInput
+, NumberValueInput
+, SelectAttributeInput
+, StringValueInput
+, UnrestrictedTags
+} from "../src/types/types"
+
 import { BlockPlacement } from "../src/blocks/block-placement"
 import { BlockStyle } from "../src/blocks/block-style"
 import { CodeWorkspace } from "../src/blocks/code-workspace"
-import { BlockDefinitionInput, BlockInstanceInput, ClauseInput, ClauseInstanceInput, CodeWorkspaceInput, IntAttributeInput, NumAttributeInput, NumberValueInput, SelectAttributeInput, StringValueInput, UnrestrictedTags } from "../src/types/types"
 import { ObjectUtils } from "../src/utils/object-utils"
 import { VersionManager } from "../src/versions/version-manager"
 
@@ -81,6 +96,18 @@ const SELECT_ATTRIBUTE: SelectAttributeInput = {
 }
 
 const SELECT_VALUE: StringValueInput = { type: "select", value: "" }
+
+const EXPRESSION_ATTRIBUTE: ExpressionAttributeInput = {
+  id: 0
+, default: ""
+, name: null
+, type: "num"
+, unit: null
+}
+
+const EXPRESSION: ExpressionInput = { type: "num", format: null, name: "0", children: [] }
+
+const EXPRESSION_VALUE: ExpressionValueInput = { type: "num", value: EXPRESSION, expressionValue: "0" }
 
 const EMPTY_CLAUSE: ClauseInput = {
   action: null
@@ -338,4 +365,85 @@ test("Version5 - select with unquoted values gets `never-quote` set", () => {
 
   const result = VersionManager.updateWorkspace(model)
   expect(result).toStrictEqual(expected)
+})
+
+test("Version7 - expression attributes get proper values reset", () => {
+
+  const model = {
+    version: 4
+  , blocks: [{
+      id: 0
+    , action: "act1"
+    , params: [{
+        id: 0
+      , type: "num"
+      , name: "expr-me"
+      , default: "0"
+    }]
+  }]
+  , program: { chains: [{
+      x: 0, y: 0
+    , blocks: [
+      {
+        id: 0
+      , instanceId: 0
+      , action: "act1"
+      , params: [{ id: 0, type: "num", value: "10" }]
+      }
+    , {
+        id: 0
+      , instanceId: 1
+      , action: "act1"
+      , params: [{
+        id: 0
+      , type: "num"
+      , value: {
+          name: "+"
+        , type: "num"
+        , children: [
+            { name: "5", type: "num" }
+          , { name: "/", type: "num",
+              children: [
+                { name: "7", type: "num" }
+              , { name: "2", type: "num" }
+              ]
+            }
+          ]
+        }
+      }]
+    }]}]}
+  }
+
+  const expected = ObjectUtils.clone(EMPTY_WORKSPACE)
+  const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { action: "act1" })
+  const param1: ExpressionAttributeInput = ObjectUtils.clone(EXPRESSION_ATTRIBUTE, {
+    default: "0"
+  , name: "expr-me"
+  })
+  blockDef1.params.push(param1)
+  expected.blocks.push(blockDef1)
+  const blockInst1 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE)
+  const expr1: ExpressionInput = ObjectUtils.clone(EXPRESSION, { name: "10" })
+  const paramInst1: ExpressionValueInput = ObjectUtils.clone(EXPRESSION_VALUE, { value: expr1 })
+  blockInst1.params.push(paramInst1)
+  const blockInst2 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE, { instanceId: 1 })
+  const paramInstValue2: ExpressionInput = {
+    name: "+"
+  , type: "num"
+  , format: null
+  , children: [
+      { name: "5", type: "num", format: null, children: [] }
+    , { name: "/", type: "num", format: null, children: [
+        { name: "7", type: "num", format: null, children: [] }
+      , { name: "2", type: "num", format: null, children: [] }
+      ]}
+    ]
+  }
+  const paramInst2: ExpressionValueInput = ObjectUtils.clone(EXPRESSION_VALUE, { value: paramInstValue2 })
+  blockInst2.params.push(paramInst2)
+  expected.program.chains.push({ x: 0, y: 0, blocks: [blockInst1, blockInst2] })
+
+  const result = VersionManager.updateWorkspace(model)
+  expect(result).toStrictEqual(expected)
+
 })

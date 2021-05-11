@@ -120,7 +120,8 @@ class Version6 {
         break
 
       default:
-         throw new Error(`Unknown attribute type ${a.type}`)
+         console.log(`Unknown attribute type ${a.type}, skipping setting values.`)
+         break
 
     }
 

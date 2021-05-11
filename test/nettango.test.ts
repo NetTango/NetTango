@@ -436,7 +436,7 @@ test("Version 3 model with select and expression attributes saves correctly", ()
       "width": 430,
       "blocks": [
         {
-          "action": "procede", "format": "to procede show ({0}+{P0})", "required": true, "limit": 1, "id": 0, "type": "nlogo:procedure",
+          "action": "procede", "format": "to procede show ({0} + {P0})", "required": true, "limit": 1, "id": 0, "type": "nlogo:procedure",
           "params": [
             {
               "name": "SelectMe", "type": "select", "default": "10",
@@ -463,7 +463,7 @@ test("Version 3 model with select and expression attributes saves correctly", ()
         "chains": [
           [
             {
-              "id": 0, "instanceId": 2, "action": "procede", "type": "nlogo:procedure", "format": "to procede show ({0}+{P0})", "required": true, "x": 46, "y": 11,
+              "id": 0, "instanceId": 2, "action": "procede", "type": "nlogo:procedure", "format": "to procede show ({0} + {P0})", "required": true, "x": 46, "y": 11,
               "params": [
                 {
                   "id": 0, "type": "select", "name": "SelectMe", "value": "20", "default": "10",
@@ -507,9 +507,12 @@ test("Version 3 model with select and expression attributes saves correctly", ()
   expected.program.chains[0][1].instanceId = 1
   expected = VersionManager.updateWorkspace(expected)
 
-  NetTango.restore("NetLogo", "nt-canvas", model, formatAttributeForNetTangoExtension)
-  const result = NetTango.save("nt-canvas")
+  NetTango.restore("NetLogo", "nt-canvas", model, formatAttributeAsValue)
 
+  const code = NetTango.exportCode("nt-canvas", null)
+  expect(code).toStrictEqual("to procede show (20 + (5 + (7 / 2)))\n  show (3)\nend\n\n")
+
+  const result = NetTango.save("nt-canvas")
   expect(result).toStrictEqual(expected)
 })
 
