@@ -18,16 +18,16 @@ import {
 
 import { BlockPlacement } from "../src/blocks/block-placement"
 import { BlockStyleUI } from "../src/blocks/block-style"
-import { CodeWorkspaceUI } from "../src/blocks/code-workspace"
 import { ObjectUtils } from "../src/utils/object-utils"
 import { VersionManager } from "../src/versions/version-manager"
+import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from "../src/nettango-defaults"
 
 const UNRESTRICTED_TAGS: UnrestrictedTags = Object.freeze({ type: "unrestricted" })
 
 const EMPTY_WORKSPACE: CodeWorkspace = {
   version: VersionManager.VERSION
-, height: CodeWorkspaceUI.DEFAULT_HEIGHT
-, width: CodeWorkspaceUI.DEFAULT_WIDTH
+, height: DEFAULT_HEIGHT
+, width: DEFAULT_WIDTH
 , blockStyles: {
     commandBlockStyle: BlockStyleUI.DEFAULT_COMMAND_STYLE
   , containerBlockStyle: BlockStyleUI.DEFAULT_CONTAINER_STYLE

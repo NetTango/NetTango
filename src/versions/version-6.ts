@@ -3,6 +3,7 @@
 import { BlockStyleUI } from "../blocks/block-style";
 import { CodeWorkspaceUI } from "../blocks/code-workspace";
 import { ExpressionUI } from "../blocks/expressions/expression";
+import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from "../nettango-defaults";
 import { codeWorkspaceInputSchema, CodeWorkspaceInput, BlockInput, AttributeInput, ClauseInput } from "../types/types-6";
 import { ObjectUtils } from "../utils/object-utils";
 
@@ -36,8 +37,8 @@ class Version6 {
   // But to do so we need to restore any defaults that would've been stripped it in older versions.
   // -Jeremy B May 2021
   static resetDefaults(workspaceEnc: any): void {
-    setIfUndefined(workspaceEnc, "height", CodeWorkspaceUI.DEFAULT_HEIGHT)
-    setIfUndefined(workspaceEnc, "width", CodeWorkspaceUI.DEFAULT_WIDTH)
+    setIfUndefined(workspaceEnc, "height", DEFAULT_HEIGHT)
+    setIfUndefined(workspaceEnc, "width", DEFAULT_WIDTH)
     setIfUndefined(workspaceEnc, "chainOpen")
     setIfUndefined(workspaceEnc, "chainClose")
     setIfUndefined(workspaceEnc, "blockStyles", {

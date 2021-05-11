@@ -1,6 +1,7 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
 import { z } from "zod"
+import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from "../nettango-defaults"
 
 export type BlockStyle  = z.infer<typeof blockStyleSchema>
 
@@ -62,7 +63,7 @@ const unrestrictedTagsSchema = z.object({
 
 const anyOfTagsSchema = z.object({
   type: z.literal("any-of")
-, tags: z.array(z.string())
+, tags: z.array(z.string()).default([])
 }).passthrough()
 
 const concreteTagsSchema = z.union([
@@ -76,49 +77,49 @@ const allowedTagsSchema = z.union([
 ])
 
 const clauseSchema = z.object({
-    action: z.string().nullable()
-  , open: z.string().nullable()
-  , close: z.string().nullable()
-  , allowedTags: allowedTagsSchema
+    action: z.string().nullable().default(null)
+  , open: z.string().nullable().default(null)
+  , close: z.string().nullable().default(null)
+  , allowedTags: allowedTagsSchema.default({ type: "unrestricted" })
 }).passthrough()
 
-const clauseInstanceSchema: z.ZodSchema<ClauseInstance> = z.lazy(() =>
+const clauseInstanceSchema: z.ZodSchema<ClauseInstance, any, any> = z.lazy(() =>
   z.object({
-    blocks: z.array(blockInstanceSchema)
+    blocks: z.array(blockInstanceSchema).default([])
   }).passthrough()
 )
 
 const attributeBaseSchema = z.object({
   id: z.number()
-, name: z.string().nullable()
-, unit: z.string().nullable()
+, name: z.string().nullable().default(null)
+, unit: z.string().nullable().default(null)
 })
 
 const textAttributeSchema = attributeBaseSchema.extend({
   type: z.literal("text")
-, default: z.string()
+, default: z.string().default("")
 }).passthrough()
 
 const selectOptionSchema = z.object({
   actual: z.string()
-, display: z.string().nullable()
+, display: z.string().nullable().default(null)
 }).passthrough()
 
 const selectAttributeSchema = attributeBaseSchema.extend({
   type: z.literal("select")
-, default: z.string()
+, default: z.string().default("")
 , quoteValues: z.union([
     z.literal("smart-quote")
   , z.literal("always-quote")
   , z.literal("never-quote")
-  ])
-, values: z.array(selectOptionSchema)
+  ]).default("smart-quote")
+, values: z.array(selectOptionSchema).default([])
 }).passthrough()
 
 const numAttributeSchema = attributeBaseSchema.extend({
   step: z.number()
-, random: z.boolean()
-, default: z.number()
+, random: z.boolean().default(false)
+, default: z.number().default(10)
 }).passthrough()
 
 const intAttributeSchema = numAttributeSchema.extend({
@@ -127,18 +128,18 @@ const intAttributeSchema = numAttributeSchema.extend({
 
 const rangeAttributeSchema = numAttributeSchema.extend({
   type: z.literal("range")
-, min: z.number()
-, max: z.number()
+, min: z.number().default(0)
+, max: z.number().default(100)
 }).passthrough()
 
 const expressionTypes = z.union([z.literal("num"), z.literal("bool")])
 
-const expressionSchema: z.ZodSchema<Expression> = z.lazy(() =>
+const expressionSchema: z.ZodSchema<Expression, any, any> = z.lazy(() =>
   z.object({
     name: z.string()
-  , type: expressionTypes
-  , format: z.string().nullable()
-  , children: z.array(expressionSchema)
+  , type: expressionTypes.default("num")
+  , format: z.string().nullable().default(null)
+  , children: z.array(expressionSchema).default([])
   }).passthrough()
 )
 
@@ -156,19 +157,19 @@ const attributeSchema = z.union([
 ])
 
 const stringValueSchema = z.object({
-  type: z.union([z.literal("text"), z.literal("select")])
-, value: z.string()
+  type: z.union([z.literal("text"), z.literal("select")]).default("text")
+, value: z.string().default("")
 }).passthrough()
 
 const numValueSchema = z.object({
-  type: z.union([z.literal("int"), z.literal("range")])
-, value: z.number()
+  type: z.union([z.literal("int"), z.literal("range")]).default("int")
+, value: z.number().default(0)
 }).passthrough()
 
 const expressionValueSchema = z.object({
-  type: z.union([z.literal("num"), z.literal("bool")])
+  type: z.union([z.literal("num"), z.literal("bool")]).default("num")
 , value: expressionSchema
-, expressionValue: z.string().nullable()
+, expressionValue: z.string().nullable().default(null)
 }).passthrough()
 
 const attributeValueSchema = z.union([
@@ -180,43 +181,43 @@ const attributeValueSchema = z.union([
 const blockDefinitionSchema = z.object({
   id: z.number()
 , action: z.string()
-, isRequired: z.boolean()
+, isRequired: z.boolean().default(false)
 , placement: z.union([
     z.literal("starter")
   , z.literal("child")
   , z.literal("anywhere")
-  ])
-, type: z.string().nullable()
-, format: z.string().nullable()
-, isTerminal: z.boolean()
-, closeClauses: z.string().nullable()
-, closeStarter: z.string().nullable()
-, limit: z.number()
-, note: z.string().nullable()
-, blockColor: z.string().nullable()
-, textColor: z.string().nullable()
-, borderColor: z.string().nullable()
-, font: z.string().nullable()
-, allowedTags: concreteTagsSchema
-, tags: z.array(z.string())
-, clauses: z.array(clauseSchema)
-, params: z.array(attributeSchema)
-, properties: z.array(attributeSchema)
+  ]).default("child")
+, type: z.string().nullable().default(null)
+, format: z.string().nullable().default(null)
+, isTerminal: z.boolean().default(false)
+, closeClauses: z.string().nullable().default(null)
+, closeStarter: z.string().nullable().default(null)
+, limit: z.number().default(0)
+, note: z.string().nullable().default(null)
+, blockColor: z.string().nullable().default(null)
+, textColor: z.string().nullable().default(null)
+, borderColor: z.string().nullable().default(null)
+, font: z.string().nullable().default(null)
+, allowedTags: concreteTagsSchema.default({ type: "unrestricted" })
+, tags: z.array(z.string()).default([])
+, clauses: z.array(clauseSchema).default([])
+, params: z.array(attributeSchema).default([])
+, properties: z.array(attributeSchema).default([])
 }).passthrough()
 
 const blockInstanceSchema = z.object({
   definitionId: z.number()
 , instanceId: z.number()
-, clauses: z.array(clauseInstanceSchema)
-, params: z.array(attributeValueSchema)
-, properties: z.array(attributeValueSchema)
-, propertiesDisplay: z.union([z.literal("shown"), z.literal("hidden")])
+, clauses: z.array(clauseInstanceSchema).default([])
+, params: z.array(attributeValueSchema).default([])
+, properties: z.array(attributeValueSchema).default([])
+, propertiesDisplay: z.union([z.literal("shown"), z.literal("hidden")]).default("shown")
 }).passthrough()
 
 const chainSchema = z.object({
-  x: z.number()
-, y: z.number()
-, blocks: z.array(blockInstanceSchema)
+  x: z.number().default(0)
+, y: z.number().default(0)
+, blocks: z.array(blockInstanceSchema).default([])
 }).passthrough()
 
 const expressionTypeSchema = z.union([z.literal("num"), z.literal("bool")])
@@ -224,23 +225,23 @@ const expressionTypeSchema = z.union([z.literal("num"), z.literal("bool")])
 const expressionDefinitionSchema = z.object({
   name: z.string()
 , type: expressionTypeSchema
-, arguments: z.array(expressionTypeSchema)
-, format: z.string().nullable()
+, arguments: z.array(expressionTypeSchema).default([])
+, format: z.string().nullable().default(null)
 }).passthrough()
 
 export const codeWorkspaceSchema = z.object({
   version: z.literal(7)
-, height: z.number()
-, width: z.number()
-, blocks: z.array(blockDefinitionSchema)
-, program: z.object({ chains: z.array(chainSchema) })
-, chainOpen: z.string().nullable()
-, chainClose: z.string().nullable()
+, height: z.number().default(DEFAULT_HEIGHT)
+, width: z.number().default(DEFAULT_WIDTH)
+, blocks: z.array(blockDefinitionSchema).default([])
+, program: z.object({ chains: z.array(chainSchema) }).default({ chains: [] })
+, chainOpen: z.string().nullable().default(null)
+, chainClose: z.string().nullable().default(null)
 , blockStyles: z.object({
     starterBlockStyle: blockStyleSchema
   , containerBlockStyle: blockStyleSchema
   , commandBlockStyle: blockStyleSchema
-  }).nullable()
-, variables: z.array(z.string())
-, expressions: z.array(expressionDefinitionSchema)
+  }).nullable().default(null)
+, variables: z.array(z.string()).default([])
+, expressions: z.array(expressionDefinitionSchema).default([])
 }).passthrough()

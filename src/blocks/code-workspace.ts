@@ -4,6 +4,7 @@ import type { InteractEvent } from '@interactjs/core/InteractEvent'
 import interact from "interactjs"
 
 import { FormatAttributeType } from "../nettango"
+import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from '../nettango-defaults'
 import { Chain, CodeWorkspace } from '../types/types'
 import { NumUtils } from "../utils/num-utils"
 import { VersionManager } from "../versions/version-manager"
@@ -17,9 +18,6 @@ import { DragManager } from "./drag-drop/drag-manager"
 import { BlockChangedEvent, ProgramChangedEvent } from "./program-changed-event"
 
 class CodeWorkspaceUI {
-
-  static readonly DEFAULT_HEIGHT = 600
-  static readonly DEFAULT_WIDTH = 450
 
   readonly version = VersionManager.VERSION
 
@@ -47,15 +45,15 @@ class CodeWorkspaceUI {
   containerBlockStyle: BlockStyleUI
   commandBlockStyle: BlockStyleUI
 
-  _height = CodeWorkspaceUI.DEFAULT_HEIGHT
+  _height = DEFAULT_HEIGHT
   get height(): number { return this._height }
   set height(h: number) {
     this._height = h
     this.container.style.minHeight = `${this.height}px`
   }
-  currentHeight = CodeWorkspaceUI.DEFAULT_HEIGHT
+  currentHeight = DEFAULT_HEIGHT
 
-  _width = CodeWorkspaceUI.DEFAULT_WIDTH
+  _width = DEFAULT_WIDTH
   get width(): number { return this._width }
   set width(w: number) {
     this._width = w
