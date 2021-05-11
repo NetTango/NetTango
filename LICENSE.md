@@ -18,6 +18,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 
 This program makes use of the following libraries, which are separately licensed.  See below for links to each license.
 
-| Library Name                                  | License                                            |
-| --------------------------------------------- | ------------                                       |
-| [dnd][https://github.com/marcojakob/dart-dnd] | [MIT License](https://opensource.org/licenses/MIT) |
+| Library Name                                      | License                                            |
+| ---------------------------------------------     | ------------                                       |
+| [interactjs][https://github.com/taye/interact.js] | [MIT License](https://opensource.org/licenses/MIT) |
+| [zod][https://github.com/colinhacks/zod]          | [MIT License](https://opensource.org/licenses/MIT) |
