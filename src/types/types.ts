@@ -2,48 +2,48 @@
 
 import { z } from "zod"
 
-export type BlockStyleInput  = z.infer<typeof blockStyleInputSchema>
+export type BlockStyle  = z.infer<typeof blockStyleSchema>
 
-export type InheritTags = z.infer<typeof inheritTagsInputSchema>
-export type UnrestrictedTags = z.infer<typeof unrestrictedTagsInputSchema>
-export type AnyOfTags = z.infer<typeof anyOfTagsInputSchema>
-export type ConcreteTags = z.infer<typeof concreteTagsInputSchema>
-export type AllowedTags = z.infer<typeof allowedTagsInputSchema>
+export type InheritTags = z.infer<typeof inheritTagsSchema>
+export type UnrestrictedTags = z.infer<typeof unrestrictedTagsSchema>
+export type AnyOfTags = z.infer<typeof anyOfTagsSchema>
+export type ConcreteTags = z.infer<typeof concreteTagsSchema>
+export type AllowedTags = z.infer<typeof allowedTagsSchema>
 
-export type SelectOptionInput = z.infer<typeof selectOptionInputSchema>
+export type SelectOption = z.infer<typeof selectOptionSchema>
 
-export type TextAttributeInput = z.infer<typeof textAttributeInputSchema>
-export type SelectAttributeInput = z.infer<typeof selectAttributeInputSchema>
-export type NumAttributeInput = z.infer<typeof numAttributeInputSchema>
-export type IntAttributeInput = z.infer<typeof intAttributeInputSchema>
-export type RangeAttributeInput = z.infer<typeof rangeAttributeInputSchema>
-export type ExpressionAttributeInput = z.infer<typeof expressionAttributeInputSchema>
-export type AttributeInput = z.infer<typeof attributeInputSchema>
+export type TextAttribute = z.infer<typeof textAttributeSchema>
+export type SelectAttribute = z.infer<typeof selectAttributeSchema>
+export type NumAttribute = z.infer<typeof numAttributeSchema>
+export type IntAttribute = z.infer<typeof intAttributeSchema>
+export type RangeAttribute = z.infer<typeof rangeAttributeSchema>
+export type ExpressionAttribute = z.infer<typeof expressionAttributeSchema>
+export type Attribute = z.infer<typeof attributeSchema>
 
-export type BlockDefinitionInput = z.infer<typeof blockDefinitionInputSchema>
-export type ClauseInput = z.infer<typeof clauseInputSchema>
+export type BlockDefinition = z.infer<typeof blockDefinitionSchema>
+export type Clause = z.infer<typeof clauseSchema>
 
-export type ChainInput = z.infer<typeof chainInputSchema>
-export type BlockInstanceInput = z.infer<typeof blockInstanceInputSchema>
-export type StringValueInput = z.infer<typeof stringAttributeValueInputSchema>
-export type NumberValueInput = z.infer<typeof numAttributeValueInputSchema>
-export type ExpressionValueInput = z.infer<typeof expressionAttributeValueInputSchema>
-export type AttributeValueInput = z.infer<typeof attributeValueInputSchema>
-export type ExpressionDefinition = z.infer<typeof expressionDefinitionInputSchema>
-export type CodeWorkspaceInput = z.infer<typeof codeWorkspaceInputSchema>
+export type Chain = z.infer<typeof chainSchema>
+export type BlockInstance = z.infer<typeof blockInstanceSchema>
+export type StringValue = z.infer<typeof stringValueSchema>
+export type NumberValue = z.infer<typeof numValueSchema>
+export type ExpressionValue = z.infer<typeof expressionValueSchema>
+export type AttributeValue = z.infer<typeof attributeValueSchema>
+export type ExpressionDefinition = z.infer<typeof expressionDefinitionSchema>
+export type CodeWorkspace = z.infer<typeof codeWorkspaceSchema>
 
-export type ExpressionInput = {
+export type Expression = {
   name: string
   type: "num" | "bool"
   format: string | null
-  children: Array<ExpressionInput>
+  children: Array<Expression>
 }
 
-export type ClauseInstanceInput = {
-  blocks: Array<BlockInstanceInput>
+export type ClauseInstance = {
+  blocks: Array<BlockInstance>
 }
 
-const blockStyleInputSchema = z.object({
+const blockStyleSchema = z.object({
   blockColor: z.string()
 , textColor: z.string()
 , borderColor: z.string()
@@ -52,39 +52,39 @@ const blockStyleInputSchema = z.object({
 , fontFace: z.string()
 }).passthrough()
 
-const inheritTagsInputSchema = z.object({
+const inheritTagsSchema = z.object({
   type: z.literal("inherit")
 }).passthrough()
 
-const unrestrictedTagsInputSchema = z.object({
+const unrestrictedTagsSchema = z.object({
   type: z.literal("unrestricted")
 }).passthrough()
 
-const anyOfTagsInputSchema = z.object({
+const anyOfTagsSchema = z.object({
   type: z.literal("any-of")
 , tags: z.array(z.string())
 }).passthrough()
 
-const concreteTagsInputSchema = z.union([
-    unrestrictedTagsInputSchema
-  , anyOfTagsInputSchema
+const concreteTagsSchema = z.union([
+    unrestrictedTagsSchema
+  , anyOfTagsSchema
 ])
 
-const allowedTagsInputSchema = z.union([
-  inheritTagsInputSchema
-, concreteTagsInputSchema
+const allowedTagsSchema = z.union([
+  inheritTagsSchema
+, concreteTagsSchema
 ])
 
-const clauseInputSchema = z.object({
+const clauseSchema = z.object({
     action: z.string().nullable()
   , open: z.string().nullable()
   , close: z.string().nullable()
-  , allowedTags: allowedTagsInputSchema
+  , allowedTags: allowedTagsSchema
 }).passthrough()
 
-const clauseInstanceInputSchema: z.ZodSchema<ClauseInstanceInput> = z.lazy(() =>
+const clauseInstanceSchema: z.ZodSchema<ClauseInstance> = z.lazy(() =>
   z.object({
-    blocks: z.array(blockInstanceInputSchema)
+    blocks: z.array(blockInstanceSchema)
   }).passthrough()
 )
 
@@ -94,17 +94,17 @@ const attributeBaseSchema = z.object({
 , unit: z.string().nullable()
 })
 
-const textAttributeInputSchema = attributeBaseSchema.extend({
+const textAttributeSchema = attributeBaseSchema.extend({
   type: z.literal("text")
 , default: z.string()
 }).passthrough()
 
-const selectOptionInputSchema = z.object({
+const selectOptionSchema = z.object({
   actual: z.string()
 , display: z.string().nullable()
 }).passthrough()
 
-const selectAttributeInputSchema = attributeBaseSchema.extend({
+const selectAttributeSchema = attributeBaseSchema.extend({
   type: z.literal("select")
 , default: z.string()
 , quoteValues: z.union([
@@ -112,20 +112,20 @@ const selectAttributeInputSchema = attributeBaseSchema.extend({
   , z.literal("always-quote")
   , z.literal("never-quote")
   ])
-, values: z.array(selectOptionInputSchema)
+, values: z.array(selectOptionSchema)
 }).passthrough()
 
-const numAttributeInputSchema = attributeBaseSchema.extend({
+const numAttributeSchema = attributeBaseSchema.extend({
   step: z.number()
 , random: z.boolean()
 , default: z.number()
 }).passthrough()
 
-const intAttributeInputSchema = numAttributeInputSchema.extend({
+const intAttributeSchema = numAttributeSchema.extend({
   type: z.literal("int")
 }).passthrough()
 
-const rangeAttributeInputSchema = numAttributeInputSchema.extend({
+const rangeAttributeSchema = numAttributeSchema.extend({
   type: z.literal("range")
 , min: z.number()
 , max: z.number()
@@ -133,51 +133,51 @@ const rangeAttributeInputSchema = numAttributeInputSchema.extend({
 
 const expressionTypes = z.union([z.literal("num"), z.literal("bool")])
 
-const expressionInputSchema: z.ZodSchema<ExpressionInput> = z.lazy(() =>
+const expressionSchema: z.ZodSchema<Expression> = z.lazy(() =>
   z.object({
     name: z.string()
   , type: expressionTypes
   , format: z.string().nullable()
-  , children: z.array(expressionInputSchema)
+  , children: z.array(expressionSchema)
   }).passthrough()
 )
 
-const expressionAttributeInputSchema = attributeBaseSchema.extend({
+const expressionAttributeSchema = attributeBaseSchema.extend({
   type: expressionTypes
 , default: z.string()
 }).passthrough()
 
-const attributeInputSchema = z.union([
-  textAttributeInputSchema
-, selectAttributeInputSchema
-, intAttributeInputSchema
-, rangeAttributeInputSchema
-, expressionAttributeInputSchema
+const attributeSchema = z.union([
+  textAttributeSchema
+, selectAttributeSchema
+, intAttributeSchema
+, rangeAttributeSchema
+, expressionAttributeSchema
 ])
 
-const stringAttributeValueInputSchema = z.object({
+const stringValueSchema = z.object({
   type: z.union([z.literal("text"), z.literal("select")])
 , value: z.string()
 }).passthrough()
 
-const numAttributeValueInputSchema = z.object({
+const numValueSchema = z.object({
   type: z.union([z.literal("int"), z.literal("range")])
 , value: z.number()
 }).passthrough()
 
-const expressionAttributeValueInputSchema = z.object({
+const expressionValueSchema = z.object({
   type: z.union([z.literal("num"), z.literal("bool")])
-, value: expressionInputSchema
+, value: expressionSchema
 , expressionValue: z.string().nullable()
 }).passthrough()
 
-const attributeValueInputSchema = z.union([
-  stringAttributeValueInputSchema
-, numAttributeValueInputSchema
-, expressionAttributeValueInputSchema
+const attributeValueSchema = z.union([
+  stringValueSchema
+, numValueSchema
+, expressionValueSchema
 ])
 
-const blockDefinitionInputSchema = z.object({
+const blockDefinitionSchema = z.object({
   id: z.number()
 , action: z.string()
 , isRequired: z.boolean()
@@ -197,50 +197,50 @@ const blockDefinitionInputSchema = z.object({
 , textColor: z.string().nullable()
 , borderColor: z.string().nullable()
 , font: z.string().nullable()
-, allowedTags: concreteTagsInputSchema
+, allowedTags: concreteTagsSchema
 , tags: z.array(z.string())
-, clauses: z.array(clauseInputSchema)
-, params: z.array(attributeInputSchema)
-, properties: z.array(attributeInputSchema)
+, clauses: z.array(clauseSchema)
+, params: z.array(attributeSchema)
+, properties: z.array(attributeSchema)
 }).passthrough()
 
-const blockInstanceInputSchema = z.object({
+const blockInstanceSchema = z.object({
   definitionId: z.number()
 , instanceId: z.number()
-, clauses: z.array(clauseInstanceInputSchema)
-, params: z.array(attributeValueInputSchema)
-, properties: z.array(attributeValueInputSchema)
+, clauses: z.array(clauseInstanceSchema)
+, params: z.array(attributeValueSchema)
+, properties: z.array(attributeValueSchema)
 , propertiesDisplay: z.union([z.literal("shown"), z.literal("hidden")])
 }).passthrough()
 
-const chainInputSchema = z.object({
+const chainSchema = z.object({
   x: z.number()
 , y: z.number()
-, blocks: z.array(blockInstanceInputSchema)
+, blocks: z.array(blockInstanceSchema)
 }).passthrough()
 
 const expressionTypeSchema = z.union([z.literal("num"), z.literal("bool")])
 
-const expressionDefinitionInputSchema = z.object({
+const expressionDefinitionSchema = z.object({
   name: z.string()
 , type: expressionTypeSchema
 , arguments: z.array(expressionTypeSchema)
 , format: z.string().nullable()
 }).passthrough()
 
-export const codeWorkspaceInputSchema = z.object({
+export const codeWorkspaceSchema = z.object({
   version: z.literal(7)
 , height: z.number()
 , width: z.number()
-, blocks: z.array(blockDefinitionInputSchema)
-, program: z.object({ chains: z.array(chainInputSchema) })
+, blocks: z.array(blockDefinitionSchema)
+, program: z.object({ chains: z.array(chainSchema) })
 , chainOpen: z.string().nullable()
 , chainClose: z.string().nullable()
 , blockStyles: z.object({
-    starterBlockStyle: blockStyleInputSchema
-  , containerBlockStyle: blockStyleInputSchema
-  , commandBlockStyle: blockStyleInputSchema
+    starterBlockStyle: blockStyleSchema
+  , containerBlockStyle: blockStyleSchema
+  , commandBlockStyle: blockStyleSchema
   }).nullable()
 , variables: z.array(z.string())
-, expressions: z.array(expressionDefinitionInputSchema)
+, expressions: z.array(expressionDefinitionSchema)
 }).passthrough()

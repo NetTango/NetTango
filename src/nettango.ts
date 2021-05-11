@@ -4,23 +4,23 @@ import { QuoteOptions } from "./blocks/attributes/select-attribute"
 import { BlockPlacement } from "./blocks/block-placement"
 import { AttributeTypes } from "./blocks/attributes/attribute"
 import { CodeFormatter } from "./blocks/code-formatter"
-import { CodeWorkspace } from "./blocks/code-workspace"
+import { CodeWorkspaceUI } from "./blocks/code-workspace"
 import { VersionManager } from "./versions/version-manager"
-import { CodeWorkspaceInput } from "./types/types"
+import { CodeWorkspace } from "./types/types"
 import { ProgramChangedEvent } from "./blocks/program-changed-event"
 import { ObjectUtils } from "./utils/object-utils"
 
 type FormatAttributeType = (containerId: string, blockId: number, instanceId: number, attributeId: number, value: any, attributeType: AttributeTypes) => string
 
-function restoreWorkspace(containerId: string, workspaceEnc: CodeWorkspaceInput, language: string, formatAttribute: FormatAttributeType): CodeWorkspace {
+function restoreWorkspace(containerId: string, workspaceEnc: CodeWorkspace, language: string, formatAttribute: FormatAttributeType): CodeWorkspaceUI {
   if (workspaceEnc["version"] !== VersionManager.VERSION) {
     throw new Error(`The supported NetTango version is ${VersionManager.VERSION}, but the given definition version was ${workspaceEnc["version"]}.`)
   }
-  const workspace = new CodeWorkspace(containerId, workspaceEnc, language, formatAttribute)
+  const workspace = new CodeWorkspaceUI(containerId, workspaceEnc, language, formatAttribute)
   return workspace
 }
 
-function encodeWorkspace(workspace: CodeWorkspace): CodeWorkspaceInput {
+function encodeWorkspace(workspace: CodeWorkspaceUI): CodeWorkspace {
   return ObjectUtils.clone(workspace.ws)
 }
 
@@ -33,7 +33,7 @@ class NetTango {
   static blockPlacementOptions = BlockPlacement
   static selectQuoteOptions    = QuoteOptions
 
-  private static readonly workspaces: Map<string, CodeWorkspace> = new Map()
+  private static readonly workspaces: Map<string, CodeWorkspaceUI> = new Map()
 
   /// Add a callback function to receive programChanged events from the
   /// workspace. Callback functions should take one parameter, which is
@@ -79,7 +79,7 @@ class NetTango {
   /// Call `restore` to instantiate a workspace associated with an HTML canvas.
   /// TODO: Document JSON specification format--for now see README.md
   static restore(language: "NetLogo", containerId: string, definition: any, formatAttribute: FormatAttributeType): void {
-    const workspaceEnc: CodeWorkspaceInput = VersionManager.updateWorkspace(definition)
+    const workspaceEnc: CodeWorkspace = VersionManager.updateWorkspace(definition)
 
     try {
       if (NetTango.workspaces.has(containerId)) {

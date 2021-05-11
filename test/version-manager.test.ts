@@ -1,37 +1,37 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
 import {
-  BlockDefinitionInput
-, BlockInstanceInput
-, ClauseInput
-, ClauseInstanceInput
-, CodeWorkspaceInput
-, ExpressionAttributeInput
-, ExpressionInput
-, ExpressionValueInput
-, IntAttributeInput
-, NumberValueInput
-, SelectAttributeInput
-, StringValueInput
+  BlockDefinition
+, BlockInstance
+, Clause
+, ClauseInstance
+, CodeWorkspace
+, ExpressionAttribute
+, Expression
+, ExpressionValue
+, IntAttribute
+, NumberValue
+, SelectAttribute
+, StringValue
 , UnrestrictedTags
 } from "../src/types/types"
 
 import { BlockPlacement } from "../src/blocks/block-placement"
-import { BlockStyle } from "../src/blocks/block-style"
-import { CodeWorkspace } from "../src/blocks/code-workspace"
+import { BlockStyleUI } from "../src/blocks/block-style"
+import { CodeWorkspaceUI } from "../src/blocks/code-workspace"
 import { ObjectUtils } from "../src/utils/object-utils"
 import { VersionManager } from "../src/versions/version-manager"
 
 const UNRESTRICTED_TAGS: UnrestrictedTags = Object.freeze({ type: "unrestricted" })
 
-const EMPTY_WORKSPACE: CodeWorkspaceInput = {
+const EMPTY_WORKSPACE: CodeWorkspace = {
   version: VersionManager.VERSION
-, height: CodeWorkspace.DEFAULT_HEIGHT
-, width: CodeWorkspace.DEFAULT_WIDTH
+, height: CodeWorkspaceUI.DEFAULT_HEIGHT
+, width: CodeWorkspaceUI.DEFAULT_WIDTH
 , blockStyles: {
-    commandBlockStyle: BlockStyle.DEFAULT_COMMAND_STYLE
-  , containerBlockStyle: BlockStyle.DEFAULT_CONTAINER_STYLE
-  , starterBlockStyle: BlockStyle.DEFAULT_STARTER_STYLE
+    commandBlockStyle: BlockStyleUI.DEFAULT_COMMAND_STYLE
+  , containerBlockStyle: BlockStyleUI.DEFAULT_CONTAINER_STYLE
+  , starterBlockStyle: BlockStyleUI.DEFAULT_STARTER_STYLE
   }
 , blocks: []
 , chainClose: null
@@ -41,7 +41,7 @@ const EMPTY_WORKSPACE: CodeWorkspaceInput = {
 , variables: []
 }
 
-const EMPTY_BLOCK: BlockDefinitionInput = {
+const EMPTY_BLOCK: BlockDefinition = {
   id: 0
 , action: ""
 , blockColor: null
@@ -64,7 +64,7 @@ const EMPTY_BLOCK: BlockDefinitionInput = {
 , allowedTags: UNRESTRICTED_TAGS
 }
 
-const EMPTY_BLOCK_INSTANCE: BlockInstanceInput = {
+const EMPTY_BLOCK_INSTANCE: BlockInstance = {
     definitionId: 0
   , instanceId: 0
   , propertiesDisplay: "shown"
@@ -73,7 +73,7 @@ const EMPTY_BLOCK_INSTANCE: BlockInstanceInput = {
   , properties: []
 }
 
-const INT_ATTRIBUTE: IntAttributeInput = {
+const INT_ATTRIBUTE: IntAttribute = {
   id: 0
 , default: 10
 , name: null
@@ -83,9 +83,9 @@ const INT_ATTRIBUTE: IntAttributeInput = {
 , unit: null
 }
 
-const INT_VALUE: NumberValueInput = { type: "int", value: 10 }
+const INT_VALUE: NumberValue = { type: "int", value: 10 }
 
-const SELECT_ATTRIBUTE: SelectAttributeInput = {
+const SELECT_ATTRIBUTE: SelectAttribute = {
   id: 0
 , default: ""
 , name: null
@@ -95,9 +95,9 @@ const SELECT_ATTRIBUTE: SelectAttributeInput = {
 , values: []
 }
 
-const SELECT_VALUE: StringValueInput = { type: "select", value: "" }
+const SELECT_VALUE: StringValue = { type: "select", value: "" }
 
-const EXPRESSION_ATTRIBUTE: ExpressionAttributeInput = {
+const EXPRESSION_ATTRIBUTE: ExpressionAttribute = {
   id: 0
 , default: ""
 , name: null
@@ -105,18 +105,18 @@ const EXPRESSION_ATTRIBUTE: ExpressionAttributeInput = {
 , unit: null
 }
 
-const EXPRESSION: ExpressionInput = { type: "num", format: null, name: "0", children: [] }
+const EXPRESSION: Expression = { type: "num", format: null, name: "0", children: [] }
 
-const EXPRESSION_VALUE: ExpressionValueInput = { type: "num", value: EXPRESSION, expressionValue: "0" }
+const EXPRESSION_VALUE: ExpressionValue = { type: "num", value: EXPRESSION, expressionValue: "0" }
 
-const EMPTY_CLAUSE: ClauseInput = {
+const EMPTY_CLAUSE: Clause = {
   action: null
 , open: null
 , close: null
 , allowedTags: UNRESTRICTED_TAGS
 }
 
-const EMPTY_CLAUSE_INSTANCE: ClauseInstanceInput = {
+const EMPTY_CLAUSE_INSTANCE: ClauseInstance = {
   blocks: []
 }
 
@@ -173,13 +173,13 @@ test("Version1 - chain block with children gets id added", () => {
 
   const expected = ObjectUtils.clone(EMPTY_WORKSPACE)
   const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { action: "wolf actions" })
-  const clause1: ClauseInput = ObjectUtils.clone(EMPTY_CLAUSE)
+  const clause1: Clause = ObjectUtils.clone(EMPTY_CLAUSE)
   blockDef1.clauses.push(clause1)
   expected.blocks.push(blockDef1)
   const blockDef2 = ObjectUtils.clone(EMPTY_BLOCK, { id: 1, action: "forward 10" })
   expected.blocks.push(blockDef2)
   const blockInst1 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE)
-  const clauseInst1: ClauseInstanceInput = ObjectUtils.clone(EMPTY_CLAUSE_INSTANCE)
+  const clauseInst1: ClauseInstance = ObjectUtils.clone(EMPTY_CLAUSE_INSTANCE)
   blockInst1.clauses.push(clauseInst1)
   const blockInst2 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE, { definitionId: 1 })
   blockInst1.clauses[0].blocks.push(blockInst2)
@@ -202,17 +202,17 @@ test("Version1 - chain block with clauses gets id added", () => {
 
   const expected = ObjectUtils.clone(EMPTY_WORKSPACE)
   const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { action: "wolf actions" })
-  const clause1: ClauseInput = ObjectUtils.clone(EMPTY_CLAUSE)
+  const clause1: Clause = ObjectUtils.clone(EMPTY_CLAUSE)
   blockDef1.clauses.push(clause1)
-  const clause2: ClauseInput = ObjectUtils.clone(EMPTY_CLAUSE)
+  const clause2: Clause = ObjectUtils.clone(EMPTY_CLAUSE)
   blockDef1.clauses.push(clause2)
   expected.blocks.push(blockDef1)
   const blockDef2 = ObjectUtils.clone(EMPTY_BLOCK, { id: 1, action: "forward 10" })
   expected.blocks.push(blockDef2)
   const blockInst1 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE)
-  const clauseInst1: ClauseInstanceInput = ObjectUtils.clone(EMPTY_CLAUSE_INSTANCE)
+  const clauseInst1: ClauseInstance = ObjectUtils.clone(EMPTY_CLAUSE_INSTANCE)
   blockInst1.clauses.push(clauseInst1)
-  const clauseInst2: ClauseInstanceInput = ObjectUtils.clone(EMPTY_CLAUSE_INSTANCE)
+  const clauseInst2: ClauseInstance = ObjectUtils.clone(EMPTY_CLAUSE_INSTANCE)
   blockInst1.clauses.push(clauseInst2)
   const blockInst2 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE, { definitionId: 1 })
   blockInst1.clauses[1].blocks.push(blockInst2)
@@ -236,9 +236,9 @@ test("Version1 - block, parameter, and property get ids added", () => {
 
   const expected = ObjectUtils.clone(EMPTY_WORKSPACE)
   const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { action: "wolf actions" })
-  const param1: IntAttributeInput = ObjectUtils.clone(INT_ATTRIBUTE, { default: 10 })
+  const param1: IntAttribute = ObjectUtils.clone(INT_ATTRIBUTE, { default: 10 })
   blockDef1.params.push(param1)
-  const prop1: IntAttributeInput = ObjectUtils.clone(INT_ATTRIBUTE, { id: 1, default: 9 })
+  const prop1: IntAttribute = ObjectUtils.clone(INT_ATTRIBUTE, { id: 1, default: 9 })
   blockDef1.properties.push(prop1)
   expected.blocks.push(blockDef1)
 
@@ -264,15 +264,15 @@ test("Version1 - chain block, parameter, and property get ids added", () => {
 
   const expected = ObjectUtils.clone(EMPTY_WORKSPACE)
   const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { action: "wolf actions" })
-  const param1: IntAttributeInput = ObjectUtils.clone(INT_ATTRIBUTE, { default: 10 })
+  const param1: IntAttribute = ObjectUtils.clone(INT_ATTRIBUTE, { default: 10 })
   blockDef1.params.push(param1)
-  const prop1: IntAttributeInput = ObjectUtils.clone(INT_ATTRIBUTE, { id: 1, default: 9 })
+  const prop1: IntAttribute = ObjectUtils.clone(INT_ATTRIBUTE, { id: 1, default: 9 })
   blockDef1.properties.push(prop1)
   expected.blocks.push(blockDef1)
   const blockInst1 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE)
-  const paramVal1: NumberValueInput = ObjectUtils.clone(INT_VALUE, { value: 10 })
+  const paramVal1: NumberValue = ObjectUtils.clone(INT_VALUE, { value: 10 })
   blockInst1.params.push(paramVal1)
-  const propVal1: NumberValueInput = ObjectUtils.clone(INT_VALUE, { value: 9 })
+  const propVal1: NumberValue = ObjectUtils.clone(INT_VALUE, { value: 9 })
   blockInst1.properties.push(propVal1)
   expected.program.chains.push({
     x: 0, y: 0, blocks: [blockInst1]
@@ -301,14 +301,14 @@ test("Version2 - select parameter converts to objects", () => {
 
   const expected = ObjectUtils.clone(EMPTY_WORKSPACE)
   const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { action: "wolf actions" })
-  const param1: SelectAttributeInput = ObjectUtils.clone(SELECT_ATTRIBUTE, {
+  const param1: SelectAttribute = ObjectUtils.clone(SELECT_ATTRIBUTE, {
     default: "apples"
   , values: [{ actual: "apples", display: null }, { actual: "oranges", display: null }]
   })
   blockDef1.params.push(param1)
   expected.blocks.push(blockDef1)
   const blockInst1 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE)
-  const paramInst1: StringValueInput = ObjectUtils.clone(SELECT_VALUE, { value: "apples" })
+  const paramInst1: StringValue = ObjectUtils.clone(SELECT_VALUE, { value: "apples" })
   blockInst1.params.push(paramInst1)
   expected.program.chains.push({
     x: 0, y: 0, blocks: [blockInst1]
@@ -354,7 +354,7 @@ test("Version5 - select with unquoted values gets `never-quote` set", () => {
 
   const expected = ObjectUtils.clone(EMPTY_WORKSPACE)
   const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { action: "act1" })
-  const param1: SelectAttributeInput = ObjectUtils.clone(SELECT_ATTRIBUTE, {
+  const param1: SelectAttribute = ObjectUtils.clone(SELECT_ATTRIBUTE, {
     default: "red"
   , name: "color"
   , quoteValues: "never-quote"
@@ -416,18 +416,18 @@ test("Version7 - expression attributes get proper values reset", () => {
 
   const expected = ObjectUtils.clone(EMPTY_WORKSPACE)
   const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { action: "act1" })
-  const param1: ExpressionAttributeInput = ObjectUtils.clone(EXPRESSION_ATTRIBUTE, {
+  const param1: ExpressionAttribute = ObjectUtils.clone(EXPRESSION_ATTRIBUTE, {
     default: "0"
   , name: "expr-me"
   })
   blockDef1.params.push(param1)
   expected.blocks.push(blockDef1)
   const blockInst1 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE)
-  const expr1: ExpressionInput = ObjectUtils.clone(EXPRESSION, { name: "10" })
-  const paramInst1: ExpressionValueInput = ObjectUtils.clone(EXPRESSION_VALUE, { value: expr1 })
+  const expr1: Expression = ObjectUtils.clone(EXPRESSION, { name: "10" })
+  const paramInst1: ExpressionValue = ObjectUtils.clone(EXPRESSION_VALUE, { value: expr1 })
   blockInst1.params.push(paramInst1)
   const blockInst2 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE, { instanceId: 1 })
-  const paramInstValue2: ExpressionInput = {
+  const paramInstValue2: Expression = {
     name: "+"
   , type: "num"
   , format: null
@@ -439,7 +439,7 @@ test("Version7 - expression attributes get proper values reset", () => {
       ]}
     ]
   }
-  const paramInst2: ExpressionValueInput = ObjectUtils.clone(EXPRESSION_VALUE, { value: paramInstValue2 })
+  const paramInst2: ExpressionValue = ObjectUtils.clone(EXPRESSION_VALUE, { value: paramInstValue2 })
   blockInst2.params.push(paramInst2)
   expected.program.chains.push({ x: 0, y: 0, blocks: [blockInst1, blockInst2] })
 

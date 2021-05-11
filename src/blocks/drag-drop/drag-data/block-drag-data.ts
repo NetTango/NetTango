@@ -2,13 +2,13 @@
 
 import type { InteractEvent } from '@interactjs/core/InteractEvent'
 
-import { Block } from '../../block-instance';
+import { BlockInstanceUI } from '../../block-instance';
 import { DragInProgress } from '../drag-in-progress';
 
 abstract class BlockDragData {
-  readonly block: Block
+  readonly block: BlockInstanceUI
 
-  constructor(block: Block) {
+  constructor(block: BlockInstanceUI) {
     this.block = block
   }
 

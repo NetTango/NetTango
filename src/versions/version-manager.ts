@@ -1,11 +1,11 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
 import {
-  AttributeInput
-, AttributeValueInput
-, BlockDefinitionInput
-, BlockInstanceInput
-, CodeWorkspaceInput
+  Attribute
+, AttributeValue
+, BlockDefinition
+, BlockInstance
+, CodeWorkspace
 } from "../types/types"
 
 import {
@@ -26,7 +26,7 @@ import { Version7 } from "./version-7"
 class VersionManager {
   static readonly VERSION = 7
 
-  static updateWorkspace(definition: any): CodeWorkspaceInput {
+  static updateWorkspace(definition: any): CodeWorkspace {
     const version: number = definition.hasOwnProperty("version") ? definition.version : 0
 
     if (version > VersionManager.VERSION) {
@@ -55,7 +55,7 @@ class VersionManager {
     // TODO: See if Zod can handle this validation as well.
     // -Jeremy B May 2021.
     const getDefById = (id: number) => validated.blocks.filter( (b) => b.id === id )[0]
-    const processInstance = (instance: BlockInstanceInput) => {
+    const processInstance = (instance: BlockInstance) => {
       const definition = getDefById(instance.definitionId)
       VersionManager.resetBlock(definition, instance)
       instance.clauses.forEach( (clause) => clause.blocks.forEach(processInstance) )
@@ -65,7 +65,7 @@ class VersionManager {
     return validated
   }
 
-  static resetBlock(definition: BlockDefinitionInput, instance: BlockInstanceInput) {
+  static resetBlock(definition: BlockDefinition, instance: BlockInstance) {
     instance.clauses = definition.clauses.map( (_, i) => {
       return instance.clauses.length > i ? instance.clauses[i] : { blocks: [] }
     })
@@ -77,7 +77,7 @@ class VersionManager {
     })
   }
 
-  static resetAttribute(attribute: AttributeInput, value: AttributeValueInput): AttributeValueInput {
+  static resetAttribute(attribute: Attribute, value: AttributeValue): AttributeValue {
     switch (attribute.type) {
       case "text":
       case "select":

@@ -5,28 +5,28 @@ import interact from "interactjs"
 import { StringUtils } from "../utils/string-utils"
 import { Arrow } from "./baubles/arrow"
 import { Notch } from "./baubles/notch"
-import { Block } from "./block-instance"
+import { BlockInstanceUI } from "./block-instance"
 import { BlockCollection } from "./block-collection"
 import { ClauseAcceptor } from "./drag-drop/clause-acceptor"
 import { ActiveDragData } from "./drag-drop/drag-data/active-drag-data"
 import { ClauseDragData } from "./drag-drop/drag-data/clause-drag-data"
 import { DragManager } from "./drag-drop/drag-manager"
 import { BlockChangedEvent } from "./program-changed-event"
-import { ClauseInput, ClauseInstanceInput } from "../types/types"
+import { Clause, ClauseInstance } from "../types/types"
 import { BlockRules } from "./block-rules"
 
-class Clause extends BlockCollection {
+class ClauseUI extends BlockCollection {
 
-  readonly def: ClauseInput
-  readonly c: ClauseInstanceInput
-  readonly owner: Block
+  readonly def: Clause
+  readonly c: ClauseInstance
+  readonly owner: BlockInstanceUI
   readonly clauseIndex: number
 
   divider: HTMLDivElement = document.createElement("div")
   leftBar: HTMLDivElement = document.createElement("div")
   blocksDiv: HTMLDivElement = document.createElement("div")
 
-  constructor(def: ClauseInput, c: ClauseInstanceInput, owner: Block, clauseIndex: number) {
+  constructor(def: Clause, c: ClauseInstance, owner: BlockInstanceUI, clauseIndex: number) {
     super(c.blocks, owner.workspace)
     this.def = def
     this.c = c
@@ -39,7 +39,7 @@ class Clause extends BlockCollection {
     return element
   }
 
-  draw(container: Block, extraDropDiv: HTMLDivElement | null): HTMLDivElement {
+  draw(container: BlockInstanceUI, extraDropDiv: HTMLDivElement | null): HTMLDivElement {
     const acceptor = new ClauseAcceptor(this)
 
     this.div = document.createElement("div")
@@ -209,4 +209,4 @@ class Clause extends BlockCollection {
 
 }
 
-export { Clause }
+export { ClauseUI }

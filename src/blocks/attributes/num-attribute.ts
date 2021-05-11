@@ -1,19 +1,19 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { IntAttributeInput, NumAttributeInput, NumberValueInput, RangeAttributeInput } from "../../types/types"
+import { IntAttribute, NumAttribute, NumberValue, RangeAttribute } from "../../types/types"
 import { NumUtils } from "../../utils/num-utils"
-import { Block } from "../block-instance"
+import { BlockInstanceUI } from "../block-instance"
 import { CodeFormatter } from "../code-formatter"
 import { AttributeChangedEvent } from "../program-changed-event"
-import { Attribute } from "./attribute"
+import { AttributeUI } from "./attribute"
 
 //-------------------------------------------------------------------------
 /// Represents a number parameter
 //-------------------------------------------------------------------------
-abstract class NumAttribute extends Attribute {
+abstract class NumAttributeUI extends AttributeUI {
 
-  readonly numDef: NumAttributeInput
-  readonly na: NumberValueInput
+  readonly numDef: NumAttribute
+  readonly na: NumberValue
 
   setValue(valueString: string) {
     this.na.value = NumUtils.toNum(valueString, this.numDef.default)
@@ -22,7 +22,7 @@ abstract class NumAttribute extends Attribute {
   // Perhaps surprisingly, this class does *not* correspond to the `"num"` attribute `type`.
   // That type is for the `ExpressionAttribute`.  This class can be `int` or `range`.
   // -Jeremy B July 2020
-  constructor(numDef: IntAttributeInput | RangeAttributeInput, na: NumberValueInput, block: Block) {
+  constructor(numDef: IntAttribute | RangeAttribute, na: NumberValue, block: BlockInstanceUI) {
     super(numDef, na, block)
     this.numDef = numDef
     this.na = na
@@ -56,7 +56,7 @@ abstract class NumAttribute extends Attribute {
         }
         backdrop.classList.remove("show")
         acceptCallback()
-        const formattedValue = NumAttribute.numberValue(this.numDef, this.na)
+        const formattedValue = NumAttributeUI.numberValue(this.numDef, this.na)
         if (this.block.b.instanceId === null) {
           throw new Error("Cannot show parameter dialog for a non-instance block.")
         }
@@ -89,14 +89,14 @@ abstract class NumAttribute extends Attribute {
     `
   }
 
-  getDisplayValue(): string { return `${NumAttribute.numberValue(this.numDef, this.na)}${this.def.unit}` }
+  getDisplayValue(): string { return `${NumAttributeUI.numberValue(this.numDef, this.na)}${this.def.unit}` }
 
-  static numberValue(def: NumAttributeInput, na: NumberValueInput): string {
-    const valueString: string = na.value.toFixed(NumAttribute.stepSizePrecision(def)).toString()
+  static numberValue(def: NumAttribute, na: NumberValue): string {
+    const valueString: string = na.value.toFixed(NumAttributeUI.stepSizePrecision(def)).toString()
     return (valueString.endsWith(".0")) ? valueString.substring(0, valueString.length - 2) : valueString
   }
 
-  static stepSizePrecision(def: NumAttributeInput): number {
+  static stepSizePrecision(def: NumAttribute): number {
     if (Number.isInteger(def.step)) {
       return 0
     } else {
@@ -107,4 +107,4 @@ abstract class NumAttribute extends Attribute {
 
 }
 
-export { NumAttribute }
+export { NumAttributeUI }

@@ -6,11 +6,11 @@ import type { InteractEvent } from '@interactjs/core/InteractEvent'
 import { NumUtils } from "../utils/num-utils"
 import { StringBuffer } from "../utils/string-buffer"
 import { StringUtils } from "../utils/string-utils"
-import { Attribute } from "./attributes/attribute"
+import { AttributeUI } from "./attributes/attribute"
 import { Arrow } from "./baubles/arrow"
 import { Toggle } from "./baubles/toggle"
-import { Clause } from "./clause"
-import { CodeWorkspace } from "./code-workspace"
+import { ClauseUI } from "./clause"
+import { CodeWorkspaceUI } from "./code-workspace"
 import { BlockAcceptor } from "./drag-drop/block-acceptor"
 import { BlockDragData } from "./drag-drop/drag-data/block-drag-data"
 import { ChainDragData } from "./drag-drop/drag-data/chain-drag-data"
@@ -19,29 +19,29 @@ import { BlockChangedEvent } from "./program-changed-event"
 import { DragManager } from "./drag-drop/drag-manager"
 import { ClauseDragData } from "./drag-drop/drag-data/clause-drag-data"
 import { DragListener } from "./drag-drop/drag-listener"
-import { BlockDefinitionInput, BlockInstanceInput } from "../types/types"
+import { BlockDefinition, BlockInstance } from "../types/types"
 import { createAttribute } from "./attributes/attribute-factory"
 import { BlockRules } from "./block-rules"
 
 /**
  * Visual programming block
  */
-class Block {
+class BlockInstanceUI {
 
-  readonly def: BlockDefinitionInput
-  readonly b: BlockInstanceInput
+  readonly def: BlockDefinition
+  readonly b: BlockInstance
 
   /// parameters for this block (optional)
-  params: Array<Attribute> = []
+  params: Array<AttributeUI> = []
 
   /// properties for this block (optional)
   /// properties are just named attributes that get listed vertically
-  properties: Array<Attribute> = []
+  properties: Array<AttributeUI> = []
 
   get hasParams(): boolean { return this.params.length > 0 }
   get hasProperties(): boolean { return this.properties.length > 0 }
 
-  clauses: Clause[] = []
+  clauses: ClauseUI[] = []
   get hasClauses(): boolean {
     return BlockRules.hasClauses(this.def)
   }
@@ -56,7 +56,7 @@ class Block {
   }
 
   /// link back to the main workspace
-  workspace: CodeWorkspace
+  workspace: CodeWorkspaceUI
 
   // BlockAcceptor acceptor
   dragData: BlockDragData = new NewDragData(this, 0)
@@ -65,12 +65,12 @@ class Block {
   actionDiv = document.createElement("div")
   propertiesToggle: Toggle | null = null
 
-  constructor(def: BlockDefinitionInput, b: BlockInstanceInput, workspace: CodeWorkspace) {
+  constructor(def: BlockDefinition, b: BlockInstance, workspace: CodeWorkspaceUI) {
     this.def = def
     this.b = b
     this.workspace = workspace
 
-    this.clauses = b.clauses.map( (c, i) => new Clause(def.clauses[i], c, this, i) )
+    this.clauses = b.clauses.map( (c, i) => new ClauseUI(def.clauses[i], c, this, i) )
     this.params = b.params.map( (p, j) => createAttribute(def.params[j], p, this) )
     this.properties = b.properties.map( (p, j) => createAttribute(def.properties[j], p, this) )
   }
@@ -84,7 +84,7 @@ class Block {
     return count
   }
 
-  getBlockInstance(instanceId: number): Block | null {
+  getBlockInstance(instanceId: number): BlockInstanceUI | null {
     if (this.b.instanceId === instanceId) {
       return this
     }
@@ -95,7 +95,7 @@ class Block {
     return null
   }
 
-  static getStyleClass(b: BlockDefinitionInput, containerId: string): string {
+  static getStyleClass(b: BlockDefinition, containerId: string): string {
     if (BlockRules.canBeStarter(b)) {
       return `${containerId}-block-starter`
     }
@@ -107,7 +107,7 @@ class Block {
   }
 
   getStyleClass(): string {
-    return Block.getStyleClass(this.def, this.workspace.containerId)
+    return BlockInstanceUI.getStyleClass(this.def, this.workspace.containerId)
   }
 
   draw(dragData: BlockDragData): HTMLDivElement {
@@ -186,12 +186,12 @@ class Block {
       this.blockDiv.append(arrow)
     }
 
-    Block.wireDragEvents(this, this.blockDiv)
+    BlockInstanceUI.wireDragEvents(this, this.blockDiv)
 
     return this.blockDiv
   }
 
-  static wireDragEvents(block: Block, div: HTMLDivElement): void {
+  static wireDragEvents(block: BlockInstanceUI, div: HTMLDivElement): void {
     const dragListener = new DragListener(block.workspace.dragImage, div)
     dragListener.start = (e: InteractEvent) => block.startDrag(e)
     dragListener.end   = () => block.endDrag()
@@ -303,4 +303,4 @@ class Block {
 
 }
 
-export { Block }
+export { BlockInstanceUI }

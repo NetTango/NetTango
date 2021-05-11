@@ -1,6 +1,6 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { CodeWorkspaceInput, codeWorkspaceInputSchema } from "../types/types"
+import { CodeWorkspace, codeWorkspaceSchema } from "../types/types"
 import { allBlockProps, blockInstanceProps } from "./version-6"
 import { VersionUtils } from "./version-utils"
 
@@ -95,8 +95,8 @@ class Version7 {
     }
   }
 
-  static validate(workspaceEnc: any): CodeWorkspaceInput {
-    const result = codeWorkspaceInputSchema.safeParse(workspaceEnc)
+  static validate(workspaceEnc: any): CodeWorkspace {
+    const result = codeWorkspaceSchema.safeParse(workspaceEnc)
     if (result.success) {
       return result.data
     }

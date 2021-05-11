@@ -2,7 +2,7 @@
 
 import { Arrow } from "./baubles/arrow"
 import { Notch } from "./baubles/notch"
-import { Block } from "./block-instance"
+import { BlockInstanceUI } from "./block-instance"
 import { BlockCollection } from "./block-collection"
 
 // To avoid circular dependencies we have a separate drawer for the "chain" that is made while dragging, because
@@ -10,7 +10,7 @@ import { BlockCollection } from "./block-collection"
 
 class ChainDraw {
 
-  static draw(drawCap: (isTop: boolean, block: Block) => HTMLDivElement, div: HTMLDivElement, blocks: Block[], useClones: boolean, fragmentDiv: HTMLDivElement | null = null): void {
+  static draw(drawCap: (isTop: boolean, block: BlockInstanceUI) => HTMLDivElement, div: HTMLDivElement, blocks: BlockInstanceUI[], useClones: boolean, fragmentDiv: HTMLDivElement | null = null): void {
     div.innerHTML = ""
 
     if (blocks[0].canBeStarter) {

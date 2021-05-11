@@ -1,11 +1,11 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { Block } from "../block-instance"
+import { BlockInstanceUI } from "../block-instance"
 import { BlockRules } from "../block-rules"
 
 class DragCap {
 
-  static draw(isTop: Boolean, block: Block): HTMLDivElement {
+  static draw(isTop: Boolean, block: BlockInstanceUI): HTMLDivElement {
     const div = document.createElement("div")
     div.classList.add("nt-cap")
     const blockStyle = block.getStyleClass()

@@ -1,6 +1,6 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { Block } from "../block-instance";
+import { BlockInstanceUI } from "../block-instance";
 import { checkConcreteTags } from "../tags/concrete-tags";
 import { checkClauseAllowedTags } from "./clause-acceptor";
 import { ChainDragData } from "./drag-data/chain-drag-data";
@@ -11,9 +11,9 @@ import { DragManager } from "./drag-manager";
 
 class BlockAcceptor {
 
-  readonly block: Block
+  readonly block: BlockInstanceUI
 
-  constructor(block: Block) {
+  constructor(block: BlockInstanceUI) {
     this.block = block
   }
 
@@ -26,7 +26,7 @@ class BlockAcceptor {
     })
   }
 
-  static isLandingSpot(block: Block, dragState: DragInProgress): boolean {
+  static isLandingSpot(block: BlockInstanceUI, dragState: DragInProgress): boolean {
     const draggingBlocks = dragState.getDraggingBlocks()
     const isOverSelf = block.b.instanceId !== null && draggingBlocks.some( (b) => block.b.instanceId !== null && b.getBlockInstance(block.b.instanceId) !== null )
     if (isOverSelf) {
@@ -38,7 +38,7 @@ class BlockAcceptor {
     return dragState.canBeChild && block.isAttachable && areTagsAllowed && isPositionOkay
   }
 
-  static checkBlocks(block: Block, blocks: Block[]): boolean {
+  static checkBlocks(block: BlockInstanceUI, blocks: BlockInstanceUI[]): boolean {
     if (block.dragData instanceof NewDragData) {
       throw new Error("Should not have a new block accepting drags, they are unplaced blocks from menu slots.");
     }

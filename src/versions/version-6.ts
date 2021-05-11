@@ -1,8 +1,8 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { BlockStyle } from "../blocks/block-style";
-import { CodeWorkspace } from "../blocks/code-workspace";
-import { Expression } from "../blocks/expressions/expression";
+import { BlockStyleUI } from "../blocks/block-style";
+import { CodeWorkspaceUI } from "../blocks/code-workspace";
+import { ExpressionUI } from "../blocks/expressions/expression";
 import { codeWorkspaceInputSchema, CodeWorkspaceInput, BlockInput, AttributeInput, ClauseInput } from "../types/types-6";
 import { ObjectUtils } from "../utils/object-utils";
 
@@ -36,14 +36,14 @@ class Version6 {
   // But to do so we need to restore any defaults that would've been stripped it in older versions.
   // -Jeremy B May 2021
   static resetDefaults(workspaceEnc: any): void {
-    setIfUndefined(workspaceEnc, "height", CodeWorkspace.DEFAULT_HEIGHT)
-    setIfUndefined(workspaceEnc, "width", CodeWorkspace.DEFAULT_WIDTH)
+    setIfUndefined(workspaceEnc, "height", CodeWorkspaceUI.DEFAULT_HEIGHT)
+    setIfUndefined(workspaceEnc, "width", CodeWorkspaceUI.DEFAULT_WIDTH)
     setIfUndefined(workspaceEnc, "chainOpen")
     setIfUndefined(workspaceEnc, "chainClose")
     setIfUndefined(workspaceEnc, "blockStyles", {
-      starterBlockStyle: BlockStyle.DEFAULT_STARTER_STYLE
-    , containerBlockStyle: BlockStyle.DEFAULT_CONTAINER_STYLE
-    , commandBlockStyle: BlockStyle.DEFAULT_COMMAND_STYLE
+      starterBlockStyle: BlockStyleUI.DEFAULT_STARTER_STYLE
+    , containerBlockStyle: BlockStyleUI.DEFAULT_CONTAINER_STYLE
+    , commandBlockStyle: BlockStyleUI.DEFAULT_COMMAND_STYLE
     })
     setIfUndefined(workspaceEnc, "blocks", [])
     setIfUndefined(workspaceEnc, "variables", [])
@@ -114,8 +114,8 @@ class Version6 {
 
       case "num":
       case "bool":
-        setIfUndefined(a, "default", Expression.getDefaultValue(a.type))
-        setIfUndefined(a, "expressionValue", Expression.getDefaultValue(a.type))
+        setIfUndefined(a, "default", ExpressionUI.getDefaultValue(a.type))
+        setIfUndefined(a, "expressionValue", ExpressionUI.getDefaultValue(a.type))
         if (typeof a.value === "object") { Version6.resetExpressionDefaults(a.value) }
         break
 

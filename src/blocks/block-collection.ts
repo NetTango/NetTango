@@ -1,22 +1,22 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { BlockInstanceInput } from "../types/types"
+import { BlockInstance } from "../types/types"
 import { NumUtils } from "../utils/num-utils"
-import { Block } from "./block-instance"
-import { CodeWorkspace } from "./code-workspace"
+import { BlockInstanceUI } from "./block-instance"
+import { CodeWorkspaceUI } from "./code-workspace"
 
 abstract class BlockCollection {
 
-  readonly bs: BlockInstanceInput[]
-  readonly blocks: Block[]
+  readonly bs: BlockInstance[]
+  readonly blocks: BlockInstanceUI[]
 
   div: HTMLDivElement = document.createElement("div")
 
-  constructor(bs: BlockInstanceInput[], workspace: CodeWorkspace) {
+  constructor(bs: BlockInstance[], workspace: CodeWorkspaceUI) {
     this.bs = bs
     this.blocks = bs.map( (b) => {
       const def = workspace.menu.getBlockById(b.definitionId)
-      return new Block(def, b, workspace)
+      return new BlockInstanceUI(def, b, workspace)
     })
   }
 
@@ -34,7 +34,7 @@ abstract class BlockCollection {
     }
   }
 
-  getBlockInstance(instanceId: number): Block | null {
+  getBlockInstance(instanceId: number): BlockInstanceUI | null {
     for (var child of this.blocks) {
       const block = child.getBlockInstance(instanceId)
       if (block !== null) { return block }
@@ -49,13 +49,13 @@ abstract class BlockCollection {
     this.bs.splice(0, this.bs.length, ...this.blocks.map( (b) => b.b ))
   }
 
-  insertBlocks(blockIndex: number, newBlocks: Block[]): void {
+  insertBlocks(blockIndex: number, newBlocks: BlockInstanceUI[]): void {
     this.blocks.splice(blockIndex, 0, ...newBlocks)
     this.resetBlockData()
     this.redrawBlocks()
   }
 
-  removeBlocks(blockIndex: number): Block[] {
+  removeBlocks(blockIndex: number): BlockInstanceUI[] {
     const removed = this.blocks.splice(blockIndex)
     this.resetBlockData()
     this.redrawBlocks()
@@ -79,7 +79,7 @@ abstract class BlockCollection {
     div.append(appendDiv)
   }
 
-  static appendBlocks(div: HTMLDivElement, blocks: Block[], classPrefix: string, useClones: boolean = false): void {
+  static appendBlocks(div: HTMLDivElement, blocks: BlockInstanceUI[], classPrefix: string, useClones: boolean = false): void {
     if (blocks.length === 0) {
       return
     }

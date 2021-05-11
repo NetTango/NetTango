@@ -1,9 +1,9 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { BlockStyleInput } from "../types/types"
+import { BlockStyle } from "../types/types"
 import { ObjectUtils } from "../utils/object-utils"
 
-class BlockStyle {
+class BlockStyleUI {
 
   static readonly DEFAULT_STARTER_COLOR   = "#bb5555"
   static readonly DEFAULT_CONTAINER_COLOR = "#8899aa"
@@ -12,27 +12,27 @@ class BlockStyle {
   static readonly DEFAULT_BORDER_COLOR    = "#ffffff"
   static readonly DEFAULT_FONT_FAMILY     = "Poppins, sans-serif"
 
-  static readonly DEFAULT_COMMAND_STYLE: BlockStyleInput = {
-    blockColor:  BlockStyle.DEFAULT_COMMAND_COLOR
-  , textColor:   BlockStyle.DEFAULT_TEXT_COLOR
-  , borderColor: BlockStyle.DEFAULT_BORDER_COLOR
+  static readonly DEFAULT_COMMAND_STYLE: BlockStyle = {
+    blockColor:  BlockStyleUI.DEFAULT_COMMAND_COLOR
+  , textColor:   BlockStyleUI.DEFAULT_TEXT_COLOR
+  , borderColor: BlockStyleUI.DEFAULT_BORDER_COLOR
   , fontWeight:  ""
   , fontSize:    ""
   , fontFace:    ""
   }
-  static readonly DEFAULT_CONTAINER_STYLE = ObjectUtils.clone(BlockStyle.DEFAULT_COMMAND_STYLE, { blockColor: BlockStyle.DEFAULT_CONTAINER_COLOR })
-  static readonly DEFAULT_STARTER_STYLE   = ObjectUtils.clone(BlockStyle.DEFAULT_COMMAND_STYLE, { blockColor: BlockStyle.DEFAULT_STARTER_COLOR })
+  static readonly DEFAULT_CONTAINER_STYLE = ObjectUtils.clone(BlockStyleUI.DEFAULT_COMMAND_STYLE, { blockColor: BlockStyleUI.DEFAULT_CONTAINER_COLOR })
+  static readonly DEFAULT_STARTER_STYLE   = ObjectUtils.clone(BlockStyleUI.DEFAULT_COMMAND_STYLE, { blockColor: BlockStyleUI.DEFAULT_STARTER_COLOR })
 
-  readonly bs: BlockStyleInput
+  readonly bs: BlockStyle
 
-  constructor(bs: BlockStyleInput) {
+  constructor(bs: BlockStyle) {
     this.bs = bs
   }
 
   get font() {
     const weight = this.bs.fontWeight === "" ? "" : `font-weight: ${this.bs.fontWeight};`
     const size   = this.bs.fontSize   === "" ? "" : `font-size: ${this.bs.fontSize};`
-    const face = `font-family: ${ this.bs.fontFace === "" ? BlockStyle.DEFAULT_FONT_FAMILY : this.bs.fontFace };`
+    const face = `font-family: ${ this.bs.fontFace === "" ? BlockStyleUI.DEFAULT_FONT_FAMILY : this.bs.fontFace };`
     return `${weight} ${size} ${face}`.trim()
   }
 
@@ -48,4 +48,4 @@ class BlockStyle {
 
 }
 
-export { BlockStyle }
+export { BlockStyleUI }

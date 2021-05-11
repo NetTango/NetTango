@@ -1,47 +1,47 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
 import {
-  AttributeInput
-, AttributeValueInput
-, ExpressionAttributeInput
-, ExpressionInput, ExpressionValueInput
-, IntAttributeInput
-, NumberValueInput
-, RangeAttributeInput
-, SelectAttributeInput
-, StringValueInput
-, TextAttributeInput
+  Attribute
+, AttributeValue
+, ExpressionAttribute
+, Expression, ExpressionValue
+, IntAttribute
+, NumberValue
+, RangeAttribute
+, SelectAttribute
+, StringValue
+, TextAttribute
 } from "../../types/types"
 
-import { Block } from "../block-instance"
-import { Attribute } from "./attribute"
-import { ExpressionAttribute } from "./expression-attribute"
-import { IntAttribute } from "./int-attribute"
-import { RangeAttribute } from "./range-attribute"
-import { SelectAttribute } from "./select-attribute"
-import { TextAttribute } from "./text-attribute"
+import { BlockInstanceUI } from "../block-instance"
+import { AttributeUI } from "./attribute"
+import { ExpressionAttributeUI } from "./expression-attribute"
+import { IntAttributeUI } from "./int-attribute"
+import { RangeAttributeUI } from "./range-attribute"
+import { SelectAttributeUI } from "./select-attribute"
+import { TextAttributeUI } from "./text-attribute"
 
-function createAttribute(def: AttributeInput, a: AttributeValueInput, block: Block): Attribute {
+function createAttribute(def: Attribute, a: AttributeValue, block: BlockInstanceUI): AttributeUI {
   switch (a.type) {
     case 'text':
-      return new TextAttribute(def as TextAttributeInput, a, block)
+      return new TextAttributeUI(def as TextAttribute, a, block)
 
     case 'int':
-      return new IntAttribute(def as IntAttributeInput, a, block)
+      return new IntAttributeUI(def as IntAttribute, a, block)
 
     case 'range':
-      return new RangeAttribute(def as RangeAttributeInput, a, block)
+      return new RangeAttributeUI(def as RangeAttribute, a, block)
 
     case 'select':
-      return new SelectAttribute(def as SelectAttributeInput, a, block)
+      return new SelectAttributeUI(def as SelectAttribute, a, block)
 
     case 'num':
     case 'bool':
-      return new ExpressionAttribute(def as ExpressionAttributeInput, a, block)
+      return new ExpressionAttributeUI(def as ExpressionAttribute, a, block)
   }
 }
 
-function makeAttributeDefault(attribute: AttributeInput): AttributeValueInput {
+function makeAttributeDefault(attribute: Attribute): AttributeValue {
   switch (attribute.type) {
     case "text":
     case "select":
@@ -57,21 +57,21 @@ function makeAttributeDefault(attribute: AttributeInput): AttributeValueInput {
   }
 }
 
-function makeStringDefault(attribute: TextAttributeInput | SelectAttributeInput): StringValueInput {
+function makeStringDefault(attribute: TextAttribute | SelectAttribute): StringValue {
   return {
     type: attribute.type
   , value: attribute.default
   }
 }
 
-function makeNumberDefault(attribute: IntAttributeInput | RangeAttributeInput): NumberValueInput {
+function makeNumberDefault(attribute: IntAttribute | RangeAttribute): NumberValue {
   return {
     type: attribute.type
   , value: attribute.default
   }
 }
 
-function makeExpressionDefault(attribute: ExpressionAttributeInput): ExpressionValueInput {
+function makeExpressionDefault(attribute: ExpressionAttribute): ExpressionValue {
   return {
     type: attribute.type
   , value: makeExpressionValue(attribute.type, attribute.default)
@@ -79,7 +79,7 @@ function makeExpressionDefault(attribute: ExpressionAttributeInput): ExpressionV
   }
 }
 
-function makeExpressionValue(type: "num" | "bool", name: string): ExpressionInput {
+function makeExpressionValue(type: "num" | "bool", name: string): Expression {
   return {
     name: name
   , type: type

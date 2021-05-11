@@ -1,14 +1,14 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
 import { ConcreteTags } from "../../types/types"
-import { Block } from "../block-instance"
-import { Clause } from "../clause"
+import { BlockInstanceUI } from "../block-instance"
+import { ClauseUI } from "../clause"
 import { ChainDragData } from "../drag-drop/drag-data/chain-drag-data"
 import { ClauseDragData } from "../drag-drop/drag-data/clause-drag-data"
 import { NewDragData } from "../drag-drop/drag-data/new-drag-data"
 import { checkConcreteTags } from "./concrete-tags"
 
-function getConcreteTags(clause: Clause): ConcreteTags | null {
+function getConcreteTags(clause: ClauseUI): ConcreteTags | null {
   if (clause.owner.dragData === null) {
     throw new Error("No drag data to use for tags")
   }
@@ -35,7 +35,7 @@ function getConcreteTags(clause: Clause): ConcreteTags | null {
   throw new Error(`Unknown block drag data type: ${clause.owner.dragData}`)
 }
 
-function checkInheritTags(clause: Clause, blocks: Block[]): boolean {
+function checkInheritTags(clause: ClauseUI, blocks: BlockInstanceUI[]): boolean {
   const parent = getConcreteTags(clause)
   if (parent === null) {
     // no restrictions at the moment

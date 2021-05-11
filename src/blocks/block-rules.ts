@@ -1,19 +1,19 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { BlockDefinitionInput } from "../types/types"
+import { BlockDefinition } from "../types/types"
 import { BlockPlacement } from "./block-placement"
 
 class BlockRules {
 
-  static canBeChild(b: BlockDefinitionInput): boolean {
+  static canBeChild(b: BlockDefinition): boolean {
     return [BlockPlacement.CHILD, BlockPlacement.ANYWHERE].includes(b.placement)
   }
 
-  static canBeStarter(b: BlockDefinitionInput): boolean {
+  static canBeStarter(b: BlockDefinition): boolean {
     return [BlockPlacement.STARTER, BlockPlacement.ANYWHERE].includes(b.placement)
   }
 
-  static hasClauses(b: BlockDefinitionInput): boolean {
+  static hasClauses(b: BlockDefinition): boolean {
     return b.clauses.length > 0
   }
 
@@ -21,7 +21,7 @@ class BlockRules {
     if (backgroundColor !== null) { div.style.backgroundColor = backgroundColor }
   }
 
-  static applyStyleOverrides(block: BlockDefinitionInput, div: HTMLDivElement): void {
+  static applyStyleOverrides(block: BlockDefinition, div: HTMLDivElement): void {
     if (block.borderColor !== null) { div.style.borderColor = block.borderColor; }
     if (block.textColor !== null)   { div.style.color       = block.textColor; }
     if (block.font !== null) {

@@ -1,15 +1,15 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { Chain } from "../chain";
+import { ChainUI } from "../chain";
 import { checkConcreteTags } from "../tags/concrete-tags";
 import { DragInProgress } from "./drag-in-progress";
 import { DragManager } from "./drag-manager";
 
 class ChainAcceptor {
 
-  readonly chain: Chain
+  readonly chain: ChainUI
 
-  constructor(chain: Chain) {
+  constructor(chain: ChainUI) {
     this.chain = chain
   }
 
@@ -23,7 +23,7 @@ class ChainAcceptor {
   }
 
   // the only "landing spot" for a chain is the top section
-  static isLandingSpot(chain: Chain, dragState: DragInProgress): boolean {
+  static isLandingSpot(chain: ChainUI, dragState: DragInProgress): boolean {
     const draggingBlocks = dragState.getDraggingBlocks()
     const block = chain.blocks[0]
     const isOverSelf = block.b.instanceId !== null && draggingBlocks.some( (b) => block.b.instanceId !== null && b.getBlockInstance(block.b.instanceId) !== null )

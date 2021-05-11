@@ -3,7 +3,7 @@
 import type { InteractEvent } from '@interactjs/core/InteractEvent'
 import type { Point } from '@interactjs/types/index'
 
-import { Block } from "../block-instance"
+import { BlockInstanceUI } from "../block-instance"
 import { BlockDragData } from "./drag-data/block-drag-data"
 import { DragInProgress } from './drag-in-progress'
 
@@ -14,7 +14,7 @@ class DragManager {
   // Just to try to make it clear this class isn't meant to be instantiated. -Jeremy B January 2021
   private constructor() {}
 
-  static start(block: Block, dragData: BlockDragData, startEvent: InteractEvent): void {
+  static start(block: BlockInstanceUI, dragData: BlockDragData, startEvent: InteractEvent): void {
     if (DragManager.currentDrag !== null) {
       return
     }
@@ -23,7 +23,7 @@ class DragManager {
     block.workspace.enableDropZones()
   }
 
-  static cancel(blockHandler: (blocks: Block[]) => void = () => {}): void {
+  static cancel(blockHandler: (blocks: BlockInstanceUI[]) => void = () => {}): void {
     if (DragManager.currentDrag === null) {
       return
     }
@@ -37,7 +37,7 @@ class DragManager {
     blockHandler(blocks)
   }
 
-  static drop(blockHandler: (blocks: Block[], dragStartOffset: Point) => void = () => {}): void {
+  static drop(blockHandler: (blocks: BlockInstanceUI[], dragStartOffset: Point) => void = () => {}): void {
     if (DragManager.currentDrag === null) {
       return
     }

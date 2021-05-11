@@ -1,20 +1,20 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { NumberValueInput, RangeAttributeInput } from "../../types/types"
-import { Block } from "../block-instance"
+import { NumberValue, RangeAttribute } from "../../types/types"
+import { BlockInstanceUI } from "../block-instance"
 import { CodeFormatter } from "../code-formatter"
 import { AttributeChangedEvent } from "../program-changed-event"
-import { NumAttribute } from "./num-attribute"
+import { NumAttributeUI } from "./num-attribute"
 
 //-------------------------------------------------------------------------
 /// Represents a range of numbers
 //-------------------------------------------------------------------------
-class RangeAttribute extends NumAttribute {
+class RangeAttributeUI extends NumAttributeUI {
 
-  readonly rangeDef: RangeAttributeInput
-  readonly ra: NumberValueInput
+  readonly rangeDef: RangeAttribute
+  readonly ra: NumberValue
 
-  constructor(rangeDef: RangeAttributeInput, ra: NumberValueInput, block: Block) {
+  constructor(rangeDef: RangeAttribute, ra: NumberValue, block: BlockInstanceUI) {
     super(rangeDef, ra, block)
     this.rangeDef = rangeDef
     this.ra = ra
@@ -55,7 +55,7 @@ class RangeAttribute extends NumAttribute {
         this.setValue(input.value)
         backdrop.classList.remove("show")
         acceptCallback()
-        const formattedValue = NumAttribute.numberValue(this.numDef, this.na)
+        const formattedValue = NumAttributeUI.numberValue(this.numDef, this.na)
         this.block.workspace.programChanged(new AttributeChangedEvent(this.block.def.id, this.block.b.instanceId, this.def.id, this.ra.type, this.ra.value, formattedValue))
         e.stopPropagation()
       })
@@ -64,4 +64,4 @@ class RangeAttribute extends NumAttribute {
   }
 }
 
-export { RangeAttribute }
+export { RangeAttributeUI }

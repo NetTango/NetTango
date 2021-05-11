@@ -1,34 +1,34 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
 import interact from "interactjs"
-import { BlockDefinitionInput } from "../types/types"
-import { CodeWorkspace } from "./code-workspace"
+import { BlockDefinition } from "../types/types"
+import { CodeWorkspaceUI } from "./code-workspace"
 import { DragManager } from "./drag-drop/drag-manager"
 import { BlockChangedEvent } from "./program-changed-event"
-import { BlockDefinition } from "./block-definition"
+import { BlockDefinitionUI } from "./block-definition"
 
 /**
  * Visual programming menu bar
  */
-class BlockMenu {
+class BlockMenuUI {
 
-  readonly blocks: BlockDefinitionInput[]
-  readonly workspace: CodeWorkspace
+  readonly blocks: BlockDefinition[]
+  readonly workspace: CodeWorkspaceUI
 
-  readonly slots: BlockDefinition[]
+  readonly slots: BlockDefinitionUI[]
 
   /// Menu background color
   color = "rgba(0, 0, 0, 0.2)"
 
   menuDiv = document.createElement("div")
 
-  constructor(blocks: BlockDefinitionInput[], workspace: CodeWorkspace) {
+  constructor(blocks: BlockDefinition[], workspace: CodeWorkspaceUI) {
     this.blocks = blocks
     this.workspace = workspace
-    this.slots = blocks.map( (b, i) => new BlockDefinition(b, workspace, i) )
+    this.slots = blocks.map( (b, i) => new BlockDefinitionUI(b, workspace, i) )
   }
 
-  getBlockById(id: number): BlockDefinitionInput {
+  getBlockById(id: number): BlockDefinition {
     var matches = this.slots.filter( (s) => {
       return s.def.id === id
     })
@@ -87,4 +87,4 @@ class BlockMenu {
 
 }
 
-export { BlockMenu }
+export { BlockMenuUI as BlockMenuUI }

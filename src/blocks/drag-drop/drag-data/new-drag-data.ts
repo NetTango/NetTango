@@ -2,14 +2,14 @@
 
 import type { InteractEvent } from '@interactjs/core/InteractEvent'
 
-import { Block } from "../../block-instance"
+import { BlockInstanceUI } from "../../block-instance"
 import { DragInProgress } from '../drag-in-progress';
 import { BlockDragData } from "./block-drag-data"
 
 class NewDragData extends BlockDragData {
   slotIndex: number
 
-  constructor(block: Block, index: number) {
+  constructor(block: BlockInstanceUI, index: number) {
     super(block)
     this.slotIndex   = index
   }
@@ -26,17 +26,17 @@ class NewDragData extends BlockDragData {
 
 class NewBlockDrag extends DragInProgress {
 
-  readonly draggingBlocks: Block[]
+  readonly draggingBlocks: BlockInstanceUI[]
   readonly dragData: NewDragData
 
-  constructor(block: Block, dragData: NewDragData, startEvent: InteractEvent) {
+  constructor(block: BlockInstanceUI, dragData: NewDragData, startEvent: InteractEvent) {
     super(block.workspace, startEvent)
     this.draggingBlocks = [block]
     this.dragData       = dragData
     this.draw(false)
   }
 
-  getDraggingBlocks(): Block[] { return this.draggingBlocks }
+  getDraggingBlocks(): BlockInstanceUI[] { return this.draggingBlocks }
 
   cancel(): void {
     super.cancel()

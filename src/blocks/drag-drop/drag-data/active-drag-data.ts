@@ -1,14 +1,14 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { Block } from "../../block-instance"
+import { BlockInstanceUI } from "../../block-instance"
 import { BlockDragData } from "./block-drag-data"
 
 abstract class ActiveDragData extends BlockDragData {
   chainIndex: number
   blockIndex: number
-  siblings: Block[]
+  siblings: BlockInstanceUI[]
 
-  constructor(block: Block, chainIndex: number, blockIndex: number, siblings: Block[]) {
+  constructor(block: BlockInstanceUI, chainIndex: number, blockIndex: number, siblings: BlockInstanceUI[]) {
     super(block)
     this.chainIndex = chainIndex
     this.blockIndex = blockIndex

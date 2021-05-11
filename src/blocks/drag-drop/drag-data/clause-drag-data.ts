@@ -2,7 +2,7 @@
 
 import type { InteractEvent } from '@interactjs/core/InteractEvent'
 
-import { Block } from "../../block-instance"
+import { BlockInstanceUI } from "../../block-instance"
 import { DragInProgress } from '../drag-in-progress';
 import { ActiveDragData } from "./active-drag-data"
 
@@ -10,7 +10,7 @@ class ClauseDragData extends ActiveDragData {
   parentInstanceId: number
   clauseIndex: number
 
-  constructor(block: Block, chainIndex: number, blockIndex: number, parentInstanceId: number, siblings: Block[], clauseIndex: number) {
+  constructor(block: BlockInstanceUI, chainIndex: number, blockIndex: number, parentInstanceId: number, siblings: BlockInstanceUI[], clauseIndex: number) {
     super(block, chainIndex, blockIndex, siblings)
     this.parentInstanceId = parentInstanceId
     this.clauseIndex      = clauseIndex
@@ -24,12 +24,12 @@ class ClauseDragData extends ActiveDragData {
 
 class ClauseBlockDrag extends DragInProgress {
 
-  readonly draggingBlocks: Block[]
+  readonly draggingBlocks: BlockInstanceUI[]
   readonly dragData: ClauseDragData
 
-  getDraggingBlocks(): Block[] { return this.draggingBlocks }
+  getDraggingBlocks(): BlockInstanceUI[] { return this.draggingBlocks }
 
-  constructor(block: Block, dragData: ClauseDragData, startEvent: InteractEvent) {
+  constructor(block: BlockInstanceUI, dragData: ClauseDragData, startEvent: InteractEvent) {
     super(block.workspace, startEvent)
     this.dragData = dragData
     const parentBlock = this.workspace.chains[this.dragData.chainIndex].getBlockInstance(this.dragData.parentInstanceId)

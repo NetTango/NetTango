@@ -1,26 +1,26 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
 import {
-  AttributeInput
-, AttributeValueInput
-, BlockInstanceInput
-, BlockDefinitionInput
-, ClauseInput
-, NumAttributeInput
-, SelectAttributeInput
-, ClauseInstanceInput
+  Attribute
+, AttributeValue
+, BlockInstance
+, BlockDefinition
+, Clause
+, NumAttribute
+, SelectAttribute
+, ClauseInstance
 } from "../types/types"
 
 import { FormatAttributeType } from "../nettango"
 import { StringBuffer } from "../utils/string-buffer"
 import { StringUtils } from "../utils/string-utils"
-import { ExpressionAttribute } from "./attributes/expression-attribute"
-import { NumAttribute } from "./attributes/num-attribute"
-import { SelectAttribute } from "./attributes/select-attribute"
-import { BlockDefinition } from "./block-definition"
+import { ExpressionAttributeUI } from "./attributes/expression-attribute"
+import { NumAttributeUI } from "./attributes/num-attribute"
+import { SelectAttributeUI } from "./attributes/select-attribute"
+import { BlockDefinitionUI } from "./block-definition"
 import { BlockRules } from "./block-rules"
-import { Chain } from "./chain"
-import { CodeWorkspace } from "./code-workspace"
+import { ChainUI } from "./chain"
+import { CodeWorkspaceUI } from "./code-workspace"
 
 // TODO: This is an over-simplification, but it works for our big use-case (NetLogo)
 // If we want to look at custom per-language code formatters again, I think it makese
@@ -40,11 +40,11 @@ class FormatOptions {
   }
 }
 
-type Block     = { def: BlockDefinitionInput, b: BlockInstanceInput }
-type Attribute = { def: AttributeInput, a: AttributeValueInput }
-type Clause    = { def: ClauseInput, c: ClauseInstanceInput }
+type BlockData     = { def: BlockDefinition, b: BlockInstance }
+type AttributeData = { def: Attribute, a: AttributeValue }
+type ClauseData    = { def: Clause, c: ClauseInstance }
 
-function compareChainsByAction(c1: Chain, c2: Chain) {
+function compareChainsByAction(c1: ChainUI, c2: ChainUI) {
   if (c1.blocks.length === 0) {
     return -1
   }
@@ -59,9 +59,9 @@ class CodeFormatter  {
   indentString: string = "  "
   formatOptions: FormatOptions
   formatAttribute: FormatAttributeType
-  readonly workspace: CodeWorkspace
+  readonly workspace: CodeWorkspaceUI
 
-  constructor(workspace: CodeWorkspace, language: string, formatAttribute: FormatAttributeType) {
+  constructor(workspace: CodeWorkspaceUI, language: string, formatAttribute: FormatAttributeType) {
     this.workspace = workspace
     this.formatAttribute = formatAttribute
 
@@ -84,7 +84,7 @@ class CodeFormatter  {
       this.formatAttribute = formatAttributeOverride
     }
 
-    const shouldIncludeInExtra = (slot: BlockDefinition) =>
+    const shouldIncludeInExtra = (slot: BlockDefinitionUI) =>
       includeRequired && slot.def.isRequired && BlockRules.canBeStarter(slot.def) && this.workspace.getBlockCount(slot.def.id) === 0
 
     const extraChains = this.workspace.menu.slots
@@ -100,7 +100,7 @@ class CodeFormatter  {
     return result
   }
 
-  formatLanguageCode(extraChains: Block[][]): string {
+  formatLanguageCode(extraChains: BlockData[][]): string {
     const out = new StringBuffer()
 
     const chains = this.workspace.chains.slice(0)
@@ -117,7 +117,7 @@ class CodeFormatter  {
     return out.toString()
   }
 
-  formatChainBlocks(out: StringBuffer, blocks: Block[], chainOpen: string | null, chainClose: string | null): void {
+  formatChainBlocks(out: StringBuffer, blocks: BlockData[], chainOpen: string | null, chainClose: string | null): void {
     if (blocks.length === 0) { return }
 
     var first = blocks[0]
@@ -131,7 +131,7 @@ class CodeFormatter  {
     out.writeln()
   }
 
-  formatBlocks(out: StringBuffer, indent: number, blocks: Block[]): void {
+  formatBlocks(out: StringBuffer, indent: number, blocks: BlockData[]): void {
     if (blocks.length === 0) { return }
 
     for (var block of blocks) {
@@ -139,7 +139,7 @@ class CodeFormatter  {
     }
   }
 
-  formatBlock(out: StringBuffer, indent: number, block: Block): void {
+  formatBlock(out: StringBuffer, indent: number, block: BlockData): void {
     var format = block.def.format
     if (format === null) {
       format = block.def.action
@@ -165,7 +165,7 @@ class CodeFormatter  {
     }
   }
 
-  replaceParamsAndProps(format: string, block: Block): string {
+  replaceParamsAndProps(format: string, block: BlockData): string {
     const params = block.b.params.map( (a, i) => { return { def: block.def.params[i], a: a }} )
     format = this.replaceAttributes(format, block, params, "")
     const properties = block.b.properties.map( (a, i) => { return { def: block.def.properties[i], a: a }} )
@@ -173,21 +173,21 @@ class CodeFormatter  {
     return format
   }
 
-  replaceAttributes(format: string, block: Block, attributes: Attribute[], placeholder: string): string {
+  replaceAttributes(format: string, block: BlockData, attributes: AttributeData[], placeholder: string): string {
     attributes.forEach( (a, i) => {
       format = this.replaceAttribute(format, `{${placeholder}${i}}`, block, a)
     })
     return format
   }
 
-  formatClause(out: StringBuffer, block: Block, clause: Clause, indent: number): void {
+  formatClause(out: StringBuffer, block: BlockData, clause: ClauseData, indent: number): void {
     this.writeFormatOption(out, block, indent, this.formatOptions.clauseOpen, clause.def.open)
     const clauseBlocks = clause.c.blocks.map( (b) => { return { def: this.workspace.menu.getBlockById(b.definitionId), b: b }} )
     this.formatBlocks(out, indent + 1, clauseBlocks)
     this.writeFormatOption(out, block, indent, this.formatOptions.clauseClose, clause.def.close)
   }
 
-  replaceAttribute(code: string, placeholder: string, block: Block, a: Attribute): string {
+  replaceAttribute(code: string, placeholder: string, block: BlockData, a: AttributeData): string {
     const formattedValue = CodeFormatter.formatAttributeValue(a)
     const replacement = this.formatAttribute(this.workspace.containerId, block.def.id, block.b.instanceId, a.def.id, formattedValue, a.def.type)
     return StringUtils.replaceAll(code, placeholder, replacement)
@@ -201,7 +201,7 @@ class CodeFormatter  {
     out.writeln(indentedPost)
   }
 
-  writeFormatOption(out: StringBuffer, block: Block | null, indent: number, formatOption: string, override: string | null): void {
+  writeFormatOption(out: StringBuffer, block: BlockData | null, indent: number, formatOption: string, override: string | null): void {
     const option = StringUtils.toStr(override, formatOption)
     if (StringUtils.isNotNullOrEmpty(option) && option.trim() !== "") {
       const optionFormat = block === null ? option : this.replaceParamsAndProps(option, block)
@@ -209,14 +209,14 @@ class CodeFormatter  {
     }
   }
 
-  static formatAttributeValue(a: Attribute): string {
+  static formatAttributeValue(a: AttributeData): string {
     const value = CodeFormatter.getAttributeValue(a)
     const quoteIt = CodeFormatter.shouldQuote(a)
     const formatValue = quoteIt ? `"${value}"` : value
     return formatValue
   }
 
-  static getAttributeValue(a: Attribute): string {
+  static getAttributeValue(a: AttributeData): string {
       switch (a.a.type) {
         case 'text':
         case 'select':
@@ -224,16 +224,16 @@ class CodeFormatter  {
 
         case 'int':
         case 'range':
-          return NumAttribute.numberValue(a.def as NumAttributeInput, a.a)
+          return NumAttributeUI.numberValue(a.def as NumAttribute, a.a)
 
         case 'num':
         case 'bool':
-          return ExpressionAttribute.expressionValue(a.a)
+          return ExpressionAttributeUI.expressionValue(a.a)
         }
     }
 
     // should the value for this attribute be quoted in code?
-    static shouldQuote(a: Attribute): boolean {
+    static shouldQuote(a: AttributeData): boolean {
       switch (a.a.type) {
         case 'text':
           return true
@@ -243,7 +243,7 @@ class CodeFormatter  {
           return false
 
         case 'select':
-          return SelectAttribute.shouldQuote(a.def as SelectAttributeInput, a.a)
+          return SelectAttributeUI.shouldQuote(a.def as SelectAttribute, a.a)
 
         case 'num':
         case 'bool':

@@ -1,11 +1,11 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { SelectAttributeInput, SelectOptionInput, StringValueInput } from "../../types/types"
+import { SelectAttribute, SelectOption, StringValue } from "../../types/types"
 import { StringUtils } from "../../utils/string-utils"
-import { Block } from "../block-instance"
+import { BlockInstanceUI } from "../block-instance"
 import { CodeFormatter } from "../code-formatter"
 import { AttributeChangedEvent } from "../program-changed-event"
-import { Attribute } from "./attribute"
+import { AttributeUI } from "./attribute"
 
 type QuoteOptionTypes = "smart-quote" | "always-quote" | "never-quote"
 
@@ -15,17 +15,17 @@ class QuoteOptions {
   static readonly NEVER_QUOTE  = "never-quote"
 }
 
-function selectOptionDisplay(o: SelectOptionInput): string {
+function selectOptionDisplay(o: SelectOption): string {
   return (o.display === null || o.display === "") ? o.actual : o.display
 }
 
 //-------------------------------------------------------------------------
 /// Represents a value selected from a list of options
 //-------------------------------------------------------------------------
-class SelectAttribute extends Attribute {
+class SelectAttributeUI extends AttributeUI {
 
-  readonly selectDef: SelectAttributeInput
-  readonly sa: StringValueInput
+  readonly selectDef: SelectAttribute
+  readonly sa: StringValue
 
   getDisplayValue(): string { return `${this.selectedDisplay}${this.def.unit} \u25BE` }
 
@@ -39,7 +39,7 @@ class SelectAttribute extends Attribute {
     }
   }
 
-  constructor(selectDef: SelectAttributeInput, sa: StringValueInput, block: Block) {
+  constructor(selectDef: SelectAttribute, sa: StringValue, block: BlockInstanceUI) {
     super(selectDef, sa, block)
     this.selectDef = selectDef
     this.sa = sa
@@ -57,12 +57,12 @@ class SelectAttribute extends Attribute {
     table.className = "nt-param-table"
     dialog.append(table)
 
-    const makeClickListener = (v: SelectOptionInput): ((e: MouseEvent) => void) => {
+    const makeClickListener = (v: SelectOption): ((e: MouseEvent) => void) => {
       return (e) => {
         this.sa.value = v.actual
         backdrop.classList.remove("show")
         acceptCallback()
-        const formattedValue = SelectAttribute.shouldQuote(this.selectDef, this.sa) ? `"${this.sa.value}"` : this.sa.value
+        const formattedValue = SelectAttributeUI.shouldQuote(this.selectDef, this.sa) ? `"${this.sa.value}"` : this.sa.value
         if (this.block.b.instanceId === null) {
           throw new Error("Cannot show parameter dialog for a non-instance block.")
         }
@@ -84,7 +84,7 @@ class SelectAttribute extends Attribute {
     }
   }
 
-  static shouldQuote(def: SelectAttributeInput, sa: StringValueInput): boolean {
+  static shouldQuote(def: SelectAttribute, sa: StringValue): boolean {
     switch (def.quoteValues) {
 
       case "always-quote":
@@ -103,4 +103,4 @@ class SelectAttribute extends Attribute {
 
 }
 
-export { SelectAttribute, QuoteOptions, QuoteOptionTypes }
+export { SelectAttributeUI, QuoteOptions, QuoteOptionTypes }

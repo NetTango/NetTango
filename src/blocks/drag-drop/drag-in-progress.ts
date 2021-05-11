@@ -5,23 +5,23 @@ import type { Point } from '@interactjs/types/index'
 
 import { ArrayUtils } from '../../utils/array-utils'
 import { DragCap } from '../baubles/drag-cap'
-import { Block } from "../block-instance"
+import { BlockInstanceUI } from "../block-instance"
 import { ChainDraw } from '../chain-draw'
-import { CodeWorkspace } from "../code-workspace"
+import { CodeWorkspaceUI } from "../code-workspace"
 import { DragListener } from './drag-listener'
 
 abstract class DragInProgress {
 
-  readonly workspace: CodeWorkspace
+  readonly workspace: CodeWorkspaceUI
   readonly dragStartOffset: Point
 
-  constructor(workspace: CodeWorkspace, startEvent: InteractEvent) {
+  constructor(workspace: CodeWorkspaceUI, startEvent: InteractEvent) {
     this.workspace       = workspace
     const offset         = DragListener.getOffsetToRoot(startEvent.target as HTMLElement)
     this.dragStartOffset = { x: startEvent.pageX - offset.x, y: startEvent.pageY - offset.y }
   }
 
-  abstract getDraggingBlocks(): Block[]
+  abstract getDraggingBlocks(): BlockInstanceUI[]
 
   cancel() {}
   drop() {}

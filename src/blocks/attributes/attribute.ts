@@ -1,23 +1,22 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { AttributeInput, AttributeValueInput } from "../../types/types"
-import { Block } from "../block-instance"
-import { CodeFormatter } from "../code-formatter"
+import { Attribute, AttributeValue } from "../../types/types"
+import { BlockInstanceUI } from "../block-instance"
 
 type AttributeTypes = "bool" | "num" | "int" | "range" | "text" | "select"
 
 /// Represents the paramter or property options for a block
-abstract class Attribute {
+abstract class AttributeUI {
 
-  readonly def: AttributeInput
-  readonly a: AttributeValueInput
-  readonly block: Block
+  readonly def: Attribute
+  readonly a: AttributeValue
+  readonly block: BlockInstanceUI
 
   get uniqueId(): string { return `${this.block.workspace.containerId}-${this.block.def.id}-${this.def.id}` }
 
   getDisplayValue(): string { return `${this.a.value}${this.def.unit}` }
 
-  constructor(def: AttributeInput, a: AttributeValueInput, block: Block) {
+  constructor(def: Attribute, a: AttributeValue, block: BlockInstanceUI) {
     this.def = def
     this.a = a
     this.block = block
@@ -58,4 +57,4 @@ abstract class Attribute {
   abstract showParameterDialog(x: number, y: number, acceptCallback: () => void): void
 }
 
-export { Attribute, AttributeTypes }
+export { AttributeUI, AttributeTypes }

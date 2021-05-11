@@ -1,12 +1,12 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { Block } from "../block-instance"
+import { BlockInstanceUI } from "../block-instance"
 import { BlockRules } from "../block-rules"
-import { Clause } from "../clause"
+import { ClauseUI } from "../clause"
 
 class Notch {
 
-  static draw(isTop: boolean, block: Block): HTMLDivElement {
+  static draw(isTop: boolean, block: BlockInstanceUI): HTMLDivElement {
 
     const div = document.createElement("div")
     div.classList.add("nt-notch")
@@ -33,12 +33,12 @@ class Notch {
       div.append(filler)
     })
 
-    Block.wireDragEvents(block, div)
+    BlockInstanceUI.wireDragEvents(block, div)
 
     return div
   }
 
-  static drawClause(isTop: boolean, clause: Clause): HTMLDivElement {
+  static drawClause(isTop: boolean, clause: ClauseUI): HTMLDivElement {
     const div = document.createElement("div")
     div.classList.add("nt-notch")
     const blockStyle = clause.owner.getStyleClass()

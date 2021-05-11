@@ -1,18 +1,17 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { StringValueInput, TextAttributeInput } from "../../types/types"
+import { StringValue, TextAttribute } from "../../types/types"
 import { StringUtils } from "../../utils/string-utils"
-import { Block } from "../block-instance"
-import { CodeFormatter } from "../code-formatter"
+import { BlockInstanceUI } from "../block-instance"
 import { AttributeChangedEvent } from "../program-changed-event"
-import { Attribute } from "./attribute"
+import { AttributeUI } from "./attribute"
 
 /// Represents the paramter or property options for a block
-class TextAttribute extends Attribute {
+class TextAttributeUI extends AttributeUI {
 
-  readonly ta: StringValueInput
+  readonly ta: StringValue
 
-  constructor(def: TextAttributeInput, ta: StringValueInput, block: Block) {
+  constructor(def: TextAttribute, ta: StringValue, block: BlockInstanceUI) {
     super(def, ta, block)
     this.ta = ta
   }
@@ -71,4 +70,4 @@ class TextAttribute extends Attribute {
 
 }
 
-export { TextAttribute }
+export { TextAttributeUI }

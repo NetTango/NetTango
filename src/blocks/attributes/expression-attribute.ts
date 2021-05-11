@@ -1,24 +1,24 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { ExpressionAttributeInput, ExpressionInput, ExpressionValueInput } from "../../types/types"
+import { ExpressionAttribute, Expression, ExpressionValue } from "../../types/types"
 import { StringUtils } from "../../utils/string-utils"
-import { Block } from "../block-instance"
+import { BlockInstanceUI } from "../block-instance"
 import { CodeFormatter } from "../code-formatter"
-import { Expression } from "../expressions/expression"
+import { ExpressionUI } from "../expressions/expression"
 import { ExpressionBuilder } from "../expressions/expression-builder"
 import { AttributeChangedEvent } from "../program-changed-event"
-import { Attribute } from "./attribute"
+import { AttributeUI } from "./attribute"
 
 //-------------------------------------------------------------------------
 /// Represents an expression (boolean or number)
 //-------------------------------------------------------------------------
-class ExpressionAttribute extends Attribute {
+class ExpressionAttributeUI extends AttributeUI {
 
-  readonly expDef: ExpressionAttributeInput
-  readonly ea: ExpressionValueInput
+  readonly expDef: ExpressionAttribute
+  readonly ea: ExpressionValue
   builder: ExpressionBuilder
 
-  constructor(expDef: ExpressionAttributeInput, ea: ExpressionValueInput, block: Block) {
+  constructor(expDef: ExpressionAttribute, ea: ExpressionValue, block: BlockInstanceUI) {
     super(expDef, ea, block)
     this.expDef = expDef
     this.ea = ea
@@ -58,7 +58,7 @@ class ExpressionAttribute extends Attribute {
         dialog.removeEventListener("click", dialogClicked)
         backdrop.classList.remove("show")
         acceptCallback()
-        const value = ExpressionAttribute.expressionValue(this.ea)
+        const value = ExpressionAttributeUI.expressionValue(this.ea)
         this.block.workspace.programChanged(new AttributeChangedEvent(this.block.def.id, this.block.b.instanceId, this.def.id, this.ea.type, value, value))
         return false
       })
@@ -78,25 +78,25 @@ class ExpressionAttribute extends Attribute {
     this.builder.open(`#nt-expression-${this.uniqueId}`)
   }
 
-  getDisplayValue(): string { return `${ExpressionAttribute.expressionValue(this.ea)}${this.def.unit}` }
+  getDisplayValue(): string { return `${ExpressionAttributeUI.expressionValue(this.ea)}${this.def.unit}` }
 
-  static expressionValue(ea: ExpressionValueInput): string {
-    return typeof ea.value === 'string' ? ea.value : ExpressionAttribute.formatExpression(ea.value)
+  static expressionValue(ea: ExpressionValue): string {
+    return typeof ea.value === 'string' ? ea.value : ExpressionAttributeUI.formatExpression(ea.value)
   }
 
-  static formatExpression(expression: ExpressionInput): string {
+  static formatExpression(expression: Expression): string {
     if (expression.format !== null) {
       var format = expression.format
       for (var i = 0; i < expression.children.length; i++) {
-        format = StringUtils.replaceAll(format, `{${i}}`, ExpressionAttribute.formatExpression(expression.children[i]))
+        format = StringUtils.replaceAll(format, `{${i}}`, ExpressionAttributeUI.formatExpression(expression.children[i]))
       }
       return format
     }
     else if (expression.children.length === 1) {
-      return `(${expression.name} ${ExpressionAttribute.formatExpression(expression.children[0])})`
+      return `(${expression.name} ${ExpressionAttributeUI.formatExpression(expression.children[0])})`
     }
     else if (expression.children.length === 2) {
-      return `(${ExpressionAttribute.formatExpression(expression.children[0])} ${expression.name} ${ExpressionAttribute.formatExpression(expression.children[1])})`
+      return `(${ExpressionAttributeUI.formatExpression(expression.children[0])} ${expression.name} ${ExpressionAttributeUI.formatExpression(expression.children[1])})`
     }
     else {
       return expression.name
@@ -105,4 +105,4 @@ class ExpressionAttribute extends Attribute {
 
 }
 
-export { ExpressionAttribute }
+export { ExpressionAttributeUI }

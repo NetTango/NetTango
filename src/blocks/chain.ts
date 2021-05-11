@@ -3,24 +3,24 @@
 import interact from "interactjs"
 import type { InteractEvent } from '@interactjs/core/InteractEvent'
 
-import { Block } from "./block-instance"
+import { BlockInstanceUI } from "./block-instance"
 import { BlockCollection } from "./block-collection"
-import { CodeWorkspace } from "./code-workspace"
+import { CodeWorkspaceUI } from "./code-workspace"
 import { ChainAcceptor } from "./drag-drop/chain-acceptor"
 import { ChainDragData } from "./drag-drop/drag-data/chain-drag-data"
 import { DragListener } from "./drag-drop/drag-listener"
 import { DragManager } from "./drag-drop/drag-manager"
 import { BlockChangedEvent } from "./program-changed-event"
-import { ChainInput } from "../types/types"
+import { Chain } from "../types/types"
 import { Cap } from "./baubles/cap"
 import { ChainDraw } from "./chain-draw"
 
-class Chain extends BlockCollection {
+class ChainUI extends BlockCollection {
 
   static readonly FRAGMENT_HEIGHT = 40
 
-  readonly c: ChainInput
-  readonly workspace: CodeWorkspace
+  readonly c: Chain
+  readonly workspace: CodeWorkspaceUI
 
   chainIndex: number
 
@@ -28,7 +28,7 @@ class Chain extends BlockCollection {
 
   get isFragment(): boolean { return this.blocks.length === 0 || !this.blocks[0].canBeStarter }
 
-  constructor(c: ChainInput, workspace: CodeWorkspace, chainIndex: number) {
+  constructor(c: Chain, workspace: CodeWorkspaceUI, chainIndex: number) {
     super(c.blocks, workspace)
     this.c = c
     this.workspace = workspace
@@ -98,7 +98,7 @@ class Chain extends BlockCollection {
     ChainDraw.draw(Cap.draw, this.div, this.blocks, false, this.fragmentDiv)
   }
 
-  addBlocks(newBlocks: Block[]): void {
+  addBlocks(newBlocks: BlockInstanceUI[]): void {
     this.insertBlocks(this.blocks.length, newBlocks)
   }
 
@@ -109,7 +109,7 @@ class Chain extends BlockCollection {
 
     if (this.isFragment) {
       this.fragmentDiv.classList.add("show")
-      const top = Math.round(this.c.y) - Chain.FRAGMENT_HEIGHT
+      const top = Math.round(this.c.y) - ChainUI.FRAGMENT_HEIGHT
       this.div.style.top = `${top}px`
     }
 
@@ -138,7 +138,7 @@ class Chain extends BlockCollection {
       // The casts here are necessary I believe because the type defs are wrong, `dragEvent` does exist on the
       // `InteractEvent` when a drop occurs. -Jeremy B January 2020
       const dropY = ((event as any).dragEvent.page.y as number) - offset.y - dragStartOffset.y
-      this.c.y = this.c.y - Chain.FRAGMENT_HEIGHT + Math.floor(dropY)
+      this.c.y = this.c.y - ChainUI.FRAGMENT_HEIGHT + Math.floor(dropY)
       this.insertBlocks(0, newBlocks)
       this.workspace.programChanged(new BlockChangedEvent(newFirst))
     })
@@ -146,4 +146,4 @@ class Chain extends BlockCollection {
 
 }
 
-export { Chain }
+export { ChainUI as ChainUI }

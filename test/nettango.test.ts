@@ -2,7 +2,7 @@
 
 import { AttributeTypes } from "../src/blocks/attributes/attribute"
 import { BlockPlacement } from "../src/blocks/block-placement"
-import { CodeWorkspace } from "../src/blocks/code-workspace"
+import { CodeWorkspaceUI } from "../src/blocks/code-workspace"
 import { NetTango } from "../src/nettango"
 import { ObjectUtils } from "../src/utils/object-utils"
 import { VersionManager } from "../src/versions/version-manager"
@@ -174,7 +174,7 @@ test("Smoke test of NetTango restore and save", () => {
   const result = NetTango.save("nt-canvas")
   const expected = VersionManager.updateWorkspace({
     "version": 5,
-    "height": CodeWorkspace.DEFAULT_HEIGHT, "width": CodeWorkspace.DEFAULT_WIDTH,
+    "height": CodeWorkspaceUI.DEFAULT_HEIGHT, "width": CodeWorkspaceUI.DEFAULT_WIDTH,
     "blocks": [],
     "program": { "chains": [] }
   })
@@ -244,8 +244,8 @@ test("Remove a parameter from a block that is in a chain", () => {
     }
   }
   var expected = copyJson(json)
-  expected.height = CodeWorkspace.DEFAULT_HEIGHT
-  expected.width  = CodeWorkspace.DEFAULT_WIDTH
+  expected.height = CodeWorkspaceUI.DEFAULT_HEIGHT
+  expected.width  = CodeWorkspaceUI.DEFAULT_WIDTH
   expected.blocks[1].required = false
   expected.program.chains[0][0].instanceId = 0
   expected.program.chains[0][0].limit = 1
@@ -267,8 +267,8 @@ test("Remove a parameter from a block that is in a chain", () => {
 test("NetLogo code exports in proper order with params", () => {
   const testCanavsID = "nt-canvas"
   var expected = copyJson(NETLOGO_MODEL_1)
-  expected.height = CodeWorkspace.DEFAULT_HEIGHT
-  expected.width  = CodeWorkspace.DEFAULT_WIDTH
+  expected.height = CodeWorkspaceUI.DEFAULT_HEIGHT
+  expected.width  = CodeWorkspaceUI.DEFAULT_WIDTH
   expected.blocks[1].propertiesDisplay = 'shown'
   expected.blocks[1].required = false
   expected.program.chains[0][0].blockColor = '#bb5555'
@@ -316,8 +316,8 @@ test("Model with ifelse properly imports and generates code", () => {
   }
 
   var expected = copyJson(model)
-  expected.height = CodeWorkspace.DEFAULT_HEIGHT
-  expected.width  = CodeWorkspace.DEFAULT_WIDTH
+  expected.height = CodeWorkspaceUI.DEFAULT_HEIGHT
+  expected.width  = CodeWorkspaceUI.DEFAULT_WIDTH
   expected.program.chains[0][1].clauses = [{ "children": [copyJson(wiggleInst)]}]
   expected = VersionManager.updateWorkspace(expected)
 
@@ -349,8 +349,8 @@ test("Unversioned model gets IDs added for version 1", () => {
   }
 
   var expected = copyJson(model)
-  expected.height = CodeWorkspace.DEFAULT_HEIGHT
-  expected.width  = CodeWorkspace.DEFAULT_WIDTH
+  expected.height = CodeWorkspaceUI.DEFAULT_HEIGHT
+  expected.width  = CodeWorkspaceUI.DEFAULT_WIDTH
   expected.blocks[0].propertiesDisplay = 'shown'
   expected.program.chains[0][0].instanceId = 0
   expected.program.chains[0][0].propertiesDisplay = 'shown'
@@ -414,8 +414,8 @@ test("Version 1 gets IDs added for new block", () => {
   }
 
   var expected = copyJson(model)
-  expected.height = CodeWorkspace.DEFAULT_HEIGHT
-  expected.width  = CodeWorkspace.DEFAULT_WIDTH
+  expected.height = CodeWorkspaceUI.DEFAULT_HEIGHT
+  expected.width  = CodeWorkspaceUI.DEFAULT_WIDTH
   expected.blocks[0].id = 0
   expected.blocks[0].propertiesDisplay = 'shown'
   expected.blocks[0].params[0].id = 0

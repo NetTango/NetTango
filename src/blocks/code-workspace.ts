@@ -4,26 +4,26 @@ import type { InteractEvent } from '@interactjs/core/InteractEvent'
 import interact from "interactjs"
 
 import { FormatAttributeType } from "../nettango"
-import { ChainInput, CodeWorkspaceInput } from '../types/types'
+import { Chain, CodeWorkspace } from '../types/types'
 import { NumUtils } from "../utils/num-utils"
 import { VersionManager } from "../versions/version-manager"
-import { Block } from "./block-instance"
-import { BlockMenu } from "./block-menu"
-import { BlockStyle } from "./block-style"
-import { Chain } from "./chain"
+import { BlockInstanceUI } from "./block-instance"
+import { BlockMenuUI } from "./block-menu"
+import { BlockStyleUI } from "./block-style"
+import { ChainUI } from "./chain"
 import { CodeFormatter } from "./code-formatter"
 import { DragListener } from "./drag-drop/drag-listener"
 import { DragManager } from "./drag-drop/drag-manager"
 import { BlockChangedEvent, ProgramChangedEvent } from "./program-changed-event"
 
-class CodeWorkspace {
+class CodeWorkspaceUI {
 
   static readonly DEFAULT_HEIGHT = 600
   static readonly DEFAULT_WIDTH = 450
 
   readonly version = VersionManager.VERSION
 
-  readonly ws: CodeWorkspaceInput
+  readonly ws: CodeWorkspace
 
   notifier: null | ((event: ProgramChangedEvent) => void) = null
 
@@ -38,24 +38,24 @@ class CodeWorkspace {
 
   formatter: CodeFormatter
 
-  readonly chains: Chain[]
+  readonly chains: ChainUI[]
 
   /// block menu
-  readonly menu: BlockMenu
+  readonly menu: BlockMenuUI
 
-  starterBlockStyle: BlockStyle
-  containerBlockStyle: BlockStyle
-  commandBlockStyle: BlockStyle
+  starterBlockStyle: BlockStyleUI
+  containerBlockStyle: BlockStyleUI
+  commandBlockStyle: BlockStyleUI
 
-  _height = CodeWorkspace.DEFAULT_HEIGHT
+  _height = CodeWorkspaceUI.DEFAULT_HEIGHT
   get height(): number { return this._height }
   set height(h: number) {
     this._height = h
     this.container.style.minHeight = `${this.height}px`
   }
-  currentHeight = CodeWorkspace.DEFAULT_HEIGHT
+  currentHeight = CodeWorkspaceUI.DEFAULT_HEIGHT
 
-  _width = CodeWorkspace.DEFAULT_WIDTH
+  _width = CodeWorkspaceUI.DEFAULT_WIDTH
   get width(): number { return this._width }
   set width(w: number) {
     this._width = w
@@ -63,7 +63,7 @@ class CodeWorkspace {
     this.container.style.maxWidth = `${this.width}px`
   }
 
-  constructor(containerId: string, ws: CodeWorkspaceInput, language: string, formatAttribute: FormatAttributeType) {
+  constructor(containerId: string, ws: CodeWorkspace, language: string, formatAttribute: FormatAttributeType) {
     this.ws = ws
     this.containerId = containerId
     this.formatter = new CodeFormatter(this, language, formatAttribute)
@@ -78,19 +78,19 @@ class CodeWorkspace {
     this.container.style.minWidth  = `${this.width}px`
     this.container.style.maxWidth  = `${this.width}px`
 
-    this.menu = new BlockMenu(this.ws.blocks, this)
+    this.menu = new BlockMenuUI(this.ws.blocks, this)
 
     if (this.ws.blockStyles === null) {
-      this.starterBlockStyle = new BlockStyle(BlockStyle.DEFAULT_STARTER_STYLE)
-      this.containerBlockStyle = new BlockStyle(BlockStyle.DEFAULT_CONTAINER_STYLE)
-      this.commandBlockStyle = new BlockStyle(BlockStyle.DEFAULT_COMMAND_STYLE)
+      this.starterBlockStyle = new BlockStyleUI(BlockStyleUI.DEFAULT_STARTER_STYLE)
+      this.containerBlockStyle = new BlockStyleUI(BlockStyleUI.DEFAULT_CONTAINER_STYLE)
+      this.commandBlockStyle = new BlockStyleUI(BlockStyleUI.DEFAULT_COMMAND_STYLE)
     } else {
-      this.starterBlockStyle = new BlockStyle(this.ws.blockStyles.starterBlockStyle)
-      this.containerBlockStyle = new BlockStyle(this.ws.blockStyles.containerBlockStyle)
-      this.commandBlockStyle = new BlockStyle(this.ws.blockStyles.commandBlockStyle)
+      this.starterBlockStyle = new BlockStyleUI(this.ws.blockStyles.starterBlockStyle)
+      this.containerBlockStyle = new BlockStyleUI(this.ws.blockStyles.containerBlockStyle)
+      this.commandBlockStyle = new BlockStyleUI(this.ws.blockStyles.commandBlockStyle)
     }
 
-    this.chains = this.ws.program.chains.map( (c, i) => new Chain(c, this, i) )
+    this.chains = this.ws.program.chains.map( (c, i) => new ChainUI(c, this, i) )
   }
 
   unload(): void {
@@ -118,7 +118,7 @@ class CodeWorkspace {
     return NumUtils.sum(this.chains.map( (c) => c.getBlockCount(id) ))
   }
 
-  getBlockInstance(instanceId: number): Block {
+  getBlockInstance(instanceId: number): BlockInstanceUI {
     for (var chain of this.chains) {
       const block = chain.getBlockInstance(instanceId)
       if (block !== null) {
@@ -239,10 +239,10 @@ class CodeWorkspace {
     })
   }
 
-  createChain(newBlocks: Block[], x: number, y: number): void {
+  createChain(newBlocks: BlockInstanceUI[], x: number, y: number): void {
     const newChainIndex = this.chains.length
-    const c: ChainInput = { x, y, blocks: [] }
-    const newChain = new Chain(c, this, newChainIndex)
+    const c: Chain = { x, y, blocks: [] }
+    const newChain = new ChainUI(c, this, newChainIndex)
     this.chains.push(newChain)
     const chainDiv = newChain.draw(newChainIndex)
     this.spaceDiv.append(chainDiv)
@@ -318,4 +318,4 @@ class CodeWorkspace {
 
 }
 
-export { CodeWorkspace }
+export { CodeWorkspaceUI }

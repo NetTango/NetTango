@@ -3,25 +3,25 @@
 import type { InteractEvent } from '@interactjs/core/InteractEvent'
 import { StringBuffer } from "../utils/string-buffer"
 import { StringUtils } from "../utils/string-utils"
-import { Block } from "./block-instance"
-import { CodeWorkspace } from "./code-workspace"
+import { BlockInstanceUI } from "./block-instance"
+import { CodeWorkspaceUI } from "./code-workspace"
 import { MenuItemClickedEvent, MenuItemContextMenuEvent } from "./program-changed-event"
 import { DragListener } from "./drag-drop/drag-listener"
 import { DragManager } from "./drag-drop/drag-manager"
 import { NewDragData } from './drag-drop/drag-data/new-drag-data'
-import { BlockDefinitionInput, BlockInstanceInput } from '../types/types'
+import { BlockDefinition, BlockInstance } from '../types/types'
 import { makeAttributeDefault } from './attributes/attribute-factory'
 
-class BlockDefinition {
+class BlockDefinitionUI {
 
-  readonly def: BlockDefinitionInput
-  readonly workspace: CodeWorkspace
+  readonly def: BlockDefinition
+  readonly workspace: CodeWorkspaceUI
 
   slotIndex: number
   slotDiv: HTMLDivElement = document.createElement("div")
   isAtLimit = false
 
-  constructor(def: BlockDefinitionInput, workspace: CodeWorkspace, slotIndex: number) {
+  constructor(def: BlockDefinition, workspace: CodeWorkspaceUI, slotIndex: number) {
     this.def = def
     if (this.def.id === null) {
       throw new Error("Cannot make a menu slot for a block without an ID.")
@@ -39,7 +39,7 @@ class BlockDefinition {
     this.slotIndex = index
     this.slotDiv = document.createElement("div")
     this.slotDiv.classList.add("nt-menu-slot")
-    const styleClass = Block.getStyleClass(this.def, this.workspace.containerId)
+    const styleClass = BlockInstanceUI.getStyleClass(this.def, this.workspace.containerId)
     this.slotDiv.classList.add(styleClass)
     this.slotDiv.classList.add(`${styleClass}-color`)
 
@@ -67,7 +67,7 @@ class BlockDefinition {
     return this.slotDiv
   }
 
-  formatCodeTip(block: BlockDefinitionInput): string {
+  formatCodeTip(block: BlockDefinition): string {
     const out = new StringBuffer()
     if (this.def.note !== null && StringUtils.isNotNullOrEmpty(this.def.note.trimLeft())) {
       out.writeln(this.def.note)
@@ -88,7 +88,7 @@ class BlockDefinition {
     }
   }
 
-  static makeInstance(b: BlockDefinitionInput, instanceId: number): BlockInstanceInput {
+  static makeInstance(b: BlockDefinition, instanceId: number): BlockInstance {
     return {
       definitionId:      b.id
     , instanceId:        instanceId
@@ -99,12 +99,12 @@ class BlockDefinition {
     }
   }
 
-  makeInstance(): BlockInstanceInput {
-    return BlockDefinition.makeInstance(this.def, this.workspace.getBlockCount(this.def.id))
+  makeInstance(): BlockInstance {
+    return BlockDefinitionUI.makeInstance(this.def, this.workspace.getBlockCount(this.def.id))
   }
 
   startDrag(event: InteractEvent): void {
-    const newInstance = new Block(this.def, this.makeInstance(), this.workspace)
+    const newInstance = new BlockInstanceUI(this.def, this.makeInstance(), this.workspace)
     const dragData = new NewDragData(newInstance, this.slotIndex)
     newInstance.draw(dragData)
     DragManager.start(newInstance, dragData, event)
@@ -129,4 +129,4 @@ class BlockDefinition {
 
 }
 
-export { BlockDefinition }
+export { BlockDefinitionUI }

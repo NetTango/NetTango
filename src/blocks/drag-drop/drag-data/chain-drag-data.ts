@@ -2,15 +2,15 @@
 
 import type { InteractEvent } from '@interactjs/core/InteractEvent'
 
-import { Block } from "../../block-instance";
+import { BlockInstanceUI } from "../../block-instance";
 import { DragInProgress } from '../drag-in-progress';
 import { ActiveDragData } from "./active-drag-data";
 import { NumUtils } from '../../../utils/num-utils';
 
 class ChainDragData extends ActiveDragData {
-  block: Block
+  block: BlockInstanceUI
 
-  constructor(block: Block, chainIndex: number, blockIndex: number, siblings: Block[]) {
+  constructor(block: BlockInstanceUI, chainIndex: number, blockIndex: number, siblings: BlockInstanceUI[]) {
     super(block, chainIndex, blockIndex, siblings)
     this.block = block
   }
@@ -26,12 +26,12 @@ class ChainDragData extends ActiveDragData {
 
 class ChainBlockDrag extends DragInProgress {
 
-  readonly draggingBlocks: Block[]
+  readonly draggingBlocks: BlockInstanceUI[]
   readonly dragData: ChainDragData
 
-  getDraggingBlocks(): Block[] { return this.draggingBlocks }
+  getDraggingBlocks(): BlockInstanceUI[] { return this.draggingBlocks }
 
-  constructor(block: Block, dragData: ChainDragData, startEvent: InteractEvent) {
+  constructor(block: BlockInstanceUI, dragData: ChainDragData, startEvent: InteractEvent) {
     super(block.workspace, startEvent)
     this.dragData = dragData
     this.draggingBlocks = this.workspace.chains[this.dragData.chainIndex].removeBlocks(this.dragData.blockIndex)
@@ -50,12 +50,12 @@ class WholeChainDrag extends DragInProgress {
   private readonly oldChainX: number
   private readonly oldChainY: number
 
-  readonly draggingBlocks: Block[]
+  readonly draggingBlocks: BlockInstanceUI[]
   readonly dragData: ChainDragData
 
-  getDraggingBlocks(): Block[] { return this.draggingBlocks }
+  getDraggingBlocks(): BlockInstanceUI[] { return this.draggingBlocks }
 
-  constructor(block: Block, dragData: ChainDragData, startEvent: InteractEvent) {
+  constructor(block: BlockInstanceUI, dragData: ChainDragData, startEvent: InteractEvent) {
     super(block.workspace, startEvent)
     this.dragData  = dragData
     const oldChain = this.workspace.chains[dragData.chainIndex]

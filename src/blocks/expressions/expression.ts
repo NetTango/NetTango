@@ -1,6 +1,6 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { ExpressionDefinition, ExpressionInput, ExpressionValueInput } from "../../types/types"
+import { ExpressionDefinition, Expression, ExpressionValue } from "../../types/types"
 import { NumUtils } from "../../utils/num-utils"
 import { StringBuffer } from "../../utils/string-buffer"
 import { StringUtils } from "../../utils/string-utils"
@@ -8,11 +8,11 @@ import { ExpressionBuilder } from "./expression-builder"
 
 /// TODO
 ///   limit length of inline expressions on blocks.
-class Expression {
+class ExpressionUI {
 
-  e: ExpressionInput
+  e: Expression
   builder: ExpressionBuilder
-  children: Expression[]
+  children: ExpressionUI[]
 
   get isRoot(): boolean { return this.builder.root === this }
   get isEmpty(): boolean { return this.e.name === null }
@@ -27,19 +27,19 @@ class Expression {
     return false
   }
 
-  constructor(builder: ExpressionBuilder, e: ExpressionInput) {
+  constructor(builder: ExpressionBuilder, e: Expression) {
     this.builder = builder
     this.e = e
-    this.children = e.children.map( (ce) => new Expression(builder, ce) )
+    this.children = e.children.map( (ce) => new ExpressionUI(builder, ce) )
   }
 
   static getDefaultValue(type: 'num' | 'bool'): '0' | 'false' {
     return (type === 'num') ? '0' : 'false'
   }
 
-  static createEmptyExpression(type: 'num' | 'bool'): ExpressionInput {
+  static createEmptyExpression(type: 'num' | 'bool'): Expression {
     return {
-      name: Expression.getDefaultValue(type)
+      name: ExpressionUI.getDefaultValue(type)
     , type: type
     , format: null
     , children: []
@@ -75,7 +75,7 @@ class Expression {
 
   // test to see if the current children match arg list?
   // if so, leave them alone rather than replace them
-  childMismatch(args: ExpressionInput[]): boolean {
+  childMismatch(args: Expression[]): boolean {
     if (args === null) {
       return this.children.length !== 0
     }
@@ -90,7 +90,7 @@ class Expression {
     return false
   }
 
-  setChildren(args: ExpressionInput[]): void {
+  setChildren(args: Expression[]): void {
     const childless = this.isChildless
 
     if (this.childMismatch(args)) {
@@ -99,7 +99,7 @@ class Expression {
       if (args !== null) {
         for (var i = 0; i < args.length; i++) {
           // chain first expression?
-          const e = new Expression(this.builder, args[i])
+          const e = new ExpressionUI(this.builder, args[i])
           if (i === 0 && childless && args[i].type === this.e.type) {
             e.e.name = this.e.name
             this.children.push(e)
@@ -220,7 +220,7 @@ class Expression {
     hmenu.append(link)
     link.addEventListener("click", (e) => {
       hmenu.remove()
-      this.e.name = Expression.getDefaultValue(this.e.type)
+      this.e.name = ExpressionUI.getDefaultValue(this.e.type)
       this.children.splice(0)
       this.e.children.splice(0)
       this.e.format = null
@@ -241,7 +241,7 @@ class Expression {
         hmenu.append(link)
         link.addEventListener("click", (e) => {
           hmenu.remove()
-          const children = item.arguments.map( (arg) => Expression.createEmptyExpression(arg) )
+          const children = item.arguments.map( (arg) => ExpressionUI.createEmptyExpression(arg) )
           this.setChildren(children)
           this.e.name = item.name
           this.e.type = item.type
@@ -256,4 +256,4 @@ class Expression {
 
 }
 
-export { Expression }
+export { ExpressionUI }
