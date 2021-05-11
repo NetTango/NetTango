@@ -167,15 +167,15 @@ class CodeFormatter  {
 
   replaceParamsAndProps(format: string, block: BlockData): string {
     const params = block.b.params.map( (a, i) => { return { def: block.def.params[i], a: a }} )
-    format = this.replaceAttributes(format, block, params, "")
+    format = this.replaceAttributes(format, block, params, "", false)
     const properties = block.b.properties.map( (a, i) => { return { def: block.def.properties[i], a: a }} )
-    format = this.replaceAttributes(format, block, properties, "P")
+    format = this.replaceAttributes(format, block, properties, "P", true)
     return format
   }
 
-  replaceAttributes(format: string, block: BlockData, attributes: AttributeData[], placeholder: string): string {
+  replaceAttributes(format: string, block: BlockData, attributes: AttributeData[], placeholder: string, areProperties: boolean): string {
     attributes.forEach( (a, i) => {
-      format = this.replaceAttribute(format, `{${placeholder}${i}}`, block, a)
+      format = this.replaceAttribute(format, `{${placeholder}${i}}`, block, a, areProperties)
     })
     return format
   }
@@ -187,9 +187,9 @@ class CodeFormatter  {
     this.writeFormatOption(out, block, indent, this.formatOptions.clauseClose, clause.def.close)
   }
 
-  replaceAttribute(code: string, placeholder: string, block: BlockData, a: AttributeData): string {
+  replaceAttribute(code: string, placeholder: string, block: BlockData, a: AttributeData, isProperty: boolean): string {
     const formattedValue = CodeFormatter.formatAttributeValue(a)
-    const replacement = this.formatAttribute(this.workspace.containerId, block.def.id, block.b.instanceId, a.def.id, formattedValue, a.def.type)
+    const replacement = this.formatAttribute(this.workspace.containerId, block.def.id, block.b.instanceId, a.def.id, formattedValue, a.def.type, isProperty)
     return StringUtils.replaceAll(code, placeholder, replacement)
   }
 

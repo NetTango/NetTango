@@ -10,7 +10,7 @@ import { CodeWorkspace } from "./types/types"
 import { ProgramChangedEvent } from "./blocks/program-changed-event"
 import { ObjectUtils } from "./utils/object-utils"
 
-type FormatAttributeType = (containerId: string, blockId: number, instanceId: number, attributeId: number, value: any, attributeType: AttributeTypes) => string
+type FormatAttributeType = (containerId: string, blockId: number, instanceId: number, attributeId: number, value: any, attributeType: AttributeTypes, isProperty: boolean) => string
 
 function restoreWorkspace(containerId: string, workspaceEnc: CodeWorkspace, language: string, formatAttribute: FormatAttributeType): CodeWorkspaceUI {
   if (workspaceEnc["version"] !== VersionManager.VERSION) {
