@@ -50,19 +50,32 @@ class VersionManager {
 
     const validated = Version7.validate(definition)
 
-    // Even though the data types are validated, the clauses and attributes also need to correspond
-    // between definitions and instances, so we reset them here to be sure they are correct.
-    // TODO: See if Zod can handle this validation as well.
-    // -Jeremy B May 2021.
-    const getDefById = (id: number) => validated.blocks.filter( (b) => b.id === id )[0]
-    const processInstance = (instance: BlockInstance) => {
-      const definition = getDefById(instance.definitionId)
-      VersionManager.resetBlock(definition, instance)
-      instance.clauses.forEach( (clause) => clause.blocks.forEach(processInstance) )
-    }
-    validated.program.chains.forEach( (chain) => chain.blocks.forEach(processInstance) )
+    VersionManager.fixupUntypedIssues(validated)
 
     return validated
+  }
+
+  // Even though the data types are validated, the clauses and attributes also need to correspond
+  // between definitions and instances, so we reset them here to be sure they are correct.
+  // TODO: See if Zod can handle this validation as well.
+  // -Jeremy B May 2021.
+  static fixupUntypedIssues(model: CodeWorkspace) {
+    const getDefById = (id: number): BlockDefinition | undefined =>
+      model.blocks.filter( (b) => b.id === id )[0]
+
+    const processInstance = (instance: BlockInstance) => {
+      const definition = getDefById(instance.definitionId)
+      VersionManager.resetBlock(definition!, instance)
+      instance.clauses.forEach( (clause) => {
+        clause.blocks = clause.blocks.filter( (b) => getDefById(b.definitionId) !== undefined )
+        clause.blocks.forEach(processInstance)
+      })
+    }
+
+    model.program.chains.forEach( (chain) => {
+      chain.blocks = chain.blocks.filter( (b) => getDefById(b.definitionId) !== undefined )
+      chain.blocks.forEach(processInstance)
+    })
   }
 
   static resetBlock(definition: BlockDefinition, instance: BlockInstance) {
