@@ -20,7 +20,7 @@ function getConcreteTags(clause: ClauseUI): ConcreteTags | null {
   }
 
   if (data instanceof ClauseDragData) {
-    const ownerClause = clause.owner.workspace.getBlockInstance(data.parentInstanceId).clauses[data.clauseIndex]
+    const ownerClause = clause.owner.workspace.getBlockInstance(data.parentDefinitionId, data.parentInstanceId).clauses[data.clauseIndex]
     if (ownerClause.def.allowedTags.type === 'inherit') {
       return getConcreteTags(ownerClause)
     }

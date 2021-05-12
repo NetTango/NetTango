@@ -116,9 +116,9 @@ class CodeWorkspaceUI {
     return NumUtils.sum(this.chains.map( (c) => c.getBlockCount(id) ))
   }
 
-  getBlockInstance(instanceId: number): BlockInstanceUI {
+  getBlockInstance(definitionId: number, instanceId: number): BlockInstanceUI {
     for (var chain of this.chains) {
-      const block = chain.getBlockInstance(instanceId)
+      const block = chain.getBlockInstance(definitionId, instanceId)
       if (block !== null) {
         return block
       }

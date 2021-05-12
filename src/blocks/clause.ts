@@ -112,10 +112,10 @@ class ClauseUI extends BlockCollection {
     for (var i = 0; i < this.blocks.length; i++) {
       const block = this.blocks[i]
       const siblings = this.blocks.slice(i + 1)
-      if (!(this.owner.dragData instanceof ActiveDragData) || this.owner.b.instanceId === null) {
+      if (!(this.owner.dragData instanceof ActiveDragData)) {
         throw new Error("Cannot draw a clause for a block missing drag data.")
       }
-      const dragData = new ClauseDragData(block, this.owner.dragData.chainIndex, i, this.owner.b.instanceId, siblings, this.clauseIndex)
+      const dragData = new ClauseDragData(block, this.owner.dragData.chainIndex, i, this.owner.b.definitionId, this.owner.b.instanceId, siblings, this.clauseIndex)
       block.draw(dragData)
     }
 
@@ -142,10 +142,10 @@ class ClauseUI extends BlockCollection {
   resetOwned(): void {
     for (var i = 0; i < this.blocks.length; i++) {
       const block = this.blocks[i]
-      if (!(this.owner.dragData instanceof ActiveDragData) || this.owner.b.instanceId === null) {
+      if (!(this.owner.dragData instanceof ActiveDragData)) {
         throw new Error("Cannot draw a clause for a block missing drag data or instance ID.")
       }
-      block.dragData = new ClauseDragData(block, this.owner.dragData.chainIndex, i, this.owner.b.instanceId, this.blocks.slice(i + 1), this.clauseIndex)
+      block.dragData = new ClauseDragData(block, this.owner.dragData.chainIndex, i, this.owner.b.definitionId, this.owner.b.instanceId, this.blocks.slice(i + 1), this.clauseIndex)
       block.resetOwnedBlocksDragData()
     }
   }
@@ -168,10 +168,10 @@ class ClauseUI extends BlockCollection {
 
     for (var i = 0; i < this.blocks.length; i++) {
       const block = this.blocks[i]
-      if (!(this.owner.dragData instanceof ActiveDragData) || this.owner.b.instanceId === null) {
+      if (!(this.owner.dragData instanceof ActiveDragData)) {
         throw new Error("Cannot draw a clause for a block missing drag data or instance ID.")
       }
-      block.dragData = new ClauseDragData(block, this.owner.dragData.chainIndex, i, this.owner.b.instanceId, this.blocks.slice(i + 1), this.clauseIndex)
+      block.dragData = new ClauseDragData(block, this.owner.dragData.chainIndex, i, this.owner.b.definitionId, this.owner.b.instanceId, this.blocks.slice(i + 1), this.clauseIndex)
       block.resetOwnedBlocksDragData()
     }
 

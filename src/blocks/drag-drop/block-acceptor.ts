@@ -28,7 +28,7 @@ class BlockAcceptor {
 
   static isLandingSpot(block: BlockInstanceUI, dragState: DragInProgress): boolean {
     const draggingBlocks = dragState.getDraggingBlocks()
-    const isOverSelf = block.b.instanceId !== null && draggingBlocks.some( (b) => block.b.instanceId !== null && b.getBlockInstance(block.b.instanceId) !== null )
+    const isOverSelf = block.b.instanceId !== null && draggingBlocks.some( (b) => block.b.instanceId !== null && b.getBlockInstance(block.b.definitionId, block.b.instanceId) !== null )
     if (isOverSelf) {
       return false
     }
@@ -48,7 +48,7 @@ class BlockAcceptor {
     }
 
     if (block.dragData instanceof ClauseDragData) {
-      return checkClauseAllowedTags(block.workspace.getBlockInstance(block.dragData.parentInstanceId).clauses[block.dragData.clauseIndex], blocks)
+      return checkClauseAllowedTags(block.workspace.getBlockInstance(block.dragData.parentDefinitionId, block.dragData.parentInstanceId).clauses[block.dragData.clauseIndex], blocks)
     }
 
     throw new Error(`Unknown block drag data type: ${block.dragData}`)

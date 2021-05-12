@@ -84,12 +84,12 @@ class BlockInstanceUI {
     return count
   }
 
-  getBlockInstance(instanceId: number): BlockInstanceUI | null {
-    if (this.b.instanceId === instanceId) {
+  getBlockInstance(definitionId: number, instanceId: number): BlockInstanceUI | null {
+    if (this.b.definitionId === definitionId && this.b.instanceId === instanceId) {
       return this
     }
     for (var clause of this.clauses) {
-      const clauseBlock = clause.getBlockInstance(instanceId)
+      const clauseBlock = clause.getBlockInstance(definitionId, instanceId)
       if (clauseBlock !== null) { return clauseBlock }
     }
     return null
@@ -252,7 +252,7 @@ class BlockInstanceUI {
       }
 
       if (this.dragData instanceof ClauseDragData) {
-        const parentBlock = this.workspace.chains[this.dragData.chainIndex].getBlockInstance(this.dragData.parentInstanceId)
+        const parentBlock = this.workspace.chains[this.dragData.chainIndex].getBlockInstance(this.dragData.parentDefinitionId, this.dragData.parentInstanceId)
         if (parentBlock === null) {
           throw new Error("Could not find parent block?")
         }

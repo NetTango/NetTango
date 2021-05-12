@@ -34,9 +34,9 @@ abstract class BlockCollection {
     }
   }
 
-  getBlockInstance(instanceId: number): BlockInstanceUI | null {
+  getBlockInstance(definitionId: number, instanceId: number): BlockInstanceUI | null {
     for (var child of this.blocks) {
-      const block = child.getBlockInstance(instanceId)
+      const block = child.getBlockInstance(definitionId, instanceId)
       if (block !== null) { return block }
     }
     return null

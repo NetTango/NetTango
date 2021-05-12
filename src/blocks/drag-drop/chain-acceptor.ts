@@ -26,7 +26,7 @@ class ChainAcceptor {
   static isLandingSpot(chain: ChainUI, dragState: DragInProgress): boolean {
     const draggingBlocks = dragState.getDraggingBlocks()
     const block = chain.blocks[0]
-    const isOverSelf = block.b.instanceId !== null && draggingBlocks.some( (b) => block.b.instanceId !== null && b.getBlockInstance(block.b.instanceId) !== null )
+    const isOverSelf = block.b.instanceId !== null && draggingBlocks.some( (b) => block.b.instanceId !== null && b.getBlockInstance(block.b.definitionId, block.b.instanceId) !== null )
     if (isOverSelf) {
       return false
     }

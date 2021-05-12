@@ -55,12 +55,12 @@ class NetTango {
     return NetTango.workspaces.get(containerId)!.exportCode(formatAttribute)
   }
 
-  static formatAttributeValue(containerId: string, instanceId: number, attributeId: number, isProperty: boolean): string {
+  static formatAttributeValue(containerId: string, definitionId: number, instanceId: number, attributeId: number, isProperty: boolean): string {
     if (!NetTango.workspaces.has(containerId)) {
       throw new Error(`Unknown container ID: ${containerId}`)
     }
     const workspace = NetTango.workspaces.get(containerId)!
-    const block     = workspace.getBlockInstance(instanceId)
+    const block     = workspace.getBlockInstance(definitionId, instanceId)
     const attribute = isProperty ? block.properties[attributeId] : block.params[attributeId]
     return CodeFormatter.formatAttributeValue({ def: attribute.def, a: attribute.a })
   }

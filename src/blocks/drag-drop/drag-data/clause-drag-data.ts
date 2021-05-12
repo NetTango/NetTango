@@ -7,13 +7,15 @@ import { DragInProgress } from '../drag-in-progress';
 import { ActiveDragData } from "./active-drag-data"
 
 class ClauseDragData extends ActiveDragData {
+  parentDefinitionId: number
   parentInstanceId: number
   clauseIndex: number
 
-  constructor(block: BlockInstanceUI, chainIndex: number, blockIndex: number, parentInstanceId: number, siblings: BlockInstanceUI[], clauseIndex: number) {
+  constructor(block: BlockInstanceUI, chainIndex: number, blockIndex: number, parentDefinitionId: number, parentInstanceId: number, siblings: BlockInstanceUI[], clauseIndex: number) {
     super(block, chainIndex, blockIndex, siblings)
-    this.parentInstanceId = parentInstanceId
-    this.clauseIndex      = clauseIndex
+    this.parentDefinitionId = parentDefinitionId
+    this.parentInstanceId   = parentInstanceId
+    this.clauseIndex        = clauseIndex
   }
 
   activate(startEvent: InteractEvent) {
@@ -32,7 +34,7 @@ class ClauseBlockDrag extends DragInProgress {
   constructor(block: BlockInstanceUI, dragData: ClauseDragData, startEvent: InteractEvent) {
     super(block.workspace, startEvent)
     this.dragData = dragData
-    const parentBlock = this.workspace.chains[this.dragData.chainIndex].getBlockInstance(this.dragData.parentInstanceId)
+    const parentBlock = this.workspace.chains[this.dragData.chainIndex].getBlockInstance(this.dragData.parentDefinitionId, this.dragData.parentInstanceId)
     if (parentBlock === null) {
       throw new Error("Our drag event referenced a block in a clause for a block that doesn't exist?")
     }
@@ -42,7 +44,7 @@ class ClauseBlockDrag extends DragInProgress {
 
   cancel(): void {
     super.cancel()
-    const parentBlock = this.workspace.chains[this.dragData.chainIndex].getBlockInstance(this.dragData.parentInstanceId)
+    const parentBlock = this.workspace.chains[this.dragData.chainIndex].getBlockInstance(this.dragData.parentDefinitionId, this.dragData.parentInstanceId)
     if (parentBlock === null) {
       throw new Error("Could not find the parent block that owns the clause a block was dragged from.")
     }
