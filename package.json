@@ -26,6 +26,6 @@
   },
   "dependencies": {
     "interactjs": "^1.10.2",
-    "zod": "^3.0.0-alpha.39"
+    "zod": "^3.0.0-beta.1"
   }
 }
