@@ -241,6 +241,7 @@ class CodeWorkspaceUI {
     const newChainIndex = this.chains.length
     const c: Chain = { x, y, blocks: [] }
     const newChain = new ChainUI(c, this, newChainIndex)
+    this.ws.program.chains.push(c)
     this.chains.push(newChain)
     const chainDiv = newChain.draw(newChainIndex)
     this.spaceDiv.append(chainDiv)
@@ -250,6 +251,7 @@ class CodeWorkspaceUI {
 
   removeChain(chainIndex: number): void {
     const chain = this.chains[chainIndex]
+    this.ws.program.chains.splice(chainIndex, 1)
     this.chains.splice(chainIndex, 1)
     chain.div.remove()
 
