@@ -16,6 +16,11 @@ class ObjectUtils {
     destination[prop] = source[prop]
   }
 
+  static setIfUndefined(o: any, prop: string, value: any | null = null): void {
+    if (!o.hasOwnProperty(prop)) {
+      o[prop] = value
+    }
+  }
 }
 
 export { ObjectUtils }

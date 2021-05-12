@@ -1,13 +1,8 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { BlockStyleUI } from "../blocks/block-style";
-import { CodeWorkspaceUI } from "../blocks/code-workspace";
-import { ExpressionUI } from "../blocks/expressions/expression";
-import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from "../nettango-defaults";
 import { codeWorkspaceInputSchema, CodeWorkspaceInput, BlockInput, AttributeInput, ClauseInput } from "../types/types-6";
+import { ArrayUtils } from "../utils/array-utils";
 import { ObjectUtils } from "../utils/object-utils";
-
-const unrestrictedTags = Object.freeze({ type: "unrestricted" })
 
 const blockInstanceProps: (keyof BlockInput)[] = [
   "instanceId", "clauses", "params", "properties", "propertiesDisplay"
@@ -18,137 +13,14 @@ const allBlockProps: (keyof BlockInput)[] = [
 , "font", "allowedTags", "tags", "clauses", "params", "properties", "propertiesDisplay"
 ]
 
-function setIfUndefined(o: any, prop: string, value: any | null = null) {
-  if (!o.hasOwnProperty(prop)) {
-    o[prop] = value
-  }
-}
-
 class Version6 {
 
   static update(workspaceEnc: any): void {
-    Version6.resetDefaults(workspaceEnc)
+    ObjectUtils.setIfUndefined(workspaceEnc, "blocks", [])
+    ObjectUtils.setIfUndefined(workspaceEnc, "program", {})
+    ObjectUtils.setIfUndefined(workspaceEnc.program, "chains", [])
     Version6.setBlockDefinitionIds(workspaceEnc.blocks)
     Version6.resetBlockInstancesToDefinitions(workspaceEnc)
-  }
-
-  // In version <=5 some null values, empty strings, and empty collections were stripped in the
-  // data export.  To ease the process of making changes we're no longer doing that in version 6+.
-  // But to do so we need to restore any defaults that would've been stripped it in older versions.
-  // -Jeremy B May 2021
-  static resetDefaults(workspaceEnc: any): void {
-    setIfUndefined(workspaceEnc, "height", DEFAULT_HEIGHT)
-    setIfUndefined(workspaceEnc, "width", DEFAULT_WIDTH)
-    setIfUndefined(workspaceEnc, "chainOpen")
-    setIfUndefined(workspaceEnc, "chainClose")
-    setIfUndefined(workspaceEnc, "blockStyles", {
-      starterBlockStyle: BlockStyleUI.DEFAULT_STARTER_STYLE
-    , containerBlockStyle: BlockStyleUI.DEFAULT_CONTAINER_STYLE
-    , commandBlockStyle: BlockStyleUI.DEFAULT_COMMAND_STYLE
-    })
-    setIfUndefined(workspaceEnc, "blocks", [])
-    setIfUndefined(workspaceEnc, "variables", [])
-    setIfUndefined(workspaceEnc, "expressions", [])
-    setIfUndefined(workspaceEnc, "program", { chains: [] })
-
-    workspaceEnc.blocks.forEach( (b: any) => Version6.resetBlockDefaults(b, true) )
-    workspaceEnc.expressions.forEach( (ed: any) => Version6.resetExpressionDefinitionDefaults(ed) )
-    workspaceEnc.program.chains.forEach( (c: any) => Version6.resetChainDefaults(c) )
-  }
-
-  static resetExpressionDefinitionDefaults(ed: any) {
-    setIfUndefined(ed, "arguments", [])
-    setIfUndefined(ed, "format")
-  }
-
-  static resetBlockDefaults(b: any, isDefinition: boolean): void {
-    setIfUndefined(b, "instanceId")
-    setIfUndefined(b, "type")
-    setIfUndefined(b, "format", null)
-    if (b.hasOwnProperty("required")) {
-      b.isRequired = b.required
-      delete b.required
-    }
-    setIfUndefined(b, "isRequired", false)
-    setIfUndefined(b, "isTerminal", false)
-    setIfUndefined(b, "closeClauses")
-    setIfUndefined(b, "closeStarter")
-    setIfUndefined(b, "limit", 0)
-    setIfUndefined(b, "note")
-    setIfUndefined(b, "blockColor")
-    setIfUndefined(b, "textColor")
-    setIfUndefined(b, "borderColor")
-    setIfUndefined(b, "font")
-    setIfUndefined(b, "allowedTags", unrestrictedTags)
-    setIfUndefined(b, "propertiesDisplay", "shown")
-    setIfUndefined(b, "tags", [])
-    setIfUndefined(b, "clauses", [])
-    setIfUndefined(b, "params", [])
-    setIfUndefined(b, "properties", [])
-
-    b.clauses.forEach( (c: any) => Version6.resetClauseDefaults(c) )
-    b.params.forEach( (a: any) => Version6.resetAttributeDefaults(a, isDefinition) )
-    b.properties.forEach( (a: any) => Version6.resetAttributeDefaults(a, isDefinition) )
-  }
-
-  static resetAttributeDefaults(a: any, isDefinition: boolean) {
-    setIfUndefined(a, "name")
-    setIfUndefined(a, "unit")
-
-    switch (a.type) {
-      case "text":
-        setIfUndefined(a, "default", "")
-        break
-
-      case "select":
-        setIfUndefined(a, "quoteValues", "smart-quote")
-        setIfUndefined(a, "default", "")
-        a.values.forEach( (v: any) => setIfUndefined(v, "display") )
-        break
-
-      case "int":
-      case "range":
-        setIfUndefined(a, "default", 0)
-        setIfUndefined(a, "random", false)
-        setIfUndefined(a, "step", 1)
-        break
-
-      case "num":
-      case "bool":
-        setIfUndefined(a, "default", ExpressionUI.getDefaultValue(a.type))
-        setIfUndefined(a, "expressionValue", ExpressionUI.getDefaultValue(a.type))
-        if (typeof a.value === "object") { Version6.resetExpressionDefaults(a.value) }
-        break
-
-      default:
-         console.log(`Unknown attribute type ${a.type}, skipping setting values.`)
-         break
-
-    }
-
-    if (isDefinition) {
-      a.value = a.default
-    }
-
-  }
-
-  static resetExpressionDefaults(e: any) {
-    setIfUndefined(e, "format")
-    setIfUndefined(e, "children", [])
-    e.children.forEach( (ce: any) => Version6.resetExpressionDefaults(ce) )
-  }
-
-  static resetClauseDefaults(c: any) {
-    setIfUndefined(c, "action")
-    setIfUndefined(c, "open")
-    setIfUndefined(c, "close")
-    setIfUndefined(c, "allowedTags", unrestrictedTags)
-    setIfUndefined(c, "children", [])
-    c.children.forEach( (b: any) => Version6.resetBlockDefaults(b, false) )
-  }
-
-  static resetChainDefaults(c: any): void {
-    c.blocks.forEach( (b: any) => Version6.resetBlockDefaults(b, false) )
   }
 
   static setBlockDefinitionIds(blocks: any[]): void {
@@ -173,10 +45,51 @@ class Version6 {
         ob.id = nextId
         nextId = nextId + 1
       })
+      Version6.moveRequired(b)
     })
 
-    blocks.forEach( (b: any) => b.params.forEach( (a: any, i: number) => a.id = i ) )
-    blocks.forEach( (b: any) => b.properties.forEach( (a: any, i: number) => a.id = i + b.params.length ) )
+    blocks.forEach( (b: any) => ArrayUtils.maybeForEach(b, "params", (a: any, i: number) => {
+      a.id = i
+      a.default = Version6.getAttributeDefDefault(a)
+      a.value = a.default
+    }, (b: any) => b.params = []))
+
+    blocks.forEach( (b: any) => ArrayUtils.maybeForEach(b, "properties", (a: any, i: number) => {
+      a.id = i + b.params.length
+      a.default = Version6.getAttributeDefDefault(a)
+      a.value = a.default
+    }, (b: any) => b.properties = []))
+
+  }
+
+  static getAttributeDefDefault(a: any): string | number | null {
+    if (a.hasOwnProperty("default")) {
+      return a.default
+    }
+
+    switch (a.type) {
+      case "int":
+      case "range":
+        return 10
+
+      case "text":
+      case "select":
+        return ""
+
+      case "num":
+      case "bool":
+        return "0"
+
+      default:
+        return null
+    }
+  }
+
+  static moveRequired(b: any): void {
+    if (b.hasOwnProperty("required")) {
+      b.isRequired = b.required
+      delete b.required
+    }
   }
 
   static resetBlockInstancesToDefinitions(workspaceEnc: any) {
@@ -198,6 +111,8 @@ class Version6 {
           return null
         }
         Version6.resetBlockInstanceToDefinition(getBlockById, bDef, bIns)
+        bIns.isRequired = bDef.isRequired
+        delete bIns.required
         return bIns
       })
       c.blocks = blocks.filter( (b: any) => b !== null )
@@ -209,17 +124,17 @@ class Version6 {
       ObjectUtils.copyProperty(definition, instance, p)
     })
 
-    instance.clauses = definition.clauses.map( (cDef, i) => {
+    instance.clauses = ArrayUtils.maybeMap(definition, "clauses", (cDef, i) => {
       const cIns = instance.clauses.length > i ? instance.clauses[i] : ObjectUtils.clone(cDef)
       Version6.resetClauseToDefinition(getBlockById, cDef, cIns)
       return cIns
     })
 
-    instance.params = definition.params.map( (aDef, i) =>
+    instance.params = ArrayUtils.maybeMap(definition, "params", (aDef, i) =>
       Version6.makeAttributeInstance(aDef, instance.params[i])
     )
 
-    instance.properties = definition.properties.map( (aDef, i) =>
+    instance.properties = ArrayUtils.maybeMap(definition, "properties", (aDef, i) =>
       Version6.makeAttributeInstance(aDef, instance.properties[i])
     )
 

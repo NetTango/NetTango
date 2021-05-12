@@ -24,15 +24,17 @@ import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from "../src/nettango-defaults"
 
 const UNRESTRICTED_TAGS: UnrestrictedTags = Object.freeze({ type: "unrestricted" })
 
+const DEFAULT_BLOCK_STYLES = {
+  commandBlockStyle: BlockStyleUI.DEFAULT_COMMAND_STYLE
+, containerBlockStyle: BlockStyleUI.DEFAULT_CONTAINER_STYLE
+, starterBlockStyle: BlockStyleUI.DEFAULT_STARTER_STYLE
+}
+
 const EMPTY_WORKSPACE: CodeWorkspace = {
   version: VersionManager.VERSION
 , height: DEFAULT_HEIGHT
 , width: DEFAULT_WIDTH
-, blockStyles: {
-    commandBlockStyle: BlockStyleUI.DEFAULT_COMMAND_STYLE
-  , containerBlockStyle: BlockStyleUI.DEFAULT_CONTAINER_STYLE
-  , starterBlockStyle: BlockStyleUI.DEFAULT_STARTER_STYLE
-  }
+, blockStyles: null
 , blocks: []
 , chainClose: null
 , chainOpen: null
