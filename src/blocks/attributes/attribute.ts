@@ -14,7 +14,8 @@ abstract class AttributeUI {
 
   get uniqueId(): string { return `${this.block.workspace.containerId}-${this.block.def.id}-${this.def.id}` }
 
-  getDisplayValue(): string { return `${this.a.value}${this.def.unit}` }
+  get displayUnit(): string { return this.def.unit === null ? "" : this.def.unit }
+  getDisplayValue(): string { return `${this.a.value}${this.displayUnit}` }
 
   constructor(def: Attribute, a: AttributeValue, block: BlockInstanceUI) {
     this.def = def

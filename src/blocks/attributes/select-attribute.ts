@@ -27,7 +27,7 @@ class SelectAttributeUI extends AttributeUI {
   readonly selectDef: SelectAttribute
   readonly sa: StringValue
 
-  getDisplayValue(): string { return `${this.selectedDisplay}${this.def.unit} \u25BE` }
+  getDisplayValue(): string { return `${this.selectedDisplay}${this.displayUnit} \u25BE` }
 
   /// list of possible values for select type
   get selectedDisplay(): string {

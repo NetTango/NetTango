@@ -78,7 +78,7 @@ class ExpressionAttributeUI extends AttributeUI {
     this.builder.open(`#nt-expression-${this.uniqueId}`)
   }
 
-  getDisplayValue(): string { return `${ExpressionAttributeUI.expressionValue(this.ea)}${this.def.unit}` }
+  getDisplayValue(): string { return `${ExpressionAttributeUI.expressionValue(this.ea)}${this.displayUnit}` }
 
   static expressionValue(ea: ExpressionValue): string {
     return typeof ea.value === 'string' ? ea.value : ExpressionAttributeUI.formatExpression(ea.value)

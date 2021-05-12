@@ -81,12 +81,12 @@ abstract class NumAttributeUI extends AttributeUI {
       <div class="nt-param-name">${this.def.name}</div>
       <div class="nt-param-value">
         <input class="nt-param-input" id="nt-param-${this.uniqueId}" type="number" step="${this.numDef.step}" value="${this.na.value}">
-        <span class="nt-param-unit">${this.def.unit}</span>
+        <span class="nt-param-unit">${this.displayUnit}</span>
       </div>
     `
   }
 
-  getDisplayValue(): string { return `${NumAttributeUI.numberValue(this.numDef, this.na)}${this.def.unit}` }
+  getDisplayValue(): string { return `${NumAttributeUI.numberValue(this.numDef, this.na)}${this.displayUnit}` }
 
   static numberValue(def: NumAttribute, na: NumberValue): string {
     const valueString: string = na.value.toFixed(NumAttributeUI.stepSizePrecision(def)).toString()

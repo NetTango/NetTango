@@ -38,7 +38,7 @@ class RangeAttributeUI extends NumAttributeUI {
           <div class="nt-param-label">
             ${this.def.name}:
             <label id="nt-param-label-${this.uniqueId}" for="nt-param-${this.uniqueId}">${this.ra.value}</label>
-            <span class="nt-param-unit">${this.def.unit}</span>
+            <span class="nt-param-unit">${this.displayUnit}</span>
           </div>
         </div>
         <div class="nt-param-row">
