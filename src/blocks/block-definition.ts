@@ -23,9 +23,6 @@ class BlockDefinitionUI {
 
   constructor(def: BlockDefinition, workspace: CodeWorkspaceUI, slotIndex: number) {
     this.def = def
-    if (this.def.id === null) {
-      throw new Error("Cannot make a menu slot for a block without an ID.")
-    }
     this.workspace = workspace
     this.slotIndex = slotIndex
   }

@@ -63,9 +63,6 @@ class SelectAttributeUI extends AttributeUI {
         backdrop.classList.remove("show")
         acceptCallback()
         const formattedValue = SelectAttributeUI.shouldQuote(this.selectDef, this.sa) ? `"${this.sa.value}"` : this.sa.value
-        if (this.block.b.instanceId === null) {
-          throw new Error("Cannot show parameter dialog for a non-instance block.")
-        }
         this.block.workspace.programChanged(new AttributeChangedEvent(this.block.def.id, this.block.b.instanceId, this.def.id, this.sa.type, this.sa.value, formattedValue))
         e.stopPropagation()
       }

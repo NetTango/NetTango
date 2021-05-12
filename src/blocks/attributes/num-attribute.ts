@@ -57,9 +57,6 @@ abstract class NumAttributeUI extends AttributeUI {
         backdrop.classList.remove("show")
         acceptCallback()
         const formattedValue = NumAttributeUI.numberValue(this.numDef, this.na)
-        if (this.block.b.instanceId === null) {
-          throw new Error("Cannot show parameter dialog for a non-instance block.")
-        }
         this.block.workspace.programChanged(new AttributeChangedEvent(this.block.def.id, this.block.b.instanceId, this.def.id, this.a.type, this.na.value, formattedValue))
       })
     )
