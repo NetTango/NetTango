@@ -4,13 +4,6 @@ import {
 , Clause
 , ClauseInstance
 , CodeWorkspace
-, ExpressionAttribute
-, Expression
-, ExpressionValue
-, IntAttribute
-, NumberValue
-, SelectAttribute
-, StringValue
 , UnrestrictedTags
 , codeWorkspaceSchema
 , blockDefinitionSchema
@@ -24,11 +17,21 @@ import {
 , expressionValueSchema
 , clauseSchema
 , clauseInstanceSchema
+, AttributeValue
+, textAttributeSchema
+, rangeAttributeSchema
+, Attribute
 } from "../types/types"
 
 import { BlockStyleUI } from "../blocks/block-style"
+import { ObjectUtils } from "../utils/object-utils"
+import { AttributeTypes } from "../blocks/attributes/attribute"
 
 const UNRESTRICTED_TAGS: UnrestrictedTags = Object.freeze({ type: "unrestricted" })
+
+function newUnrestrictedTags() {
+  return UNRESTRICTED_TAGS
+}
 
 const DEFAULT_BLOCK_STYLES = {
   commandBlockStyle: BlockStyleUI.DEFAULT_COMMAND_STYLE
@@ -36,51 +39,100 @@ const DEFAULT_BLOCK_STYLES = {
 , starterBlockStyle: BlockStyleUI.DEFAULT_STARTER_STYLE
 }
 
+function newBlockStyles() {
+  return ObjectUtils.clone(DEFAULT_BLOCK_STYLES)
+}
+
 const EMPTY_WORKSPACE: CodeWorkspace = codeWorkspaceSchema.parse({
   version: 6
 })
+
+function newWorkspace() {
+  return ObjectUtils.clone(EMPTY_WORKSPACE)
+}
 
 const EMPTY_BLOCK: BlockDefinition = blockDefinitionSchema.parse({
   id: -1
 , action: ""
 })
 
+function newBlockDefinition() {
+  return ObjectUtils.clone(EMPTY_BLOCK)
+}
+
 const EMPTY_BLOCK_INSTANCE: BlockInstance = blockInstanceSchema.parse({
   definitionId: -1
 , instanceId: -1
 })
 
-const INT_ATTRIBUTE: IntAttribute = intAttributeSchema.parse({ type: "int" })
+function newBlockInstance() {
+  return ObjectUtils.clone(EMPTY_BLOCK_INSTANCE)
+}
 
-const INT_VALUE: NumberValue = numValueSchema.parse({ type: "int" })
+function newAttribute(type: AttributeTypes): Attribute {
+  switch (type) {
+    case "text":
+      return textAttributeSchema.parse({ type: type })
 
-const SELECT_ATTRIBUTE: SelectAttribute = selectAttributeSchema.parse({ type: "select" })
+    case "select":
+      return selectAttributeSchema.parse({ type: "select" })
 
-const SELECT_VALUE: StringValue = stringValueSchema.parse({ type: "select" })
+    case "int":
+      return intAttributeSchema.parse({ type: type })
 
-const EXPRESSION_ATTRIBUTE: ExpressionAttribute = expressionAttributeSchema.parse({ type: "num" })
+    case "range":
+      return rangeAttributeSchema.parse({ type: type })
 
-const EXPRESSION: Expression = expressionSchema.parse({ name: "0" })
+    case "num":
+    case "bool":
+      return expressionAttributeSchema.parse({ type: type })
 
-const EXPRESSION_VALUE: ExpressionValue = expressionValueSchema.parse({ type: "num", value: EXPRESSION })
+  }
+}
+
+function newExpression(type: "num" | "bool") {
+  return expressionSchema.parse({ name: type === "num" ? "0" : "false" })
+}
+
+function newAttributeValue(type: AttributeTypes): AttributeValue {
+  switch (type) {
+    case "text":
+    case "select":
+      return stringValueSchema.parse({ type: type })
+
+    case "int":
+    case "range":
+      return numValueSchema.parse({ type: type })
+
+    case "num":
+    case "bool":
+      const value = newExpression(type)
+      return expressionValueSchema.parse({ type: type, value: value })
+
+  }
+}
 
 const EMPTY_CLAUSE: Clause = clauseSchema.parse({})
 
+function newClauseDefinition() {
+  return ObjectUtils.clone(EMPTY_CLAUSE)
+}
+
 const EMPTY_CLAUSE_INSTANCE: ClauseInstance = clauseInstanceSchema.parse({})
 
+function newClauseInstance() {
+  return ObjectUtils.clone(EMPTY_CLAUSE_INSTANCE)
+}
+
 export {
-  DEFAULT_BLOCK_STYLES
-, EMPTY_BLOCK
-, EMPTY_BLOCK_INSTANCE
-, EMPTY_CLAUSE
-, EMPTY_CLAUSE_INSTANCE
-, EMPTY_WORKSPACE
-, EXPRESSION
-, EXPRESSION_ATTRIBUTE
-, EXPRESSION_VALUE
-, INT_ATTRIBUTE
-, INT_VALUE
-, SELECT_ATTRIBUTE
-, SELECT_VALUE
-, UNRESTRICTED_TAGS
+  newAttribute
+, newAttributeValue
+, newBlockDefinition
+, newBlockInstance
+, newBlockStyles
+, newClauseDefinition
+, newClauseInstance
+, newExpression
+, newUnrestrictedTags
+, newWorkspace
 }

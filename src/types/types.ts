@@ -94,7 +94,7 @@ const attributeBaseSchema = z.object({
 , unit: z.string().nullable().default(null)
 })
 
-const textAttributeSchema = attributeBaseSchema.extend({
+export const textAttributeSchema = attributeBaseSchema.extend({
   type: z.literal("text")
 , default: z.string().default("")
 }).passthrough()
@@ -125,7 +125,7 @@ export const intAttributeSchema = numAttributeSchema.extend({
   type: z.literal("int")
 }).passthrough()
 
-const rangeAttributeSchema = numAttributeSchema.extend({
+export const rangeAttributeSchema = numAttributeSchema.extend({
   type: z.literal("range")
 , min: z.number().default(0)
 , max: z.number().default(100)

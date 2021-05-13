@@ -4,7 +4,7 @@ import { makeAttributeDefault, makeExpressionValue } from "../blocks/attributes/
 import { Attribute, AttributeValue, BlockDefinition, BlockInstance, Chain, Clause, ClauseInstance, CodeWorkspace, codeWorkspaceSchema } from "../types/types"
 import { AttributeInput, BlockInput, ChainInput, ClauseInput, CodeWorkspaceInput } from "../types/types-5"
 import { ObjectUtils } from "../utils/object-utils"
-import { EMPTY_BLOCK, EMPTY_BLOCK_INSTANCE, EMPTY_CLAUSE_INSTANCE, EMPTY_WORKSPACE } from "./empty-objects"
+import { newBlockDefinition, newBlockInstance, newClauseInstance, newWorkspace } from "./empty-objects"
 import { VersionUtils } from "./version-utils"
 
 type GetBlockDefType = (id: number| undefined) => BlockDefinition | undefined
@@ -39,7 +39,7 @@ class Version6 {
 
     const chains = ws.program.chains.map(Version6.makeChain(getBlockDef))
 
-    const workspace: CodeWorkspace = ObjectUtils.clone(EMPTY_WORKSPACE)
+    const workspace: CodeWorkspace = newWorkspace()
     Object.assign(workspace, ws, {
       blocks: blocks
     , program: { chains: chains }
@@ -62,7 +62,7 @@ class Version6 {
     const clauses = b.clauses.map( (c) => Version6.makeClauseDefinition(c) )
     const params = b.params.map( (a) => Version6.makeAttributeDefinition(a) )
     const properties = b.properties.map( (a) => Version6.makeAttributeDefinition(a) )
-    const block: BlockDefinition = ObjectUtils.clone(EMPTY_BLOCK)
+    const block: BlockDefinition = newBlockDefinition()
     Object.assign(block, b, {
       clauses: clauses
     , params: params
@@ -150,13 +150,13 @@ class Version6 {
   static makeBlockInstance(getBlockDef: GetBlockDefType, b: BlockInput): BlockInstance {
     const def = getBlockDef(b.id)
     if (def === undefined || b.id === undefined) {
-      return ObjectUtils.clone(EMPTY_BLOCK_INSTANCE, { definitionId: -1 })
+      return ObjectUtils.clone(newBlockInstance(), { definitionId: -1 })
     }
 
     const clauses = def.clauses.map( (_, i) => Version6.makeClauseInstance(getBlockDef, b.clauses[i]) )
     const params = def.params.map( (a, i) => Version6.makeAttributeValue(a, b.params[i]) )
     const properties = def.properties.map( (a, i) => Version6.makeAttributeValue(a, b.properties[i]) )
-    const block: BlockInstance = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE)
+    const block: BlockInstance = newBlockInstance()
     Object.assign(block, b, {
       definitionId: b.id
     , clauses: clauses
@@ -170,7 +170,7 @@ class Version6 {
 
   static makeClauseInstance(getBlockDef: GetBlockDefType, c: ClauseInput | undefined): ClauseInstance {
     if (c === undefined) {
-      return ObjectUtils.clone(EMPTY_CLAUSE_INSTANCE)
+      return newClauseInstance()
     }
 
     const blocks = (c.children ?? []).map( (b) => Version6.makeBlockInstance(getBlockDef, b) )
