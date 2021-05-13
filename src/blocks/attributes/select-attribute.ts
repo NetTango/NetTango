@@ -1,9 +1,7 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
 import { SelectAttribute, SelectOption, StringValue } from "../../types/types"
-import { StringUtils } from "../../utils/string-utils"
 import { BlockInstanceUI } from "../block-instance"
-import { CodeFormatter } from "../code-formatter"
 import { AttributeChangedEvent } from "../program-changed-event"
 import { AttributeUI } from "./attribute"
 
@@ -39,8 +37,8 @@ class SelectAttributeUI extends AttributeUI {
     }
   }
 
-  constructor(id: number, selectDef: SelectAttribute, sa: StringValue, block: BlockInstanceUI) {
-    super(id, selectDef, sa, block)
+  constructor(id: number, selectDef: SelectAttribute, sa: StringValue, block: BlockInstanceUI, isProperty: boolean) {
+    super(id, selectDef, sa, block, isProperty)
     this.selectDef = selectDef
     this.sa = sa
   }
@@ -63,7 +61,7 @@ class SelectAttributeUI extends AttributeUI {
         backdrop.classList.remove("show")
         acceptCallback()
         const formattedValue = SelectAttributeUI.shouldQuote(this.selectDef, this.sa) ? `"${this.sa.value}"` : this.sa.value
-        this.block.workspace.programChanged(new AttributeChangedEvent(this.block.def.id, this.block.b.instanceId, this.id, this.sa.type, this.sa.value, formattedValue))
+        this.block.workspace.programChanged(new AttributeChangedEvent(this.block.def.id, this.block.b.instanceId, this.id, this.sa.type, this.isProperty, this.sa.value, formattedValue))
         e.stopPropagation()
       }
     }

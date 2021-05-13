@@ -9,8 +9,8 @@ import { NumAttributeUI } from "./num-attribute"
 //-------------------------------------------------------------------------
 class IntAttributeUI extends NumAttributeUI {
 
-  constructor(id: number, def: IntAttribute, ia: NumberValue, block: BlockInstanceUI) {
-    super(id, def, ia, block)
+  constructor(id: number, def: IntAttribute, ia: NumberValue, block: BlockInstanceUI, isProperty: boolean) {
+    super(id, def, ia, block, isProperty)
   }
 
 }

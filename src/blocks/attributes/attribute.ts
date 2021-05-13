@@ -12,17 +12,19 @@ abstract class AttributeUI {
   readonly def: Attribute
   readonly a: AttributeValue
   readonly block: BlockInstanceUI
+  readonly isProperty: boolean
 
   get uniqueId(): string { return `${this.block.workspace.containerId}-${this.block.def.id}-${this.id}` }
 
   get displayUnit(): string { return this.def.unit === null ? "" : this.def.unit }
   getDisplayValue(): string { return `${this.a.value}${this.displayUnit}` }
 
-  constructor(id: number, def: Attribute, a: AttributeValue, block: BlockInstanceUI) {
+  constructor(id: number, def: Attribute, a: AttributeValue, block: BlockInstanceUI, isProperty: boolean) {
     this.id = id
     this.def = def
     this.a = a
     this.block = block
+    this.isProperty = isProperty
   }
 
   // parameters are meant to display inline with just a value

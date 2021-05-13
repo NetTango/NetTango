@@ -29,15 +29,17 @@ class AttributeChangedEvent extends ProgramChangedEvent {
   readonly instanceId: number
   readonly attributeId: number
   readonly attributeType: AttributeTypes
+  readonly isProperty: boolean
   readonly value: any
   readonly formattedValue: string
 
-  constructor(blockId: number, instanceId: number, attributeId: number, attributeType: AttributeTypes, value: any, formattedValue: string) {
+  constructor(blockId: number, instanceId: number, attributeId: number, attributeType: AttributeTypes, isProperty: boolean, value: any, formattedValue: string) {
     super()
     this.blockId = blockId
     this.instanceId = instanceId
     this.attributeId = attributeId
     this.attributeType = attributeType
+    this.isProperty = isProperty
     this.value = value
     this.formattedValue = formattedValue
   }
