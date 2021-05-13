@@ -165,7 +165,7 @@ class Version6 {
     , properties: properties
     })
     const extraProps = allBlockProps.filter( (p) => !blockInstanceProps.includes(p) )
-    ObjectUtils.deleteProperties(block, ...extraProps)
+    ObjectUtils.deleteProperties(block, "required", ...extraProps)
     return block
   }
 

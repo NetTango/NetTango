@@ -264,7 +264,7 @@ test("Version5 - select with unquoted values gets `never-quote` set", () => {
   expect(result).toStrictEqual(expected)
 })
 
-test("Version7 - expression attributes get proper values reset", () => {
+test("Version6 - expression attributes get proper values reset", () => {
 
   const model = {
     version: 4
