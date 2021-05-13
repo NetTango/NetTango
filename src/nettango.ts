@@ -82,12 +82,16 @@ class NetTango {
     const workspaceEnc: CodeWorkspace = VersionManager.updateWorkspace(definition)
 
     try {
+      var notifier = null
       if (NetTango.workspaces.has(containerId)) {
-        NetTango.workspaces.get(containerId)!.removeEventListeners()
+        const oldWs = NetTango.workspaces.get(containerId)!
+        oldWs.removeEventListeners()
+        notifier = oldWs.notifier
       }
       const workspace = restoreWorkspace(containerId, workspaceEnc, language, formatAttribute)
       NetTango.workspaces.set(containerId, workspace)
       workspace.draw()
+      workspace.notifier = notifier
     } catch (e) {
       console.log(e)
       throw new Error("There was an error initializing the workspace with the given NetTango model JSON.")
