@@ -217,6 +217,7 @@ class BlockInstanceUI {
   formatCodeTip(): string {
     const out = new StringBuffer()
     if (this.def.note !== null && StringUtils.isNotNullOrEmpty(this.def.note.trimLeft())) {
+      out.writeln(this.def.note)
       out.writeln()
     }
     if (this.dragData instanceof ChainDragData) {
