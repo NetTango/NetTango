@@ -276,7 +276,9 @@ class Version6 {
     if (result.success) {
       return result.data
     }
-    throw new Error(`The NetTango project data was invalid.  ${result.error.toString()}`)
+    console.log("Workspace data:", workspaceEnc)
+    console.log("Zod parsing errors: ", result.error)
+    throw new Error(`The NetTango project data was invalid.  See the developer console for the full error.`)
   }
 }
 
