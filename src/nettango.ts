@@ -99,6 +99,8 @@ class NetTango {
 
   }
 
+  static hasWorkspace(containerId: string): boolean { return NetTango.workspaces.has(containerId) }
+
 }
 
 if (window !== undefined && window !== null && !window.hasOwnProperty("NetTango")) {
