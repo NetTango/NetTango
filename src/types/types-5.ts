@@ -32,7 +32,7 @@ export type ExpressionInput = {
 }
 
 export type ClauseInput = {
-  children: Array<BlockInput>
+  children?: Array<BlockInput>
   action: string | null
   open: string | null
   close: string | null
@@ -73,7 +73,7 @@ const allowedTagsInputSchema = z.union([
 
 const clauseInputSchema: z.ZodSchema<ClauseInput, any, any> = z.lazy(() =>
   z.object({
-    children: z.array(blockInputSchema).default([])
+    children: z.array(blockInputSchema).optional()
   , action: z.string().nullable().default(null)
   , open: z.string().nullable().default(null)
   , close: z.string().nullable().default(null)
@@ -82,14 +82,14 @@ const clauseInputSchema: z.ZodSchema<ClauseInput, any, any> = z.lazy(() =>
 )
 
 const attributeBaseSchema = z.object({
-  id: z.number()
+  id: z.number().optional()
 , name: z.string().nullable().default(null)
 , unit: z.string().nullable().default(null)
 })
 
 const textAttributeInputSchema = attributeBaseSchema.extend({
   type: z.literal("text")
-, value: z.string()
+, value: z.string().optional()
 , default: z.string().default("")
 }).passthrough()
 
@@ -100,7 +100,7 @@ const selectOptionInputSchema = z.object({
 
 const selectAttributeInputSchema = attributeBaseSchema.extend({
   type: z.literal("select")
-, value: z.string()
+, value: z.string().optional()
 , default: z.string().default("")
 , quoteValues: z.union([
     z.literal("smart-quote")
@@ -113,7 +113,7 @@ const selectAttributeInputSchema = attributeBaseSchema.extend({
 const numAttributeInputSchema = attributeBaseSchema.extend({
   step: z.number().default(1)
 , random: z.boolean().default(false)
-, value: z.number()
+, value: z.number().optional()
 , default: z.number().default(10)
 }).passthrough()
 
@@ -139,8 +139,7 @@ const expressionInputSchema: z.ZodSchema<ExpressionInput, any, any> = z.lazy(() 
 )
 
 const expressionAttributeInputSchema = attributeBaseSchema.extend({
-  id: z.number()
-, type: expressionTypes.default("num")
+  type: expressionTypes.default("num")
 , default: z.string().default("0")
 , value: z.union([z.string(), expressionInputSchema]).default("0")
 , expressionValue: z.string().nullable().default("0")
@@ -155,7 +154,7 @@ const attributeInputSchema = z.union([
 ])
 
 const blockInputSchema = z.object({
-  id: z.number()
+  id: z.number().optional()
 , action: z.string()
 , isRequired: z.boolean().default(false)
 , placement: z.union([
@@ -199,11 +198,11 @@ const expressionDefinitionInputSchema = z.object({
 }).passthrough()
 
 export const codeWorkspaceInputSchema = z.object({
-  version: z.literal(6)
+  version: z.literal(5)
 , height: z.number().default(DEFAULT_HEIGHT)
 , width: z.number().default(DEFAULT_WIDTH)
 , blocks: z.array(blockInputSchema).default([])
-, program: z.object({ chains: z.array(chainInputSchema).default([]) })
+, program: z.object({ chains: z.array(chainInputSchema).default([]) }).default({ chains: [] })
 , chainOpen: z.string().nullable().default(null)
 , chainClose: z.string().nullable().default(null)
 , blockStyles: z.object({

@@ -22,8 +22,8 @@ abstract class NumAttributeUI extends AttributeUI {
   // Perhaps surprisingly, this class does *not* correspond to the `"num"` attribute `type`.
   // That type is for the `ExpressionAttribute`.  This class can be `int` or `range`.
   // -Jeremy B July 2020
-  constructor(numDef: IntAttribute | RangeAttribute, na: NumberValue, block: BlockInstanceUI) {
-    super(numDef, na, block)
+  constructor(id: number, numDef: IntAttribute | RangeAttribute, na: NumberValue, block: BlockInstanceUI) {
+    super(id, numDef, na, block)
     this.numDef = numDef
     this.na = na
   }
@@ -57,7 +57,7 @@ abstract class NumAttributeUI extends AttributeUI {
         backdrop.classList.remove("show")
         acceptCallback()
         const formattedValue = NumAttributeUI.numberValue(this.numDef, this.na)
-        this.block.workspace.programChanged(new AttributeChangedEvent(this.block.def.id, this.block.b.instanceId, this.def.id, this.a.type, this.na.value, formattedValue))
+        this.block.workspace.programChanged(new AttributeChangedEvent(this.block.def.id, this.block.b.instanceId, this.id, this.a.type, this.na.value, formattedValue))
       })
     )
 

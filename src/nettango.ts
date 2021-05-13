@@ -13,7 +13,7 @@ import { ObjectUtils } from "./utils/object-utils"
 type FormatAttributeType = (containerId: string, blockId: number, instanceId: number, attributeId: number, value: any, attributeType: AttributeTypes, isProperty: boolean) => string
 
 function restoreWorkspace(containerId: string, workspaceEnc: CodeWorkspace, language: string, formatAttribute: FormatAttributeType): CodeWorkspaceUI {
-  if (workspaceEnc["version"] !== VersionManager.VERSION) {
+  if (workspaceEnc.version !== VersionManager.VERSION) {
     throw new Error(`The supported NetTango version is ${VersionManager.VERSION}, but the given definition version was ${workspaceEnc["version"]}.`)
   }
   const workspace = new CodeWorkspaceUI(containerId, workspaceEnc, language, formatAttribute)

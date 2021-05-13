@@ -1,11 +1,8 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
 import {
-  BlockDefinition
-, BlockInstance
-, Clause
+  Clause
 , ClauseInstance
-, CodeWorkspace
 , ExpressionAttribute
 , Expression
 , ExpressionValue
@@ -13,114 +10,25 @@ import {
 , NumberValue
 , SelectAttribute
 , StringValue
-, UnrestrictedTags
 } from "../src/types/types"
 
-import { BlockPlacement } from "../src/blocks/block-placement"
-import { BlockStyleUI } from "../src/blocks/block-style"
 import { ObjectUtils } from "../src/utils/object-utils"
 import { VersionManager } from "../src/versions/version-manager"
-import { DEFAULT_HEIGHT, DEFAULT_WIDTH } from "../src/nettango-defaults"
 
-const UNRESTRICTED_TAGS: UnrestrictedTags = Object.freeze({ type: "unrestricted" })
-
-const DEFAULT_BLOCK_STYLES = {
-  commandBlockStyle: BlockStyleUI.DEFAULT_COMMAND_STYLE
-, containerBlockStyle: BlockStyleUI.DEFAULT_CONTAINER_STYLE
-, starterBlockStyle: BlockStyleUI.DEFAULT_STARTER_STYLE
-}
-
-const EMPTY_WORKSPACE: CodeWorkspace = {
-  version: VersionManager.VERSION
-, height: DEFAULT_HEIGHT
-, width: DEFAULT_WIDTH
-, blockStyles: null
-, blocks: []
-, chainClose: null
-, chainOpen: null
-, expressions: []
-, program: { chains: [] }
-, variables: []
-}
-
-const EMPTY_BLOCK: BlockDefinition = {
-  id: 0
-, action: ""
-, blockColor: null
-, borderColor: null
-, closeClauses: null
-, closeStarter: null
-, font: null
-, format: null
-, isRequired: false
-, isTerminal: false
-, limit: 0
-, note: null
-, placement: BlockPlacement.CHILD
-, textColor: null
-, type: null
-, clauses: []
-, params: []
-, properties: []
-, tags: []
-, allowedTags: UNRESTRICTED_TAGS
-}
-
-const EMPTY_BLOCK_INSTANCE: BlockInstance = {
-    definitionId: 0
-  , instanceId: 0
-  , propertiesDisplay: "shown"
-  , clauses: []
-  , params: []
-  , properties: []
-}
-
-const INT_ATTRIBUTE: IntAttribute = {
-  id: 0
-, default: 10
-, name: null
-, random: false
-, step: 1
-, type: "int"
-, unit: null
-}
-
-const INT_VALUE: NumberValue = { type: "int", value: 10 }
-
-const SELECT_ATTRIBUTE: SelectAttribute = {
-  id: 0
-, default: ""
-, name: null
-, quoteValues: "smart-quote"
-, type: "select"
-, unit: null
-, values: []
-}
-
-const SELECT_VALUE: StringValue = { type: "select", value: "" }
-
-const EXPRESSION_ATTRIBUTE: ExpressionAttribute = {
-  id: 0
-, default: ""
-, name: null
-, type: "num"
-, unit: null
-}
-
-const EXPRESSION: Expression = { type: "num", format: null, name: "0", children: [] }
-
-const EXPRESSION_VALUE: ExpressionValue = { type: "num", value: EXPRESSION, expressionValue: "0" }
-
-const EMPTY_CLAUSE: Clause = {
-  action: null
-, open: null
-, close: null
-, allowedTags: UNRESTRICTED_TAGS
-}
-
-const EMPTY_CLAUSE_INSTANCE: ClauseInstance = {
-  blocks: []
-}
+import {
+  EMPTY_BLOCK
+, EMPTY_BLOCK_INSTANCE
+, EMPTY_CLAUSE
+, EMPTY_CLAUSE_INSTANCE
+, EMPTY_WORKSPACE
+, EXPRESSION
+, EXPRESSION_ATTRIBUTE
+, EXPRESSION_VALUE
+, INT_ATTRIBUTE
+, INT_VALUE
+, SELECT_ATTRIBUTE
+, SELECT_VALUE
+} from "../src/versions/empty-objects"
 
 test("Version1 - blank workspace gets version added", () => {
   const model = {}
@@ -136,7 +44,7 @@ test("Version1 - block gets id added", () => {
   }
 
   const expected = ObjectUtils.clone(EMPTY_WORKSPACE)
-  const blockDef = ObjectUtils.clone(EMPTY_BLOCK, { action: "wolf actions" })
+  const blockDef = ObjectUtils.clone(EMPTY_BLOCK, { id: 0, action: "wolf actions" })
   expected.blocks.push(blockDef)
 
   const result = VersionManager.updateWorkspace(model)
@@ -153,9 +61,9 @@ test("Version1 - chain block gets id added", () => {
   }
 
   const expected = ObjectUtils.clone(EMPTY_WORKSPACE)
-  const blockDef = ObjectUtils.clone(EMPTY_BLOCK, { action: "wolf actions" })
+  const blockDef = ObjectUtils.clone(EMPTY_BLOCK, { id: 0, action: "wolf actions" })
   expected.blocks.push(blockDef)
-  const blockInst = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE)
+  const blockInst = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE, { definitionId: 0, instanceId: 0 })
   expected.program.chains.push({
     x: 0, y: 0, blocks: [blockInst]
   })
@@ -174,16 +82,16 @@ test("Version1 - chain block with children gets id added", () => {
   }
 
   const expected = ObjectUtils.clone(EMPTY_WORKSPACE)
-  const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { action: "wolf actions" })
+  const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { id: 0, action: "wolf actions" })
   const clause1: Clause = ObjectUtils.clone(EMPTY_CLAUSE)
   blockDef1.clauses.push(clause1)
   expected.blocks.push(blockDef1)
   const blockDef2 = ObjectUtils.clone(EMPTY_BLOCK, { id: 1, action: "forward 10" })
   expected.blocks.push(blockDef2)
-  const blockInst1 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE)
+  const blockInst1 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE, { definitionId: 0, instanceId: 0 })
   const clauseInst1: ClauseInstance = ObjectUtils.clone(EMPTY_CLAUSE_INSTANCE)
   blockInst1.clauses.push(clauseInst1)
-  const blockInst2 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE, { definitionId: 1 })
+  const blockInst2 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE, { definitionId: 1, instanceId: 0 })
   blockInst1.clauses[0].blocks.push(blockInst2)
   expected.program.chains.push({
     x: 0, y: 0, blocks: [blockInst1]
@@ -203,7 +111,7 @@ test("Version1 - chain block with clauses gets id added", () => {
   }
 
   const expected = ObjectUtils.clone(EMPTY_WORKSPACE)
-  const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { action: "wolf actions" })
+  const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { id: 0, action: "wolf actions" })
   const clause1: Clause = ObjectUtils.clone(EMPTY_CLAUSE)
   blockDef1.clauses.push(clause1)
   const clause2: Clause = ObjectUtils.clone(EMPTY_CLAUSE)
@@ -211,12 +119,12 @@ test("Version1 - chain block with clauses gets id added", () => {
   expected.blocks.push(blockDef1)
   const blockDef2 = ObjectUtils.clone(EMPTY_BLOCK, { id: 1, action: "forward 10" })
   expected.blocks.push(blockDef2)
-  const blockInst1 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE)
+  const blockInst1 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE, { definitionId: 0, instanceId: 0 })
   const clauseInst1: ClauseInstance = ObjectUtils.clone(EMPTY_CLAUSE_INSTANCE)
   blockInst1.clauses.push(clauseInst1)
   const clauseInst2: ClauseInstance = ObjectUtils.clone(EMPTY_CLAUSE_INSTANCE)
   blockInst1.clauses.push(clauseInst2)
-  const blockInst2 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE, { definitionId: 1 })
+  const blockInst2 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE, { definitionId: 1, instanceId: 0 })
   blockInst1.clauses[1].blocks.push(blockInst2)
   expected.program.chains.push({
     x: 0, y: 0, blocks: [blockInst1]
@@ -237,10 +145,10 @@ test("Version1 - block, parameter, and property get ids added", () => {
   }
 
   const expected = ObjectUtils.clone(EMPTY_WORKSPACE)
-  const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { action: "wolf actions" })
+  const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { id: 0, action: "wolf actions" })
   const param1: IntAttribute = ObjectUtils.clone(INT_ATTRIBUTE, { default: 10 })
   blockDef1.params.push(param1)
-  const prop1: IntAttribute = ObjectUtils.clone(INT_ATTRIBUTE, { id: 1, default: 9 })
+  const prop1: IntAttribute = ObjectUtils.clone(INT_ATTRIBUTE, { default: 9 })
   blockDef1.properties.push(prop1)
   expected.blocks.push(blockDef1)
 
@@ -265,13 +173,13 @@ test("Version1 - chain block, parameter, and property get ids added", () => {
   }
 
   const expected = ObjectUtils.clone(EMPTY_WORKSPACE)
-  const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { action: "wolf actions" })
+  const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { id: 0, action: "wolf actions" })
   const param1: IntAttribute = ObjectUtils.clone(INT_ATTRIBUTE, { default: 10 })
   blockDef1.params.push(param1)
-  const prop1: IntAttribute = ObjectUtils.clone(INT_ATTRIBUTE, { id: 1, default: 9 })
+  const prop1: IntAttribute = ObjectUtils.clone(INT_ATTRIBUTE, { default: 9 })
   blockDef1.properties.push(prop1)
   expected.blocks.push(blockDef1)
-  const blockInst1 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE)
+  const blockInst1 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE, { definitionId: 0, instanceId: 0 })
   const paramVal1: NumberValue = ObjectUtils.clone(INT_VALUE, { value: 10 })
   blockInst1.params.push(paramVal1)
   const propVal1: NumberValue = ObjectUtils.clone(INT_VALUE, { value: 9 })
@@ -302,14 +210,14 @@ test("Version2 - select parameter converts to objects", () => {
   }
 
   const expected = ObjectUtils.clone(EMPTY_WORKSPACE)
-  const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { action: "wolf actions" })
+  const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { id: 0, action: "wolf actions" })
   const param1: SelectAttribute = ObjectUtils.clone(SELECT_ATTRIBUTE, {
     default: "apples"
   , values: [{ actual: "apples", display: null }, { actual: "oranges", display: null }]
   })
   blockDef1.params.push(param1)
   expected.blocks.push(blockDef1)
-  const blockInst1 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE)
+  const blockInst1 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE, { definitionId: 0, instanceId: 0 })
   const paramInst1: StringValue = ObjectUtils.clone(SELECT_VALUE, { value: "apples" })
   blockInst1.params.push(paramInst1)
   expected.program.chains.push({
@@ -330,10 +238,10 @@ test("Version4 - chain gets x and y coordinates from first block", () => {
   }
 
   const expected = ObjectUtils.clone(EMPTY_WORKSPACE)
-  const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { action: "act1" })
+  const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { id: 0, action: "act1" })
   expected.blocks.push(blockDef1)
-  const blockInst1 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE)
-  const blockInst2 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE, { instanceId: 1 })
+  const blockInst1 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE, { definitionId: 0, instanceId: 0 })
+  const blockInst2 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE, { definitionId: 0, instanceId: 1 })
   expected.program.chains.push({
     x: 10, y: 7, blocks: [blockInst1, blockInst2]
   })
@@ -355,7 +263,7 @@ test("Version5 - select with unquoted values gets `never-quote` set", () => {
   }
 
   const expected = ObjectUtils.clone(EMPTY_WORKSPACE)
-  const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { action: "act1" })
+  const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { id: 0, action: "act1" })
   const param1: SelectAttribute = ObjectUtils.clone(SELECT_ATTRIBUTE, {
     default: "red"
   , name: "color"
@@ -417,18 +325,18 @@ test("Version7 - expression attributes get proper values reset", () => {
   }
 
   const expected = ObjectUtils.clone(EMPTY_WORKSPACE)
-  const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { action: "act1" })
+  const blockDef1 = ObjectUtils.clone(EMPTY_BLOCK, { id: 0, action: "act1" })
   const param1: ExpressionAttribute = ObjectUtils.clone(EXPRESSION_ATTRIBUTE, {
     default: "0"
   , name: "expr-me"
   })
   blockDef1.params.push(param1)
   expected.blocks.push(blockDef1)
-  const blockInst1 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE)
+  const blockInst1 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE, { definitionId: 0, instanceId: 0 })
   const expr1: Expression = ObjectUtils.clone(EXPRESSION, { name: "10" })
   const paramInst1: ExpressionValue = ObjectUtils.clone(EXPRESSION_VALUE, { value: expr1 })
   blockInst1.params.push(paramInst1)
-  const blockInst2 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE, { instanceId: 1 })
+  const blockInst2 = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE, { definitionId: 0, instanceId: 1 })
   const paramInstValue2: Expression = {
     name: "+"
   , type: "num"

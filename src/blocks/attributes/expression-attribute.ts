@@ -18,8 +18,8 @@ class ExpressionAttributeUI extends AttributeUI {
   readonly ea: ExpressionValue
   builder: ExpressionBuilder
 
-  constructor(expDef: ExpressionAttribute, ea: ExpressionValue, block: BlockInstanceUI) {
-    super(expDef, ea, block)
+  constructor(id: number, expDef: ExpressionAttribute, ea: ExpressionValue, block: BlockInstanceUI) {
+    super(id, expDef, ea, block)
     this.expDef = expDef
     this.ea = ea
     this.builder = new ExpressionBuilder(this.block.workspace, this.ea.value)
@@ -59,7 +59,7 @@ class ExpressionAttributeUI extends AttributeUI {
         backdrop.classList.remove("show")
         acceptCallback()
         const value = ExpressionAttributeUI.expressionValue(this.ea)
-        this.block.workspace.programChanged(new AttributeChangedEvent(this.block.def.id, this.block.b.instanceId, this.def.id, this.ea.type, value, value))
+        this.block.workspace.programChanged(new AttributeChangedEvent(this.block.def.id, this.block.b.instanceId, this.id, this.ea.type, value, value))
         return false
       })
     )

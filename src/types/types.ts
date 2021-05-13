@@ -76,22 +76,21 @@ const allowedTagsSchema = z.union([
 , concreteTagsSchema
 ])
 
-const clauseSchema = z.object({
-    action: z.string().nullable().default(null)
-  , open: z.string().nullable().default(null)
-  , close: z.string().nullable().default(null)
-  , allowedTags: allowedTagsSchema.default({ type: "unrestricted" })
+export const clauseSchema = z.object({
+  action: z.string().nullable().default(null)
+, open: z.string().nullable().default(null)
+, close: z.string().nullable().default(null)
+, allowedTags: allowedTagsSchema.default({ type: "unrestricted" })
 }).passthrough()
 
-const clauseInstanceSchema: z.ZodSchema<ClauseInstance, any, any> = z.lazy(() =>
+export const clauseInstanceSchema: z.ZodSchema<ClauseInstance, any, any> = z.lazy(() =>
   z.object({
     blocks: z.array(blockInstanceSchema).default([])
   }).passthrough()
 )
 
 const attributeBaseSchema = z.object({
-  id: z.number()
-, name: z.string().nullable().default(null)
+  name: z.string().nullable().default(null)
 , unit: z.string().nullable().default(null)
 })
 
@@ -105,7 +104,7 @@ const selectOptionSchema = z.object({
 , display: z.string().nullable().default(null)
 }).passthrough()
 
-const selectAttributeSchema = attributeBaseSchema.extend({
+export const selectAttributeSchema = attributeBaseSchema.extend({
   type: z.literal("select")
 , default: z.string().default("")
 , quoteValues: z.union([
@@ -117,12 +116,12 @@ const selectAttributeSchema = attributeBaseSchema.extend({
 }).passthrough()
 
 const numAttributeSchema = attributeBaseSchema.extend({
-  step: z.number()
+  step: z.number().default(1)
 , random: z.boolean().default(false)
 , default: z.number().default(10)
 }).passthrough()
 
-const intAttributeSchema = numAttributeSchema.extend({
+export const intAttributeSchema = numAttributeSchema.extend({
   type: z.literal("int")
 }).passthrough()
 
@@ -134,7 +133,7 @@ const rangeAttributeSchema = numAttributeSchema.extend({
 
 const expressionTypes = z.union([z.literal("num"), z.literal("bool")])
 
-const expressionSchema: z.ZodSchema<Expression, any, any> = z.lazy(() =>
+export const expressionSchema: z.ZodSchema<Expression, any, any> = z.lazy(() =>
   z.object({
     name: z.string()
   , type: expressionTypes.default("num")
@@ -143,9 +142,9 @@ const expressionSchema: z.ZodSchema<Expression, any, any> = z.lazy(() =>
   }).passthrough()
 )
 
-const expressionAttributeSchema = attributeBaseSchema.extend({
+export const expressionAttributeSchema = attributeBaseSchema.extend({
   type: expressionTypes
-, default: z.string()
+, default: z.string().default("0")
 }).passthrough()
 
 const attributeSchema = z.union([
@@ -156,20 +155,20 @@ const attributeSchema = z.union([
 , expressionAttributeSchema
 ])
 
-const stringValueSchema = z.object({
-  type: z.union([z.literal("text"), z.literal("select")]).default("text")
+export const stringValueSchema = z.object({
+  type: z.union([z.literal("text"), z.literal("select")])
 , value: z.string().default("")
 }).passthrough()
 
-const numValueSchema = z.object({
-  type: z.union([z.literal("int"), z.literal("range")]).default("int")
+export const numValueSchema = z.object({
+  type: z.union([z.literal("int"), z.literal("range")])
 , value: z.number().default(0)
 }).passthrough()
 
-const expressionValueSchema = z.object({
-  type: z.union([z.literal("num"), z.literal("bool")]).default("num")
+export const expressionValueSchema = z.object({
+  type: z.union([z.literal("num"), z.literal("bool")])
 , value: expressionSchema
-, expressionValue: z.string().nullable().default(null)
+, expressionValue: z.string().nullable().default("0")
 }).passthrough()
 
 const attributeValueSchema = z.union([
@@ -178,7 +177,7 @@ const attributeValueSchema = z.union([
 , expressionValueSchema
 ])
 
-const blockDefinitionSchema = z.object({
+export const blockDefinitionSchema = z.object({
   id: z.number()
 , action: z.string()
 , isRequired: z.boolean().default(false)
@@ -205,7 +204,7 @@ const blockDefinitionSchema = z.object({
 , properties: z.array(attributeSchema).default([])
 }).passthrough()
 
-const blockInstanceSchema = z.object({
+export const blockInstanceSchema = z.object({
   definitionId: z.number()
 , instanceId: z.number()
 , clauses: z.array(clauseInstanceSchema).default([])
@@ -230,7 +229,7 @@ const expressionDefinitionSchema = z.object({
 }).passthrough()
 
 export const codeWorkspaceSchema = z.object({
-  version: z.literal(7)
+  version: z.literal(6)
 , height: z.number().default(DEFAULT_HEIGHT)
 , width: z.number().default(DEFAULT_WIDTH)
 , blocks: z.array(blockDefinitionSchema).default([])

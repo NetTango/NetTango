@@ -175,7 +175,7 @@ class CodeFormatter  {
 
   replaceAttributes(format: string, block: BlockData, attributes: AttributeData[], placeholder: string, areProperties: boolean): string {
     attributes.forEach( (a, i) => {
-      format = this.replaceAttribute(format, `{${placeholder}${i}}`, block, a, areProperties)
+      format = this.replaceAttribute(format, `{${placeholder}${i}}`, block, i, a, areProperties)
     })
     return format
   }
@@ -187,9 +187,9 @@ class CodeFormatter  {
     this.writeFormatOption(out, block, indent, this.formatOptions.clauseClose, clause.def.close)
   }
 
-  replaceAttribute(code: string, placeholder: string, block: BlockData, a: AttributeData, isProperty: boolean): string {
+  replaceAttribute(code: string, placeholder: string, block: BlockData, id: number, a: AttributeData, isProperty: boolean): string {
     const formattedValue = CodeFormatter.formatAttributeValue(a)
-    const replacement = this.formatAttribute(this.workspace.containerId, block.def.id, block.b.instanceId, a.def.id, formattedValue, a.def.type, isProperty)
+    const replacement = this.formatAttribute(this.workspace.containerId, block.def.id, block.b.instanceId, id, formattedValue, a.def.type, isProperty)
     return StringUtils.replaceAll(code, placeholder, replacement)
   }
 

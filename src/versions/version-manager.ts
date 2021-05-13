@@ -21,10 +21,11 @@ import { Version3 } from "./version-3"
 import { Version4 } from "./version-4"
 import { Version5 } from "./version-5"
 import { Version6 } from "./version-6"
-import { Version7 } from "./version-7"
+import { ArrayUtils } from "../utils/array-utils"
+import { ObjectUtils } from "../utils/object-utils"
 
 class VersionManager {
-  static readonly VERSION = 7
+  static readonly VERSION = 6
 
   static updateWorkspace(definition: any): CodeWorkspace {
     const version: number = definition.hasOwnProperty("version") ? definition.version : 0
@@ -36,23 +37,89 @@ class VersionManager {
     const unvalidatedVersions = [Version1, Version2, Version3, Version4, Version5]
     unvalidatedVersions.slice(version).forEach( (v) => v.update(definition) )
 
-    // TODO we'll need a better way to handle chaining together version updates and validations as their
-    // `validate()` types change.
+    VersionManager.setBlockDefinitionIds(definition)
+
     if (version < 6) {
-      Version6.update(definition)
-    }
-    if (version < 7) {
-      definition.version = 6
-      definition = Version6.validate(definition)
-      Version7.update(definition)
+      definition.version = 5
+      definition = Version5.validate(definition)
+      definition = Version6.update(definition)
     }
     definition.version = VersionManager.VERSION
 
-    const validated = Version7.validate(definition)
+    const validated = Version6.validate(definition)
 
     VersionManager.fixupUntypedIssues(validated)
 
     return validated
+  }
+
+  static setBlockDefinitionIds(model: any): void {
+    ObjectUtils.setIfUndefined(model, "blocks", [])
+
+    if (model.blocks.length === 0) {
+      return
+    }
+
+    // get the largest ID number among all block defs to get our next ID
+    const ids = model.blocks.map( (b: any) => b.hasOwnProperty("id") && b.id !== null ? b.id : -1 )
+    var nextId = Math.max(...ids) + 1
+
+    // missing IDs, probably new blocks
+    model.blocks.filter( (b: any) => !b.hasOwnProperty("id") || b.id === null || b.id === -1 ).forEach( (b: any) => {
+      b.id = nextId
+      nextId = nextId + 1
+    })
+
+    // duplicate IDs
+    model.blocks.forEach( (b: any) => {
+      const collisions = model.blocks.filter( (ob: any) => ob !== b && ob.id === b.id )
+      collisions.forEach( (ob: any) => {
+        ob.id = nextId
+        nextId = nextId + 1
+      })
+    })
+
+    model.blocks.forEach( (b: any) => ArrayUtils.maybeForEach(b, "params", (a: any, i: number) => {
+      a.default = VersionManager.getAttributeDefaultValue(a)
+      a.value = a.default
+    }, (b: any) => b.params = []))
+
+    model.blocks.forEach( (b: any) => ArrayUtils.maybeForEach(b, "properties", (a: any, i: number) => {
+      a.default = VersionManager.getAttributeDefaultValue(a)
+      a.value = a.default
+    }, (b: any) => b.properties = []))
+
+  }
+
+
+  static moveRequired(b: any): void {
+    if (b.hasOwnProperty("required")) {
+      b.isRequired = b.required
+      delete b.required
+    }
+  }
+
+  static getAttributeDefaultValue(a: any): string | number | null {
+    if (a.hasOwnProperty("default")) {
+      return a.default
+    }
+
+    switch (a.type) {
+      case "int":
+      case "range":
+        return 10
+
+      case "text":
+      case "select":
+        return ""
+
+      case "num":
+      case "bool":
+        return "0"
+
+      default:
+        return null
+    }
   }
 
   // Even though the data types are validated, the clauses and attributes also need to correspond
@@ -65,7 +132,7 @@ class VersionManager {
 
     const processInstance = (instance: BlockInstance) => {
       const definition = getDefById(instance.definitionId)
-      VersionManager.resetBlock(definition!, instance)
+      VersionManager.resetBlockInstance(definition!, instance)
       instance.clauses.forEach( (clause) => {
         clause.blocks = clause.blocks.filter( (b) => getDefById(b.definitionId) !== undefined )
         clause.blocks.forEach(processInstance)
@@ -78,13 +145,15 @@ class VersionManager {
     })
   }
 
-  static resetBlock(definition: BlockDefinition, instance: BlockInstance) {
+  static resetBlockInstance(definition: BlockDefinition, instance: BlockInstance) {
     instance.clauses = definition.clauses.map( (_, i) => {
       return instance.clauses.length > i ? instance.clauses[i] : { blocks: [] }
     })
+
     instance.params = definition.params.map( (a, i) => {
       return instance.params.length > i ? VersionManager.resetAttribute(a, instance.params[i]) : makeAttributeDefault(a)
     })
+
     instance.properties = definition.properties.map( (a, i) => {
       return instance.properties.length > i ? VersionManager.resetAttribute(a, instance.properties[i]) : makeAttributeDefault(a)
     })

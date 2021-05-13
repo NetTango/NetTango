@@ -39,8 +39,8 @@ class SelectAttributeUI extends AttributeUI {
     }
   }
 
-  constructor(selectDef: SelectAttribute, sa: StringValue, block: BlockInstanceUI) {
-    super(selectDef, sa, block)
+  constructor(id: number, selectDef: SelectAttribute, sa: StringValue, block: BlockInstanceUI) {
+    super(id, selectDef, sa, block)
     this.selectDef = selectDef
     this.sa = sa
   }
@@ -63,7 +63,7 @@ class SelectAttributeUI extends AttributeUI {
         backdrop.classList.remove("show")
         acceptCallback()
         const formattedValue = SelectAttributeUI.shouldQuote(this.selectDef, this.sa) ? `"${this.sa.value}"` : this.sa.value
-        this.block.workspace.programChanged(new AttributeChangedEvent(this.block.def.id, this.block.b.instanceId, this.def.id, this.sa.type, this.sa.value, formattedValue))
+        this.block.workspace.programChanged(new AttributeChangedEvent(this.block.def.id, this.block.b.instanceId, this.id, this.sa.type, this.sa.value, formattedValue))
         e.stopPropagation()
       }
     }

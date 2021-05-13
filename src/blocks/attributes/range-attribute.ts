@@ -14,8 +14,8 @@ class RangeAttributeUI extends NumAttributeUI {
   readonly rangeDef: RangeAttribute
   readonly ra: NumberValue
 
-  constructor(rangeDef: RangeAttribute, ra: NumberValue, block: BlockInstanceUI) {
-    super(rangeDef, ra, block)
+  constructor(id: number, rangeDef: RangeAttribute, ra: NumberValue, block: BlockInstanceUI) {
+    super(id, rangeDef, ra, block)
     this.rangeDef = rangeDef
     this.ra = ra
   }
@@ -56,7 +56,7 @@ class RangeAttributeUI extends NumAttributeUI {
         backdrop.classList.remove("show")
         acceptCallback()
         const formattedValue = NumAttributeUI.numberValue(this.numDef, this.na)
-        this.block.workspace.programChanged(new AttributeChangedEvent(this.block.def.id, this.block.b.instanceId, this.def.id, this.ra.type, this.ra.value, formattedValue))
+        this.block.workspace.programChanged(new AttributeChangedEvent(this.block.def.id, this.block.b.instanceId, this.id, this.ra.type, this.ra.value, formattedValue))
         e.stopPropagation()
       })
       input.addEventListener("input", (e) => { label.innerHTML = input.value; })

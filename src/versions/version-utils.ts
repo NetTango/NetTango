@@ -6,7 +6,13 @@ class VersionUtils {
 
   static updateBlocks(workspaceEnc: any, blockDefinitionHandler: (block: any) => void, blockInstanceHandler: (block: any) => void): void {
     workspaceEnc.blocks.forEach( (b: any) => blockDefinitionHandler(b) )
+    const seen = new Set<any>()
     const handleBlockInstanceRec = (b: any) => {
+      if (seen.has(b)) {
+        console.log("Processed already: ", b)
+        throw new Error("Uh, we already processed this?")
+      }
+      seen.add(b)
       blockInstanceHandler(b)
       b.clauses.forEach( (cl: any) => {
         cl.blocks.forEach( (b: any) => {

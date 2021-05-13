@@ -1,12 +1,18 @@
 // NetTango Copyright (C) Michael S. Horn, Uri Wilensky, and Corey Brady. https://github.com/NetTango/NetTango
 
-import { codeWorkspaceInputSchema, CodeWorkspaceInput, BlockInput, AttributeInput, ClauseInput } from "../types/types-6";
-import { ArrayUtils } from "../utils/array-utils";
-import { ObjectUtils } from "../utils/object-utils";
+import { makeAttributeDefault, makeExpressionValue } from "../blocks/attributes/attribute-factory"
+import { Attribute, AttributeValue, BlockDefinition, BlockInstance, Chain, Clause, ClauseInstance, CodeWorkspace, codeWorkspaceSchema } from "../types/types"
+import { AttributeInput, BlockInput, ChainInput, ClauseInput, CodeWorkspaceInput } from "../types/types-5"
+import { ObjectUtils } from "../utils/object-utils"
+import { EMPTY_BLOCK, EMPTY_BLOCK_INSTANCE, EMPTY_CLAUSE_INSTANCE, EMPTY_WORKSPACE } from "./empty-objects"
+import { VersionUtils } from "./version-utils"
+
+type GetBlockDefType = (id: number| undefined) => BlockDefinition | undefined
 
 const blockInstanceProps: (keyof BlockInput)[] = [
   "instanceId", "clauses", "params", "properties", "propertiesDisplay"
 ]
+
 const allBlockProps: (keyof BlockInput)[] = [
   "id", "action", "isRequired", "placement", "instanceId", "type", "format", "isTerminal"
 , "closeClauses", "closeStarter", "limit", "note", "blockColor", "textColor", "borderColor"
@@ -15,194 +21,262 @@ const allBlockProps: (keyof BlockInput)[] = [
 
 class Version6 {
 
-  static update(workspaceEnc: any): void {
-    ObjectUtils.setIfUndefined(workspaceEnc, "blocks", [])
-    ObjectUtils.setIfUndefined(workspaceEnc, "program", {})
-    ObjectUtils.setIfUndefined(workspaceEnc.program, "chains", [])
-    Version6.setBlockDefinitionIds(workspaceEnc.blocks)
-    Version6.resetBlockInstancesToDefinitions(workspaceEnc)
-  }
+  static update(ws: CodeWorkspaceInput): CodeWorkspace {
+    const blocks = ws.blocks.map(Version6.makeBlockDefinition)
 
-  static setBlockDefinitionIds(blocks: any[]): void {
-    if (blocks.length === 0) {
-      return
+    const getBlockDef = (id: number | undefined): BlockDefinition | undefined => {
+      if (id === undefined) {
+        return undefined
+      }
+
+      const matches = blocks.filter( (b) => b.id == id )
+      if (matches.length === 0) {
+        return undefined
+      } else {
+        return matches[0]
+      }
     }
 
-    // get the largest ID number among all block defs to get our next ID
-    const ids = blocks.map( (b) => b.hasOwnProperty("id") && b.id !== null ? b.id : -1 )
-    var nextId = Math.max(...ids) + 1
+    const chains = ws.program.chains.map(Version6.makeChain(getBlockDef))
 
-    // missing IDs, probably new blocks
-    blocks.filter( (b) => !b.hasOwnProperty("id") || b.id === null ).forEach( (b) => {
-      b.id = nextId
-      nextId = nextId + 1
+    const workspace: CodeWorkspace = ObjectUtils.clone(EMPTY_WORKSPACE)
+    Object.assign(workspace, ws, {
+      blocks: blocks
+    , program: { chains: chains }
     })
-
-    // duplicate IDs
-    blocks.forEach( (b) => {
-      const collisions = blocks.filter( (ob) => ob !== b && ob.id === b.id )
-      collisions.forEach( (ob) => {
-        ob.id = nextId
-        nextId = nextId + 1
-      })
-      Version6.moveRequired(b)
-    })
-
-    blocks.forEach( (b: any) => ArrayUtils.maybeForEach(b, "params", (a: any, i: number) => {
-      a.id = i
-      a.default = Version6.getAttributeDefDefault(a)
-      a.value = a.default
-    }, (b: any) => b.params = []))
-
-    blocks.forEach( (b: any) => ArrayUtils.maybeForEach(b, "properties", (a: any, i: number) => {
-      a.id = i + b.params.length
-      a.default = Version6.getAttributeDefDefault(a)
-      a.value = a.default
-    }, (b: any) => b.properties = []))
-
+    VersionUtils.updateBlocks(workspace, () => {}, Version6.setBlockInstanceIds())
+    VersionUtils.updateBlocks(workspace, () => {}, Version6.updateBlockExpressionStringValues)
+    return workspace
   }
 
-  static getAttributeDefDefault(a: any): string | number | null {
-    if (a.hasOwnProperty("default")) {
-      return a.default
+  static makeChain(getBlockDef: GetBlockDefType) {
+    return (c: ChainInput): Chain => {
+      const blocks = c.blocks.map( (b) => Version6.makeBlockInstance(getBlockDef, b) )
+      const chain: Chain = { x: 0, y: 0 , blocks: [] }
+      Object.assign(chain, c, { blocks: blocks })
+      return chain
     }
+  }
 
+  static makeBlockDefinition(b: BlockInput): BlockDefinition {
+    const clauses = b.clauses.map( (c) => Version6.makeClauseDefinition(c) )
+    const params = b.params.map( (a) => Version6.makeAttributeDefinition(a) )
+    const properties = b.properties.map( (a) => Version6.makeAttributeDefinition(a) )
+    const block: BlockDefinition = ObjectUtils.clone(EMPTY_BLOCK)
+    Object.assign(block, b, {
+      clauses: clauses
+    , params: params
+    , properties: properties
+    })
+    ObjectUtils.deleteProperties(block, "instanceId", "propertiesDisplay", "required")
+    return block
+  }
+
+  static makeClauseDefinition(c: ClauseInput): Clause {
+    const clause: Clause = {
+      action: c.action
+    , allowedTags: c.allowedTags
+    , open: c.open
+    , close: c.close
+    }
+    Object.assign(clause, c)
+    ObjectUtils.deleteProperties(clause, "children")
+    return clause
+  }
+
+  static makeAttributeDefinition(a: AttributeInput): Attribute {
+    var attribute: Attribute | null = null
     switch (a.type) {
-      case "int":
-      case "range":
-        return 10
-
       case "text":
+        attribute = {
+          type: a.type
+        , name: a.name
+        , unit: a.unit
+        , default: a.default
+        }
+        break
+
       case "select":
-        return ""
+        attribute = {
+          type: a.type
+        , name: a.name
+        , unit: a.unit
+        , default: a.default
+        , values: a.values
+        , quoteValues: a.quoteValues
+        }
+        break
+
+      case "int":
+        attribute = {
+          type: a.type
+        , name: a.name
+        , unit: a.unit
+        , default: a.default
+        , random: a.random
+        , step: a.step
+        }
+        break
+
+      case "range":
+        attribute = {
+          type: a.type
+        , name: a.name
+        , unit: a.unit
+        , default: a.default
+        , random: a.random
+        , step: a.step
+        , min: a.min
+        , max: a.max
+        }
+        break
 
       case "num":
       case "bool":
-        return "0"
+        attribute =  {
+          type: a.type
+        , name: a.name
+        , unit: a.unit
+        , default: a.default
+        }
+        break
+
+    }
+    Object.assign(attribute, a)
+    ObjectUtils.deleteProperties(attribute, "expressionValue", "value", "id")
+    return attribute
+  }
+
+  static makeBlockInstance(getBlockDef: GetBlockDefType, b: BlockInput): BlockInstance {
+    const def = getBlockDef(b.id)
+    if (def === undefined || b.id === undefined) {
+      return ObjectUtils.clone(EMPTY_BLOCK_INSTANCE, { definitionId: -1 })
+    }
+
+    const clauses = def.clauses.map( (_, i) => Version6.makeClauseInstance(getBlockDef, b.clauses[i]) )
+    const params = def.params.map( (a, i) => Version6.makeAttributeValue(a, b.params[i]) )
+    const properties = def.properties.map( (a, i) => Version6.makeAttributeValue(a, b.properties[i]) )
+    const block: BlockInstance = ObjectUtils.clone(EMPTY_BLOCK_INSTANCE)
+    Object.assign(block, b, {
+      definitionId: b.id
+    , clauses: clauses
+    , params: params
+    , properties: properties
+    })
+    const extraProps = allBlockProps.filter( (p) => !blockInstanceProps.includes(p) )
+    ObjectUtils.deleteProperties(block, ...extraProps)
+    return block
+  }
+
+  static makeClauseInstance(getBlockDef: GetBlockDefType, c: ClauseInput | undefined): ClauseInstance {
+    if (c === undefined) {
+      return ObjectUtils.clone(EMPTY_CLAUSE_INSTANCE)
+    }
+
+    const blocks = (c.children ?? []).map( (b) => Version6.makeBlockInstance(getBlockDef, b) )
+
+    const clause: ClauseInstance = {
+      blocks: blocks
+    }
+    Object.assign(clause, c)
+    ObjectUtils.deleteProperties(clause, "children", "action", "open", "close", "allowedTags")
+    return clause
+  }
+
+  static makeAttributeValue(def: Attribute, a: AttributeInput | undefined): AttributeValue {
+    if (a === undefined) {
+      return makeAttributeDefault(def)
+    }
+
+    var value: AttributeValue | null = null
+    switch (a.type) {
+      case "text":
+        value = (def.type !== "text") ?
+          makeAttributeDefault(def) :
+          {
+            type: a.type
+          , value: a.value ?? def.default
+          }
+          break
+
+      case "select":
+        value = (def.type !== "select") ?
+          makeAttributeDefault(def) :
+          {
+            type: "select"
+          , value: a.value ?? def.default
+          }
+          break
+
+      case "range":
+      case "int":
+        value = (def.type !== "range" && def.type !== "int") ?
+          makeAttributeDefault(def) :
+          {
+            type: a.type
+          , value: a.value ?? def.default
+          }
+          break
+
+      case "num":
+      case "bool":
+        value = (def.type !== "num" && def.type !== "bool" || a.value === undefined) ?
+          makeAttributeDefault(def) :
+          {
+            type: a.type
+          , value: (typeof a.value === "string") ? makeExpressionValue(def.type, a.value) : a.value
+          , expressionValue: a.expressionValue
+          }
+          break
 
       default:
-        return null
+        throw new Error(`Unknown attribute type: ${a}`)
+
     }
+
+    Object.assign(value, a)
+    ObjectUtils.deleteProperties(value, "quoteValues", "values", "min", "max", "step", "random", "id", "name", "unit", "default")
+    return value
   }
 
-  static moveRequired(b: any): void {
-    if (b.hasOwnProperty("required")) {
-      b.isRequired = b.required
-      delete b.required
-    }
-  }
-
-  static resetBlockInstancesToDefinitions(workspaceEnc: any) {
-    const getBlockById = (id: number | null, action: string | null = null) => {
-      if (id !== null && typeof id !== "undefined") {
-        const blockDefs = workspaceEnc.blocks.filter( (b: any) => b.id === id )
-        return blockDefs.length === 1 ? blockDefs[0] : null
-      } else if (action !== null) {
-        // we have to fall back to a direct match on `action`, but we don't have to like it.
-        const blockDefs = workspaceEnc.blocks.filter( (b: any) => b.action === action )
-        return blockDefs.length === 1 ? blockDefs[0] : null
+  static setBlockInstanceIds() {
+    const definitionIdToNextInstanceId: Map<number, number> = new Map()
+    return (b: any) => {
+      if (!definitionIdToNextInstanceId.has(b.definitionId)) {
+        definitionIdToNextInstanceId.set(b.definitionId, 0)
       }
-      return null
+      b.instanceId = definitionIdToNextInstanceId.get(b.definitionId)!
+      definitionIdToNextInstanceId.set(b.definitionId, b.instanceId + 1)
     }
-    workspaceEnc.program.chains.forEach( (c: any) => {
-      const blocks = c.blocks.map( (bIns: any) => {
-        const bDef = getBlockById(bIns.id, bIns.action)
-        if (bDef === null) {
-          return null
-        }
-        Version6.resetBlockInstanceToDefinition(getBlockById, bDef, bIns)
-        bIns.isRequired = bDef.isRequired
-        delete bIns.required
-        return bIns
-      })
-      c.blocks = blocks.filter( (b: any) => b !== null )
-    })
   }
 
-  static resetBlockInstanceToDefinition(getBlockById: (id: number, action: string) => BlockInput, definition: BlockInput, instance: BlockInput): void {
-    allBlockProps.filter( (k) => !blockInstanceProps.includes(k) ).forEach( (p) => {
-      ObjectUtils.copyProperty(definition, instance, p)
-    })
-
-    instance.clauses = ArrayUtils.maybeMap(definition, "clauses", (cDef, i) => {
-      const cIns = instance.clauses.length > i ? instance.clauses[i] : ObjectUtils.clone(cDef)
-      Version6.resetClauseToDefinition(getBlockById, cDef, cIns)
-      return cIns
-    })
-
-    instance.params = ArrayUtils.maybeMap(definition, "params", (aDef, i) =>
-      Version6.makeAttributeInstance(aDef, instance.params[i])
-    )
-
-    instance.properties = ArrayUtils.maybeMap(definition, "properties", (aDef, i) =>
-      Version6.makeAttributeInstance(aDef, instance.properties[i])
-    )
-
+  static updateBlockExpressionStringValues(b: BlockInstance): void {
+    b.params.forEach(Version6.updateExpressionStringValues)
+    b.properties.forEach(Version6.updateExpressionStringValues)
   }
 
-  static makeAttributeInstance(definition: AttributeInput, oldInstance?: AttributeInput): AttributeInput {
-    const instance = ObjectUtils.clone(definition)
-    if (typeof oldInstance !== "undefined") {
-
-      if (typeof oldInstance.value === "undefined") {
-        instance.value = definition.default
-
-      } else {
-        switch (oldInstance.type) {
-          case "text":
-            if (instance.type === "text") {
-              instance.value = oldInstance.value
-            }
-            break
-
-          case "int":
-          case "range":
-            if (["int", "range"].includes(instance.type)) {
-              instance.value = oldInstance.value
-            }
-            break
-
-          case "select":
-            if (instance.type === "select") {
-              instance.value = oldInstance.value
-            }
-            break
-
-          case "num":
-          case "bool":
-            if (["num", "bool"].includes(instance.type)) {
-              instance.value = oldInstance.value
-            }
-            break
-
-        }
-      }
+  static updateExpressionStringValues(a: AttributeValue): void {
+    if (!["num", "bool"].includes(a.type)) {
+      return
     }
-    return instance
+    if (typeof a.value !== "string") {
+      return
+    }
+    a.value = {
+      name: a.value
+    , format: null
+    , type: (a.type as "num" | "bool")
+    , children: []
+    }
   }
 
-  static resetClauseToDefinition(getBlockById: (id: number, action: string) => BlockInput, definition: ClauseInput, instance: ClauseInput): void {
-    const allProps: (keyof ClauseInput)[] = [ "action", "open", "close", "allowedTags" ]
-    allProps.forEach( (p) => ObjectUtils.copyProperty(definition, instance, p) )
-    const children = instance.children.map( (bIns) => {
-      const bDef = getBlockById(bIns.id, bIns.action)
-      if (bDef === null) {
-        return null
-      }
-      Version6.resetBlockInstanceToDefinition(getBlockById, bDef, bIns)
-      return bIns
-    })
-    instance.children = children.filter( (bIns) => bIns !== null ) as BlockInput[]
-  }
-
-  static validate(workspaceEnc: any): CodeWorkspaceInput {
-    const result = codeWorkspaceInputSchema.safeParse(workspaceEnc)
+  static validate(workspaceEnc: any): CodeWorkspace {
+    const result = codeWorkspaceSchema.safeParse(workspaceEnc)
     if (result.success) {
       return result.data
     }
     throw new Error(`The NetTango project data was invalid.  ${result.error.toString()}`)
   }
-
 }
 
-export { Version6, allBlockProps, blockInstanceProps }
+export { Version6 }

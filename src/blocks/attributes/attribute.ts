@@ -8,16 +8,18 @@ type AttributeTypes = "bool" | "num" | "int" | "range" | "text" | "select"
 /// Represents the paramter or property options for a block
 abstract class AttributeUI {
 
+  readonly id: number
   readonly def: Attribute
   readonly a: AttributeValue
   readonly block: BlockInstanceUI
 
-  get uniqueId(): string { return `${this.block.workspace.containerId}-${this.block.def.id}-${this.def.id}` }
+  get uniqueId(): string { return `${this.block.workspace.containerId}-${this.block.def.id}-${this.id}` }
 
   get displayUnit(): string { return this.def.unit === null ? "" : this.def.unit }
   getDisplayValue(): string { return `${this.a.value}${this.displayUnit}` }
 
-  constructor(def: Attribute, a: AttributeValue, block: BlockInstanceUI) {
+  constructor(id: number, def: Attribute, a: AttributeValue, block: BlockInstanceUI) {
+    this.id = id
     this.def = def
     this.a = a
     this.block = block

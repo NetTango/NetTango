@@ -11,8 +11,8 @@ class TextAttributeUI extends AttributeUI {
 
   readonly ta: StringValue
 
-  constructor(def: TextAttribute, ta: StringValue, block: BlockInstanceUI) {
-    super(def, ta, block)
+  constructor(id: number, def: TextAttribute, ta: StringValue, block: BlockInstanceUI) {
+    super(id, def, ta, block)
     this.ta = ta
   }
 
@@ -45,7 +45,7 @@ class TextAttributeUI extends AttributeUI {
         backdrop.classList.remove("show")
         acceptCallback()
         const formattedValue = this.ta.value
-        this.block.workspace.programChanged(new AttributeChangedEvent(this.block.def.id, this.block.b.instanceId, this.def.id, this.ta.type, this.ta.value, formattedValue))
+        this.block.workspace.programChanged(new AttributeChangedEvent(this.block.def.id, this.block.b.instanceId, this.id, this.ta.type, this.ta.value, formattedValue))
       })
     )
 

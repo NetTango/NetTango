@@ -161,8 +161,9 @@ const NETLOGO_MODEL_1 = {
 
 function copyJson(json: any) { return ObjectUtils.clone<any>(json) }
 
-function formatAttributeForNetTangoExtension(containerId: string, blockId: number, instanceId: number, attributeId: number, value: any, attributeType: AttributeTypes) {
-  return `__${containerId}_${blockId}_${instanceId}_${attributeId}`
+function formatAttributeForNetTangoExtension(containerId: string, blockId: number, instanceId: number, attributeId: number, value: any, attributeType: AttributeTypes, isProperty: boolean) {
+  const prefix = isProperty ? "P" : ""
+  return `__${containerId}_${blockId}_${instanceId}_${prefix}${attributeId}`
 }
 
 function formatAttributeAsValue(containerId: string, blockId: number, instanceId: number, attributeId: number, value: any, attributeType: AttributeTypes): string {
@@ -289,7 +290,7 @@ test("NetLogo code exports in proper order with params", () => {
   expect(result).toStrictEqual(expected)
 
   const codeResult = NetTango.exportCode(testCanavsID, null)
-  expect(codeResult).toStrictEqual("to sheep-actions\n  forward (__nt-canvas_24_1_0 + __nt-canvas_24_1_1)\nend\n\nto wolf-actions\n  forward (__nt-canvas_24_0_0 + __nt-canvas_24_0_1)\nend\n\n")
+  expect(codeResult).toStrictEqual("to sheep-actions\n  forward (__nt-canvas_24_1_0 + __nt-canvas_24_1_P0)\nend\n\nto wolf-actions\n  forward (__nt-canvas_24_0_0 + __nt-canvas_24_0_P0)\nend\n\n")
 })
 
 test("Model with ifelse properly imports and generates code", () => {

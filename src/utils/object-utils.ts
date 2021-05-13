@@ -21,6 +21,10 @@ class ObjectUtils {
       o[prop] = value
     }
   }
+
+  static deleteProperties(o: any, ...props: string[]): void {
+    props.forEach( (p) => delete o[p] )
+  }
 }
 
 export { ObjectUtils }

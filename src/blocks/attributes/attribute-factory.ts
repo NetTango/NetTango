@@ -21,23 +21,23 @@ import { RangeAttributeUI } from "./range-attribute"
 import { SelectAttributeUI } from "./select-attribute"
 import { TextAttributeUI } from "./text-attribute"
 
-function createAttribute(def: Attribute, a: AttributeValue, block: BlockInstanceUI): AttributeUI {
+function createAttribute(id: number, def: Attribute, a: AttributeValue, block: BlockInstanceUI): AttributeUI {
   switch (a.type) {
     case 'text':
-      return new TextAttributeUI(def as TextAttribute, a, block)
+      return new TextAttributeUI(id, def as TextAttribute, a, block)
 
     case 'int':
-      return new IntAttributeUI(def as IntAttribute, a, block)
+      return new IntAttributeUI(id, def as IntAttribute, a, block)
 
     case 'range':
-      return new RangeAttributeUI(def as RangeAttribute, a, block)
+      return new RangeAttributeUI(id, def as RangeAttribute, a, block)
 
     case 'select':
-      return new SelectAttributeUI(def as SelectAttribute, a, block)
+      return new SelectAttributeUI(id, def as SelectAttribute, a, block)
 
     case 'num':
     case 'bool':
-      return new ExpressionAttributeUI(def as ExpressionAttribute, a, block)
+      return new ExpressionAttributeUI(id, def as ExpressionAttribute, a, block)
   }
 }
 
@@ -94,4 +94,5 @@ export {
 , makeStringDefault
 , makeNumberDefault
 , makeExpressionDefault
+, makeExpressionValue
 }

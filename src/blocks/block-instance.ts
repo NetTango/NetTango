@@ -71,8 +71,8 @@ class BlockInstanceUI {
     this.workspace = workspace
 
     this.clauses = b.clauses.map( (c, i) => new ClauseUI(def.clauses[i], c, this, i) )
-    this.params = b.params.map( (p, j) => createAttribute(def.params[j], p, this) )
-    this.properties = b.properties.map( (p, j) => createAttribute(def.properties[j], p, this) )
+    this.params = b.params.map( (p, j) => createAttribute(j, def.params[j], p, this) )
+    this.properties = b.properties.map( (p, j) => createAttribute(j, def.properties[j], p, this) )
   }
 
   getBlockCount(id: number): number {

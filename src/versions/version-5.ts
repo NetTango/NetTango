@@ -4,6 +4,7 @@ import { BlockPlacement } from "../blocks/block-placement"
 import { ArrayUtils } from "../utils/array-utils"
 import { BoolUtils } from "../utils/bool-utils"
 import { VersionUtils } from "./version-utils"
+import { codeWorkspaceInputSchema, CodeWorkspaceInput, BlockInput } from "../types/types-5";
 
 class Version5 {
 
@@ -103,6 +104,15 @@ class Version5 {
       }
     }
   }
+
+  static validate(workspaceEnc: any): CodeWorkspaceInput {
+    const result = codeWorkspaceInputSchema.safeParse(workspaceEnc)
+    if (result.success) {
+      return result.data
+    }
+    throw new Error(`The NetTango project data was invalid.  ${result.error.toString()}`)
+  }
+
 }
 
 export { Version5 }
