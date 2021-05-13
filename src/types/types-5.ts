@@ -156,7 +156,7 @@ const attributeInputSchema = z.union([
 const blockInputSchema = z.object({
   id: z.number().optional()
 , action: z.string()
-, isRequired: z.boolean().default(false)
+, required: z.boolean().default(false)
 , placement: z.union([
     z.literal("starter")
   , z.literal("child")

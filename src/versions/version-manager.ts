@@ -91,14 +91,6 @@ class VersionManager {
 
   }
 
-
-  static moveRequired(b: any): void {
-    if (b.hasOwnProperty("required")) {
-      b.isRequired = b.required
-      delete b.required
-    }
-  }
-
   static getAttributeDefaultValue(a: any): string | number | null {
     if (a.hasOwnProperty("default")) {
       return a.default

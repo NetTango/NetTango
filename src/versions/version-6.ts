@@ -9,11 +9,11 @@ import { VersionUtils } from "./version-utils"
 
 type GetBlockDefType = (id: number| undefined) => BlockDefinition | undefined
 
-const blockInstanceProps: (keyof BlockInput)[] = [
+const blockInstanceProps = [
   "instanceId", "clauses", "params", "properties", "propertiesDisplay"
 ]
 
-const allBlockProps: (keyof BlockInput)[] = [
+const allBlockProps = [
   "id", "action", "isRequired", "placement", "instanceId", "type", "format", "isTerminal"
 , "closeClauses", "closeStarter", "limit", "note", "blockColor", "textColor", "borderColor"
 , "font", "allowedTags", "tags", "clauses", "params", "properties", "propertiesDisplay"
@@ -64,7 +64,8 @@ class Version6 {
     const properties = b.properties.map( (a) => Version6.makeAttributeDefinition(a) )
     const block: BlockDefinition = newBlockDefinition()
     Object.assign(block, b, {
-      clauses: clauses
+      isRequired: b.required ?? false
+    , clauses: clauses
     , params: params
     , properties: properties
     })
