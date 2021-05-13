@@ -110,18 +110,28 @@ const selectAttributeInputSchema = attributeBaseSchema.extend({
 , values: z.array(selectOptionInputSchema).default([])
 }).passthrough()
 
+function numOrDefault(def: number) {
+  return (p: number | string | undefined) => {
+    if (typeof p === "number" || typeof p === "undefined") {
+      return p
+    }
+    const maybeP = Number.parseFloat(p)
+    return (Number.isFinite(maybeP)) ? maybeP : def
+  }
+}
+
 const numAttributeInputSchema = attributeBaseSchema.extend({
   step: z.number().default(1)
 , random: z.boolean().default(false)
-, value: z.number().optional()
-, default: z.number().default(10)
+, value: z.union([z.string(), z.number()]).optional().transform(numOrDefault(10))
+, default: z.union([z.string(), z.number()]).transform(numOrDefault(10)).default(10)
 }).passthrough()
 
 const intAttributeInputSchema = numAttributeInputSchema.extend({
   type: z.literal("int")
 }).passthrough()
 
-const rangeAttributeInputSchema = numAttributeInputSchema.extend({
+export const rangeAttributeInputSchema = numAttributeInputSchema.extend({
   type: z.literal("range")
 , min: z.number().default(0)
 , max: z.number().default(100)
@@ -176,7 +186,7 @@ const blockInputSchema = z.object({
 , font: z.string().nullable().default(null)
 , allowedTags: concreteTagsInputSchema.default(unrestrictedTags)
 , tags: z.array(z.string()).default([])
-, clauses: z.array(clauseInputSchema).default([])
+, clauses: z.array(clauseInputSchema).nullable().transform((arr) => arr ?? [] ).default([])
 , params: z.array(attributeInputSchema).default([])
 , properties: z.array(attributeInputSchema).default([])
 , propertiesDisplay: z.union([z.literal("shown"), z.literal("hidden")]).default("shown")
