@@ -1,3 +1,7 @@
+The NetTango project has moved to the NetLogo organization:  https://github.com/NetLogo/NetTango
+
+No further updates will be made to this repository.
+
 # Getting Started with NetTango Modeling
 
 NetTango is published as a package on [the npm package directory](https://www.npmjs.com/package/nettango).  You can include it as a regular JavaScript dependency if your project uses a `package.json` file with the `npm` or `yarn` tools:
